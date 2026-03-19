@@ -15,13 +15,14 @@
 # ----------------------------------------------------------------------------
 
 import torch
-from typing import List, Dict, Any
+from typing import Sequence
 
+from embodichain.lab.sim.types import EnvAction
 from embodichain.lab.gym.utils.registration import register_env
 from embodichain.lab.gym.envs import EmbodiedEnv, EmbodiedEnvCfg
 
 
-@register_env("DummyTask-v1", max_episode_steps=100)
+@register_env("DummyTask-v1")
 class DummyTaskEnv(EmbodiedEnv):
     """
     A simple dummy task for testing and template purposes.
@@ -33,7 +34,7 @@ class DummyTaskEnv(EmbodiedEnv):
     def __init__(self, cfg: EmbodiedEnvCfg = None, **kwargs):
         super().__init__(cfg, **kwargs)
 
-    def create_demo_action_list(self, *args, **kwargs) -> List[Dict[str, Any]]:
+    def create_demo_action_list(self, *args, **kwargs) -> Sequence[EnvAction] | None:
         """Create a list of demonstration actions.
 
         This method generates a simple sequence of actions that can be used

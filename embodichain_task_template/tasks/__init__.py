@@ -15,3 +15,4 @@
 # ----------------------------------------------------------------------------
 
 from .dummy_task import DummyTaskEnv
+from .SimpleMotion import SimpleMotionEnv
