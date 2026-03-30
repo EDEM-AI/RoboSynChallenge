@@ -15,4 +15,5 @@
 # ----------------------------------------------------------------------------
 
 from .dummy_task import DummyTaskEnv
-from .SimpleMotion import SimpleMotionEnv
+from .simple_motion import SimpleMotionEnv
+from .open_drawer import OpenDrawerEnv
