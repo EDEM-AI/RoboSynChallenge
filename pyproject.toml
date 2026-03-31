@@ -1,5 +1,5 @@
 [project]
-name = "embodichain-task-template"
+name = "embodied_challenge"
 description = "Template repository for building Embodied AI task environment using EmbodiChain."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/DexForce/embodichain_task_template"
+Repository = "https://github.com/wuxinxin27/Embodied_Challenge.git"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
@@ -35,6 +35,6 @@ where = ["."]
 exclude = ["docs"]
 
 [tool.setuptools.dynamic]
-version = { file = ["embodichain_task_template/VERSION"] }
+version = { file = ["Embodied_Challenge/VERSION"] }
 
 [tool.black]

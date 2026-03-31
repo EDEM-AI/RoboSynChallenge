@@ -1,4 +1,4 @@
-# embodichain_task_template
+# 🦾Embodied_Challenge
 Template repository for building Embodied AI task environment using EmbodiChain
 
 User can fork this repository to build their own task environments using EmbodiChain. After forking, you can replace the `embodichain_task_template` package with your own task package, and update the project information in `pyproject.toml` accordingly.
@@ -9,11 +9,13 @@ User can fork this repository to build their own task environments using EmbodiC
 embodichain_task_template/
 ├── README.md
 ├── pyproject.toml                  # Project configuration and dependencies
+├── assets/                         # Assets files except hf
+├── launch/                         # Task start scripts
 ├── configs/                        # Task configuration files
 │   └── demo/                       # Use one folder for each task
-│       └── dummy.json              # Put all gym config and action config into the folder. 
+│       └── dummy.json              # Put all gym config and action config into the folder.
 └── embodichain_task_template/      # Task implementations
-    ├── __init__.py                 
+    ├── __init__.py
     └── tasks/
         ├── __init__.py             # Task to be registered in __init__.py
         └── dummy_task.py.          # Task implementation
@@ -34,7 +36,7 @@ Then install the package in development mode.
 ```bash
 # Install in development mode
 cd {your_task_package_name}
-pip install -e . 
+pip install -e .
 ```
 
 ## Quick Start
