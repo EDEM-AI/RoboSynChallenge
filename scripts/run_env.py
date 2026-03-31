@@ -21,7 +21,7 @@ import torch
 import numpy as np
 
 import gymnasium as gym
-import embodichain_task_template
+import embodied_challenge
 
 from embodichain.lab.gym.utils.gym_utils import (
     add_env_launcher_args_to_parser,

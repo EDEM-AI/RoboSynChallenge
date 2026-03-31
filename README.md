@@ -6,7 +6,7 @@ User can fork this repository to build their own task environments using EmbodiC
 ## Project Structure
 
 ```
-embodichain_task_template/
+embodied_challenge/
 ├── README.md
 ├── pyproject.toml                  # Project configuration and dependencies
 ├── assets/                         # Assets files except hf
@@ -14,7 +14,7 @@ embodichain_task_template/
 ├── configs/                        # Task configuration files
 │   └── demo/                       # Use one folder for each task
 │       └── dummy.json              # Put all gym config and action config into the folder.
-└── embodichain_task_template/      # Task implementations
+└── embodied_challenge/             # Task implementations
     ├── __init__.py
     └── tasks/
         ├── __init__.py             # Task to be registered in __init__.py

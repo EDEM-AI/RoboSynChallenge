@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2021-2025 DexForce Technology Co., Ltd.
+# Copyright (c) 2021-2026 DexForce Technology Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,23 +14,7 @@
 # limitations under the License.
 # ----------------------------------------------------------------------------
 
-import os
+from .constants import *
+from embodichain.data import DEFAULT_DATA_MODULES
 
-project_dir = os.path.dirname(__file__)
-
-
-# Read version from VERSION file
-def _get_version():
-    version_file = os.path.join(project_dir, "VERSION")
-    try:
-        with open(version_file, "r") as f:
-            return f.read().strip()
-    except FileNotFoundError:
-        print("VERSION file not found.")
-        return "unknown"
-
-
-__version__ = _get_version()
-
-import embodichain_task_template.data
-import embodichain_task_template.tasks
+DEFAULT_DATA_MODULES.append("embodied_challenge.data")
