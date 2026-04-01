@@ -22,7 +22,7 @@ from embodichain.lab.gym.utils.registration import register_env
 from embodichain.utils import logger
 
 from embodichain.lab.gym.envs.tasks.tableware.base_agent_env import BaseAgentEnv
-from embodichain.lab.gym.envs.tasks.tableware.items_handover_place.action_bank import (
+from .action_bank import (
     ItemsHandoverPlaceActionBank,
 )
 __all__ = ["ItemsHandoverPlaceEnv"]
