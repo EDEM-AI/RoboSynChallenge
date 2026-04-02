@@ -16,7 +16,6 @@
 
 from .dummy_task import DummyTaskEnv
 from .simple_motion import SimpleMotionEnv
-from .open_drawer import OpenDrawerEnv
 
 from .items_handover_place.items_handover_place import (
     ItemsHandoverPlaceEnv,
@@ -26,4 +25,10 @@ from .sample_loading.sample_loading import (
 )
 from .sample_loading_duel.sample_loading_duel import (
     SampleLoadingDuelEnv,
+)
+from .manipulate_pipette.manipulate_pipette import (
+    ManipulatePipetteEnv,
+)
+from .drawer_open_place.drawer_open_place_object import (
+    DrawerOpenPlaceObjectEnv,
 )
