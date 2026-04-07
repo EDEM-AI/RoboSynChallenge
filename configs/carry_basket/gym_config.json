@@ -1,0 +1,321 @@
+{   
+    "id": "CarryBasket-v1",
+    "max_episodes": 10,
+    "task_type": {
+        "carry_basket":{
+            "num_trajectory": 1,
+            "robot_name": {
+                "Aloha": {
+                    "agent":{
+                        "robot_type": "CobotMagic",
+                        "agent_base_pose": [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0.7775], [0, 0, 0, 1]],
+                        "agent_home_joint": [-0.3,0.3,1.0,1.0,-1.2,-1.2,0.0,0.0,0.6,0.6,0.0,0.0,0.05,0.05,0.05,0.05],
+                        "drive_type": "force",
+                        "time_step": 0.2
+                    },
+                    "robot_action": {
+                        "max_random_shift": {
+                            "basket": [0.0, 0.05, -0.05, 0.05],
+                            "milk": [0.06, 0.12, -0.04, 0.12]
+                        },
+                        "table_z_shift": 0.02,
+                        "init_xpos_range": {
+                            "position": [[-0.01, -0.01, -0.01], [0.01, 0.01, 0]]
+                        },
+                        "camera_intrinsic_range": {
+                            "cam_high": {
+                                "focal": [[-50, -50], [50, 50]]
+                            },
+                            "cam_left_wrist": {
+                                "focal": [[-20, -20], [20, 20]]
+                            },
+                            "cam_right_wrist": {
+                                "focal": [[-20, -20], [20, 20]]
+                            }
+                        },
+                        "camera_xpos_range": {
+                            "cam_high": {
+                                "position": [[0, -0.02, 0], [0.02, 0.02, 0.02]],
+                                "rotation": [[-10, -10, -10], [10, 10, 10]]
+                            },
+                            "cam_right_wrist": {
+                                "position": [[0, -0.02, 0], [0.02, 0.02, 0.01]],
+                                "rotation": [[-10, -10, -10], [10, 10, 10]]
+                            },
+                            "cam_left_wrist": {
+                                "position": [[0, -0.02, 0], [0.02, 0.02, 0.01]],
+                                "rotation": [[-10, -10, -10], [10, 10, 10]]
+                            }
+                        },
+                        "table_static_ref": 0.825,
+                        "table_xy_scale": [0.80, 0.85],
+                        "rotation_range": [[0, 0], [0, 0], [-19, -19]],
+                        "grasp_degree_down_z": 30
+                    }
+                }
+            },
+            "domain_randomization": {
+                "enable": false,
+                "light": {
+                    "light1": {
+                        "enable": true,
+                        "intensity_range": [5000000, 15000000],
+                        "position_range": [[-0.5, -0.5, 2], [0.5, 0.5, 2]],
+                        "color_range": [[0.6, 0.6, 0.6], [1, 1, 1]]
+                    } 
+                },
+                "material":{
+                    "enable": true
+                }
+            },
+            "dataset": {
+                "instruction": {
+                    "lang": "Pick the item and place it into the basket, then pick the basket."
+                },
+                "robot_meta": {
+                    "arm_dofs": 12,
+                    "control_freq": 25,
+                    "observation": {
+                        "camera_used": ["cam_high", "cam_right_wrist", "cam_left_wrist"],
+                        "proprioception": ["qpos"],
+                        "exteroception": {
+                            "cameras": ["cam_high", "cam_right_wrist", "cam_left_wrist"],
+                            "kpnts_number": 2,
+                            "interval": [0.02, 0.05],
+                            "groups": 4
+                        }
+                    },
+                    "action": "qpos_with_eef_pose",
+                    "min_len_steps": 125
+                }
+            },
+            "success_params": {
+                "strict": false
+            }
+        }
+    },
+    "sensor": [
+        {
+            "sensor_type": "MonocularCam",
+            "sensor_name": "cam_left_wrist",
+            "resolution": [
+                640,
+                480
+            ],
+            "intrinsic": [ 
+                [
+                    487.39422607421875,
+                    0.0,
+                    320.3005676269531
+                ],
+                    [
+                    0.0,
+                    487.39422607421875,
+                    210.7530517578125
+                ],
+                    [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            ],
+            "attach_link": "left_link6",
+            "attach_xpos": [
+                [
+                    0.0,
+                    -0.90631,
+                    -0.42262,
+                    -0.08
+                ],
+                [
+                    -1.0,
+                    0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.42262,
+                    -0.90631,
+                    0.04
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            ],
+            "set_near": 0.005,
+            "set_far": 50
+        },
+        {
+            "sensor_type": "MonocularCam",
+            "sensor_name": "cam_right_wrist",
+            "resolution": [
+                640,
+                480
+            ],
+            "intrinsic": [ 
+                [
+                    488.1665344238281,
+                    0.0,
+                    322.7323303222656
+                ],
+                    [
+                    0.0,
+                    488.1665344238281,
+                    213.17434692382812
+                ],
+                    [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            ],
+            "attach_link": "right_link6",
+            "attach_xpos": [
+                [
+                    0.0,
+                    -0.90631,
+                    -0.42262,
+                    -0.08
+                ],
+                [
+                    -1.0,
+                    0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.42262,
+                    -0.90631,
+                    0.04
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            ],
+            "set_near": 0.005,
+            "set_far": 50
+        },
+        {
+            "sensor_type": "BinocularCam",
+            "sensor_name": "cam_high",
+            "resolution": [
+                960,
+                540
+            ],
+            "k1": [
+                [
+                    453.851402686215,
+                    0.0,
+                    469.827725021235
+                ],
+                [
+                    0.0,
+                    453.8347628855552,
+                    258.6656181845155
+                ],
+                [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            ],
+            "k2": [
+                [
+                    453.4536601653505,
+                    0.0,
+                    499.13697412367776
+                ],
+                [
+                    0.0,
+                    453.3306024582175,
+                    297.7176248477935
+                ],
+                [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            ],
+            "relativate_T": [
+                [
+                    0.99996440327,
+                    0.000856048544,
+                    0.008394008265,
+                    0.059684025824163614
+                ],
+                [
+                    -0.00085599875,
+                    0.999999633588,
+                    -9.524764e-06,
+                    1.064844737251626e-05
+                ],
+                [
+                    -0.008394013343,
+                    2.339165e-06,
+                    0.999964769647,
+                    0.0002219304982263564
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            "set_near": 0.005,
+            "set_far": 50,
+            "camera_position": [
+                0.35368482807598,
+                0.014695524383058989,
+                1.4517046071614774
+            ],
+            "camera_look_at": [
+                0.7186357573287919,
+                -0.054534732904795505,
+                0.5232553674540066
+            ],
+            "up_vector": [
+                0.9306678549330372,
+                -0.0005600064212467153,
+                0.3658647703553347
+            ]
+        }
+    ],
+    "scene":{
+        "static_objects":[
+            {   
+                "mesh_path": "CircleTableSimple/circle_table_simple.ply",
+                "material": "DexsimMaterials/Wood003",
+                "scale": [1, 1, 1],
+                "pose": [[0, 0, 1, 0.725], [0, 1, 0, 0], [-1, 0, 0, 0.691], [0, 0, 0, 1]],
+                "max_convex_hull_num": 1
+            }
+        ],
+        "direct_light": [
+            {
+                "name": "light1",
+                "light_type": "point",
+                "position": [2, 0, 2],
+                "intensity": 5000000
+            }
+        ]
+    },
+    "record": {
+        "camera": [{
+            "name": "cam1",
+            "resolution": [640, 480],
+            "position": [2, 0, 2],
+            "look_at": [0.5, 0, 1],
+            "video_fps": 25,
+            "type": "sync"
+        }]
+    }
+}
