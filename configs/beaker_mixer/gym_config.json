@@ -270,7 +270,7 @@
     "robot": {
         "uid": "CobotMagic",
         "robot_type": "CobotMagic",
-        "init_pos": [0.0, 0.0, 0.7775],
+        "init_pos": [0.0, 0.0, 0.76],
         "init_qpos": [-0.3, 0.3, 1.0, 1.0, -1.2, -1.2, 0.0, 0.0, 0.6, 0.6, 0.0, 0.0, 0.05, 0.05, 0.05, 0.05]
     },
     "sensor": [
@@ -330,7 +330,7 @@
             "uid": "table",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "CircleTableSimple/circle_table_simple.ply",
+                "fpath": "MultiW1Data/table_a.obj",
                 "compute_uv": true
             },
             "attrs": {
@@ -343,8 +343,8 @@
             },
             "body_scale": [1, 1, 1],
             "body_type": "kinematic",
-            "init_pos": [0.725, 0.0, 0.825],
-            "init_rot": [0, 90, 0]
+            "init_pos": [0.6, 0.0, 0.05],
+            "init_rot": [0, 0, 0]
         },
         {
             "uid": "beaker_mixer",
@@ -368,7 +368,7 @@
             "body_scale": [0.3, 0.3, 0.3],
             "body_type": "kinematic",
             "max_convex_hull_num": 12,
-            "init_pos": [0.7, 0.0, 0.92],
+            "init_pos": [0.7, 0.0, 0.795],
             "init_rot": [90, -90, 0]
         }
     ],
@@ -394,7 +394,7 @@
             },
             "body_scale": [1.1, 1.1, 1.1],
             "max_convex_hull_num": 24,
-            "init_pos": [0.56, -0.2, 0.88],
+            "init_pos": [0.7, -0.2, 0.755],
             "init_rot": [0, 0, 0]
         }
     ]

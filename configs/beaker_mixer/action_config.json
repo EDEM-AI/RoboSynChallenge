@@ -887,7 +887,7 @@
                 "right_aim_beaker_to_grasp_pre": {
                     "src": "right_arm_aim_beaker_qpos",
                     "sink": "right_arm_beaker_grasp_pre_qpos",
-                    "duration": 35,
+                    "duration": 45,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
@@ -902,7 +902,7 @@
                 "right_beaker_grasp_pre_to_grasp": {
                     "src": "right_arm_beaker_grasp_pre_qpos",
                     "sink": "right_arm_beaker_grasp_qpos",
-                    "duration": 26,
+                    "duration": 35,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",

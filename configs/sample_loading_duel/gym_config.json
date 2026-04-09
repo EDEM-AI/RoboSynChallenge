@@ -295,7 +295,7 @@
     "robot": {
         "uid": "CobotMagic",
         "robot_type": "CobotMagic",
-        "init_pos": [0.0, 0.0, 0.7775],
+        "init_pos": [0.0, 0.0, 0.76],
         "init_qpos": [-0.3,0.3,1.0,1.0,-1.2,-1.2,0.0,0.0,0.6,0.6,0.0,0.0,0.05,0.05,0.05,0.05]
     },
     "sensor": [
@@ -359,10 +359,10 @@
             "uid": "table",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "CircleTableSimple/circle_table_simple.ply",
+                "fpath": "MultiW1Data/table_a.obj",
                 "compute_uv": true
             },
-            "attrs" : {
+            "attrs": {
                 "mass": 10.0,
                 "static_friction": 0.95,
                 "dynamic_friction": 0.9,
@@ -372,8 +372,8 @@
             },
             "body_scale": [1, 1, 1],
             "body_type": "kinematic",
-            "init_pos": [0.725, 0.0, 0.825],
-            "init_rot": [0, 90, 0]
+            "init_pos": [0.6, 0.0, 0.05],
+            "init_rot": [0, 0, 0]
         }
     ],
     "rigid_object": [
@@ -398,7 +398,7 @@
             },
             "body_scale":[1.1, 1.1, 1.1],
             "max_convex_hull_num": 24,
-            "init_pos": [0.56, -0.2, 0.89],
+            "init_pos": [0.56, -0.2, 0.765],
             "init_rot": [0, 90, 0]
         },
         {
@@ -418,7 +418,7 @@
                 "min_velocity_iters":8,
                 "enable_ccd": true
             },
-            "init_pos": [0.6, 0.0, 0.915],
+            "init_pos": [0.6, 0.0, 0.79],
             "body_scale":[1.1, 1.1, 1.1],
             "max_convex_hull_num": 1,
             "sdf_resolution": 128
