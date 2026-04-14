@@ -146,15 +146,19 @@
                     "sim_update": true
                 }
             },
-            "random_cube_material": {
-                "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+            "set_cube_material": {
+                "func": "set_rigid_object_visual_material",
+                "mode": "startup",
                 "params": {
                     "entity_cfg": {"uid": "cube"},
-                    "random_texture_prob": 0.5,
-                    "texture_path": "CocoBackground/coco",
-                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
+                    "mat_cfg": {
+                        "uid": "cube_mat",
+                        "base_color": [1.0, 1.0, 0.999, 1.0],
+                        "ior": 1.47,
+                        "roughness": 0.005,
+                        "metallic": 0.0,
+                        "material_type": "BSDF"
+                    }
                 }
             },
             "random_rack_material": {
