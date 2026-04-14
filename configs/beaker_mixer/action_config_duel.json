@@ -1,0 +1,1179 @@
+{
+    "scope": {
+        "right_arm": {
+            "type": "DiGraph",
+            "dim": [6],
+            "init": {
+                "method": "current_qpos",
+                "init_node_name": "right_arm_init_qpos"
+            },
+            "dtype": "float32"
+        },
+        "left_arm": {
+            "type": "DiGraph",
+            "dim": [6],
+            "init": {
+                "method": "current_qpos",
+                "init_node_name": "left_arm_init_qpos"
+            },
+            "dtype": "float32"
+        },
+        "left_eef": {
+            "type": "DiGraph",
+            "dim": [1],
+            "init": {
+                "method": "given_qpos",
+                "kwargs": {"given_qpos": [1]},
+                "init_node_name": ""
+            },
+            "dtype": "float32"
+        },
+        "right_eef": {
+            "type": "DiGraph",
+            "dim": [1],
+            "init": {
+                "method": "given_qpos",
+                "kwargs": {"given_qpos": [1]},
+                "init_node_name": ""
+            },
+            "dtype": "float32"
+        }
+    },
+    "node": {
+        "left_arm": [
+            {
+                "left_arm_init_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_init_qpos",
+                                "dst_key": "left_arm_init_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_fk_xpos",
+                                                "kwargs": {
+                                                    "control_part": "left_arm",
+                                                    "fk_func": "env.robot.compute_fk"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "left_arm_aim_beaker_qpos": {
+                    "name": "generate_left_arm_aim_beaker_qpos",
+                    "kwargs": {}
+                }
+            },
+            {
+                "left_arm_beaker_grasp_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_init_pose",
+                                "dst_key": "left_arm_beaker_grasp_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_replaced_pose",
+                                                "kwargs": {
+                                                    "pose_replace_value": "env.affordance_datas['beaker_pose'][:3,3]",
+                                                    "axis_str_replace": "xyz"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotation_replaced_pose",
+                                                "kwargs": {
+                                                    "rotation_value": "env.affordance_datas['left_arm_aim_beaker_qpos'][0]",
+                                                    "rot_axis": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": -90,
+                                                    "rot_axis": "y",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": 180,
+                                                    "rot_axis": "x",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.02,
+                                                    "direction": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": "env.affordance_datas['beaker_grasp_offset_intrinsic_z']",
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": "env.affordance_datas['beaker_grasp_offset_intrinsic_rotation_y']",
+                                                    "rot_axis": "y",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "left_arm_beaker_grasp_pose",
+                                "dst_key": "left_arm_beaker_grasp_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_aim_beaker_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_aim_beaker_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "left_arm_beaker_grasp_pre_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_beaker_grasp_pose",
+                                "dst_key": "left_arm_beaker_grasp_pre_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": -0.12,
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "left_arm_beaker_grasp_pre_pose",
+                                "dst_key": "left_arm_beaker_grasp_pre_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_beaker_grasp_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_beaker_grasp_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "left_arm_beaker_lift_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_beaker_grasp_pose",
+                                "dst_key": "left_arm_beaker_lift_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.1,
+                                                    "direction": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "left_arm_beaker_lift_pose",
+                                "dst_key": "left_arm_beaker_lift_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_beaker_grasp_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_beaker_grasp_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "left_arm_aim_mixer_qpos": {
+                    "name": "generate_left_arm_aim_mixer_qpos",
+                    "kwargs": {}
+                }
+            },
+            {
+                "left_arm_mixer_place_position_temp": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "beaker_mixer_pose",
+                                "dst_key": "left_arm_mixer_place_position_temp",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": "env.affordance_datas['beaker_mixer_place_offset_intrinsic_z']",
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "left_arm_mixer_place_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_beaker_lift_pose",
+                                "dst_key": "left_arm_mixer_place_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_replaced_pose",
+                                                "kwargs": {
+                                                    "pose_replace_value": "env.affordance_datas['left_arm_mixer_place_position_temp'][:3,3]",
+                                                    "axis_str_replace": "xyz"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotation_replaced_pose",
+                                                "kwargs": {
+                                                    "rotation_value": "env.affordance_datas['left_arm_aim_mixer_qpos'][0]",
+                                                    "rot_axis": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": -90,
+                                                    "rot_axis": "y",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": 180,
+                                                    "rot_axis": "x",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": "env.affordance_datas['beaker_mixer_place_offset_extrinsic_z']",
+                                                    "direction": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": "env.affordance_datas['beaker_grasp_offset_intrinsic_z']",
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": "env.affordance_datas['beaker_grasp_offset_intrinsic_rotation_y']",
+                                                    "rot_axis": "y",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "left_arm_mixer_place_pose",
+                                "dst_key": "left_arm_mixer_place_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_beaker_lift_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_beaker_lift_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "left_arm_mixer_place_pre_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_mixer_place_pose",
+                                "dst_key": "left_arm_mixer_place_pre_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.1,
+                                                    "direction": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "left_arm_mixer_place_pre_pose",
+                                "dst_key": "left_arm_mixer_place_pre_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_mixer_place_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_mixer_place_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        "right_arm": [
+            {
+                "right_arm_init_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_init_qpos",
+                                "dst_key": "right_arm_init_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_fk_xpos",
+                                                "kwargs": {
+                                                    "control_part": "right_arm",
+                                                    "fk_func": "env.robot.compute_fk"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "right_arm_aim_mixer_qpos": {
+                    "name": "generate_right_arm_aim_mixer_qpos",
+                    "kwargs": {}
+                }
+            },
+            {
+                "mixer_button_position": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "beaker_mixer_pose",
+                                "dst_key": "mixer_button_position",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": "env.affordance_datas['beaker_mixer_button_offset_x']",
+                                                    "direction": "x",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": "env.affordance_datas['beaker_mixer_button_offset_y']",
+                                                    "direction": "y",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": "env.affordance_datas['beaker_mixer_button_offset_z']",
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "right_arm_button_touch_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_init_pose",
+                                "dst_key": "right_arm_button_touch_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_replaced_pose",
+                                                "kwargs": {
+                                                    "pose_replace_value": "env.affordance_datas['mixer_button_position'][:3,3]",
+                                                    "axis_str_replace": "xyz"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotation_replaced_pose",
+                                                "kwargs": {
+                                                    "rotation_value": "env.affordance_datas['right_arm_aim_mixer_qpos'][0]",
+                                                    "rot_axis": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": -90,
+                                                    "rot_axis": "y",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": 180,
+                                                    "rot_axis": "x",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": "env.affordance_datas['beaker_mixer_button_rotation_x']",
+                                                    "rot_axis": "x",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": "env.affordance_datas['beaker_mixer_button_rotation_y']",
+                                                    "rot_axis": "y",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "right_arm_button_touch_pose",
+                                "dst_key": "right_arm_button_touch_up_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.1,
+                                                    "direction": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "right_arm_button_touch_up_pose",
+                                "dst_key": "right_arm_button_touch_up_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['right_arm_aim_mixer_qpos']",
+                                            "control_part": "right_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['right_arm_aim_mixer_qpos']",
+                                                    "control_part": "right_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "right_arm_button_touch_pose",
+                                "dst_key": "right_arm_button_touch_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['right_arm_aim_mixer_qpos']",
+                                            "control_part": "right_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['right_arm_aim_mixer_qpos']",
+                                                    "control_part": "right_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "right_arm_button_touch_pre_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_button_touch_pose",
+                                "dst_key": "right_arm_button_touch_pre_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": -0.1,
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "right_arm_button_touch_pre_pose",
+                                "dst_key": "right_arm_button_touch_pre_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['right_arm_button_touch_qpos']",
+                                            "control_part": "right_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['right_arm_button_touch_qpos']",
+                                                    "control_part": "right_arm"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        "left_eef": [
+            {
+                "left_open0": {
+                    "name": "execute_open",
+                    "kwargs": {}
+                }
+            },
+            {
+                "left_close1": {
+                    "name": "execute_close",
+                    "kwargs": {}
+                }
+            },
+            {
+                "left_open2": {
+                    "name": "execute_open",
+                    "kwargs": {}
+                }
+            }
+        ],
+        "right_eef": [
+            {
+                "right_open0": {
+                    "name": "execute_open",
+                    "kwargs": {}
+                }
+            },
+            {
+                "right_close1": {
+                    "name": "execute_close",
+                    "kwargs": {}
+                }
+            },
+            {
+                "right_open2": {
+                    "name": "execute_open",
+                    "kwargs": {}
+                }
+            }
+        ]
+    },
+    "edge": {
+        "left_arm": [
+            {
+                "left_init_to_aim_beaker": {
+                    "src": "left_arm_init_qpos",
+                    "sink": "left_arm_aim_beaker_qpos",
+                    "duration": 12,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_init_qpos",
+                            "left_arm_aim_beaker_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_aim_beaker_to_grasp_pre": {
+                    "src": "left_arm_aim_beaker_qpos",
+                    "sink": "left_arm_beaker_grasp_pre_qpos",
+                    "duration": 45,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_aim_beaker_qpos",
+                            "left_arm_beaker_grasp_pre_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_beaker_grasp_pre_to_grasp": {
+                    "src": "left_arm_beaker_grasp_pre_qpos",
+                    "sink": "left_arm_beaker_grasp_qpos",
+                    "duration": 35,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_beaker_grasp_pre_qpos",
+                            "left_arm_beaker_grasp_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_grasp_to_lift": {
+                    "src": "left_arm_beaker_grasp_qpos",
+                    "sink": "left_arm_beaker_lift_qpos",
+                    "duration": 20,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_beaker_grasp_qpos",
+                            "left_arm_beaker_lift_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_lift_to_place_pre": {
+                    "src": "left_arm_beaker_lift_qpos",
+                    "sink": "left_arm_mixer_place_pre_qpos",
+                    "duration": 35,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_beaker_lift_qpos",
+                            "left_arm_mixer_place_pre_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_place_pre_to_place": {
+                    "src": "left_arm_mixer_place_pre_qpos",
+                    "sink": "left_arm_mixer_place_qpos",
+                    "duration": 22,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_mixer_place_pre_qpos",
+                            "left_arm_mixer_place_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_place_to_place_pre": {
+                    "src": "left_arm_mixer_place_qpos",
+                    "sink": "left_arm_mixer_place_pre_qpos",
+                    "duration": 35,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_mixer_place_qpos",
+                            "left_arm_mixer_place_pre_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_place_pre_to_init": {
+                    "src": "left_arm_mixer_place_pre_qpos",
+                    "sink": "left_arm_init_qpos",
+                    "duration": 28,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_mixer_place_pre_qpos",
+                            "left_arm_init_qpos"
+                        ]
+                    }
+                }
+            }
+        ],
+        "right_arm": [
+            {
+                "right_init_to_aim_mixer": {
+                    "src": "right_arm_init_qpos",
+                    "sink": "right_arm_aim_mixer_qpos",
+                    "duration": 12,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_init_qpos",
+                            "right_arm_aim_mixer_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "right_aim_mixer_to_button_up": {
+                    "src": "right_arm_aim_mixer_qpos",
+                    "sink": "right_arm_button_touch_up_qpos",
+                    "duration": 45,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_aim_mixer_qpos",
+                            "right_arm_button_touch_up_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "right_button_up_to_pre": {
+                    "src": "right_arm_button_touch_up_qpos",
+                    "sink": "right_arm_button_touch_pre_qpos",
+                    "duration": 25,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_button_touch_up_qpos",
+                            "right_arm_button_touch_pre_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "right_button_pre_to_touch": {
+                    "src": "right_arm_button_touch_pre_qpos",
+                    "sink": "right_arm_button_touch_qpos",
+                    "duration": 25,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_button_touch_pre_qpos",
+                            "right_arm_button_touch_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "right_button_touch_to_pre": {
+                    "src": "right_arm_button_touch_qpos",
+                    "sink": "right_arm_button_touch_pre_qpos",
+                    "duration": 25,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_button_touch_qpos",
+                            "right_arm_button_touch_pre_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "right_touch_pre_to_init": {
+                    "src": "right_arm_button_touch_pre_qpos",
+                    "sink": "right_arm_init_qpos",
+                    "duration": 28,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_button_touch_pre_qpos",
+                            "right_arm_init_qpos"
+                        ]
+                    }
+                }
+            }
+        ],
+        "left_eef": [
+            {
+                "lclose_grasp": {
+                    "src": "left_open0",
+                    "sink": "left_close1",
+                    "duration": 20,
+                    "name": "execute_close",
+                    "kwargs": {
+                        "return_action": true,
+                        "expand": true
+                    }
+                }
+            },
+            {
+                "lopen_place": {
+                    "src": "left_close1",
+                    "sink": "left_open2",
+                    "duration": 12,
+                    "name": "execute_open",
+                    "kwargs": {
+                        "return_action": true,
+                        "expand": true
+                    }
+                }
+            }
+        ],
+        "right_eef": [
+            {
+                "rclose_press": {
+                    "src": "right_open0",
+                    "sink": "right_close1",
+                    "duration": 12,
+                    "name": "execute_close",
+                    "kwargs": {
+                        "return_action": true,
+                        "expand": true
+                    }
+                }
+            },
+            {
+                "ropen_final": {
+                    "src": "right_close1",
+                    "sink": "right_open2",
+                    "duration": 12,
+                    "name": "execute_open",
+                    "kwargs": {
+                        "return_action": true,
+                        "expand": true
+                    }
+                }
+            }
+        ]
+    },
+    "sync": {
+        "lclose_grasp": {
+            "depend_tasks": [
+                "left_beaker_grasp_pre_to_grasp"
+            ]
+        },
+        "left_grasp_to_lift": {
+            "depend_tasks": [
+                "lclose_grasp"
+            ]
+        },
+        "lopen_place": {
+            "depend_tasks": [
+                "left_place_pre_to_place"
+            ]
+        },
+        "left_place_to_place_pre": {
+            "depend_tasks": [
+                "lopen_place"
+            ]
+        },
+        "right_init_to_aim_mixer": {
+            "depend_tasks": [
+                "left_place_to_place_pre"
+            ]
+        },
+        "rclose_press": {
+            "depend_tasks": [
+                "right_init_to_aim_mixer"
+            ]
+        },
+        "right_aim_mixer_to_button_up": {
+            "depend_tasks": [
+                "rclose_press"
+            ]
+        },
+        "ropen_final": {
+            "depend_tasks": [
+                "right_touch_pre_to_init"
+            ]
+        }
+    },
+    "misc": {
+        "vis_graph": false,
+        "vis_gantt": false,
+        "warpping": true
+    }
+}
