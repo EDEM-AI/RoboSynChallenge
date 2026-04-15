@@ -25,10 +25,17 @@ import embodied_challenge
 
 from embodichain.lab.gym.utils.gym_utils import (
     add_env_launcher_args_to_parser,
-    build_env_cfg_from_args,
+    build_env_cfg_from_args
 )
+import embodichain.lab.gym.utils.gym_utils as gym_utils
 from embodichain.lab.scripts.run_env import main as run_env_main
 
+gym_utils.DEFAULT_MANAGER_MODULES = gym_utils.DEFAULT_MANAGER_MODULES + [
+    "embodied_challenge.managers.actions",
+    "embodied_challenge.managers.datasets",
+    "embodied_challenge.managers.events",
+    "embodied_challenge.managers.observations",
+]
 
 if __name__ == "__main__":
     np.set_printoptions(precision=5, suppress=True)
