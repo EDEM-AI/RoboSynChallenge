@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "root": "embodichain/lab/gym/envs/tasks/tableware/Distractor",
+  "supported_extensions": [
+    ".ply",
+    ".obj",
+    ".stl",
+    ".glb",
+    ".gltf",
+    ".usd",
+    ".usda",
+    ".usdc"
+  ],
+  "categories": {
+    "PaperCup": [
+      "PaperCup/paper_cup.ply"
+    ],
+    "plastic_bin": [
+      "plastic_bin/obj_assets/plastic_bin.glb"
+    ],
+    "fork": [
+      "tableware/fork/standard_fork_a_rescale.ply",
+      "tableware/fork/standard_fork_b_rescale.ply",
+      "tableware/fork/standard_fork_scale.ply"
+    ],
+    "mouse_pad": [
+      "tableware/mouse_pad/e5aa03a5ac98441ebcff7b0270142291.glb"
+    ],
+    "spoon": [
+      "tableware/spoon/standard_spone6_center.ply",
+      "tableware/spoon/standard_spone6_translate.ply",
+      "tableware/spoon/standard_spoon_a_rescale.ply",
+      "tableware/spoon/standard_spoon_b_rescale.ply",
+      "tableware/spoon/standard_spoon_c_rescale.ply",
+      "tableware/spoon/standard_spoon_d_rescale.ply",
+      "tableware/spoon/standard_spoon_e_rescale.ply"
+    ]
+  },
+  "counts": {
+    "PaperCup": 1,
+    "plastic_bin": 1,
+    "fork": 3,
+    "mouse_pad": 1,
+    "spoon": 7,
+    "total": 13
+  }
+}
