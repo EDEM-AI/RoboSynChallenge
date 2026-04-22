@@ -179,8 +179,8 @@
                         {"uid": "distractor_0"},
                         {"uid": "distractor_1"}
                     ],
-                    "library_index_path": "/root/workspace/Embodied_Challenge/assets/Distractor/ASSET_INDEX.json",
-                    "categories": ["PaperCup", "plastic_bin", "bottles", "fork", "mouse_pad", "plate", "spoon"],
+                    "library_index_path": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/ASSET_INDEX.json",
+                    "categories": ["PaperCup", "plastic_bin", "fork", "mouse_pad", "spoon"],
                     "position_ranges": [
                         [[0.62, -0.20, 0.89], [0.86, -0.03, 0.92]],
                         [[0.62, 0.03, 0.89], [0.86, 0.20, 0.92]]
@@ -191,7 +191,7 @@
                         [-180.0, 180.0]
                     ],
                     "hide_position": [0.0, 0.0, -20.0],
-                    "avoid_uids": ["beaker", "beaker_mixer"],
+                    "avoid_uids": ["cube", "rack"],
                     "min_distance_to_avoid": 0.3,
                     "max_resample_attempts": 30,
                     "physics_update_step": 1
@@ -381,7 +381,7 @@
     "robot": {
         "uid": "CobotMagic",
         "robot_type": "CobotMagic",
-        "init_pos": [0.0, 0.0, 0.76],
+        "init_pos": [0.0, 0.0, 0.835],
         "init_qpos": [-0.3,0.3,1.0,1.0,-1.2,-1.2,0.0,0.0,0.6,0.6,0.0,0.0,0.05,0.05,0.05,0.05]
     },
     "sensor": [
@@ -455,9 +455,9 @@
             },
             "body_scale": [1, 1, 1],
             "body_type": "kinematic",
-            "init_pos": [0.725, 0.0, 0.7],
+            "init_pos": [0.725, 0.0, 0.775],
             "init_rot": [0, 90, 0]
-        },
+        }
     ],
     "rigid_object": [
         {
@@ -481,7 +481,7 @@
             },
             "body_scale":[1.1, 1.1, 1.1],
             "max_convex_hull_num": 24,
-            "init_pos": [0.56, -0.2, 0.765],
+            "init_pos": [0.56, -0.2, 0.84],
             "init_rot": [0, 90, 0]
         },
         {
@@ -501,7 +501,7 @@
                 "min_velocity_iters":8,
                 "enable_ccd": true
             },
-            "init_pos": [0.6, 0.0, 0.79],
+            "init_pos": [0.6, 0.0, 0.865],
             "body_scale":[1.1, 1.1, 1.1],
             "max_convex_hull_num": 1,
             "sdf_resolution": 128

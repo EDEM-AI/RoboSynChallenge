@@ -173,8 +173,8 @@
                         {"uid": "distractor_0"},
                         {"uid": "distractor_1"}
                     ],
-                    "library_index_path": "/root/workspace/Embodied_Challenge/assets/Distractor/ASSET_INDEX.json",
-                    "categories": ["PaperCup", "plastic_bin", "bottles", "fork", "mouse_pad", "plate", "spoon"],
+                    "library_index_path": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/ASSET_INDEX.json",
+                    "categories": ["PaperCup", "plastic_bin", "fork", "mouse_pad", "spoon"],
                     "position_ranges": [
                         [[0.62, -0.20, 0.89], [0.86, -0.03, 0.92]],
                         [[0.62, 0.03, 0.89], [0.86, 0.20, 0.92]]
@@ -376,7 +376,7 @@
     "robot": {
         "uid": "CobotMagic",
         "robot_type": "CobotMagic",
-        "init_pos": [0.0, 0.0, 0.76],
+        "init_pos": [0.0, 0.0, 0.835],
         "init_qpos": [-0.3,0.3,1.0,1.0,-1.2,-1.2,0.0,0.0,0.6,0.6,0.0,0.0,0.05,0.05,0.05,0.05]
     },
     "sensor": [
@@ -450,7 +450,7 @@
             },
             "body_scale": [1, 1, 1],
             "body_type": "kinematic",
-            "init_pos": [0.725, 0.0, 0.7],
+            "init_pos": [0.725, 0.0, 0.775],
             "init_rot": [0, 90, 0]
         }
     ],
@@ -471,7 +471,7 @@
                 "min_position_iters": 32,
                 "min_velocity_iters":8
             },
-            "init_pos": [0.5, 0.1, 0.809],
+            "init_pos": [0.5, 0.1, 0.884],
             "init_rot": [90, 0, 0],
             "body_scale":[0.5, 0.75, 0.5],
             "max_convex_hull_num": 8
@@ -492,7 +492,7 @@
                 "min_position_iters": 32,
                 "min_velocity_iters":8
             },
-            "init_pos": [0.5, -0.1, 0.809],
+            "init_pos": [0.5, -0.1, 0.884],
             "init_rot": [0, 0, 0],
             "body_scale":[1, 1, 1],
             "max_convex_hull_num": 8
