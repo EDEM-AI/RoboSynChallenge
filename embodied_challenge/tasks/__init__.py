@@ -36,3 +36,7 @@ from .drawer_open_place.drawer_open_place import (
 from .beaker_mixer.beaker_mixer import (
     BeakerMixerEnv,
 )
+from .pour_water_dual.pour_water import (
+    PourWaterDualEnv,
+    PourWaterDualAgentEnv,
+)
