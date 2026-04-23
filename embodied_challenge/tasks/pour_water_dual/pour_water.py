@@ -22,9 +22,7 @@ from embodichain.lab.gym.utils.registration import register_env
 from embodichain.utils import logger
 from embodied_challenge.managers.events import visualize_affordance_pose
 from embodichain.lab.gym.envs.tasks.tableware.base_agent_env import BaseAgentEnv
-from embodichain.lab.gym.envs.tasks.tableware.pour_water_dual.action_bank import (
-    PourWaterDualActionBank,
-)
+from .action_bank import PourWaterDualActionBank
 
 __all__ = ["PourWaterDualEnv", "PourWaterDualAgentEnv"]
 
