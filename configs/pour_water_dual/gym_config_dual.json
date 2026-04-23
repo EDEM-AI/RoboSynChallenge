@@ -402,13 +402,7 @@
             }
         },
         "dataset": {
-            "robot_meta": {
-                "robot_type": "CobotMagic",
-                "arm_dofs": 12,
-                "control_freq": 25,
-                "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"],
-                "min_len_steps": 5
-            },
+        "dataset": {
             "lerobot": {
                 "func": "LeRobotRecorder",
                 "mode": "save",
@@ -417,7 +411,6 @@
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
-                        "arm_dofs": 12,
                         "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"]
                     },
                     "instruction": {
@@ -425,15 +418,12 @@
                     },
                     "extra": {
                         "scene_type": "tabletop",
-                        "task_description": "pour_water_dual",
+                        "task_description": "pour water with dual arms",
                         "data_type": "sim"
                     },
                     "use_videos": false
                 }
             }
-        },
-        "success_params": {
-            "strict": false
         }
     },
     "robot": {
