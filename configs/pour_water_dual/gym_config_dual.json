@@ -50,7 +50,7 @@
                         {"uid": "distractor_0"},
                         {"uid": "distractor_1"}
                     ],
-                    "library_index_path": "/root/workspace/embodichain/lab/gym/envs/tasks/tableware/Distractor/ASSET_INDEX.json",
+                    "library_index_path": "/root/Embodied_Challenge/embodied_challenge/Distractor/ASSET_INDEX.json",
                     "categories": ["PaperCup", "plastic_bin", "fork", "mouse_pad", "spoon"],
                     "position_ranges": [
                         [[0.62, -0.20, 0.89], [0.86, -0.03, 0.92]],
@@ -561,7 +561,7 @@
             "uid":"distractor_0",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/embodichain/lab/gym/envs/tasks/tableware/Distractor/PaperCup/paper_cup.ply",
+                "fpath": "/root/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply",
                 "compute_uv": true
             },
             "attrs" : {
@@ -580,7 +580,7 @@
             "uid":"distractor_1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/embodichain/lab/gym/envs/tasks/tableware/Distractor/PaperCup/paper_cup.ply",
+                "fpath": "/root/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply",
                 "compute_uv": true
             },
             "attrs" : {
