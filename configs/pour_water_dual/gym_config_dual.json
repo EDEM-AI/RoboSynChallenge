@@ -421,7 +421,7 @@
                         "task_description": "pour water with dual arms",
                         "data_type": "sim"
                     },
-                    "use_videos": false
+                    "use_videos": true
                 }
             }
         }
@@ -438,7 +438,7 @@
             "uid": "cam_high",
             "width": 640,
             "height": 480,
-            "enable_mask": false,
+            "enable_mask": true,
             "intrinsics": [606.315186, 606.100952, 320.549316, 245.877106],
             "extrinsics": {
                 "eye": [0.206931, 0.052728, 1.401134],
@@ -451,7 +451,7 @@
             "uid": "cam_right_wrist",
             "width": 640,
             "height": 480,
-            "enable_mask": false,
+            "enable_mask": true,
             "intrinsics": [603.117004394531, 602.418640136719, 326.727478027344, 251.933990478516],
             "extrinsics": {
                 "parent": "right_link6",
@@ -464,7 +464,7 @@
             "uid": "cam_left_wrist",
             "width": 640,
             "height": 480,
-            "enable_mask": false,
+            "enable_mask": true,
             "intrinsics": [603.117004394531, 602.418640136719, 326.727478027344, 251.933990478516],
             "extrinsics": {
                 "parent": "left_link6",
