@@ -123,8 +123,38 @@ class ItemsHandoverPlaceEnv(EmbodiedEnv):
         return actions
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        return super().is_task_success(**kwargs)
 
+        pen = self.sim.get_rigid_object("pen")
+        holder = self.sim.get_rigid_object("holder")
+
+        pen_final_xpos = pen.get_local_pose(to_matrix=True)
+        holder_final_xpos = holder.get_local_pose(to_matrix=True)
+
+        pen_ret = self._is_fall(pen_final_xpos)
+        pen_pos_xy = pen_final_xpos[:, :2, 3]
+        holder_pos_xy = holder_final_xpos[:, :2, 3]
+
+        dist = torch.linalg.norm(pen_pos_xy - holder_pos_xy, dim=-1)
+        # print(f"Pen-Holder distance: {dist.item():.4f}")
+        dist_threshold = 0.03
+        pen_near_holder = dist <= dist_threshold
+
+        return (~pen_ret) & pen_near_holder
+
+    def _is_fall(self, pose: torch.Tensor) -> torch.Tensor:
+        # Extract z-axis from rotation matrix (last column, first 3 elements)
+        pose_rz = pose[:, :3, 0]
+        world_z_axis = torch.tensor([0, 0, 1], dtype=pose.dtype, device=pose.device)
+
+        # Compute dot product for each batch element
+        dot_product = torch.sum(pose_rz * world_z_axis, dim=-1)  # Shape: (batch_size,)
+
+        # Clamp to avoid numerical issues with arccos
+        dot_product = torch.clamp(dot_product, -1.0, 1.0)
+
+        # Compute angle and check if fallen
+        angle = torch.arccos(dot_product)
+        return angle >= 1.309 #75度
 
 
 @register_env("ItemsHandoverPlaceAgent-v0", max_episode_steps=600)

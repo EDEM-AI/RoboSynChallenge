@@ -1,4 +1,4 @@
-{   
+{
     "id": "PourWaterDual",
     "max_episodes": 200,
     "max_episode_steps": 300,
@@ -21,7 +21,7 @@
                 "params": {
                     "entity_cfg": {"uid": "table"},
                     "position_range": [[0.0, 0.0, -0.01], [0.0, 0.0, 0.01]],
-                    "relative_position": true                
+                    "relative_position": true
                 }
             },
             "init_bottle_pose": {
@@ -30,7 +30,7 @@
                 "params": {
                     "entity_cfg": {"uid": "bottle"},
                     "position_range": [[-0.08, -0.12, 0.0], [0.08, 0.04, 0.0]],
-                    "relative_position": true                
+                    "relative_position": true
                 }
             },
             "init_cup_pose": {
@@ -39,7 +39,7 @@
                 "params": {
                     "entity_cfg": {"uid": "cup"},
                     "position_range": [[-0.08, -0.04, 0.0], [0.08, 0.12, 0.0]],
-                    "relative_position": true                
+                    "relative_position": true
                 }
             },
             "randomize_distractor_slots": {
@@ -236,18 +236,18 @@
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            
-            "random_robot_qpos": {                                           
+
+            "random_robot_qpos": {
                 "func": "randomize_robot_qpos",
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "CobotMagic"},
                     "qpos_range": [
-                        [-0.06, -0.05, -0.06, -0.06, -0.05, -0.05, -0.06, -0.05, -0.06, -0.06, -0.05, -0.05],    
-                        [0.06, 0.05, 0.06, 0.06, 0.05, 0.05, 0.06, 0.05, 0.06, 0.06, 0.05, 0.05]                 
+                        [-0.06, -0.05, -0.06, -0.06, -0.05, -0.05, -0.06, -0.05, -0.06, -0.06, -0.05, -0.05],
+                        [0.06, 0.05, 0.06, 0.06, 0.05, 0.05, 0.06, 0.05, 0.06, 0.06, 0.05, 0.05]
                     ],
                     "relative_qpos": true,
-                    "joint_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]          
+                    "joint_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
                 }
             },
 
@@ -361,43 +361,6 @@
                 "name": "cup_pose",
                 "params": {
                     "entity_cfg": {"uid": "cup"}
-                }
-            },
-            "cam_high_semantic_mask_l": {
-                "func": "compute_semantic_mask",
-                "mode": "add",
-                "name": "sensor/cam_high/semantic_mask_l",
-                "params": {
-                    "entity_cfg": {"uid": "cam_high"},
-                    "foreground_uids": ["bottle", "cup"]
-                }
-            },
-            "cam_high_semantic_mask_r": {
-                "func": "compute_semantic_mask",
-                "mode": "add",
-                "name": "sensor/cam_high/semantic_mask_r",
-                "params": {
-                    "entity_cfg": {"uid": "cam_high"},
-                    "foreground_uids": ["bottle", "cup"],
-                    "is_right": true
-                }
-            },
-            "cam_left_semantic_mask": {
-                "func": "compute_semantic_mask",
-                "mode": "add",
-                "name": "sensor/cam_left_wrist/semantic_mask_l",
-                "params": {
-                    "entity_cfg": {"uid": "cam_left_wrist"},
-                    "foreground_uids": ["bottle", "cup"]
-                }
-            },
-            "cam_right_semantic_mask": {
-                "func": "compute_semantic_mask",
-                "mode": "add",
-                "name": "sensor/cam_right_wrist/semantic_mask_l",
-                "params": {
-                    "entity_cfg": {"uid": "cam_right_wrist"},
-                    "foreground_uids": ["bottle", "cup"]
                 }
             }
         },

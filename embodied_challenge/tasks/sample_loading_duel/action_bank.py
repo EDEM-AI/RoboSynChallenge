@@ -61,7 +61,7 @@ class SampleLoadingDuelActionBank(ActionBank):
         left_aim_horizontal_angle = np.arctan2(
             *(
                 (
-                    env.affordance_datas["cube_pose"][:2, 3]
+                    env.affordance_datas["rack_pose"][:2, 3]
                     - env.affordance_datas["left_arm_base_pose"][:2, 3]
                 )[1::-1]
             )

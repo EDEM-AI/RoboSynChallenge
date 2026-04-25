@@ -124,7 +124,38 @@ class SampleLoadingDuelEnv(EmbodiedEnv):
         return actions
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        return super().is_task_success(**kwargs)
+        cube = self.sim.get_rigid_object("cube")
+        rack = self.sim.get_rigid_object("rack")
+
+        cube_final_xpos = cube.get_local_pose(to_matrix=True)
+        rack_final_xpos = rack.get_local_pose(to_matrix=True)
+
+        cube_ret = self._is_fall(cube_final_xpos)
+        rack_ret = self._is_fall(rack_final_xpos)
+        cube_pos_xy = cube_final_xpos[:, :2, 3]
+        rack_pos_xy = rack_final_xpos[:, :2, 3]
+
+        dist = torch.linalg.norm(cube_pos_xy - rack_pos_xy, dim=-1)
+        print(f"Cube-Rack distance: {dist.item():.4f}")
+        dist_threshold = 0.03
+        cube_near_rack = dist <= dist_threshold
+
+        return (~cube_ret) & cube_near_rack
+
+    def _is_fall(self, pose: torch.Tensor) -> torch.Tensor:
+        # Extract z-axis from rotation matrix (last column, first 3 elements)
+        pose_rz = pose[:, :3, 0]
+        world_z_axis = torch.tensor([0, 0, 1], dtype=pose.dtype, device=pose.device)
+
+        # Compute dot product for each batch element
+        dot_product = torch.sum(pose_rz * world_z_axis, dim=-1)  # Shape: (batch_size,)
+
+        # Clamp to avoid numerical issues with arccos
+        dot_product = torch.clamp(dot_product, -1.0, 1.0)
+
+        # Compute angle and check if fallen
+        angle = torch.arccos(dot_product)
+        return angle >= 1.309 #75度
 
 
 

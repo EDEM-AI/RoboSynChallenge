@@ -1,6 +1,6 @@
 {
     "id": "ItemsHandoverPlace-v0",
-    "max_episodes": 10,
+    "max_episodes": 1000,
     "max_episode_steps": 300,
     "env": {
         "events": {
@@ -128,8 +128,8 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "pen"},
-                    "position_range": [[-0.08, -0.08, 0.0], [0.08, 0.08, 0.0]],
-                    "rotation_range": [[0, 0, -90], [0, 0, 90]],
+                    "position_range": [[-0.15, -0.05, 0.0], [0.05, 0.05, 0.0]],
+                    "rotation_range": [[0, 0, -30], [0, 0, 30]],
                     "relative_position": true,
                     "relative_rotation": true
                 }
@@ -186,7 +186,7 @@
                     ],
                     "hide_position": [0.0, 0.0, -20.0],
                     "avoid_uids": ["pen", "holder"],
-                    "min_distance_to_avoid": 0.2,
+                    "min_distance_to_avoid": 0.1,
                     "max_resample_attempts": 30,
                     "physics_update_step": 1
                 }
@@ -196,16 +196,6 @@
                 "mode": "reset",
                 "params": {
                     "attrs": [
-                        {
-                            "name": "object_lengths",
-                            "mode": "callable",
-                            "entity_uids": "all_objects",
-                            "func_name": "compute_object_length",
-                            "func_kwargs": {
-                                "is_svd_frame": true,
-                                "sample_points": 5000
-                            }
-                        },
                         {
                             "name": "grasp_pose_object",
                             "mode": "static",
@@ -492,10 +482,26 @@
                 "min_position_iters": 32,
                 "min_velocity_iters":8
             },
-            "init_pos": [0.5, -0.1, 0.884],
+            "init_pos": [0.6, -0.1, 0.884],
             "init_rot": [0, 0, 0],
             "body_scale":[1, 1, 1],
             "max_convex_hull_num": 8
+        },
+        {
+            "uid": "distractor_0",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "/root/workspace/Embodied_Challenge/assets/Beaker/beaker.ply",
+                "compute_uv": true
+            }
+        },
+        {
+            "uid": "distractor_1",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "/root/workspace/Embodied_Challenge/assets/Beaker/beaker.ply",
+                "compute_uv": true
+            }
         }
     ]
 }

@@ -129,7 +129,7 @@
                 "params": {
                     "entity_cfg": {"uid": "cube"},
                     "position_range": [[-0.05, -0.04, 0.0], [0.05, 0.04, 0.0]],
-                    "rotation_range": [[-30, 0, 0], [30, 0, 0]],
+                    "rotation_range": [[-20, 0, 0], [20, 0, 0]],
                     "relative_position": true,
                     "relative_rotation": true
                 }
@@ -139,8 +139,8 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "rack"},
-                    "position_range": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-                    "rotation_range": [[0, 0, 0], [0, 0, 0]],
+                    "position_range": [[-0.05, -0.05, 0.0], [0.05, 0.05, 0.0]],
+                    "rotation_range": [[0, 0, -30], [0, 0, 30]],
                     "relative_position": true,
                     "relative_rotation": true
                 }
@@ -192,7 +192,7 @@
                     ],
                     "hide_position": [0.0, 0.0, -20.0],
                     "avoid_uids": ["cube", "rack"],
-                    "min_distance_to_avoid": 0.3,
+                    "min_distance_to_avoid": 0.4,
                     "max_resample_attempts": 30,
                     "physics_update_step": 1
                 }
@@ -492,7 +492,7 @@
                 "compute_uv": true
             },
             "attrs" : {
-                "mass": 0.3,
+                "mass": 5.0,
                 "contact_offset": 0.0002,
                 "rest_offset": 0.00005,
                 "restitution": 0.00,
