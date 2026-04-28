@@ -58,8 +58,21 @@
 - 转换后会在目标目录生成 v2.1 兼容的数据结构和元数据。
 
 ---
+## 3. add_lerobot_eef_pose
+**用途**：
+基于EmbodiChain的前向动力学，读取lerobot数据集中机械臂关节角，在lerobot数据集中补充机械臂末端位姿
 
-## 3. OpenPI pi0 on EmbodiChain
+**用法**：
+```bash
+cd ~/workspace
+# 先检查dataset文件夹映射关系
+python3 Embodied_Challenge/scripts/add_lerobot_eef_pose.py --dataset Embodied_Challenge/lerobot_dataset/cobotmagic_Sim_sample_loading_duel/ --gym_config Embodied_Challenge/configs/sample_loading_duel/gym_config.json --dry-run
+# 运行
+python3 Embodied_Challenge/scripts/add_lerobot_eef_pose.py --dataset Embodied_Challenge/lerobot_dataset/cobotmagic_Sim_sample_loading_duel/ --gym_config Embodied_Challenge/configs/sample_loading_duel/gym_config.json
+```
+---
+
+## 4. OpenPI pi0 on EmbodiChain
 
 This note shows how to run a trained OpenPI pi0 checkpoint as a websocket
 policy server and evaluate it in an EmbodiChain simulation environment.
