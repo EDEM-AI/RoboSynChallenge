@@ -4,6 +4,34 @@
     "max_episode_steps": 900,
     "env": {
         "events": {
+            "init_table_pose": {
+                "func": "randomize_rigid_object_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "table"},
+                    "position_range": [[0.0, 0.0, -0.04], [0.0, 0.0, 0.04]],
+                    "relative_position": true
+                }
+            },
+            "random_duck_pose": {
+                "func": "randomize_rigid_object_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "duck"},
+                    "position_range": [[-0.05, -0.03, 0.0], [0.05, 0.03, 0.0]],
+                    "rotation_range": [[0, 0, -30], [0, 0, 30]],
+                    "relative_position": true,
+                    "relative_rotation": true
+                }
+            },
+            "random_robot_init_eef_pose": {
+                "func": "randomize_robot_eef_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "CobotMagic", "control_parts": ["left_arm", "right_arm"]},
+                    "position_range": [[-0.01, -0.01, -0.01], [0.01, 0.01, 0]]
+                }
+            },
             "prepare_extra_attr": {
                 "func": "prepare_extra_attr",
                 "mode": "reset",
