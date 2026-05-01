@@ -640,14 +640,14 @@
             "uid": "distractor_0",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "assets/Beaker/beaker.ply"
+                "fpath": "/root/workspace/Embodied_Challenge/assets/Beaker/beaker.ply"
             }
         },
         {
             "uid": "distractor_1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "assets/Beaker/beaker.ply"
+                "fpath": "/root/workspace/Embodied_Challenge/assets/Beaker/beaker.ply"
             }
         }
     ],
