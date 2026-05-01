@@ -97,7 +97,6 @@ class DrawerOpenPlaceActionBank(ActionBank):
         pose[:3, 3] = DrawerOpenPlaceActionBank._as_tensor(env, xyz, pose.dtype)
         return pose
 
-    @staticmethod
     def _make_pose_from_axes(
         env,
         xyz: Sequence[float] | torch.Tensor,
@@ -336,6 +335,9 @@ class DrawerOpenPlaceActionBank(ActionBank):
         drawer_pose = DrawerOpenPlaceActionBank._pose_matrix(
             env, affordance_datas["drawer_pose"]
         )
+        drawer_handle_pose = DrawerOpenPlaceActionBank._pose_matrix(
+            env, affordance_datas["drawer_handle_pose"]
+        )
         right_home_qpos = DrawerOpenPlaceActionBank._as_tensor(
             env, env.robot.get_qpos("right_arm")[0]
         )
@@ -345,25 +347,33 @@ class DrawerOpenPlaceActionBank(ActionBank):
             dtype=torch.float32,
             device=DrawerOpenPlaceActionBank._device(env),
         )
-        nominal_drawer_xy = DrawerOpenPlaceActionBank._as_tensor(
-            env, affordance_datas.get("nominal_drawer_xy", [0.90, 0.10])
+        right_handle_start_offset = DrawerOpenPlaceActionBank._as_tensor(
+            env, affordance_datas["right_handle_start_offset_xyz"]
         )
-        drawer_pull_distance = float(affordance_datas.get("drawer_pull_distance", -0.12))
+        right_handle_contact_offset = DrawerOpenPlaceActionBank._as_tensor(
+            env, affordance_datas["right_handle_contact_offset_xyz"]
+        )
+        right_handle_pull_offset = DrawerOpenPlaceActionBank._as_tensor(
+            env, affordance_datas["right_handle_pull_offset_xyz"]
+        )
+        right_retreat_offset = DrawerOpenPlaceActionBank._as_tensor(
+            env, affordance_datas["right_retreat_offset_xyz"]
+        )
 
-        reference_pose = DrawerOpenPlaceActionBank._fk_pose(env, "right_arm", base_qpos)
-        drawer_delta_xy = drawer_pose[:2, 3] - nominal_drawer_xy
-        reference_pose[0, 3] += drawer_delta_xy[0]
-        reference_pose[1, 3] -= drawer_delta_xy[1]
+        # Keep the nominal right-arm orientation, but interpret offsets in world
+        # coordinates while anchoring them at the real handle position. The
+        # handle_xpos local axes are not aligned with the intended pull direction.
+        nominal_reference_pose = DrawerOpenPlaceActionBank._fk_pose(env, "right_arm", base_qpos)
+        handle_translation = drawer_handle_pose[:3, 3]
 
-        # Original logic: right_reference_pose is the 'begin' pose.
-        # It moves +0.06 to 'mid' (contact) and then pulls to -0.12 from 'begin'.
-        handle_start_pose = reference_pose.clone()
-        handle_contact_pose = reference_pose.clone()
-        handle_contact_pose[0, 3] += 0.06
-        handle_pull_pose = reference_pose.clone()
-        handle_pull_pose[0, 3] += drawer_pull_distance
-        right_retreat_pose = handle_pull_pose.clone()
-        right_retreat_pose[0, 3] -= 0.05
+        handle_start_pose = nominal_reference_pose.clone()
+        handle_start_pose[:3, 3] = handle_translation + right_handle_start_offset
+        handle_contact_pose = nominal_reference_pose.clone()
+        handle_contact_pose[:3, 3] = handle_translation + right_handle_contact_offset
+        handle_pull_pose = nominal_reference_pose.clone()
+        handle_pull_pose[:3, 3] = handle_translation + right_handle_pull_offset
+        right_retreat_pose = nominal_reference_pose.clone()
+        right_retreat_pose[:3, 3] = handle_translation + right_retreat_offset
 
         handle_start_qpos = DrawerOpenPlaceActionBank._solve_ik(
             env,
@@ -444,29 +454,40 @@ class DrawerOpenPlaceActionBank(ActionBank):
         )
 
         duck_grasp_offset_xyz = DrawerOpenPlaceActionBank._as_tensor(
-            env, affordance_datas.get("duck_grasp_offset_xyz", [-0.015, 0.010, 0.035])
+            env, affordance_datas.get("duck_grasp_offset_xyz", [-0.015, 0.010, 0.015])
         )
         duck_hover_height = float(affordance_datas.get("duck_hover_height", 0.24))
         duck_pregrasp_height = float(affordance_datas.get("duck_pregrasp_height", 0.10))
         drawer_pull_distance = float(affordance_datas.get("drawer_pull_distance", -0.12))
         drawer_inner_offset_xyz = DrawerOpenPlaceActionBank._as_tensor(
-            env, affordance_datas.get("drawer_inner_offset_xyz", [-0.04, 0.05, 0.295])
+            env, affordance_datas["drawer_inner_offset_xyz"]
         )
         drawer_place_hover_offset = DrawerOpenPlaceActionBank._as_tensor(
-            env, affordance_datas.get("drawer_place_hover_offset_xyz", [0.0, 0.0, 0.12])
+            env, affordance_datas["drawer_place_hover_offset_xyz"]
         )
-        old_safe_z = 1.04
+        legacy_robot_init_z = 0.73
+        current_nominal_robot_init_z = 0.835
+        legacy_safe_z_cap = 1.04
+        safe_z_cap = (
+            legacy_safe_z_cap
+            + (current_nominal_robot_init_z - legacy_robot_init_z)
+        )
 
-        # safe_z, hover_xyz, pregrasp_xyz, grasp_xyz calculation exactly matching original parameters
+        # Express grasp offset in the duck local frame so the target follows duck yaw
+        # randomization instead of staying as a fixed world-space XY bias.
         duck_target_xyz = duck_pose[:3, 3].clone()
-        ox = float(duck_target_xyz[0]) - 0.015
-        oy = float(duck_target_xyz[1]) + 0.010
+        duck_rotation = duck_pose[:3, :3]
+        duck_grasp_xyz = duck_target_xyz + duck_rotation @ duck_grasp_offset_xyz
+        ox = float(duck_grasp_xyz[0])
+        oy = float(duck_grasp_xyz[1])
         oz = float(duck_target_xyz[2])
-        safe_z = min(oz + duck_hover_height, old_safe_z)
+        safe_z = min(oz + duck_hover_height, safe_z_cap)
+        grasp_height = max(float(duck_grasp_xyz[2] - duck_target_xyz[2]), 0.015)
+        pregrasp_height = max(duck_pregrasp_height, grasp_height + 0.05)
         
         hover_xyz = [ox, oy, safe_z]
-        pregrasp_xyz = [ox, oy, oz + duck_pregrasp_height]
-        grasp_xyz = [ox, oy, oz + 0.035] # Hardcoded 0.035 grasp z in original
+        pregrasp_xyz = [ox, oy, oz + pregrasp_height]
+        grasp_xyz = [ox, oy, oz + grasp_height]
 
         left_hover_candidates = [
             DrawerOpenPlaceActionBank._make_pose(
@@ -559,12 +580,9 @@ class DrawerOpenPlaceActionBank(ActionBank):
             return False
         left_lift_qpos = left_plan_lift.positions[-1]
 
-        # Decouple hover height from safe_z to prevent IK failures when reaching forward
-        # Adjusted X to 0.680 and Y to -0.05 as per original parameters
-        place_drop_xyz = torch.tensor([0.680, -0.05, 1.05], dtype=torch.float32, device=DrawerOpenPlaceActionBank._device(env))
-        place_z_hover = old_safe_z
-        place_hover_xyz = place_drop_xyz.clone()
-        place_hover_xyz[2] = place_z_hover
+        drawer_translation = drawer_pose[:3, 3]
+        place_drop_xyz = drawer_translation + drawer_inner_offset_xyz
+        place_hover_xyz = place_drop_xyz + drawer_place_hover_offset
 
         left_place_hover_candidates = [
             DrawerOpenPlaceActionBank._make_pose(
@@ -573,27 +591,13 @@ class DrawerOpenPlaceActionBank(ActionBank):
                 [
                     float(place_hover_xyz[0] + dx),
                     float(place_hover_xyz[1] + dy),
-                    float(place_hover_xyz[2]),
+                    float(place_hover_xyz[2] + dz),
                 ],
             )
             for dx in (0.0, 0.01, -0.01)
             for dy in (0.0, 0.01, -0.01)
+            for dz in (0.0, 0.01, -0.01)
         ]
-        left_place_hover_candidate_xyzs = [
-            DrawerOpenPlaceActionBank._as_numpy(env, pose[:3, 3]).tolist()
-            for pose in left_place_hover_candidates
-        ]
-        logger.log_warning(
-            "old left_place_hover debug | "
-            f"place_xyz=({float(place_hover_xyz[0]):.4f}, {float(place_hover_xyz[1]):.4f}, {float(place_hover_xyz[2]):.4f}) | "
-            f"candidate_xyzs={left_place_hover_candidate_xyzs} | "
-            f"left_reference_pose_xyz={DrawerOpenPlaceActionBank._as_numpy(env, left_reference_pose[:3, 3]).tolist()} | "
-            f"left_reference_pose_rot={DrawerOpenPlaceActionBank._as_numpy(env, left_reference_pose[:3, :3]).tolist()} | "
-            f"left_lift_pose_xyz={DrawerOpenPlaceActionBank._as_numpy(env, left_lift_pose[:3, 3]).tolist()} | "
-            f"left_lift_pose_rot={DrawerOpenPlaceActionBank._as_numpy(env, left_lift_pose[:3, :3]).tolist()} | "
-            f"left_plan_lift_last_qpos={DrawerOpenPlaceActionBank._as_numpy(env, left_plan_lift.positions[-1]).tolist()} | "
-            f"left_home_qpos={DrawerOpenPlaceActionBank._as_numpy(env, left_home_qpos).tolist()}"
-        )
         left_place_hover_result = DrawerOpenPlaceActionBank._solve_ik_candidates(
             env,
             "left_arm",
@@ -609,7 +613,7 @@ class DrawerOpenPlaceActionBank(ActionBank):
         )
 
         left_place_drop_pose = left_place_hover_pose.clone()
-        left_place_drop_pose[2, 3] = place_drop_xyz[2]
+        left_place_drop_pose[:3, 3] = place_drop_xyz
         left_plan_to_place_drop = DrawerOpenPlaceActionBank._require_plan(
             env,
             DrawerOpenPlaceActionBank._plan_linear_eef_motion(
@@ -774,6 +778,9 @@ class DrawerOpenPlaceActionBank(ActionBank):
             )
         start_qpos = DrawerOpenPlaceActionBank._as_tensor(env, start_qpos)
         target_qpos = DrawerOpenPlaceActionBank._as_tensor(env, target_qpos)
+        close_ratio = float(affordance_datas.get(f"{control_part}_close_ratio", 1.0))
+        close_ratio = max(0.0, min(1.0, close_ratio))
+        target_qpos = start_qpos + (target_qpos - start_qpos) * close_ratio
         interpolated = DrawerOpenPlaceActionBank._interpolate_state(
             env, start_qpos, target_qpos, duration
         )

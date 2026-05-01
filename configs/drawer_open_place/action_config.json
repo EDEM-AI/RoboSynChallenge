@@ -348,11 +348,23 @@
                 "left_close_duck": {
                     "src": "left_open",
                     "sink": "left_close",
-                    "duration": 20,
+                    "duration": 30,
                     "name": "execute_close",
                     "kwargs": {
                         "control_part": "left_eef",
                         "return_action": true
+                    }
+                }
+            },
+            {
+                "left_close_after_hold": {
+                    "src": "left_close",
+                    "sink": "left_close",
+                    "duration": 5,
+                    "name": "execute_hold",
+                    "kwargs": {
+                        "control_part": "left_eef",
+                        "qpos_key": "left_eef_close_qpos"
                     }
                 }
             },
@@ -531,7 +543,7 @@
         },
         "left_grasp_hold": {
             "depend_tasks": [
-                "left_close_duck"
+                "left_close_after_hold"
             ]
         },
         "left_open_duck": {

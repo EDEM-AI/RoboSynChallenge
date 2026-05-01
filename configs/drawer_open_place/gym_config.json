@@ -133,6 +133,17 @@
                     "relative_rotation": true
                 }
             },
+            "random_drawer_root_pose": {
+                "func": "randomize_articulation_root_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "drawer"},
+                    "position_range": [[-0.01, -0.005, 0.0], [0.01, 0.005, 0.0]],
+                    "relative_position": true,
+                    "relative_rotation": false,
+                    "physics_update_step": 1
+                }
+            },
             "random_duck_material": {
                 "func": "randomize_visual_material",
                 "mode": "interval",
@@ -163,7 +174,7 @@
                         {"uid": "distractor_0"},
                         {"uid": "distractor_1"}
                     ],
-                    "library_index_path": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/ASSET_INDEX.json",
+                    "library_index_path": "embodied_challenge/Distractor/ASSET_INDEX.json",
                     "categories": ["PaperCup", "fork", "spoon"],
                     "position_ranges": [
                         [[0.425, -0.30, 0.89], [0.925, 0.3, 0.92]],
@@ -199,6 +210,18 @@
                             }
                         },
                         {
+                            "name": "handle_pose",
+                            "mode": "callable",
+                            "entity_cfg": {
+                                "uid": "drawer"
+                            },
+                            "func_name": "get_link_pose",
+                            "func_kwargs": {
+                                "link_name": "handle_xpos",
+                                "to_matrix": true
+                            }
+                        },
+                        {
                             "name": "left_arm_base_pose",
                             "mode": "callable",
                             "entity_cfg": {
@@ -228,7 +251,7 @@
                             "entity_cfg": {
                                 "uid": "drawer"
                             },
-                            "value": [0.9, 0.1]
+                            "value": [0.84, -0.1]
                         },
                         {
                             "name": "drawer_pull_distance",
@@ -268,7 +291,7 @@
                             "entity_cfg": {
                                 "uid": "drawer"
                             },
-                            "value": [-0.04, 0.05, 0.295]
+                            "value": [-0.14, 0.05, 0.18]
                         },
                         {
                             "name": "drawer_place_hover_offset_xyz",
@@ -276,7 +299,57 @@
                             "entity_cfg": {
                                 "uid": "drawer"
                             },
-                            "value": [0.0, 0.0, 0.12]
+                            "value": [0.0, 0.0, 0.03]
+                        },
+                        {
+                            "name": "right_handle_start_offset_xyz",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "drawer"
+                            },
+                            "value": [0.06, 0.0, 0.0]
+                        },
+                        {
+                            "name": "right_handle_contact_offset_xyz",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "drawer"
+                            },
+                            "value": [0.0, 0.0, 0.0]
+                        },
+                        {
+                            "name": "right_handle_pull_offset_xyz",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "drawer"
+                            },
+                            "value": [-0.12, 0.0, 0.0]
+                        },
+                        {
+                            "name": "right_retreat_offset_xyz",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "drawer"
+                            },
+                            "value": [-0.17, 0.0, 0.0]
+                        },
+                        {
+                            "name": "left_eef_close_ratio",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "CobotMagic",
+                                "control_parts": ["left_arm"]
+                            },
+                            "value": 0.7
+                        },
+                        {
+                            "name": "right_eef_close_ratio",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "CobotMagic",
+                                "control_parts": ["right_arm"]
+                            },
+                            "value": 1.0
                         }
                     ]
                 }
@@ -302,6 +375,34 @@
                             },
                             "attrs": ["pose"],
                             "prefix": true
+                        },
+                        {
+                            "entity_cfg": {
+                                "uid": "drawer"
+                            },
+                            "attrs": ["handle_pose"],
+                            "prefix": true
+                        },
+                        {
+                            "entity_cfg": {
+                                "uid": "drawer"
+                            },
+                            "attrs": [
+                                "drawer_inner_offset_xyz",
+                                "drawer_place_hover_offset_xyz",
+                                "right_handle_start_offset_xyz",
+                                "right_handle_contact_offset_xyz",
+                                "right_handle_pull_offset_xyz",
+                                "right_retreat_offset_xyz"
+                            ],
+                            "prefix": false
+                        },
+                        {
+                            "entity_cfg": {
+                                "uid": "CobotMagic"
+                            },
+                            "attrs": ["left_eef_close_ratio", "right_eef_close_ratio"],
+                            "prefix": false
                         },
                         {
                             "entity_cfg": {
@@ -513,8 +614,8 @@
                 0.395
             ],
             "init_pos": [
-                0.7,
-                0.11,
+                0.65,
+                0.16,
                 0.85
             ],
             "init_rot": [
@@ -523,7 +624,7 @@
                 90
             ],
             "attrs": {
-                "mass": 0.05,
+                "mass": 0.1,
                 "static_friction": 5.0,
                 "dynamic_friction": 5.0,
                 "restitution": 0.0,
@@ -539,14 +640,14 @@
             "uid": "distractor_0",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/Embodied_Challenge/assets/Beaker/beaker.ply"
+                "fpath": "assets/Beaker/beaker.ply"
             }
         },
         {
             "uid": "distractor_1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/Embodied_Challenge/assets/Beaker/beaker.ply"
+                "fpath": "assets/Beaker/beaker.ply"
             }
         }
     ],
