@@ -168,6 +168,33 @@ class DrawerOpenPlaceActionBank(ActionBank):
         return ret
 
     @staticmethod
+    def _make_rotated_pose_candidates(
+        pose: torch.Tensor,
+        x_angles: Sequence[float] = (0.0,),
+        y_angles: Sequence[float] = (0.0,),
+        z_angles: Sequence[float] = (0.0,),
+    ) -> list[torch.Tensor]:
+        candidates = []
+        for y_angle in y_angles:
+            for x_angle in x_angles:
+                for z_angle in z_angles:
+                    candidate = pose.clone()
+                    if y_angle != 0.0:
+                        candidate = DrawerOpenPlaceActionBank._rotate_pose_local(
+                            candidate, "y", float(y_angle)
+                        )
+                    if x_angle != 0.0:
+                        candidate = DrawerOpenPlaceActionBank._rotate_pose_local(
+                            candidate, "x", float(x_angle)
+                        )
+                    if z_angle != 0.0:
+                        candidate = DrawerOpenPlaceActionBank._rotate_pose_local(
+                            candidate, "z", float(z_angle)
+                        )
+                    candidates.append(candidate)
+        return candidates
+
+    @staticmethod
     def _interpolate_state(
         env, start: torch.Tensor, end: torch.Tensor, num_steps: int
     ) -> torch.Tensor:
@@ -221,11 +248,9 @@ class DrawerOpenPlaceActionBank(ActionBank):
             name=control_part,
         )
         if result is None:
-            logger.log_warning(f"IK failed at stage: {stage_name}")
             return None
         success, qpos = result
         if bool(success[0].item()) is False:
-            logger.log_warning(f"IK failed at stage: {stage_name}")
             return None
         return qpos[0]
 
@@ -395,25 +420,46 @@ class DrawerOpenPlaceActionBank(ActionBank):
         if handle_contact_qpos is None:
             return False
 
-        handle_pull_qpos = DrawerOpenPlaceActionBank._solve_ik(
+        pull_x_angles = [float(np.deg2rad(v)) for v in (0.0, -5.0, 5.0, -10.0, 10.0)]
+        pull_y_angles = [
+            float(np.deg2rad(v)) for v in (0.0, -5.0, 5.0, -10.0, 10.0, -15.0, 15.0)
+        ]
+        handle_pull_candidates = DrawerOpenPlaceActionBank._make_rotated_pose_candidates(
+            handle_pull_pose,
+            x_angles=pull_x_angles,
+            y_angles=pull_y_angles,
+        )
+        handle_pull_result = DrawerOpenPlaceActionBank._solve_ik_candidates(
             env,
             "right_arm",
-            handle_pull_pose,
-            handle_contact_qpos,
+            handle_pull_candidates,
+            [handle_contact_qpos, handle_start_qpos, right_home_qpos],
             "right_handle_pull",
         )
-        if handle_pull_qpos is None:
+        if handle_pull_result is None:
             return False
+        handle_pull_pose, handle_pull_qpos = handle_pull_result
 
-        right_retreat_qpos = DrawerOpenPlaceActionBank._solve_ik(
+        right_retreat_pose = handle_pull_pose.clone()
+        right_retreat_pose[:3, 3] = handle_translation + right_retreat_offset
+
+        retreat_x_angles = [float(np.deg2rad(v)) for v in (0.0, -5.0, 5.0)]
+        retreat_y_angles = [float(np.deg2rad(v)) for v in (0.0, -5.0, 5.0, -10.0, 10.0)]
+        right_retreat_candidates = DrawerOpenPlaceActionBank._make_rotated_pose_candidates(
+            right_retreat_pose,
+            x_angles=retreat_x_angles,
+            y_angles=retreat_y_angles,
+        )
+        right_retreat_result = DrawerOpenPlaceActionBank._solve_ik_candidates(
             env,
             "right_arm",
-            right_retreat_pose,
-            handle_pull_qpos,
+            right_retreat_candidates,
+            [handle_pull_qpos, handle_contact_qpos, handle_start_qpos],
             "right_retreat",
         )
-        if right_retreat_qpos is None:
+        if right_retreat_result is None:
             return False
+        right_retreat_pose, right_retreat_qpos = right_retreat_result
 
         affordance_datas["right_arm_init_qpos"] = right_home_qpos
         affordance_datas["right_arm_handle_start_pose"] = handle_start_pose

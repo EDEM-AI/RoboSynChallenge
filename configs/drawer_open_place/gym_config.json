@@ -89,7 +89,7 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "cam_high"},
-                    "eye_range": [[-0.01, -0.01,-0.01], [0.01, 0.01, 0.01]],
+                    "eye_range": [[-0.01, -0.01, -0.01], [0.01, 0.01, 0.01]],
                     "target_range": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
                     "up_range": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
                 }
@@ -323,7 +323,7 @@
                             "entity_cfg": {
                                 "uid": "drawer"
                             },
-                            "value": [-0.12, 0.0, 0.0]
+                            "value": [-0.10, 0.0, 0.0]
                         },
                         {
                             "name": "right_retreat_offset_xyz",
@@ -527,45 +527,7 @@
             0
         ]
     },
-    "sensor": [
-        {
-            "sensor_type": "Camera",
-            "uid": "cam_high",
-            "width": 640,
-            "height": 480,
-            "intrinsics": [606.315186, 606.100952, 320.549316, 245.877106],
-            "extrinsics": {
-                "eye": [0.206931, 0.052728, 1.401134],
-                "target": [0.576285, -0.000645, 0.473375],
-                "up": [0.917003, -0.140871, 0.373178]
-            }
-        },
-        {
-            "sensor_type": "Camera",
-            "uid": "cam_right_wrist",
-            "width": 640,
-            "height": 480,
-            "intrinsics": [603.117004394531, 602.418640136719, 326.727478027344, 251.933990478516],
-            "extrinsics": {
-                "parent": "right_link6",
-                "pos": [-0.12, 0.0, 0.04],
-                "quat": [0.1976964, 0.69034543, -0.69034543, -0.1976964]
-            }
-        },
-        {
-            "sensor_type": "Camera",
-            "uid": "cam_left_wrist",
-            "width": 640,
-            "height": 480,
-            "enable_mask": false,
-            "intrinsics": [603.117004394531, 602.418640136719, 326.727478027344, 251.933990478516],
-            "extrinsics": {
-                "parent": "left_link6",
-                "pos": [-0.12, 0.0, 0.04],
-                "quat": [0.1976964, 0.69034543, -0.69034543, -0.1976964]
-            }
-        }
-    ],
+    "sensor": [],
     "light": {
         "direct": [
             {
