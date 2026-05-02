@@ -2,9 +2,7 @@
     "scope": {
         "left_arm": {
             "type": "DiGraph",
-            "dim": [
-                6
-            ],
+            "dim": [6],
             "init": {
                 "method": "current_qpos",
                 "init_node_name": "left_arm_init_qpos"
@@ -13,15 +11,11 @@
         },
         "left_eef": {
             "type": "DiGraph",
-            "dim": [
-                1
-            ],
+            "dim": [1],
             "init": {
                 "method": "given_qpos",
                 "kwargs": {
-                    "given_qpos": [
-                        0
-                    ]
+                    "given_qpos": [0]
                 },
                 "init_node_name": "left_eef_init_qpos"
             },
@@ -29,9 +23,7 @@
         },
         "right_arm": {
             "type": "DiGraph",
-            "dim": [
-                6
-            ],
+            "dim": [6],
             "init": {
                 "method": "current_qpos",
                 "init_node_name": "right_arm_init_qpos"
@@ -40,15 +32,11 @@
         },
         "right_eef": {
             "type": "DiGraph",
-            "dim": [
-                1
-            ],
+            "dim": [1],
             "init": {
                 "method": "given_qpos",
                 "kwargs": {
-                    "given_qpos": [
-                        0
-                    ]
+                    "given_qpos": [0]
                 },
                 "init_node_name": "right_eef_init_qpos"
             },
@@ -59,57 +47,553 @@
         "left_arm": [
             {
                 "left_arm_init_qpos": {
-                    "name": "capture_current_arm_state",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
-                        "control_part": "left_arm"
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_init_qpos",
+                                "dst_key": "left_arm_init_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_fk_xpos",
+                                                "kwargs": {
+                                                    "control_part": "left_arm",
+                                                    "fk_func": "env.robot.compute_fk"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 }
             },
             {
-                "left_arm_duck_hover_qpos": {
-                    "name": "generate_left_pick_place_node",
+                "left_arm_reference_qpos": {
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
-                        "node_key": "left_arm_duck_hover_qpos"
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_init_qpos",
+                                "dst_key": "left_arm_reference_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_replaced_qpos",
+                                                "kwargs": {
+                                                    "replace_value": [0.0, 0.7853982, -0.7853982, 0.0, 0.7853982, 0.0],
+                                                    "joint_list_replace": [0, 1, 2, 3, 4, 5]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "left_arm_reference_pose": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_reference_qpos",
+                                "dst_key": "left_arm_reference_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_fk_xpos",
+                                                "kwargs": {
+                                                    "control_part": "left_arm",
+                                                    "fk_func": "env.robot.compute_fk"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "left_arm_aim_duck_qpos": {
+                    "name": "generate_left_arm_aim_qpos",
+                    "kwargs": {
+                    }
+                }
+            },
+            {
+                "left_arm_aim_drawer_qpos": {
+                    "name": "generate_left_arm_aim_drawer_qpos",
+                    "kwargs": {
                     }
                 }
             },
             {
                 "left_arm_duck_grasp_qpos": {
-                    "name": "generate_left_pick_place_node",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
-                        "node_key": "left_arm_duck_grasp_qpos"
+                        "affordance_infos": [
+                            {
+                                "src_key": "duck_pose",
+                                "dst_key": "left_arm_duck_grasp_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.01,
+                                                    "direction": "x",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.04,
+                                                    "direction": "y",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotation_replaced_pose",
+                                                "kwargs": {
+                                                    "rotation_value": "env.affordance_datas['left_arm_aim_duck_qpos'][0]",
+                                                    "rot_axis": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": -60,
+                                                    "rot_axis": "y",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": 180,
+                                                    "rot_axis": "x",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": "env.affordance_datas['grasp_offset']",
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            }
+
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "left_arm_duck_grasp_pose",
+                                "dst_key": "left_arm_duck_grasp_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_aim_duck_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_aim_duck_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "left_arm_duck_pregrasp_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_duck_grasp_pose",
+                                "dst_key": "left_arm_duck_pregrasp_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": -0.1,
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "left_arm_duck_pregrasp_pose",
+                                "dst_key": "left_arm_duck_pregrasp_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_duck_grasp_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_duck_grasp_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 }
             },
             {
                 "left_arm_duck_lift_qpos": {
-                    "name": "generate_left_pick_place_node",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
-                        "node_key": "left_arm_duck_lift_qpos"
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_duck_grasp_pose",
+                                "dst_key": "left_arm_duck_lift_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_replaced_pose",
+                                                "kwargs": {
+                                                    "pose_replace_value": [
+                                                        "env.affordance_datas['duck_pose'][0, 3] + env.affordance_datas['duck_grasp_offset_xyz'][0]",
+                                                        "env.affordance_datas['duck_pose'][1, 3] + env.affordance_datas['duck_grasp_offset_xyz'][1]",
+                                                        "env.affordance_datas['duck_pose'][2, 3] + env.affordance_datas['duck_hover_height']"
+                                                    ],
+                                                    "axis_str_replace": "xyz"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "left_arm_duck_lift_pose",
+                                "dst_key": "left_arm_duck_lift_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_duck_grasp_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_duck_grasp_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 }
             },
             {
                 "left_arm_place_hover_qpos": {
-                    "name": "generate_left_pick_place_node",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
-                        "node_key": "left_arm_place_hover_qpos"
+                        "affordance_infos": [
+                            {
+                                "src_key": "drawer_pose",
+                                "dst_key": "left_arm_place_hover_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.2,
+                                                    "direction": "x",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": -0.1,
+                                                    "direction": "y",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.28,
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotation_replaced_pose",
+                                                "kwargs": {
+                                                    "rotation_value": "env.affordance_datas['left_arm_aim_drawer_qpos'][0]",
+                                                    "rot_axis": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": -90,
+                                                    "rot_axis": "y",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": 180,
+                                                    "rot_axis": "x",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": "env.affordance_datas['grasp_offset']",
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            }
+
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "left_arm_place_hover_pose",
+                                "dst_key": "left_arm_place_hover_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_duck_lift_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_duck_lift_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 }
             },
             {
                 "left_arm_place_drop_qpos": {
-                    "name": "generate_left_pick_place_node",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
-                        "node_key": "left_arm_place_drop_qpos"
-                    }
-                }
-            },
-            {
-                "left_arm_retreat_qpos": {
-                    "name": "generate_left_pick_place_node",
-                    "kwargs": {
-                        "node_key": "left_arm_retreat_qpos"
+                        "affordance_infos": [
+                            {
+                                "src_key": "drawer_pose",
+                                "dst_key": "left_arm_place_drop_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.2,
+                                                    "direction": "x",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.28,
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotation_replaced_pose",
+                                                "kwargs": {
+                                                    "rotation_value": "env.affordance_datas['left_arm_aim_drawer_qpos'][0]",
+                                                    "rot_axis": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": -90,
+                                                    "rot_axis": "y",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": 180,
+                                                    "rot_axis": "x",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": "env.affordance_datas['grasp_offset']",
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "left_arm_place_drop_pose",
+                                "dst_key": "left_arm_place_drop_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_place_hover_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_place_hover_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 }
             }
@@ -124,16 +608,16 @@
                 }
             },
             {
-                "left_open": {
-                    "name": "execute_open",
+                "left_eef_closed_duck": {
+                    "name": "execute_close",
                     "kwargs": {
                         "control_part": "left_eef"
                     }
                 }
             },
             {
-                "left_close": {
-                    "name": "execute_close",
+                "left_eef_open_after_place": {
+                    "name": "execute_open",
                     "kwargs": {
                         "control_part": "left_eef"
                     }
@@ -143,33 +627,431 @@
         "right_arm": [
             {
                 "right_arm_init_qpos": {
-                    "name": "capture_current_arm_state",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
-                        "control_part": "right_arm"
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_init_qpos",
+                                "dst_key": "right_arm_init_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_fk_xpos",
+                                                "kwargs": {
+                                                    "control_part": "right_arm",
+                                                    "fk_func": "env.robot.compute_fk"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "right_arm_reference_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_init_qpos",
+                                "dst_key": "right_arm_reference_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_replaced_qpos",
+                                                "kwargs": {
+                                                    "replace_value": [0.0, 2.06, -0.75, 0.0, -1.20, 1.6],
+                                                    "joint_list_replace": [0, 1, 2, 3, 4, 5]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "right_arm_reference_pose": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_reference_qpos",
+                                "dst_key": "right_arm_reference_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_fk_xpos",
+                                                "kwargs": {
+                                                    "control_part": "right_arm",
+                                                    "fk_func": "env.robot.compute_fk"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "right_arm_aim_drawer_qpos": {
+                    "name": "generate_right_arm_aim_qpos",
+                    "kwargs": {
                     }
                 }
             },
             {
                 "right_arm_handle_start_qpos": {
-                    "name": "generate_right_drawer_node",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
-                        "node_key": "right_arm_handle_start_qpos"
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_reference_pose",
+                                "dst_key": "right_arm_handle_start_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_replaced_pose",
+                                                "kwargs": {
+                                                    "pose_replace_value": [
+                                                        "env.affordance_datas['drawer_handle_pose'][0, 3] + env.affordance_datas['right_handle_start_offset_xyz'][0]",
+                                                        "env.affordance_datas['drawer_handle_pose'][1, 3] + env.affordance_datas['right_handle_start_offset_xyz'][1]",
+                                                        "env.affordance_datas['drawer_handle_pose'][2, 3] + env.affordance_datas['right_handle_start_offset_xyz'][2]"
+                                                    ],
+                                                    "axis_str_replace": "xyz"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "right_arm_handle_start_pose",
+                                "dst_key": "right_arm_handle_start_pre_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": -0.1,
+                                                    "direction": "x",
+                                                    "mode": "extrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": -10,
+                                                    "rot_axis": "x",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "right_arm_handle_start_pose",
+                                "dst_key": "right_arm_handle_start_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['right_arm_aim_drawer_qpos']",
+                                            "control_part": "right_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['right_arm_aim_drawer_qpos']",
+                                                    "control_part": "right_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "right_arm_handle_start_pre_pose",
+                                "dst_key": "right_arm_handle_start_pre_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['right_arm_aim_drawer_qpos']",
+                                            "control_part": "right_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['right_arm_aim_drawer_qpos']",
+                                                    "control_part": "right_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 }
             },
             {
                 "right_arm_handle_contact_qpos": {
-                    "name": "generate_right_drawer_node",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
-                        "node_key": "right_arm_handle_contact_qpos"
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_reference_pose",
+                                "dst_key": "right_arm_handle_contact_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_replaced_pose",
+                                                "kwargs": {
+                                                    "pose_replace_value": [
+                                                        "env.affordance_datas['drawer_handle_pose'][0, 3] + env.affordance_datas['right_handle_contact_offset_xyz'][0]",
+                                                        "env.affordance_datas['drawer_handle_pose'][1, 3] + env.affordance_datas['right_handle_contact_offset_xyz'][1]",
+                                                        "env.affordance_datas['drawer_handle_pose'][2, 3] + env.affordance_datas['right_handle_contact_offset_xyz'][2]"
+                                                    ],
+                                                    "axis_str_replace": "xyz"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "right_arm_handle_contact_pose",
+                                "dst_key": "right_arm_handle_contact_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['right_arm_handle_start_qpos']",
+                                            "control_part": "right_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['right_arm_handle_start_qpos']",
+                                                    "control_part": "right_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 }
             },
             {
                 "right_arm_drawer_pull_qpos": {
-                    "name": "generate_right_drawer_node",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
-                        "node_key": "right_arm_drawer_pull_qpos"
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_handle_start_pose",
+                                "dst_key": "right_arm_drawer_pull_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": -20,
+                                                    "rot_axis": "x",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": -0.2,
+                                                    "direction": "x",
+                                                    "mode": "extrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "right_arm_drawer_pull_pose",
+                                "dst_key": "right_arm_drawer_pull_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['right_arm_handle_start_qpos']",
+                                            "control_part": "right_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['right_arm_handle_start_qpos']",
+                                                    "control_part": "right_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "right_arm_drawer_pull_pre_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_drawer_pull_pose",
+                                "dst_key": "right_arm_drawer_pull_pre_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": 10,
+                                                    "rot_axis": "x",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.1,
+                                                    "direction": "x",
+                                                    "mode": "extrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "right_arm_drawer_pull_pre_pose",
+                                "dst_key": "right_arm_drawer_pull_pre_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['right_arm_handle_start_qpos']",
+                                            "control_part": "right_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['right_arm_handle_start_qpos']",
+                                                    "control_part": "right_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 }
             }
@@ -184,7 +1066,15 @@
                 }
             },
             {
-                "right_open": {
+                "right_eef_closed_for_pull": {
+                    "name": "execute_close",
+                    "kwargs": {
+                        "control_part": "right_eef"
+                    }
+                }
+            },
+            {
+                "right_eef_open_after_pull": {
                     "name": "execute_open",
                     "kwargs": {
                         "control_part": "right_eef"
@@ -192,8 +1082,16 @@
                 }
             },
             {
-                "right_close": {
+                "right_eef_closed_for_push": {
                     "name": "execute_close",
+                    "kwargs": {
+                        "control_part": "right_eef"
+                    }
+                }
+            },
+            {
+                "right_eef_open_final": {
+                    "name": "execute_open",
                     "kwargs": {
                         "control_part": "right_eef"
                     }
@@ -204,78 +1102,53 @@
     "edge": {
         "left_arm": [
             {
-                "left_to_hover": {
+                "left_to_pregrasp": {
                     "src": "left_arm_init_qpos",
-                    "sink": "left_arm_duck_hover_qpos",
+                    "sink": "left_arm_duck_pregrasp_qpos",
                     "duration": 60,
                     "fill_type": "scalable",
-                    "name": "execute_joint_motion",
+                    "name": "plan_trajectory",
                     "kwargs": {
-                        "control_part": "left_arm",
-                        "start_key": "left_arm_init_qpos",
-                        "target_key": "left_arm_duck_hover_qpos",
-                        "stage_name": "left_to_hover"
-                    }
-                }
-            },
-            {
-                "left_hover_to_grasp": {
-                    "src": "left_arm_duck_hover_qpos",
-                    "sink": "left_arm_duck_grasp_qpos",
-                    "duration": 70,
-                    "fill_type": "scalable",
-                    "name": "execute_linear_motion",
-                    "kwargs": {
-                        "control_part": "left_arm",
-                        "start_key": "left_arm_duck_hover_qpos",
-                        "pose_keys": [
-                            "left_arm_duck_hover_pose",
-                            "left_arm_duck_pregrasp_pose",
-                            "left_arm_duck_grasp_pose"
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_init_qpos",
+                            "left_arm_duck_pregrasp_qpos"
                         ],
-                        "stage_name": "left_hover_to_grasp"
+                        "edge_name": "left_to_pregrasp"
                     }
                 }
             },
             {
-                "left_grasp_hold": {
-                    "src": "left_arm_duck_grasp_qpos",
+                "left_pregrasp_to_grasp": {
+                    "src": "left_arm_duck_pregrasp_qpos",
                     "sink": "left_arm_duck_grasp_qpos",
-                    "duration": 20,
-                    "name": "execute_hold",
+                    "duration": 40,
+                    "fill_type": "scalable",
+                    "name": "plan_trajectory",
                     "kwargs": {
-                        "control_part": "left_arm",
-                        "qpos_key": "left_arm_duck_grasp_qpos"
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_duck_pregrasp_qpos",
+                            "left_arm_duck_grasp_qpos"
+                        ],
+                        "edge_name": "left_pregrasp_to_grasp"
                     }
                 }
             },
             {
-                "left_grasp_settle": {
+                "left_grasp_to_lift": {
                     "src": "left_arm_duck_grasp_qpos",
-                    "sink": "left_arm_duck_lift_qpos",
-                    "duration": 10,
-                    "name": "execute_hold",
-                    "kwargs": {
-                        "control_part": "left_arm",
-                        "qpos_key": "left_arm_duck_grasp_qpos"
-                    }
-                }
-            },
-            {
-                "left_lift": {
-                    "src": "left_arm_duck_lift_qpos",
                     "sink": "left_arm_duck_lift_qpos",
                     "duration": 40,
                     "fill_type": "scalable",
-                    "name": "execute_linear_motion",
+                    "name": "plan_trajectory",
                     "kwargs": {
-                        "control_part": "left_arm",
-                        "start_key": "left_arm_duck_grasp_qpos",
-                        "pose_keys": [
-                            "left_arm_duck_grasp_pose",
-                            "left_arm_duck_lift_pose"
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_duck_grasp_qpos",
+                            "left_arm_duck_lift_qpos"
                         ],
-                        "stage_name": "left_lift"
+                        "edge_name": "left_grasp_to_lift"
                     }
                 }
             },
@@ -285,12 +1158,14 @@
                     "sink": "left_arm_place_hover_qpos",
                     "duration": 60,
                     "fill_type": "scalable",
-                    "name": "execute_joint_motion",
+                    "name": "plan_trajectory",
                     "kwargs": {
-                        "control_part": "left_arm",
-                        "start_key": "left_arm_duck_lift_qpos",
-                        "target_key": "left_arm_place_hover_qpos",
-                        "stage_name": "left_to_place_hover"
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_duck_lift_qpos",
+                            "left_arm_place_hover_qpos"
+                        ],
+                        "edge_name": "left_to_place_hover"
                     }
                 }
             },
@@ -300,45 +1175,48 @@
                     "sink": "left_arm_place_drop_qpos",
                     "duration": 40,
                     "fill_type": "scalable",
-                    "name": "execute_linear_motion",
+                    "name": "plan_trajectory",
                     "kwargs": {
-                        "control_part": "left_arm",
-                        "start_key": "left_arm_place_hover_qpos",
-                        "pose_keys": [
-                            "left_arm_place_hover_pose",
-                            "left_arm_place_drop_pose"
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_place_hover_qpos",
+                            "left_arm_place_drop_qpos"
                         ],
-                        "stage_name": "left_place_drop"
-                    }
-                }
-            },
-            {
-                "left_release_hold": {
-                    "src": "left_arm_place_drop_qpos",
-                    "sink": "left_arm_place_drop_qpos",
-                    "duration": 20,
-                    "name": "execute_hold",
-                    "kwargs": {
-                        "control_part": "left_arm",
-                        "qpos_key": "left_arm_place_drop_qpos"
+                        "edge_name": "left_place_drop"
                     }
                 }
             },
             {
                 "left_retreat": {
                     "src": "left_arm_place_drop_qpos",
-                    "sink": "left_arm_retreat_qpos",
+                    "sink": "left_arm_place_hover_qpos",
                     "duration": 40,
                     "fill_type": "scalable",
-                    "name": "execute_linear_motion",
+                    "name": "plan_trajectory",
                     "kwargs": {
-                        "control_part": "left_arm",
-                        "start_key": "left_arm_place_drop_qpos",
-                        "pose_keys": [
-                            "left_arm_place_drop_pose",
-                            "left_arm_retreat_pose"
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_place_drop_qpos",
+                            "left_arm_place_hover_qpos"
                         ],
-                        "stage_name": "left_retreat"
+                        "edge_name": "left_retreat"
+                    }
+                }
+            },
+            {
+                "left_return_home": {
+                    "src": "left_arm_place_hover_qpos",
+                    "sink": "left_arm_init_qpos",
+                    "duration": 65,
+                    "fill_type": "scalable",
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_place_hover_qpos",
+                            "left_arm_init_qpos"
+                        ],
+                        "edge_name": "left_return_home"
                     }
                 }
             }
@@ -346,8 +1224,8 @@
         "left_eef": [
             {
                 "left_close_duck": {
-                    "src": "left_open",
-                    "sink": "left_close",
+                    "src": "left_eef_init_qpos",
+                    "sink": "left_eef_closed_duck",
                     "duration": 30,
                     "name": "execute_close",
                     "kwargs": {
@@ -357,21 +1235,9 @@
                 }
             },
             {
-                "left_close_after_hold": {
-                    "src": "left_close",
-                    "sink": "left_close",
-                    "duration": 5,
-                    "name": "execute_hold",
-                    "kwargs": {
-                        "control_part": "left_eef",
-                        "qpos_key": "left_eef_close_qpos"
-                    }
-                }
-            },
-            {
                 "left_open_duck": {
-                    "src": "left_close",
-                    "sink": "left_open",
+                    "src": "left_eef_closed_duck",
+                    "sink": "left_eef_open_after_place",
                     "duration": 20,
                     "name": "execute_open",
                     "kwargs": {
@@ -382,103 +1248,120 @@
             }
         ],
         "right_arm": [
-            {
-                "right_to_handle_start": {
+             {
+                "right_to_handle_start_pre": {
                     "src": "right_arm_init_qpos",
-                    "sink": "right_arm_handle_start_qpos",
-                    "duration": 60,
+                    "sink": "right_arm_handle_start_pre_qpos",
+                    "duration": 30,
                     "fill_type": "scalable",
-                    "name": "execute_joint_motion",
+                    "name": "plan_trajectory",
                     "kwargs": {
-                        "control_part": "right_arm",
-                        "start_key": "right_arm_init_qpos",
-                        "target_key": "right_arm_handle_start_qpos",
-                        "stage_name": "right_to_handle_start"
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_init_qpos",
+                            "right_arm_handle_start_pre_qpos"
+                        ],
+                        "edge_name": "right_to_handle_start_pre"
                     }
                 }
             },
             {
-                "right_to_handle_contact": {
+                "right_handle_start_pre_to_handle_start": {
+                    "src": "right_arm_handle_start_pre_qpos",
+                    "sink": "right_arm_handle_start_qpos",
+                    "duration": 30,
+                    "fill_type": "scalable",
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_handle_start_pre_qpos",
+                            "right_arm_handle_start_qpos"
+                        ],
+                        "edge_name": "right_handle_start_pre_to_handle_start"
+                    }
+                }
+            },
+            {
+                "right_drawer_pull_pre": {
                     "src": "right_arm_handle_start_qpos",
-                    "sink": "right_arm_handle_contact_qpos",
+                    "sink": "right_arm_drawer_pull_pre_qpos",
+                    "duration": 40,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_handle_start_qpos",
+                            "right_arm_drawer_pull_pre_qpos"
+                        ],
+                        "edge_name": "right_drawer_pull_pre"
+                    }
+                }
+            },
+            {
+                "right_pull_pre_to_drawer_pull": {
+                    "src": "right_arm_drawer_pull_pre_qpos",
+                    "sink": "right_arm_drawer_pull_qpos",
+                    "duration": 40,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_drawer_pull_pre_qpos",
+                            "right_arm_drawer_pull_qpos"
+                        ],
+                        "edge_name": "right_pull_pre_to_drawer_pull"
+                    }
+                }
+            },
+            {
+                "right_drawer_push_close": {
+                    "src": "right_arm_drawer_pull_qpos",
+                    "sink": "right_arm_handle_start_qpos",
                     "duration": 50,
                     "fill_type": "scalable",
-                    "name": "execute_linear_motion",
+                    "name": "plan_trajectory",
                     "kwargs": {
-                        "control_part": "right_arm",
-                        "start_key": "right_arm_handle_start_qpos",
-                        "pose_keys": [
-                            "right_arm_handle_start_pose",
-                            "right_arm_handle_contact_pose"
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_drawer_pull_qpos",
+                            "right_arm_handle_start_qpos"
                         ],
-                        "stage_name": "right_to_handle_contact"
+                        "edge_name": "right_drawer_push_close"
                     }
                 }
             },
             {
-                "right_handle_grasp_hold": {
+                "right_retreat_after_close": {
                     "src": "right_arm_handle_contact_qpos",
-                    "sink": "right_arm_handle_contact_qpos",
-                    "duration": 20,
-                    "name": "execute_hold",
-                    "kwargs": {
-                        "control_part": "right_arm",
-                        "qpos_key": "right_arm_handle_contact_qpos"
-                    }
-                }
-            },
-            {
-                "right_handle_settle": {
-                    "src": "right_arm_handle_contact_qpos",
-                    "sink": "right_arm_drawer_pull_qpos",
-                    "duration": 10,
-                    "name": "execute_hold",
-                    "kwargs": {
-                        "control_part": "right_arm",
-                        "qpos_key": "right_arm_handle_contact_qpos"
-                    }
-                }
-            },
-            {
-                "right_drawer_pull": {
-                    "src": "right_arm_handle_contact_qpos",
-                    "sink": "right_arm_drawer_pull_qpos",
-                    "duration": 70,
+                    "sink": "right_arm_handle_start_qpos",
+                    "duration": 40,
                     "fill_type": "scalable",
-                    "name": "execute_linear_motion",
+                    "name": "plan_trajectory",
                     "kwargs": {
-                        "control_part": "right_arm",
-                        "start_key": "right_arm_handle_contact_qpos",
-                        "pose_keys": [
-                            "right_arm_handle_contact_pose",
-                            "right_arm_handle_start_pose",
-                            "right_arm_drawer_pull_pose"
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_handle_contact_qpos",
+                            "right_arm_handle_start_qpos"
                         ],
-                        "stage_name": "right_drawer_pull"
+                        "edge_name": "right_retreat_after_close"
                     }
                 }
             },
             {
-                "right_release_hold": {
-                    "src": "right_arm_drawer_pull_qpos",
-                    "sink": "right_arm_drawer_pull_qpos",
-                    "duration": 30,
-                    "name": "execute_hold",
+                "right_return_home": {
+                    "src": "right_arm_handle_start_qpos",
+                    "sink": "right_arm_init_qpos",
+                    "duration": 65,
+                    "fill_type": "scalable",
+                    "name": "plan_trajectory",
                     "kwargs": {
-                        "control_part": "right_arm",
-                        "qpos_key": "right_arm_drawer_pull_qpos"
-                    }
-                }
-            },
-            {
-                "right_post_release_hold": {
-                    "src": "right_arm_drawer_pull_qpos",
-                    "sink": "right_arm_drawer_pull_qpos",
-                    "duration": 15,
-                    "name": "execute_hold",
-                    "kwargs": {
-                        "control_part": "right_arm",
-                        "qpos_key": "right_arm_drawer_pull_qpos"
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_handle_start_qpos",
+                            "right_arm_init_qpos"
+                        ],
+                        "edge_name": "right_return_home"
                     }
                 }
             }
@@ -486,8 +1369,8 @@
         "right_eef": [
             {
                 "right_close_handle": {
-                    "src": "right_open",
-                    "sink": "right_close",
+                    "src": "right_eef_init_qpos",
+                    "sink": "right_eef_closed_for_pull",
                     "duration": 20,
                     "name": "execute_close",
                     "kwargs": {
@@ -497,14 +1380,14 @@
                 }
             },
             {
-                "right_open_handle": {
-                    "src": "right_close",
-                    "sink": "right_open",
-                    "duration": 30,
-                    "name": "execute_hold",
+                "right_open_handle_after_close": {
+                    "src": "right_eef_closed_for_push",
+                    "sink": "right_eef_open_final",
+                    "duration": 25,
+                    "name": "execute_open",
                     "kwargs": {
                         "control_part": "right_eef",
-                        "qpos_key": "right_eef_close_qpos"
+                        "return_action": true
                     }
                 }
             }
@@ -513,37 +1396,33 @@
     "sync": {
         "right_close_handle": {
             "depend_tasks": [
-                "right_to_handle_contact"
+                "right_handle_start_pre_to_handle_start"
             ]
         },
-        "right_handle_grasp_hold": {
+        "right_drawer_pull_pre": {
             "depend_tasks": [
                 "right_close_handle"
             ]
         },
-        "right_open_handle": {
-            "depend_tasks": [
-                "right_drawer_pull"
-            ]
-        },
-        "right_release_hold": {
-            "depend_tasks": [
-                "right_open_handle"
-            ]
-        },
-        "left_to_hover": {
-            "depend_tasks": [
-                "right_post_release_hold"
-            ]
-        },
         "left_close_duck": {
             "depend_tasks": [
-                "left_hover_to_grasp"
+                "left_pregrasp_to_grasp"
             ]
         },
-        "left_grasp_hold": {
+        "left_grasp_to_lift": {
             "depend_tasks": [
-                "left_close_after_hold"
+                "left_close_duck"
+            ]
+        },
+        "left_to_place_hover": {
+            "depend_tasks": [
+                "left_grasp_to_lift",
+                "right_pull_pre_to_drawer_pull"
+            ]
+        },
+        "left_place_drop": {
+            "depend_tasks": [
+                "left_to_place_hover"
             ]
         },
         "left_open_duck": {
@@ -551,14 +1430,34 @@
                 "left_place_drop"
             ]
         },
-        "left_release_hold": {
+        "left_retreat": {
             "depend_tasks": [
                 "left_open_duck"
             ]
         },
-        "left_retreat": {
+        "left_return_home": {
             "depend_tasks": [
-                "left_release_hold"
+                "left_retreat"
+            ]
+        },
+        "right_drawer_push_close": {
+            "depend_tasks": [
+                "left_open_duck"
+            ]
+        },
+        "right_open_handle_after_close": {
+            "depend_tasks": [
+                "right_drawer_push_close"
+            ]
+        },
+        "right_retreat_after_close": {
+            "depend_tasks": [
+                "right_open_handle_after_close"
+            ]
+        },
+        "right_return_home": {
+            "depend_tasks": [
+                "right_retreat_after_close"
             ]
         }
     },

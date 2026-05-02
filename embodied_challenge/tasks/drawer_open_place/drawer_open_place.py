@@ -46,7 +46,7 @@ class DrawerOpenPlaceEnv(EmbodiedEnv):
             return None
 
         ret = self.action_bank.create_action_list(
-            self, self.graph_compose, self.packages, **kwargs
+            self, self.graph_compose, self.packages
         )
         if ret is None:
             logger.log_warning("Failed to generate expert demo action list.")
@@ -84,7 +84,22 @@ class DrawerOpenPlaceEnv(EmbodiedEnv):
         return actions
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        return super().is_task_success(**kwargs)
+        duck = self.sim.get_rigid_object("duck")
+        drawer = self.sim.get_articulation("drawer")
+
+        duck_final_xpos = duck.get_local_pose(to_matrix=True)
+        drawer_pose = drawer.get_link_pose("outer_box", to_matrix=True)
+
+        duck_pos_xy = duck_final_xpos[:, :2, 3]
+        drawer_pos_xy = drawer_pose[:, :2, 3]
+
+        # Success requires the duck to stay near the drawer in XY plane.
+        duck_drawer_dist = torch.linalg.norm(duck_pos_xy - drawer_pos_xy, dim=-1)
+        print(f"Duck-Drawer distance: {duck_drawer_dist.item():.4f}")
+        dist_threshold = 0.1
+        duck_near_drawer = duck_drawer_dist <= dist_threshold
+
+        return duck_near_drawer
 
 
 @register_env("DrawerOpenPlaceAgent-v1", max_episode_steps=900)
