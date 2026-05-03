@@ -32,6 +32,7 @@ from embodichain.lab.sim.objects import (
     Articulation,
     Robot,
 )
+from embodichain.lab.gym.envs.managers.events import resolve_uids
 from embodichain.lab.sim.cfg import RigidObjectCfg, ArticulationCfg
 from embodichain.lab.sim.shapes import MeshCfg
 from embodichain.lab.gym.envs.managers.cfg import SceneEntityCfg
