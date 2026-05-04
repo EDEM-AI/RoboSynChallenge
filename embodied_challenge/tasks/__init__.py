@@ -40,3 +40,24 @@ from .pour_water_dual.pour_water import (
     PourWaterDualEnv,
     PourWaterDualAgentEnv,
 )
+from .carry_basket.carry_basket import (
+    CarryBasketEnvV2,
+    CarryBasketAgentEnvV2,
+)
+from .Beat_Hammer_Block.Beat_Hammer_Block import (
+    BeatHammerBlockEnv,
+    BeatHammerBlockAgentEnv,
+)
+
+from .open_pan.open_pan import (
+    OpenPanPickAndPlaceEnv,
+    OpenPanPickAndPlaceAgentEnv,
+)
+from .rearrangement import (
+    RearrangementEnv,
+    RearrangementAgentEnv,
+)
+from .Articulated_object_operation.Articulated_object_operation import (
+    ArticulatedobjectoperationEnv,
+    ArticulatedobjectoperationAgentEnv,
+)

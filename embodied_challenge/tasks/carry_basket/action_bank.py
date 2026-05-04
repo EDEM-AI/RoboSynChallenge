@@ -14,40 +14,40 @@
 # limitations under the License.
 # ----------------------------------------------------------------------------
 
-import torch
-import numpy as np
+from __future__ import annotations
+
 from copy import deepcopy
-from typing import Dict, Tuple, Union, List, Any, Optional, Callable
-from embodichain.lab.sim.planners.motion_generator import MotionGenerator
+from typing import Any, Dict, List
+
+import numpy as np
+import torch
+
 from embodichain.lab.gym.envs.action_bank.configurable_action import (
     ActionBank,
-    tag_node,
     tag_edge,
+    tag_node,
 )
-
 from embodichain.lab.gym.utils.misc import (
-    resolve_env_params,
-    mul_linear_expand,
-    get_offset_pose_list,
     get_changed_pose,
+    mul_linear_expand,
+    resolve_env_params,
+    validation_with_process_from_name,
 )
-
 from embodichain.lab.sim.planners import (
-    MoveType,
-    PlanState,
-    MotionGenerator,
     MotionGenCfg,
     MotionGenOptions,
+    MotionGenerator,
+    MoveType,
+    PlanState,
     ToppraPlanOptions,
     ToppraPlannerCfg,
 )
 from embodichain.utils import logger
 
+__all__ = ["CarryBasketActionBank"]
 
-__all__ = ["RearrangementActionBank"]
 
-
-class RearrangementActionBank(ActionBank):
+class CarryBasketActionBank(ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params
@@ -67,8 +67,7 @@ class RearrangementActionBank(ActionBank):
     @staticmethod
     @tag_edge
     @tag_node
-    # TODO: Got the dimension from the scope
-    def execute_open(env, return_action: bool = False, limit: float = 0.05, **kwargs):
+    def execute_open(env, return_action: bool = False, limit: float = 1.0, **kwargs):
         if return_action:
             duration = kwargs.get("duration", 1)
             expand = kwargs.get("expand", False)
@@ -78,14 +77,12 @@ class RearrangementActionBank(ActionBank):
             else:
                 action = np.ones((1, duration)) * limit
             return action
-        else:
-            return True
+        return True
 
     @staticmethod
     @tag_edge
     @tag_node
-    def execute_close(env, return_action: bool = False, limit: float = 0.05, **kwargs):
-
+    def execute_close(env, return_action: bool = False, limit: float = 1.0, **kwargs):
         if return_action:
             duration = kwargs.get("duration", 1)
             expand = kwargs.get("expand", False)
@@ -95,8 +92,36 @@ class RearrangementActionBank(ActionBank):
             else:
                 action = np.zeros((1, duration))
             return action
-        else:
-            return True
+        return True
+
+    @staticmethod
+    @tag_node
+    @resolve_env_params
+    # DONE: valid & process qpos & fk
+    def generate_right_arm_aim_qpos(
+        env,
+        valid_funcs_name_kwargs_proc: list | None = None,
+    ):
+        
+        right_aim_horizontal_angle = np.arctan2(
+            *(
+                (
+                    env.affordance_datas["basket_pose"][:2, 3]
+                    - env.affordance_datas["right_arm_base_pose"][:2, 3]
+                )[1::-1]
+            )
+        )
+        right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
+        right_arm_aim_qpos[0] = right_aim_horizontal_angle
+        env.affordance_datas["right_arm_aim_qpos"] = right_arm_aim_qpos
+        return True
+
+
+
+
+
+
+
 
     @staticmethod
     @tag_edge
@@ -124,7 +149,7 @@ class RearrangementActionBank(ActionBank):
                 f"Applying plan_trajectory to two very close qpos! Using stand_still."
             )
             keyposes = [keyposes[0]] * 2
-            ret_transposed = RearrangementActionBank.stand_still(
+            ret_transposed = CarryBasketActionBank.stand_still(
                 env,
                 agent_uid,
                 keypose_names,
@@ -154,8 +179,6 @@ class RearrangementActionBank(ActionBank):
             )
 
             return ret.positions.numpy().T
-
-
     @staticmethod
     @tag_edge
     def stand_still(

@@ -1,6 +1,6 @@
 {   
-    "id": "PourWaterDual",
-    "max_episodes": 600,
+    "id": "Articulatedobjectoperation-v3",
+    "max_episodes": 180,
     "max_episode_steps": 361,
     "env": {
         "events": {
@@ -15,57 +15,22 @@
                     "intensity_range": [50.0, 100.0]
                 }
             },
-            "init_table_pose": {
+            "init_guijiao1_pose": {
                 "func": "randomize_rigid_object_pose",
                 "mode": "reset",
                 "params": {
-                    "entity_cfg": {"uid": "table"},
-                    "position_range": [[0.0, 0.0, -0.04], [0.0, 0.0, 0.04]],
+                    "entity_cfg": {"uid": "guijiao1"},
+                    "position_range": [[-0.05, -0.01, 0.0], [0.08, 0.01, 0.0]],
                     "relative_position": true                
                 }
             },
-            "init_bottle_pose": {
+            "init_guijiao2_pose": {
                 "func": "randomize_rigid_object_pose",
                 "mode": "reset",
                 "params": {
-                    "entity_cfg": {"uid": "bottle"},
-                    "position_range": [[-0.08, -0.12, 0.0], [0.08, 0.04, 0.0]],
+                    "entity_cfg": {"uid": "guijiao2"},
+                    "position_range": [[-0.08, -0.02, 0.0], [0.08, 0.05, 0.0]],
                     "relative_position": true                
-                }
-            },
-            "init_cup_pose": {
-                "func": "randomize_rigid_object_pose",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "cup"},
-                    "position_range": [[-0.08, -0.04, 0.0], [0.08, 0.12, 0.0]],
-                    "relative_position": true                
-                }
-            },
-            "randomize_distractor_slots": {
-                "func": "replace_distractor_slots_from_library",
-                "mode": "reset",
-                "params": {
-                    "entity_cfgs": [
-                        {"uid": "distractor_0"},
-                        {"uid": "distractor_1"}
-                    ],
-                    "library_index_path": "/root/Embodied_Challenge/embodied_challenge/Distractor/ASSET_INDEX.json",
-                    "categories": ["PaperCup",  "fork",  "spoon"],
-                    "position_ranges": [
-                        [[0.62, -0.20, 0.89], [0.86, -0.03, 0.92]],
-                        [[0.62, 0.03, 0.89], [0.86, 0.20, 0.92]]
-                    ],
-                    "appear_probs": [1.0, 1.0],
-                    "z_rotation_ranges": [
-                        [-180.0, 180.0],
-                        [-180.0, 180.0]
-                    ],
-                    "hide_position": [0.0, 0.0, -20.0],
-                    "avoid_uids": ["bottle", "cup"],
-                    "min_distance_to_avoid": 0.08,
-                    "max_resample_attempts": 30,
-                    "physics_update_step": 1
                 }
             },
             "prepare_extra_attr": {
@@ -87,26 +52,13 @@
                             "name": "grasp_pose_object",
                             "mode": "static",
                             "entity_cfg": {
-                                "uid": "bottle"
+                                "uid": "guijiao1"
                             },
                             "value": [[
                                     [0.32243,  0.03245,  0.94604,  0.025],
                                     [0.00706, -0.99947,  0.03188, -0.0  ],
                                     [0.94657, -0.0036 , -0.32249,  0.0  ],
                                     [0.0    ,  0.0    ,  0.0    ,  1.0  ]
-                            ]]
-                        },
-                        {
-                            "name": "grasp_pose_object",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "cup"
-                            },
-                            "value": [[
-                                [ 0.32039, -0.03227,  0.94673,  0.0    ],
-                                [ 0.00675, -0.99932, -0.03635,  0.0    ],
-                                [ 0.94726,  0.01803, -0.31996,  0.0    ],
-                                [ 0.0    ,  0.0    ,  0.0    ,  1.0    ]
                             ]]
                         },
                         {
@@ -143,7 +95,7 @@
                     "registry": [
                         {
                             "entity_cfg": {
-                                "uid": "bottle"
+                                "uid": "guijiao1"
                             },
                             "pose_register_params": {
                                 "compute_relative": false,
@@ -153,13 +105,25 @@
                         },
                         {
                             "entity_cfg": {
-                                "uid": "cup"
+                                "uid": "guijiao2"
                             },
                             "pose_register_params": {
                                 "compute_relative": false,
                                 "compute_pose_object_to_arena": true,
                                 "to_matrix": true
                             }
+                        },
+                        {
+                            "entity_cfg": {
+                                "uid": "guijiao1"
+                            },
+                            "attrs": ["grasp_pose_object"],
+                            "pose_register_params": {
+                                "compute_relative": false,
+                                "compute_pose_object_to_arena": false,
+                                "to_matrix": true
+                            },
+                            "prefix": false
                         },
                         {
                             "entity_cfg": {
@@ -168,7 +132,7 @@
                             },
                             "attrs": ["left_arm_base_pose"],
                             "pose_register_params": {
-                                "compute_relative": "cup",
+                                "compute_relative": "guijiao2",
                                 "compute_pose_object_to_arena": false,
                                 "to_matrix": true
                             },
@@ -181,7 +145,7 @@
                             },
                             "attrs": ["right_arm_base_pose"],
                             "pose_register_params": {
-                                "compute_relative": "bottle",
+                                "compute_relative": "guijiao1",
                                 "compute_pose_object_to_arena": false,
                                 "to_matrix": true
                             },
@@ -192,18 +156,7 @@
                     "sim_update": true
                 }
             },
-            "random_plane_material": {
-                "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 2,
-                "params": {
-                    "entity_cfg": {"uid": "default_plane"},
-                    "random_texture_prob": 0.5,
-                    "texture_path": "CocoBackground/coco",
-                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
-                }
-            },
-            "random_table_material": {
+            "random_material": {
                 "func": "randomize_visual_material",
                 "mode": "interval",
                 "interval_step": 2,
@@ -214,29 +167,34 @@
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            "random_bottle_material": {
+            "random_robot_material": {
                 "func": "randomize_visual_material",
                 "mode": "interval",
-                "interval_step": 2,
+                "interval_step": 5,
                 "params": {
-                    "entity_cfg": {"uid": "bottle"},
+                    "entity_cfg": {"uid": "CobotMagic", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
                     "texture_path": "CocoBackground/coco",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            "random_cup_material": {
-                "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 2,
+            "random_camera_intrinsics": {
+                "func": "randomize_camera_intrinsics",
+                "mode": "reset",
                 "params": {
-                    "entity_cfg": {"uid": "cup"},
-                    "random_texture_prob": 0.5,
-                    "texture_path": "CocoBackground/coco",
-                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
+                    "entity_cfg": {"uid": "cam_high"},
+                    "focal_x_range": [-50, 50],
+                    "focal_y_range": [-50, 50]
                 }
             },
-            
+            "random_robot_init_eef_pose": {
+                "func": "randomize_robot_eef_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "CobotMagic", "control_parts": ["left_arm", "right_arm"]},
+                    "position_range":  [[-0.01, -0.01, -0.01], [0.01, 0.01, 0]]
+                }
+            },
             "random_robot_qpos": {                                           
                 "func": "randomize_robot_qpos",
                 "mode": "reset",
@@ -250,94 +208,46 @@
                     "joint_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]          
                 }
             },
-
-
-
-            "random_robot_material": {
+            "random_plane_material": {
                 "func": "randomize_visual_material",
                 "mode": "interval",
-                "interval_step": 5,
+                "interval_step": 2,
                 "params": {
-                    "entity_cfg": {"uid": "CobotMagic", "link_names": [".*"]},
+                    "entity_cfg": {"uid": "default_plane"},
                     "random_texture_prob": 0.5,
                     "texture_path": "CocoBackground/coco",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            "random_camera_high_intrinsics": {
-                "func": "randomize_camera_intrinsics",
+
+
+            "randomize_distractor_slots": {
+                "func": "replace_distractor_slots_from_library",
                 "mode": "reset",
                 "params": {
-                    "entity_cfg": {"uid": "cam_high"},
-                    "focal_x_range": [-50, 50],
-                    "focal_y_range": [-50, 50]
-                }
-            },
-            "random_camera_left_wrist_intrinsics": {
-                "func": "randomize_camera_intrinsics",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "cam_left_wrist"},
-                    "focal_x_range": [-20, 20],
-                    "focal_y_range": [-20, 20]
-                }
-            },
-            "random_camera_right_wrist_intrinsics": {
-                "func": "randomize_camera_intrinsics",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "cam_right_wrist"},
-                    "focal_x_range": [-20, 20],
-                    "focal_y_range": [-20, 20]
-                }
-            },
-            "random_camera_high_extrinsics": {
-                "func": "randomize_camera_extrinsics",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "cam_high"},
-                    "eye_range": [[-0.01, -0.01, -0.01], [0.01, 0.01, 0.01]],
-                    "target_range": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-                    "up_range": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
-                }
-            },
-            "random_camera_left_wrist_extrinsics": {
-                "func": "randomize_camera_extrinsics",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "cam_left_wrist"},
-                    "pos_range": [[0.0, -0.02, 0.0], [0.02, 0.02, 0.01]],
-                    "euler_range": [[0, 0, 0], [0, 0, 0]]
-                }
-            },
-            "random_camera_right_wrist_extrinsics": {
-                "func": "randomize_camera_extrinsics",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "cam_right_wrist"},
-                    "pos_range": [[0.0, -0.02, 0.0], [0.02, 0.02, 0.01]],
-                    "euler_range": [[0, 0, 0], [0, 0, 0]]
-                }
-            },
-            "random_robot_init_eef_pose": {
-                "func": "randomize_robot_eef_pose",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "CobotMagic", "control_parts": ["left_arm", "right_arm"]},
-                    "position_range":  [[-0.01, -0.01, -0.01], [0.01, 0.01, 0]]
-                }
-            },
-            "record_camera": {
-                "func": "record_camera_data",
-                "mode": "interval",
-                "interval_step": 1,
-                "params": {
-                    "name": "cam1",
-                    "resolution": [320, 240],
-                    "eye": [2, 0, 2],
-                    "target": [0.5, 0, 1]
+                    "entity_cfgs": [
+                        {"uid": "distractor_0"},
+                        {"uid": "distractor_1"}
+                    ],
+                    "library_index_path": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/ASSET_INDEX.json",
+                    "categories": ["PaperCup", "fork", "spoon"],
+                    "position_ranges": [
+                        [[0.62, -0.20, 0.89], [0.86, -0.03, 0.92]],
+                        [[0.62, 0.03, 0.89], [0.86, 0.20, 0.92]]
+                    ],
+                    "appear_probs": [1.0, 1.0],
+                    "z_rotation_ranges": [
+                        [-180.0, 180.0],
+                        [-180.0, 180.0]
+                    ],
+                    "hide_position": [0.0, 0.0, -20.0],
+                    "avoid_uids": ["guijiao1", "guijiao2"],
+                    "min_distance_to_avoid": 0.08,
+                    "max_resample_attempts": 30,
+                    "physics_update_step": 1
                 }
             }
+
         },
         "observations": {
             "norm_robot_eef_joint": {
@@ -348,20 +258,20 @@
                     "joint_ids": [6, 13]
                 }
             },
-            "bottle_pose": {
+            "guijiao1_pose": {
                 "func": "get_rigid_object_pose",
                 "mode": "add",
-                "name": "bottle_pose",
+                "name": "guijiao1_pose",
                 "params": {
-                    "entity_cfg": {"uid": "bottle"}
+                    "entity_cfg": {"uid": "guijiao1"}
                 }
             },
-            "cup_pose": {
+            "guijiao2_pose": {
                 "func": "get_rigid_object_pose",
                 "mode": "add",
-                "name": "cup_pose",
+                "name": "guijiao2_pose",
                 "params": {
-                    "entity_cfg": {"uid": "cup"}
+                    "entity_cfg": {"uid": "guijiao2"}
                 }
             },
             "cam_high_semantic_mask_l": {
@@ -370,7 +280,7 @@
                 "name": "sensor/cam_high/semantic_mask_l",
                 "params": {
                     "entity_cfg": {"uid": "cam_high"},
-                    "foreground_uids": ["bottle", "cup"]
+                    "foreground_uids": ["guijiao1", "guijiao2"]
                 }
             },
             "cam_high_semantic_mask_r": {
@@ -379,7 +289,7 @@
                 "name": "sensor/cam_high/semantic_mask_r",
                 "params": {
                     "entity_cfg": {"uid": "cam_high"},
-                    "foreground_uids": ["bottle", "cup"],
+                    "foreground_uids": ["guijiao1", "guijiao2"],
                     "is_right": true
                 }
             },
@@ -389,7 +299,7 @@
                 "name": "sensor/cam_left_wrist/semantic_mask_l",
                 "params": {
                     "entity_cfg": {"uid": "cam_left_wrist"},
-                    "foreground_uids": ["bottle", "cup"]
+                    "foreground_uids": ["guijiao1", "guijiao2"]
                 }
             },
             "cam_right_semantic_mask": {
@@ -398,7 +308,7 @@
                 "name": "sensor/cam_right_wrist/semantic_mask_l",
                 "params": {
                     "entity_cfg": {"uid": "cam_right_wrist"},
-                    "foreground_uids": ["bottle", "cup"]
+                    "foreground_uids": ["guijiao1", "guijiao2"]
                 }
             }
         },
@@ -407,19 +317,18 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/pour_water_dual",
+                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/Articulated_object_operation",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
-                        "arm_dofs": 12,
                         "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"]
                     },
                     "instruction": {
-                        "lang": "pour water from bottle into cup"
+                        "lang": "achieve precise alignment of the silicone columns"
                     },
                     "extra": {
                         "scene_type": "Sim",
-                        "task_description": "pour water from bottle into cup with a dual-arm cobot",
+                        "task_description": "achieve precise alignment of the silicone columns",
                         "data_type": "sim"
                     },
                     "use_videos": true
@@ -443,7 +352,7 @@
             "enable_mask": true,
             "intrinsics": [606.315186, 606.100952, 320.549316, 245.877106],
             "extrinsics": {
-                "eye": [0.206931, 0.052728, 1.40],
+                "eye": [0.206931, 0.052728, 1.6],
                 "target": [0.576285, -0.000645, 0.5],
                 "up": [0.917003, -0.140871, 0.373178]
             }
@@ -497,11 +406,9 @@
             },
             "attrs" : {
                 "mass": 10.0,
-                "static_friction": 2.0,
-                "dynamic_friction": 1.5,
-                "restitution": 0.01,
-                "contact_offset": 0.0002,
-                "rest_offset": 0.00005
+                "static_friction": 0.95,
+                "dynamic_friction": 0.9,
+                "restitution": 0.01
             },
             "body_scale": [1, 1, 1],
             "body_type": "kinematic",
@@ -511,48 +418,54 @@
     ],
     "rigid_object": [
         {
-            "uid":"cup",
+            "uid":"guijiao2",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "PaperCup/paper_cup.ply",
+                "fpath": "/root/workspace/Embodied_Challenge/assets/guijiao_standard/1guijiao_standard.ply",
                 "compute_uv": true
             },
             "attrs" : {
-                "mass": 0.01,
-                "contact_offset": 0.003,
-                "rest_offset": 0.001,
+                "mass": 0.001,
+                "contact_offset": 0.007,
+                "rest_offset": 0.0005,
+                "static_friction": 2.0,
+                "dynamic_friction": 2.0,
                 "restitution": 0.01,
                 "max_depenetration_velocity": 1e1,
                 "min_position_iters": 32,
                 "min_velocity_iters":8
             },
-            "init_pos": [0.65, 0.1, 0.85],
-            "body_scale":[0.75, 0.75, 1.0]
+            "init_pos": [0.6, 0.16, 0.8],
+            "body_scale":[2, 2, 2],
+            "max_convex_hull_num": 8
         },
         {
-            "uid":"bottle",
+            "uid":"guijiao1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "ScannedBottle/kashijia_processed.ply",
+                "fpath": "/root/workspace/Embodied_Challenge/assets/guijiao_standard/2guijiao_standard.ply",
                 "compute_uv": true
             },
             "attrs" : {
                 "mass": 0.01,
                 "contact_offset": 0.003,
                 "rest_offset": 0.001,
+                "static_friction": 2.0,
+                "dynamic_friction": 2.0,
                 "restitution": 0.01,
                 "max_depenetration_velocity": 1e1,
                 "min_position_iters": 32,
                 "min_velocity_iters":8
             },
-            "init_pos": [0.65, -0.1, 0.882],
-            "body_scale":[1, 1, 1]
+            "init_pos": [0.6, -0.15, 0.8],
+            "body_scale":[1.7, 1.7, 1.7],
+            "max_convex_hull_num": 8
         },
         {
             "uid":"distractor_0",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply",
+                "fpath": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply ",
                 "compute_uv": true
             },
             "attrs" : {
@@ -571,7 +484,7 @@
             "uid":"distractor_1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply",
+                "fpath": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply",
                 "compute_uv": true
             },
             "attrs" : {
