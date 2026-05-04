@@ -40,15 +40,15 @@
         }
     },
     "node": {
-        "left_arm": [
+        "right_arm": [
             {
-                "left_arm_init_qpos": {
+                "right_arm_init_qpos": {
                     "name": "generate_affordances_from_src",
                     "kwargs": {
                         "affordance_infos": [
                             {
-                                "src_key": "left_arm_init_qpos",
-                                "dst_key": "left_arm_init_pose",
+                                "src_key": "right_arm_init_qpos",
+                                "dst_key": "right_arm_init_pose",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "no_validation",
@@ -57,7 +57,7 @@
                                             {
                                                 "name": "get_fk_xpos",
                                                 "kwargs": {
-                                                    "control_part": "left_arm",
+                                                    "control_part": "right_arm",
                                                     "fk_func": "env.robot.compute_fk"
                                                 }
                                             }
@@ -70,19 +70,19 @@
                 }
             },
             {
-                "left_arm_aim_beaker_qpos": {
-                    "name": "generate_left_arm_aim_beaker_qpos",
+                "right_arm_aim_beaker_qpos": {
+                    "name": "generate_right_arm_aim_beaker_qpos",
                     "kwargs": {}
                 }
             },
             {
-                "left_arm_beaker_grasp_qpos": {
+                "right_arm_beaker_grasp_qpos": {
                     "name": "generate_affordances_from_src",
                     "kwargs": {
                         "affordance_infos": [
                             {
-                                "src_key": "left_arm_init_pose",
-                                "dst_key": "left_arm_beaker_grasp_pose",
+                                "src_key": "right_arm_init_pose",
+                                "dst_key": "right_arm_beaker_grasp_pose",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "no_validation",
@@ -98,7 +98,7 @@
                                             {
                                                 "name": "get_rotation_replaced_pose",
                                                 "kwargs": {
-                                                    "rotation_value": "env.affordance_datas['left_arm_aim_beaker_qpos'][0]",
+                                                    "rotation_value": "env.affordance_datas['right_arm_aim_beaker_qpos'][0]",
                                                     "rot_axis": "z",
                                                     "mode": "extrinsic"
                                                 }
@@ -151,23 +151,23 @@
                                 ]
                             },
                             {
-                                "src_key": "left_arm_beaker_grasp_pose",
-                                "dst_key": "left_arm_beaker_grasp_qpos",
+                                "src_key": "right_arm_beaker_grasp_pose",
+                                "dst_key": "right_arm_beaker_grasp_qpos",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "get_ik_ret",
                                         "kwargs": {
                                             "ik_func": "env.robot.compute_ik",
-                                            "qpos_seed": "env.affordance_datas['left_arm_aim_beaker_qpos']",
-                                            "control_part": "left_arm"
+                                            "qpos_seed": "env.affordance_datas['right_arm_aim_beaker_qpos']",
+                                            "control_part": "right_arm"
                                         },
                                         "pass_processes": [
                                             {
                                                 "name": "get_ik_qpos",
                                                 "kwargs": {
                                                     "ik_func": "env.robot.compute_ik",
-                                                    "qpos_seed": "env.affordance_datas['left_arm_aim_beaker_qpos']",
-                                                    "control_part": "left_arm"
+                                                    "qpos_seed": "env.affordance_datas['right_arm_aim_beaker_qpos']",
+                                                    "control_part": "right_arm"
                                                 }
                                             }
                                         ]
@@ -175,7 +175,7 @@
                                     {
                                         "name": "is_qpos_flip",
                                         "kwargs": {
-                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
                                             "qpos_ids": [3, 4],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
@@ -189,13 +189,13 @@
                 }
             },
             {
-                "left_arm_beaker_grasp_pre_qpos": {
+                "right_arm_beaker_grasp_pre_qpos": {
                     "name": "generate_affordances_from_src",
                     "kwargs": {
                         "affordance_infos": [
                             {
-                                "src_key": "left_arm_beaker_grasp_pose",
-                                "dst_key": "left_arm_beaker_grasp_pre_pose",
+                                "src_key": "right_arm_beaker_grasp_pose",
+                                "dst_key": "right_arm_beaker_grasp_pre_pose",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "no_validation",
@@ -204,7 +204,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": -0.12,
+                                                    "offset_value": -0.08,
                                                     "direction": "z",
                                                     "mode": "intrinsic"
                                                 }
@@ -214,23 +214,23 @@
                                 ]
                             },
                             {
-                                "src_key": "left_arm_beaker_grasp_pre_pose",
-                                "dst_key": "left_arm_beaker_grasp_pre_qpos",
+                                "src_key": "right_arm_beaker_grasp_pre_pose",
+                                "dst_key": "right_arm_beaker_grasp_pre_qpos",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "get_ik_ret",
                                         "kwargs": {
                                             "ik_func": "env.robot.compute_ik",
-                                            "qpos_seed": "env.affordance_datas['left_arm_beaker_grasp_qpos']",
-                                            "control_part": "left_arm"
+                                            "qpos_seed": "env.affordance_datas['right_arm_beaker_grasp_qpos']",
+                                            "control_part": "right_arm"
                                         },
                                         "pass_processes": [
                                             {
                                                 "name": "get_ik_qpos",
                                                 "kwargs": {
                                                     "ik_func": "env.robot.compute_ik",
-                                                    "qpos_seed": "env.affordance_datas['left_arm_beaker_grasp_qpos']",
-                                                    "control_part": "left_arm"
+                                                    "qpos_seed": "env.affordance_datas['right_arm_beaker_grasp_qpos']",
+                                                    "control_part": "right_arm"
                                                 }
                                             }
                                         ]
@@ -238,7 +238,7 @@
                                     {
                                         "name": "is_qpos_flip",
                                         "kwargs": {
-                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
                                             "qpos_ids": [3, 4],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
@@ -252,13 +252,13 @@
                 }
             },
             {
-                "left_arm_beaker_lift_qpos": {
+                "right_arm_beaker_lift_qpos": {
                     "name": "generate_affordances_from_src",
                     "kwargs": {
                         "affordance_infos": [
                             {
-                                "src_key": "left_arm_beaker_grasp_pose",
-                                "dst_key": "left_arm_beaker_lift_pose",
+                                "src_key": "right_arm_beaker_grasp_pose",
+                                "dst_key": "right_arm_beaker_lift_pose",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "no_validation",
@@ -277,23 +277,23 @@
                                 ]
                             },
                             {
-                                "src_key": "left_arm_beaker_lift_pose",
-                                "dst_key": "left_arm_beaker_lift_qpos",
+                                "src_key": "right_arm_beaker_lift_pose",
+                                "dst_key": "right_arm_beaker_lift_qpos",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "get_ik_ret",
                                         "kwargs": {
                                             "ik_func": "env.robot.compute_ik",
-                                            "qpos_seed": "env.affordance_datas['left_arm_beaker_grasp_qpos']",
-                                            "control_part": "left_arm"
+                                            "qpos_seed": "env.affordance_datas['right_arm_beaker_grasp_qpos']",
+                                            "control_part": "right_arm"
                                         },
                                         "pass_processes": [
                                             {
                                                 "name": "get_ik_qpos",
                                                 "kwargs": {
                                                     "ik_func": "env.robot.compute_ik",
-                                                    "qpos_seed": "env.affordance_datas['left_arm_beaker_grasp_qpos']",
-                                                    "control_part": "left_arm"
+                                                    "qpos_seed": "env.affordance_datas['right_arm_beaker_grasp_qpos']",
+                                                    "control_part": "right_arm"
                                                 }
                                             }
                                         ]
@@ -301,7 +301,7 @@
                                     {
                                         "name": "is_qpos_flip",
                                         "kwargs": {
-                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
                                             "qpos_ids": [3, 4],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
@@ -315,19 +315,19 @@
                 }
             },
             {
-                "left_arm_aim_mixer_qpos": {
-                    "name": "generate_left_arm_aim_mixer_qpos",
+                "right_arm_aim_mixer_qpos": {
+                    "name": "generate_right_arm_aim_mixer_qpos",
                     "kwargs": {}
                 }
             },
             {
-                "left_arm_mixer_place_position_temp": {
+                "right_arm_mixer_place_position_temp": {
                     "name": "generate_affordances_from_src",
                     "kwargs": {
                         "affordance_infos": [
                             {
                                 "src_key": "beaker_mixer_pose",
-                                "dst_key": "left_arm_mixer_place_position_temp",
+                                "dst_key": "right_arm_mixer_place_position_temp",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "no_validation",
@@ -340,6 +340,14 @@
                                                     "direction": "z",
                                                     "mode": "intrinsic"
                                                 }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": "env.affordance_datas['beaker_mixer_place_offset_intrinsic_x']",
+                                                    "direction": "x",
+                                                    "mode": "intrinsic"
+                                                }
                                             }
                                         ]
                                     }
@@ -350,13 +358,13 @@
                 }
             },
             {
-                "left_arm_mixer_place_qpos": {
+                "right_arm_mixer_place_qpos": {
                     "name": "generate_affordances_from_src",
                     "kwargs": {
                         "affordance_infos": [
                             {
-                                "src_key": "left_arm_beaker_lift_pose",
-                                "dst_key": "left_arm_mixer_place_pose",
+                                "src_key": "right_arm_beaker_lift_pose",
+                                "dst_key": "right_arm_mixer_place_pose",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "no_validation",
@@ -365,14 +373,14 @@
                                             {
                                                 "name": "get_replaced_pose",
                                                 "kwargs": {
-                                                    "pose_replace_value": "env.affordance_datas['left_arm_mixer_place_position_temp'][:3,3]",
+                                                    "pose_replace_value": "env.affordance_datas['right_arm_mixer_place_position_temp'][:3,3]",
                                                     "axis_str_replace": "xyz"
                                                 }
                                             },
                                             {
                                                 "name": "get_rotation_replaced_pose",
                                                 "kwargs": {
-                                                    "rotation_value": "env.affordance_datas['left_arm_aim_mixer_qpos'][0]",
+                                                    "rotation_value": "env.affordance_datas['right_arm_aim_mixer_qpos'][0]",
                                                     "rot_axis": "z",
                                                     "mode": "extrinsic"
                                                 }
@@ -425,23 +433,23 @@
                                 ]
                             },
                             {
-                                "src_key": "left_arm_mixer_place_pose",
-                                "dst_key": "left_arm_mixer_place_qpos",
+                                "src_key": "right_arm_mixer_place_pose",
+                                "dst_key": "right_arm_mixer_place_qpos",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "get_ik_ret",
                                         "kwargs": {
                                             "ik_func": "env.robot.compute_ik",
-                                            "qpos_seed": "env.affordance_datas['left_arm_beaker_lift_qpos']",
-                                            "control_part": "left_arm"
+                                            "qpos_seed": "env.affordance_datas['right_arm_beaker_lift_qpos']",
+                                            "control_part": "right_arm"
                                         },
                                         "pass_processes": [
                                             {
                                                 "name": "get_ik_qpos",
                                                 "kwargs": {
                                                     "ik_func": "env.robot.compute_ik",
-                                                    "qpos_seed": "env.affordance_datas['left_arm_beaker_lift_qpos']",
-                                                    "control_part": "left_arm"
+                                                    "qpos_seed": "env.affordance_datas['right_arm_beaker_lift_qpos']",
+                                                    "control_part": "right_arm"
                                                 }
                                             }
                                         ]
@@ -449,7 +457,7 @@
                                     {
                                         "name": "is_qpos_flip",
                                         "kwargs": {
-                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
                                             "qpos_ids": [3, 4],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
@@ -463,13 +471,13 @@
                 }
             },
             {
-                "left_arm_mixer_place_pre_qpos": {
+                "right_arm_mixer_place_pre_qpos": {
                     "name": "generate_affordances_from_src",
                     "kwargs": {
                         "affordance_infos": [
                             {
-                                "src_key": "left_arm_mixer_place_pose",
-                                "dst_key": "left_arm_mixer_place_pre_pose",
+                                "src_key": "right_arm_mixer_place_pose",
+                                "dst_key": "right_arm_mixer_place_pre_pose",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "no_validation",
@@ -488,23 +496,23 @@
                                 ]
                             },
                             {
-                                "src_key": "left_arm_mixer_place_pre_pose",
-                                "dst_key": "left_arm_mixer_place_pre_qpos",
+                                "src_key": "right_arm_mixer_place_pre_pose",
+                                "dst_key": "right_arm_mixer_place_pre_qpos",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "get_ik_ret",
                                         "kwargs": {
                                             "ik_func": "env.robot.compute_ik",
-                                            "qpos_seed": "env.affordance_datas['left_arm_mixer_place_qpos']",
-                                            "control_part": "left_arm"
+                                            "qpos_seed": "env.affordance_datas['right_arm_mixer_place_qpos']",
+                                            "control_part": "right_arm"
                                         },
                                         "pass_processes": [
                                             {
                                                 "name": "get_ik_qpos",
                                                 "kwargs": {
                                                     "ik_func": "env.robot.compute_ik",
-                                                    "qpos_seed": "env.affordance_datas['left_arm_mixer_place_qpos']",
-                                                    "control_part": "left_arm"
+                                                    "qpos_seed": "env.affordance_datas['right_arm_mixer_place_qpos']",
+                                                    "control_part": "right_arm"
                                                 }
                                             }
                                         ]
@@ -512,7 +520,7 @@
                                     {
                                         "name": "is_qpos_flip",
                                         "kwargs": {
-                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
                                             "qpos_ids": [3, 4],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
@@ -526,15 +534,15 @@
                 }
             }
         ],
-        "right_arm": [
+        "left_arm": [
             {
-                "right_arm_init_qpos": {
+                "left_arm_init_qpos": {
                     "name": "generate_affordances_from_src",
                     "kwargs": {
                         "affordance_infos": [
                             {
-                                "src_key": "right_arm_init_qpos",
-                                "dst_key": "right_arm_init_pose",
+                                "src_key": "left_arm_init_qpos",
+                                "dst_key": "left_arm_init_pose",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "no_validation",
@@ -543,7 +551,7 @@
                                             {
                                                 "name": "get_fk_xpos",
                                                 "kwargs": {
-                                                    "control_part": "right_arm",
+                                                    "control_part": "left_arm",
                                                     "fk_func": "env.robot.compute_fk"
                                                 }
                                             }
@@ -556,8 +564,8 @@
                 }
             },
             {
-                "right_arm_aim_mixer_qpos": {
-                    "name": "generate_right_arm_aim_mixer_qpos",
+                "left_arm_aim_mixer_qpos": {
+                    "name": "generate_left_arm_aim_mixer_qpos",
                     "kwargs": {}
                 }
             },
@@ -607,13 +615,13 @@
                 }
             },
             {
-                "right_arm_button_touch_qpos": {
+                "left_arm_button_touch_qpos": {
                     "name": "generate_affordances_from_src",
                     "kwargs": {
                         "affordance_infos": [
                             {
-                                "src_key": "right_arm_init_pose",
-                                "dst_key": "right_arm_button_touch_pose",
+                                "src_key": "left_arm_init_pose",
+                                "dst_key": "left_arm_button_touch_pose",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "no_validation",
@@ -629,7 +637,7 @@
                                             {
                                                 "name": "get_rotation_replaced_pose",
                                                 "kwargs": {
-                                                    "rotation_value": "env.affordance_datas['right_arm_aim_mixer_qpos'][0]",
+                                                    "rotation_value": "env.affordance_datas['left_arm_aim_mixer_qpos'][0]",
                                                     "rot_axis": "z",
                                                     "mode": "extrinsic"
                                                 }
@@ -683,8 +691,8 @@
                                 ]
                             },
                             {
-                                "src_key": "right_arm_button_touch_pose",
-                                "dst_key": "right_arm_button_touch_up_pose",
+                                "src_key": "left_arm_button_touch_pose",
+                                "dst_key": "left_arm_button_touch_up_pose",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "no_validation",
@@ -703,23 +711,23 @@
                                 ]
                             },
                             {
-                                "src_key": "right_arm_button_touch_up_pose",
-                                "dst_key": "right_arm_button_touch_up_qpos",
+                                "src_key": "left_arm_button_touch_up_pose",
+                                "dst_key": "left_arm_button_touch_up_qpos",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "get_ik_ret",
                                         "kwargs": {
                                             "ik_func": "env.robot.compute_ik",
-                                            "qpos_seed": "env.affordance_datas['right_arm_aim_mixer_qpos']",
-                                            "control_part": "right_arm"
+                                            "qpos_seed": "env.affordance_datas['left_arm_aim_mixer_qpos']",
+                                            "control_part": "left_arm"
                                         },
                                         "pass_processes": [
                                             {
                                                 "name": "get_ik_qpos",
                                                 "kwargs": {
                                                     "ik_func": "env.robot.compute_ik",
-                                                    "qpos_seed": "env.affordance_datas['right_arm_aim_mixer_qpos']",
-                                                    "control_part": "right_arm"
+                                                    "qpos_seed": "env.affordance_datas['left_arm_aim_mixer_qpos']",
+                                                    "control_part": "left_arm"
                                                 }
                                             }
                                         ]
@@ -727,7 +735,7 @@
                                     {
                                         "name": "is_qpos_flip",
                                         "kwargs": {
-                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
                                             "qpos_ids": [3, 4],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
@@ -737,23 +745,23 @@
                                 ]
                             },
                             {
-                                "src_key": "right_arm_button_touch_pose",
-                                "dst_key": "right_arm_button_touch_qpos",
+                                "src_key": "left_arm_button_touch_pose",
+                                "dst_key": "left_arm_button_touch_qpos",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "get_ik_ret",
                                         "kwargs": {
                                             "ik_func": "env.robot.compute_ik",
-                                            "qpos_seed": "env.affordance_datas['right_arm_aim_mixer_qpos']",
-                                            "control_part": "right_arm"
+                                            "qpos_seed": "env.affordance_datas['left_arm_aim_mixer_qpos']",
+                                            "control_part": "left_arm"
                                         },
                                         "pass_processes": [
                                             {
                                                 "name": "get_ik_qpos",
                                                 "kwargs": {
                                                     "ik_func": "env.robot.compute_ik",
-                                                    "qpos_seed": "env.affordance_datas['right_arm_aim_mixer_qpos']",
-                                                    "control_part": "right_arm"
+                                                    "qpos_seed": "env.affordance_datas['left_arm_aim_mixer_qpos']",
+                                                    "control_part": "left_arm"
                                                 }
                                             }
                                         ]
@@ -761,7 +769,7 @@
                                     {
                                         "name": "is_qpos_flip",
                                         "kwargs": {
-                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
                                             "qpos_ids": [3, 4],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
@@ -775,13 +783,13 @@
                 }
             },
             {
-                "right_arm_button_touch_pre_qpos": {
+                "left_arm_button_touch_pre_qpos": {
                     "name": "generate_affordances_from_src",
                     "kwargs": {
                         "affordance_infos": [
                             {
-                                "src_key": "right_arm_button_touch_pose",
-                                "dst_key": "right_arm_button_touch_pre_pose",
+                                "src_key": "left_arm_button_touch_pose",
+                                "dst_key": "left_arm_button_touch_pre_pose",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "no_validation",
@@ -790,8 +798,16 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": -0.1,
+                                                    "offset_value": -0.08,
                                                     "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": -0.02,
+                                                    "direction": "x",
                                                     "mode": "intrinsic"
                                                 }
                                             }
@@ -800,23 +816,23 @@
                                 ]
                             },
                             {
-                                "src_key": "right_arm_button_touch_pre_pose",
-                                "dst_key": "right_arm_button_touch_pre_qpos",
+                                "src_key": "left_arm_button_touch_pre_pose",
+                                "dst_key": "left_arm_button_touch_pre_qpos",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "get_ik_ret",
                                         "kwargs": {
                                             "ik_func": "env.robot.compute_ik",
-                                            "qpos_seed": "env.affordance_datas['right_arm_button_touch_qpos']",
-                                            "control_part": "right_arm"
+                                            "qpos_seed": "env.affordance_datas['left_arm_button_touch_qpos']",
+                                            "control_part": "left_arm"
                                         },
                                         "pass_processes": [
                                             {
                                                 "name": "get_ik_qpos",
                                                 "kwargs": {
                                                     "ik_func": "env.robot.compute_ik",
-                                                    "qpos_seed": "env.affordance_datas['right_arm_button_touch_qpos']",
-                                                    "control_part": "right_arm"
+                                                    "qpos_seed": "env.affordance_datas['left_arm_button_touch_qpos']",
+                                                    "control_part": "left_arm"
                                                 }
                                             }
                                         ]
@@ -870,225 +886,225 @@
         ]
     },
     "edge": {
-        "left_arm": [
-            {
-                "left_init_to_aim_beaker": {
-                    "src": "left_arm_init_qpos",
-                    "sink": "left_arm_aim_beaker_qpos",
-                    "duration": 12,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "left_arm",
-                        "keypose_names": [
-                            "left_arm_init_qpos",
-                            "left_arm_aim_beaker_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "left_aim_beaker_to_grasp_pre": {
-                    "src": "left_arm_aim_beaker_qpos",
-                    "sink": "left_arm_beaker_grasp_pre_qpos",
-                    "duration": 55,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "left_arm",
-                        "keypose_names": [
-                            "left_arm_aim_beaker_qpos",
-                            "left_arm_beaker_grasp_pre_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "left_beaker_grasp_pre_to_grasp": {
-                    "src": "left_arm_beaker_grasp_pre_qpos",
-                    "sink": "left_arm_beaker_grasp_qpos",
-                    "duration": 45,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "left_arm",
-                        "keypose_names": [
-                            "left_arm_beaker_grasp_pre_qpos",
-                            "left_arm_beaker_grasp_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "left_grasp_to_lift": {
-                    "src": "left_arm_beaker_grasp_qpos",
-                    "sink": "left_arm_beaker_lift_qpos",
-                    "duration": 20,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "left_arm",
-                        "keypose_names": [
-                            "left_arm_beaker_grasp_qpos",
-                            "left_arm_beaker_lift_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "left_lift_to_place_pre": {
-                    "src": "left_arm_beaker_lift_qpos",
-                    "sink": "left_arm_mixer_place_pre_qpos",
-                    "duration": 35,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "left_arm",
-                        "keypose_names": [
-                            "left_arm_beaker_lift_qpos",
-                            "left_arm_mixer_place_pre_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "left_place_pre_to_place": {
-                    "src": "left_arm_mixer_place_pre_qpos",
-                    "sink": "left_arm_mixer_place_qpos",
-                    "duration": 22,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "left_arm",
-                        "keypose_names": [
-                            "left_arm_mixer_place_pre_qpos",
-                            "left_arm_mixer_place_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "left_place_to_place_pre": {
-                    "src": "left_arm_mixer_place_qpos",
-                    "sink": "left_arm_mixer_place_pre_qpos",
-                    "duration": 35,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "left_arm",
-                        "keypose_names": [
-                            "left_arm_mixer_place_qpos",
-                            "left_arm_mixer_place_pre_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "left_place_pre_to_init": {
-                    "src": "left_arm_mixer_place_pre_qpos",
-                    "sink": "left_arm_init_qpos",
-                    "duration": 28,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "left_arm",
-                        "keypose_names": [
-                            "left_arm_mixer_place_pre_qpos",
-                            "left_arm_init_qpos"
-                        ]
-                    }
-                }
-            }
-        ],
         "right_arm": [
             {
-                "right_init_to_aim_mixer": {
+                "right_init_to_aim_beaker": {
                     "src": "right_arm_init_qpos",
-                    "sink": "right_arm_aim_mixer_qpos",
+                    "sink": "lright_arm_aim_beaker_qpos",
                     "duration": 12,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
                             "right_arm_init_qpos",
-                            "right_arm_aim_mixer_qpos"
+                            "right_arm_aim_beaker_qpos"
                         ]
                     }
                 }
             },
             {
-                "right_aim_mixer_to_button_up": {
-                    "src": "right_arm_aim_mixer_qpos",
-                    "sink": "right_arm_button_touch_up_qpos",
+                "right_aim_beaker_to_grasp_pre": {
+                    "src": "right_arm_aim_beaker_qpos",
+                    "sink": "right_arm_beaker_grasp_pre_qpos",
+                    "duration": 55,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_aim_beaker_qpos",
+                            "right_arm_beaker_grasp_pre_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "right_beaker_grasp_pre_to_grasp": {
+                    "src": "right_arm_beaker_grasp_pre_qpos",
+                    "sink": "right_arm_beaker_grasp_qpos",
                     "duration": 45,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
-                            "right_arm_aim_mixer_qpos",
-                            "right_arm_button_touch_up_qpos"
+                            "right_arm_beaker_grasp_pre_qpos",
+                            "right_arm_beaker_grasp_qpos"
                         ]
                     }
                 }
             },
             {
-                "right_button_up_to_pre": {
-                    "src": "right_arm_button_touch_up_qpos",
-                    "sink": "right_arm_button_touch_pre_qpos",
-                    "duration": 25,
+                "right_grasp_to_lift": {
+                    "src": "right_arm_beaker_grasp_qpos",
+                    "sink": "right_arm_beaker_lift_qpos",
+                    "duration": 20,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
-                            "right_arm_button_touch_up_qpos",
-                            "right_arm_button_touch_pre_qpos"
+                            "right_arm_beaker_grasp_qpos",
+                            "right_arm_beaker_lift_qpos"
                         ]
                     }
                 }
             },
             {
-                "right_button_pre_to_touch": {
-                    "src": "right_arm_button_touch_pre_qpos",
-                    "sink": "right_arm_button_touch_qpos",
-                    "duration": 25,
+                "right_lift_to_place_pre": {
+                    "src": "right_arm_beaker_lift_qpos",
+                    "sink": "right_arm_mixer_place_pre_qpos",
+                    "duration": 35,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
-                            "right_arm_button_touch_pre_qpos",
-                            "right_arm_button_touch_qpos"
+                            "right_arm_beaker_lift_qpos",
+                            "right_arm_mixer_place_pre_qpos"
                         ]
                     }
                 }
             },
             {
-                "right_button_touch_to_pre": {
-                    "src": "right_arm_button_touch_qpos",
-                    "sink": "right_arm_button_touch_pre_qpos",
-                    "duration": 25,
+                "right_place_pre_to_place": {
+                    "src": "right_arm_mixer_place_pre_qpos",
+                    "sink": "right_arm_mixer_place_qpos",
+                    "duration": 22,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
-                            "right_arm_button_touch_qpos",
-                            "right_arm_button_touch_pre_qpos"
+                            "right_arm_mixer_place_pre_qpos",
+                            "right_arm_mixer_place_qpos"
                         ]
                     }
                 }
             },
             {
-                "right_touch_pre_to_init": {
-                    "src": "right_arm_button_touch_pre_qpos",
+                "right_place_to_place_pre": {
+                    "src": "right_arm_mixer_place_qpos",
+                    "sink": "right_arm_mixer_place_pre_qpos",
+                    "duration": 35,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": [
+                            "right_arm_mixer_place_qpos",
+                            "right_arm_mixer_place_pre_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "right_place_pre_to_init": {
+                    "src": "right_arm_mixer_place_pre_qpos",
                     "sink": "right_arm_init_qpos",
                     "duration": 28,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
-                            "right_arm_button_touch_pre_qpos",
+                            "right_arm_mixer_place_pre_qpos",
                             "right_arm_init_qpos"
                         ]
                     }
                 }
             }
         ],
-        "left_eef": [
+        "left_arm": [
             {
-                "lclose_grasp": {
-                    "src": "left_open0",
-                    "sink": "left_close1",
+                "left_init_to_aim_mixer": {
+                    "src": "left_arm_init_qpos",
+                    "sink": "left_arm_aim_mixer_qpos",
+                    "duration": 12,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_init_qpos",
+                            "left_arm_aim_mixer_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_aim_mixer_to_button_up": {
+                    "src": "left_arm_aim_mixer_qpos",
+                    "sink": "left_arm_button_touch_up_qpos",
+                    "duration": 45,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_aim_mixer_qpos",
+                            "left_arm_button_touch_up_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_button_up_to_pre": {
+                    "src": "left_arm_button_touch_up_qpos",
+                    "sink": "left_arm_button_touch_pre_qpos",
+                    "duration": 25,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_button_touch_up_qpos",
+                            "left_arm_button_touch_pre_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_button_pre_to_touch": {
+                    "src": "left_arm_button_touch_pre_qpos",
+                    "sink": "left_arm_button_touch_qpos",
+                    "duration": 25,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_button_touch_pre_qpos",
+                            "left_arm_button_touch_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_button_touch_to_pre": {
+                    "src": "left_arm_button_touch_qpos",
+                    "sink": "left_arm_button_touch_pre_qpos",
+                    "duration": 25,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_button_touch_qpos",
+                            "left_arm_button_touch_pre_qpos"
+                        ]
+                    }
+                }
+            },
+            {
+                "left_touch_pre_to_init": {
+                    "src": "left_arm_button_touch_pre_qpos",
+                    "sink": "left_arm_init_qpos",
+                    "duration": 28,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "left_arm",
+                        "keypose_names": [
+                            "left_arm_button_touch_pre_qpos",
+                            "left_arm_init_qpos"
+                        ]
+                    }
+                }
+            }
+        ],
+        "right_eef": [
+            {
+                "rclose_grasp": {
+                    "src": "right_open0",
+                    "sink": "right_close1",
                     "duration": 20,
                     "name": "execute_close",
                     "kwargs": {
@@ -1098,9 +1114,9 @@
                 }
             },
             {
-                "lopen_place": {
-                    "src": "left_close1",
-                    "sink": "left_open2",
+                "ropen_place": {
+                    "src": "right_close1",
+                    "sink": "right_open2",
                     "duration": 12,
                     "name": "execute_open",
                     "kwargs": {
@@ -1110,11 +1126,11 @@
                 }
             }
         ],
-        "right_eef": [
+        "left_eef": [
             {
-                "rclose_press": {
-                    "src": "right_open0",
-                    "sink": "right_close1",
+                "lclose_press": {
+                    "src": "left_open0",
+                    "sink": "left_close1",
                     "duration": 12,
                     "name": "execute_close",
                     "kwargs": {
@@ -1124,9 +1140,9 @@
                 }
             },
             {
-                "ropen_final": {
-                    "src": "right_close1",
-                    "sink": "right_open2",
+                "lopen_final": {
+                    "src": "left_close1",
+                    "sink": "left_open2",
                     "duration": 12,
                     "name": "execute_open",
                     "kwargs": {
@@ -1138,44 +1154,44 @@
         ]
     },
     "sync": {
-        "lclose_grasp": {
+        "rclose_grasp": {
             "depend_tasks": [
-                "left_beaker_grasp_pre_to_grasp"
+                "right_beaker_grasp_pre_to_grasp"
             ]
         },
-        "left_grasp_to_lift": {
+        "right_grasp_to_lift": {
             "depend_tasks": [
-                "lclose_grasp"
+                "rclose_grasp"
             ]
         },
-        "lopen_place": {
+        "ropen_place": {
             "depend_tasks": [
-                "left_place_pre_to_place"
+                "right_place_pre_to_place"
             ]
         },
-        "left_place_to_place_pre": {
+        "right_place_to_place_pre": {
             "depend_tasks": [
-                "lopen_place"
+                "ropen_place"
             ]
         },
-        "right_init_to_aim_mixer": {
+        "left_init_to_aim_mixer": {
             "depend_tasks": [
-                "left_place_to_place_pre"
+                "right_place_to_place_pre"
             ]
         },
-        "rclose_press": {
+        "lclose_press": {
             "depend_tasks": [
-                "right_init_to_aim_mixer"
+                "left_init_to_aim_mixer"
             ]
         },
-        "right_aim_mixer_to_button_up": {
+        "left_aim_mixer_to_button_up": {
             "depend_tasks": [
-                "rclose_press"
+                "lclose_press"
             ]
         },
-        "ropen_final": {
+        "lopen_final": {
             "depend_tasks": [
-                "right_touch_pre_to_init"
+                "left_touch_pre_to_init"
             ]
         }
     },

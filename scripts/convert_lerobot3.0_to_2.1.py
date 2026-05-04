@@ -87,6 +87,52 @@ def _to_serializable(value: Any) -> Any:
     return value
 
 
+def _drop_none_values(value: Any) -> Any:
+    """Recursively remove ``None`` values before LeRobot ``serialize_dict``.
+
+    Some v3.0 episode metadata produced by merged datasets can contain optional
+    per-episode stats entries with ``None`` values. LeRobot's legacy
+    ``serialize_dict`` helper does not support ``None`` in stats payloads, so
+    those empty stats must be omitted when reconstructing v2.1
+    ``episodes_stats.jsonl``.
+    """
+
+    if value is None:
+        return None
+    if isinstance(value, dict):
+        cleaned = {}
+        for key, item in value.items():
+            cleaned_item = _drop_none_values(item)
+            if cleaned_item is not None:
+                cleaned[key] = cleaned_item
+        return cleaned
+    if isinstance(value, (list, tuple)):
+        cleaned_items = []
+        for item in value:
+            cleaned_item = _drop_none_values(item)
+            if cleaned_item is not None:
+                cleaned_items.append(cleaned_item)
+        if not cleaned_items and len(value) > 0:
+            return None
+        return cleaned_items
+    return value
+
+
+def _iter_none_paths(value: Any, prefix: str = "") -> Iterable[str]:
+    """Yield dotted paths that point to ``None`` values for debug logging."""
+
+    if value is None:
+        yield prefix or "<root>"
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            next_prefix = f"{prefix}.{key}" if prefix else str(key)
+            yield from _iter_none_paths(item, next_prefix)
+    elif isinstance(value, (list, tuple)):
+        for index, item in enumerate(value):
+            next_prefix = f"{prefix}[{index}]"
+            yield from _iter_none_paths(item, next_prefix)
+
+
 def validate_local_dataset_version(local_path: Path) -> None:
     info = load_info(local_path)
     dataset_version = info.get("codebase_version", "unknown")
@@ -436,6 +482,15 @@ def convert_episodes_metadata(new_root: Path, episode_records: list[dict[str, An
 
             stats_flat = {key: record[key] for key in record if key.startswith("stats/")}
             stats_nested = unflatten_dict(stats_flat).get("stats", {})
+            none_paths = list(_iter_none_paths(stats_nested))
+            if none_paths:
+                logging.debug(
+                    "Dropping %d None stats entries for episode %s: %s",
+                    len(none_paths),
+                    record["episode_index"],
+                    ", ".join(none_paths[:20]),
+                )
+                stats_nested = _drop_none_values(stats_nested)
             stats_serialized = serialize_dict(stats_nested)
             stats_writer.write(
                 {

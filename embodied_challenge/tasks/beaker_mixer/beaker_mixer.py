@@ -69,7 +69,7 @@ class BeakerMixerEnv(EmbodiedEnv):
 
         self._mixer_user_ids = self.sim.get_rigid_object("beaker_mixer").get_user_ids()
         self._arm_link_user_ids = self._collect_arm_link_user_ids(
-            ["right_eef"]
+            ["left_eef"]
         )
         if self._arm_link_user_ids.numel() == 0:
             self._arm_link_user_ids = self.robot.get_user_ids().reshape(-1).to(
@@ -165,7 +165,10 @@ class BeakerMixerEnv(EmbodiedEnv):
         arm_contact = torch.isin(
             contact_user_ids[..., 0], self._arm_link_user_ids
         ) | torch.isin(contact_user_ids[..., 1], self._arm_link_user_ids)
-
+        # print(f"arm_contact:{arm_contact}")
+        # print(f"self._mixer_user_ids:{self._mixer_user_ids}")
+        # print(f"self._arm_link_user_ids:{self._arm_link_user_ids}")
+        # print(f"contact_user_ids_0:{contact_user_ids[...,0]}, 1:{contact_user_ids[...,1]}")
         mixer_pose = self.sim.get_rigid_object("beaker_mixer").get_local_pose(to_matrix=True)
         button_position = self._get_button_position(mixer_pose)
         button_dist = torch.linalg.norm(
@@ -282,10 +285,10 @@ class BeakerMixerEnv(EmbodiedEnv):
 
         # Success requires the beaker to stay near the mixer in XY plane.
         beaker_mixer_dist = torch.linalg.norm(beaker_pos_xy - beaker_mixer_pos_xy, dim=-1)
-        # print(f"Beaker-Mixer distance: {beaker_mixer_dist.item():.4f}")
+        print(f"Beaker-Mixer distance: {beaker_mixer_dist.item():.4f}")
         dist_threshold = 0.08
         beaker_near_mixer = beaker_mixer_dist <= dist_threshold
-
+        print(f"beaker_near_mixer:{beaker_near_mixer}, _button_contact_happened:{self._button_contact_happened}, beaker_ret:{beaker_ret}")
         return (~beaker_ret) & beaker_near_mixer & self._button_contact_happened
 
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):

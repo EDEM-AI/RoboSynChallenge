@@ -1,6 +1,6 @@
 {
     "id": "SampleLoadingDuel-v1",
-    "max_episodes": 10,
+    "max_episodes": 360,
     "max_episode_steps": 500,
     "env": {
         "events": {
@@ -27,7 +27,7 @@
             "random_robot_material": {
                 "func": "randomize_visual_material",
                 "mode": "interval",
-                "interval_step": 5,
+                "interval_step": 10,
                 "params": {
                     "entity_cfg": {"uid": "CobotMagic", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
@@ -38,7 +38,7 @@
             "random_table_material": {
                 "func": "randomize_visual_material",
                 "mode": "interval",
-                "interval_step": 2,
+                "interval_step": 10,
                 "params": {
                     "entity_cfg": {"uid": "table"},
                     "random_texture_prob": 0.5,
@@ -49,7 +49,7 @@
             "random_plane_material": {
                 "func": "randomize_visual_material",
                 "mode": "interval",
-                "interval_step": 2,
+                "interval_step": 10,
                 "params": {
                     "entity_cfg": {"uid": "default_plane"},
                     "random_texture_prob": 0.5,
@@ -139,8 +139,8 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "rack"},
-                    "position_range": [[-0.05, -0.05, 0.0], [0.05, 0.05, 0.0]],
-                    "rotation_range": [[0, 0, -30], [0, 0, 30]],
+                    "position_range": [[-0.05, -0.05, 0.0], [0.05, 0.15, 0.0]],
+                    "rotation_range": [[0, 0, -20], [0, 0, 20]],
                     "relative_position": true,
                     "relative_rotation": true
                 }
@@ -180,19 +180,19 @@
                         {"uid": "distractor_1"}
                     ],
                     "library_index_path": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/ASSET_INDEX.json",
-                    "categories": ["PaperCup", "plastic_bin", "fork", "mouse_pad", "spoon"],
+                    "categories": ["PaperCup", "fork", "spoon"],
                     "position_ranges": [
-                        [[0.62, -0.20, 0.89], [0.86, -0.03, 0.92]],
-                        [[0.62, 0.03, 0.89], [0.86, 0.20, 0.92]]
+                        [[0.425, -0.30, 0.89], [0.925, 0.3, 0.92]],
+                        [[0.425, -0.30, 0.89], [0.925, 0.3, 0.92]]
                     ],
                     "appear_probs": [1.0, 1.0],
                     "z_rotation_ranges": [
                         [-180.0, 180.0],
                         [-180.0, 180.0]
                     ],
-                    "hide_position": [0.0, 0.0, -20.0],
+                    "hide_position": [0.0, 0.0, -10.0],
                     "avoid_uids": ["cube", "rack"],
-                    "min_distance_to_avoid": 0.4,
+                    "min_distance_to_avoid": 0.18,
                     "max_resample_attempts": 30,
                     "physics_update_step": 1
                 }
@@ -369,7 +369,7 @@
                     },
                     "extra": {
                         "scene_type": "Sim",
-                        "task_description": "sample_loading_duel",
+                        "task_description": "sample_loading_dual",
                         "data_type": "sim"
                     },
                     "use_videos": true

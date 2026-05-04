@@ -1,6 +1,6 @@
 {
     "id": "BeakerMixer-v0",
-    "max_episodes": 1000,
+    "max_episodes": 600,
     "max_episode_steps": 500,
     "env": {
         "events": {
@@ -128,7 +128,7 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "beaker"},
-                    "position_range": [[-0.05, 0.0, 0.0], [0.05, 0.05, 0.0]],
+                    "position_range": [[-0.05, -0.05, 0.0], [0.05, 0.0, 0.0]],
                     "rotation_range": [[0, 0, -90], [0, 0, 90]],
                     "relative_position": true,
                     "relative_rotation": true
@@ -139,8 +139,8 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "beaker_mixer"},
-                    "position_range": [[-0.05, -0.05, 0.0], [0.05, 0, 0.0]],
-                    "rotation_range": [[0, -50, 0], [0, 10, 0]],
+                    "position_range": [[-0.05, 0, 0.0], [0.05, 0.05, 0.0]],
+                    "rotation_range": [[0, 0, 0], [0, 30, 0]],
                     "relative_position": true,
                     "relative_rotation": true
                 }
@@ -180,10 +180,10 @@
                         {"uid": "distractor_1"}
                     ],
                     "library_index_path": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/ASSET_INDEX.json",
-                    "categories": ["PaperCup", "plastic_bin", "fork", "mouse_pad", "spoon"],
+                    "categories": ["PaperCup", "fork", "spoon"],
                     "position_ranges": [
-                        [[0.62, -0.20, 0.89], [0.86, -0.03, 0.92]],
-                        [[0.62, 0.03, 0.89], [0.86, 0.20, 0.92]]
+                        [[0.425, -0.30, 0.89], [0.925, 0.3, 0.92]],
+                        [[0.425, -0.30, 0.89], [0.925, 0.3, 0.92]]
                     ],
                     "appear_probs": [1.0, 1.0],
                     "z_rotation_ranges": [
@@ -192,7 +192,7 @@
                     ],
                     "hide_position": [0.0, 0.0, -20.0],
                     "avoid_uids": ["beaker", "beaker_mixer"],
-                    "min_distance_to_avoid": 0.3,
+                    "min_distance_to_avoid": 0.4,
                     "max_resample_attempts": 30,
                     "physics_update_step": 1
                 }
@@ -238,37 +238,43 @@
                             "name": "place_offset_extrinsic_z",
                             "mode": "static",
                             "entity_cfg": {"uid": "beaker_mixer"},
-                            "value": 0.06
+                            "value": 0.08
                         },
                         {
                             "name": "place_offset_intrinsic_z",
                             "mode": "static",
                             "entity_cfg": {"uid": "beaker_mixer"},
-                            "value": -0.05
+                            "value": -0.03
+                        },
+                        {
+                            "name": "place_offset_intrinsic_x",
+                            "mode": "static",
+                            "entity_cfg": {"uid": "beaker_mixer"},
+                            "value": 0.005
                         },
                         {
                             "name": "button_offset_x",
                             "mode": "static",
                             "entity_cfg": {"uid": "beaker_mixer"},
-                            "value": 0.11175
+                            "value": -0.1176
                         },
                         {
                             "name": "button_offset_y",
                             "mode": "static",
                             "entity_cfg": {"uid": "beaker_mixer"},
-                            "value": -0.006
+                            "value": -0.000
                         },
                         {
                             "name": "button_offset_z",
                             "mode": "static",
                             "entity_cfg": {"uid": "beaker_mixer"},
-                            "value": 0.045
+                            "value": 0.056
                         },
                         {
                             "name": "button_rotation_x",
                             "mode": "static",
                             "entity_cfg": {"uid": "beaker_mixer"},
-                            "value": 10
+                            "value": -30
                         },
                         {
                             "name": "button_rotation_y",
@@ -299,6 +305,7 @@
                             "attrs": [
                                 "place_offset_extrinsic_z",
                                 "place_offset_intrinsic_z",
+                                "place_offset_intrinsic_x",
                                 "button_offset_x",
                                 "button_offset_y",
                                 "button_offset_z",
@@ -378,11 +385,11 @@
                         "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"]
                     },
                     "instruction": {
-                        "lang": "Left arm picks up the beaker and place it on the mixer, then right arm presses the switch"
+                        "lang": "Right arm picks up the beaker and place it on the mixer, then left arm presses the switch"
                     },
                     "extra": {
                         "scene_type": "Sim",
-                        "task_description": "manipulate_mixer_duel",
+                        "task_description": "Right arm picks up the beaker and place it on the mixer, then left arm presses the switch",
                         "data_type": "sim"
                     },
                     "use_videos": true
@@ -448,7 +455,7 @@
             "articulation_cfg_list": [
                 {
                     "articulation_uid": "CobotMagic",
-                    "link_name_list": ["right_link7", "right_link8"]
+                    "link_name_list": ["left_link7", "left_link8"]
                 }
             ],
             "filter_need_both_actor": true,
@@ -512,7 +519,7 @@
             },
             "body_scale": [1.1, 1.1, 1.1],
             "max_convex_hull_num": 24,
-            "init_pos": [0.6, 0.3, 0.83],
+            "init_pos": [0.6, -0.25, 0.85],
             "init_rot": [0, 0, 0]
         },
         {
@@ -536,7 +543,7 @@
             },
             "body_scale": [0.3, 0.3, 0.3],
             "max_convex_hull_num": 12,
-            "init_pos": [0.6, 0.0, 0.87],
+            "init_pos": [0.6, 0.0, 0.9],
             "init_rot": [90, -90, 0]
         },
         {

@@ -135,16 +135,12 @@ class SampleLoadingDuelEnv(EmbodiedEnv):
         cube_pos_xy = cube_final_xpos[:, :2, 3]
         rack_pos_xy = rack_final_xpos[:, :2, 3]
 
-        dist = torch.linalg.norm(cube_pos_xy - rack_pos_xy, dim=-1)
-        print(f"Cube-Rack distance: {dist.item():.4f}")
-        dist_threshold = 0.03
-        cube_near_rack = dist <= dist_threshold
 
-        return (~cube_ret) & cube_near_rack
+        return (~cube_ret) & (~rack_ret)
 
     def _is_fall(self, pose: torch.Tensor) -> torch.Tensor:
         # Extract z-axis from rotation matrix (last column, first 3 elements)
-        pose_rz = pose[:, :3, 0]
+        pose_rz = pose[:, :3, 2]
         world_z_axis = torch.tensor([0, 0, 1], dtype=pose.dtype, device=pose.device)
 
         # Compute dot product for each batch element
@@ -155,7 +151,8 @@ class SampleLoadingDuelEnv(EmbodiedEnv):
 
         # Compute angle and check if fallen
         angle = torch.arccos(dot_product)
-        return angle >= 1.309 #75度
+        print(f"angle: {angle.item()}")
+        return angle >= 0.1745 #10度
 
 
 

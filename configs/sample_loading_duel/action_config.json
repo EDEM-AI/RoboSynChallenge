@@ -395,6 +395,15 @@
                                             {
                                                 "name": "get_rotated_pose",
                                                 "kwargs": {
+                                                    "rot_angle": 20,
+                                                    "rot_axis": "z",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
                                                     "rot_angle": -90,
                                                     "rot_axis": "y",
                                                     "mode": "intrinsic",
@@ -413,7 +422,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": 0.25,
+                                                    "offset_value": 0.15,
                                                     "direction": "z",
                                                     "mode": "extrinsic"
                                                 }
@@ -556,15 +565,23 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": -0.08,
+                                                    "offset_value": -0.06,
                                                     "direction": "x",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.01,
+                                                    "direction": "z",
                                                     "mode": "intrinsic"
                                                 }
                                             },
                                             {
                                                 "name": "get_rotated_pose",
                                                 "kwargs": {
-                                                    "rot_angle": -100,
+                                                    "rot_angle": -90,
                                                     "rot_axis": "x",
                                                     "mode": "intrinsic",
                                                     "degrees": true
@@ -573,7 +590,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": 0.008,
+                                                    "offset_value": 0.015,
                                                     "direction": "z",
                                                     "mode": "intrinsic"
                                                 }
@@ -602,7 +619,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": -0.1,
+                                                    "offset_value": -0.08,
                                                     "direction": "z",
                                                     "mode": "intrinsic"
                                                 }
@@ -610,7 +627,7 @@
                                             {
                                                 "name": "get_rotated_pose",
                                                 "kwargs": {
-                                                    "rot_angle": 5,
+                                                    "rot_angle": 0,
                                                     "rot_axis": "x",
                                                     "mode": "intrinsic",
                                                     "degrees": true
@@ -779,7 +796,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": 0.008,
+                                                    "offset_value": 0.015,
                                                     "direction": "z",
                                                     "mode": "intrinsic"
                                                 }
