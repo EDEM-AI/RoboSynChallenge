@@ -1,6 +1,7 @@
 {   
     "id": "Rearrangement-v3",
-    "max_episodes": 10,
+    "max_episodes": 100,
+    "max_episode_steps": 361,
     "env": {
         "events": {
             "init_table_pose": {
@@ -206,6 +207,50 @@
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
+
+            
+            "random_robot_qpos": {                                           
+                "func": "randomize_robot_qpos",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "CobotMagic"},
+                    "qpos_range": [
+                        [-0.06, -0.05, -0.06, -0.06, -0.05, -0.05, -0.06, -0.05, -0.06, -0.06, -0.05, -0.05],    
+                        [0.06, 0.05, 0.06, 0.06, 0.05, 0.05, 0.06, 0.05, 0.06, 0.06, 0.05, 0.05]                 
+                    ],
+                    "relative_qpos": true,
+                    "joint_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]          
+                }
+            },
+
+
+
+            "randomize_distractor_slots": {
+                "func": "replace_distractor_slots_from_library",
+                "mode": "reset",
+                "params": {
+                    "entity_cfgs": [
+                        {"uid": "distractor_0"},
+                        {"uid": "distractor_1"}
+                    ],
+                    "library_index_path": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/ASSET_INDEX.json ",
+                    "categories": ["PaperCup",  "fork",  "spoon"],
+                    "position_ranges": [
+                        [[0.6, -0.20, 0.89], [0.65, -0.03, 0.92]],
+                        [[0.6, 0.03, 0.89], [0.65, 0.20, 0.92]]
+                    ],
+                    "appear_probs": [1.0, 1.0],
+                    "z_rotation_ranges": [
+                        [-180.0, 180.0],
+                        [-180.0, 180.0]
+                    ],
+                    "hide_position": [0.0, 0.0, -20.0],
+                    "avoid_uids": ["fork", "spoon"],
+                    "min_distance_to_avoid": 0.08,
+                    "max_resample_attempts": 30,
+                    "physics_update_step": 1
+                }
+            },
             
             "random_camera_high_intrinsics": {
                 "func": "randomize_camera_intrinsics",
@@ -287,7 +332,7 @@
                 "mode": "modify",
                 "name": "robot/qpos",
                 "params": {
-                    "joint_ids": [12, 13, 14, 15]
+                    "joint_ids": [6,13]
                 }
             },
             "fork_pose": {
@@ -342,111 +387,52 @@
                     "entity_cfg": {"uid": "cam_right_wrist"},
                     "foreground_uids": ["fork", "spoon"]
                 }
-            },
-            "exteroception": {
-                "func": "compute_exteroception",
-                "mode": "add",
-                "name": "exteroception",
-                "params": {
-                    "descriptor": {
-                        "all_sensors": [
-                            {
-                                "type": "robot",
-                                "control_part": "left_arm",
-                                "follow_eef": true
-                            },
-                            {
-                                "type": "robot",
-                                "control_part": "right_arm",
-                                "follow_eef": true
-                            },
-                            {
-                                "type": "affordance",
-                                "obj_uid": "fork",
-                                "key": "fork_grasp_pose_object",
-                                "is_arena_coord": false,
-                                "follow_eef": "right_eef"
-                            },
-                            {
-                                "type": "affordance",
-                                "obj_uid": "fork",
-                                "key": "fork_place_pose",
-                                "is_arena_coord": true
-                            },
-                            {
-                                "type": "affordance",
-                                "obj_uid": "spoon",
-                                "key": "spoon_grasp_pose_object",
-                                "is_arena_coord": false,
-                                "follow_eef": "left_eef"
-                            },
-                            {
-                                "type": "affordance",
-                                "obj_uid": "spoon",
-                                "key": "spoon_place_pose",
-                                "is_arena_coord": true
-                            }
-                        ]
-                    },
-                    "x_interval": 0.02,
-                    "y_interval": 0.05,
-                    "kpnts_number": 2,
-                    "groups": 6
-                }
             }
         },
         "dataset": {
-            "hdf5": {
-                "func": "HDF5Recorder",
+            "lerobot": {
+                "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
+                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/rearrangement",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
-                        "arm_dofs": 12,
                         "control_freq": 25,
-                        "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"],
-                        "min_len_steps": 125,
-                        "observation": {
-                            "vision": {
-                                "cam_high": ["mask", "exteroception"], 
-                                "cam_right_wrist": ["mask", "exteroception"], 
-                                "cam_left_wrist": ["mask", "exteroception"]
-                            },
-                            "states": ["qpos"],
-                            "exteroception": ["cam_high", "cam_right_wrist", "cam_left_wrist"]
-                        }
+                        "arm_dofs": 12,
+                        "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"]
                     },
                     "instruction": {
-                        "lang": "Place the spoon and fork neatly into the plate on the table."
-                    }
+                        "lang": "rearrange the table by placing the spoon and fork on either side of the plate."
+                    },
+                    "extra": {
+                        "scene_type": "Sim",
+                        "task_description": "rearrange the table by placing the spoon and fork on either side of the plate.",
+                        "data_type": "sim"
+                    },
+                    "use_videos": true
                 }
             }
         },
-        "success_params": {
-            "strict": false
-        }
+        "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"]
     },
     "robot": {
         "uid": "CobotMagic",
         "robot_type": "CobotMagic",
-        "init_pos": [0.0, 0.0, 0.7775],
+        "init_pos": [0.0, 0.0, 0.835],
         "init_qpos": [-0.3,0.3,1.0,1.0,-1.2,-1.2,0.0,0.0,0.6,0.6,0.0,0.0,0.05,0.05,0.05,0.05]
     },
     "sensor": [
         {
-            "sensor_type": "StereoCamera",
+            "sensor_type": "Camera",
             "uid": "cam_high",
-            "width": 960,
-            "height": 540,
+            "width": 640,
+            "height": 480,
             "enable_mask": true,
-            "enable_depth": true,
-            "left_to_right_pos": [0.059684025824163614, 0, 0],
-            "intrinsics": [453.851402686215, 453.8347628855552, 469.827725021235, 258.6656181845155],
-            "intrinsics_right": [453.4536601653505, 453.3306024582175, 499.13697412367776, 297.7176248477935],
+            "intrinsics": [606.315186, 606.100952, 320.549316, 245.877106],
             "extrinsics": {
-                "eye": [0.35368482807598, 0.014695524383058989, 1.4517046071614774],
-                "target": [0.7186357573287919, -0.054534732904795505, 0.5232553674540066],
-                "up": [0.9306678549330372, -0.0005600064212467153, 0.3658647703553347]
+                "eye": [0.206931, 0.052728, 1.40],
+                "target": [0.576285, -0.000645, 0.5],
+                "up": [0.917003, -0.140871, 0.373178]
             }
         },
         {
@@ -455,11 +441,11 @@
             "width": 640,
             "height": 480,
             "enable_mask": true,
-            "intrinsics": [488.1665344238281, 488.1665344238281, 322.7323303222656, 213.17434692382812],
+            "intrinsics": [603.117004394531, 602.418640136719, 326.727478027344, 251.933990478516],
             "extrinsics": {
                 "parent": "right_link6",
-                "pos": [-0.08, 0.0, 0.04],
-                "quat": [0.15304635, 0.69034543, -0.69034543, -0.15304635]
+                "pos": [-0.12, 0.0, 0.04],
+                "quat": [0.1976964, 0.69034543, -0.69034543, -0.1976964]
             }
         },
         {
@@ -468,11 +454,11 @@
             "width": 640,
             "height": 480,
             "enable_mask": true,
-            "intrinsics": [488.1665344238281, 488.1665344238281, 322.7323303222656, 213.17434692382812],
+            "intrinsics": [603.117004394531, 602.418640136719, 326.727478027344, 251.933990478516],
             "extrinsics": {
                 "parent": "left_link6",
-                "pos": [-0.08, 0.0, 0.04],
-                "quat": [0.15304635, 0.69034543, -0.69034543, -0.15304635]
+                "pos": [-0.12, 0.0, 0.04],
+                "quat": [0.1976964, 0.69034543, -0.69034543, -0.1976964]
             }
         }
     ],
@@ -504,7 +490,7 @@
             },
             "body_scale": [1, 1, 1],
             "body_type": "kinematic",
-            "init_pos": [0.725, 0.0, 0.691],
+            "init_pos": [0.725, 0.0, 0.775],
             "init_rot": [0, 90, 0]
         }
     ],
@@ -555,6 +541,44 @@
                 "min_position_iters": 16,
                 "min_velocity_iters": 4
             }
+        },
+        {
+            "uid":"distractor_0",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply",
+                "compute_uv": true
+            },
+            "attrs" : {
+                "mass": 0.01,
+                "contact_offset": 0.003,
+                "rest_offset": 0.001,
+                "restitution": 0.01,
+                "max_depenetration_velocity": 1e1,
+                "min_position_iters": 32,
+                "min_velocity_iters": 8
+            },
+            "init_pos": [0.5, 0.0, -20.0],
+            "body_scale":[0.85, 0.85, 0.85]
+        },
+        {
+            "uid":"distractor_1",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply",
+                "compute_uv": true
+            },
+            "attrs" : {
+                "mass": 0.01,
+                "contact_offset": 0.003,
+                "rest_offset": 0.001,
+                "restitution": 0.01,
+                "max_depenetration_velocity": 1e1,
+                "min_position_iters": 32,
+                "min_velocity_iters": 8
+            },
+            "init_pos": [0.5, 0.0, -20.0],
+            "body_scale":[0.9, 0.9, 0.9]
         }
     ]
 }

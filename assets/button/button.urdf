@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-1-g15f4949  Build Version: 1.6.7594.29634
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot name="button"> 
+  <link name="button_base"> 
+    <inertial> 
+      <origin xyz="0 0 0" rpy="0 0 0"/>  
+      <mass value="0.01"/>  
+      <inertia ixx="0.00036805" ixy="-7.2868E-08" ixz="-5.0168E-08" iyy="0.0003341" iyz="-2.6462E-06" izz="0.00022294"/> 
+    </inertial>  
+    <visual> 
+      <origin xyz="0 0 0" rpy="0 0 0"/>  
+      <geometry> 
+        <mesh filename="Visual/button_base.obj"/> 
+      </geometry>  
+    </visual>  
+    <collision> 
+      <origin xyz="0 0 0" rpy="0 0 0"/>  
+      <geometry> 
+        <mesh filename="Collision/button_base.stl"/>
+      </geometry> 
+    </collision> 
+  </link>  
+  <link name="button_cover"> 
+    <inertial> 
+      <origin xyz="0 0 0" rpy="0 0 0"/>  
+      <mass value="0.01"/>  
+      <inertia ixx="1.7567E-06" ixy="-5.7832E-08" ixz="2.6803E-08" iyy="2.3034E-06" iyz="2.2145E-07" izz="1.3354E-06"/> 
+    </inertial>  
+    <visual> 
+      <origin xyz="0 0 0" rpy="0 0 0"/>  
+      <geometry> 
+        <mesh filename="Visual/button_cover.obj"/> 
+      </geometry>  
+    </visual>  
+    <collision> 
+      <origin xyz="0 0 0" rpy="0 0 0"/>  
+      <geometry> 
+        <mesh filename="Collision/button_cover.stl"/>
+      </geometry> 
+    </collision> 
+  </link>  
+  <joint name="press" type="prismatic"> 
+    <origin xyz="0 0 0" rpy="0 0 0"/>  
+    <parent link="button_base"/>  
+    <child link="button_cover"/>  
+    <axis xyz="0 0 1"/>  
+    <limit lower="-0.005" upper="0.0" effort="1" velocity="1"/> 
+  </joint>
+</robot>

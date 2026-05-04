@@ -59,25 +59,75 @@
         "left_arm": [
             {
                 "left_arm_init_qpos": {
-                    "name": "generate_left_arm_init_qpos",
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_init_qpos",
+                                "dst_key": "left_arm_init_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation", 
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_fk_xpos",
+                                                "kwargs": {
+                                                    "control_part": "left_arm", 
+                                                    "fk_func": "env.robot.compute_fk"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                        
+                    }
+                }
+            },
+            {
+                "left_arm_aim_qpos": {
+                    "name": "generate_left_arm_aim_qpos",
                     "kwargs": {}
                 }
             },
             {
                 "lid_grasp_qpos": {
-                    "name": "generate_lid_grasp",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "lid_pose",
+                                "dst_key": "lid_grasp_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
                                 "kwargs": {},
                                 "pass_processes": [
-                                    {
-                                        "name": "get_frame_changed_pose",
-                                        "kwargs": {
-                                            "frame_change_matrix": "env.lid_pose_orig"
-                                        }
-                                    },
+                                            {
+                                                "name": "get_rotation_replaced_pose",
+                                                "kwargs": {
+                                                    "rotation_value": "env.affordance_datas['left_arm_aim_qpos'][0]",
+                                                    "rot_axis": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_frame_changed_pose",
+                                                "kwargs": {
+                                                    "frame_change_matrix": "env.affordance_datas['lid_pose']",
+                                                    "mode": "intrinsic",
+                                                    "inverse": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_frame_changed_pose",
+                                                "kwargs": {
+                                                    "frame_change_matrix": "env.affordance_datas['lid_grasp_pose']",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
                                     {
                                         "name": "get_offset_pose",
                                         "kwargs": {
@@ -87,21 +137,27 @@
                                         }
                                     }
                                 ]
+                            }
+                        ]
                             },
+                            {
+                                "src_key": "lid_grasp_pose",
+                                "dst_key": "lid_grasp_qpos",
+                                "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik",
+                                    "ik_func": "env.robot.compute_ik",
                                     "qpos_seed": "env.affordance_datas['left_arm_init_qpos']",
-                                    "is_left": true
+                                    "control_part": "left_arm"
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos",
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik",
+                                            "ik_func": "env.robot.compute_ik",
                                             "qpos_seed": "env.affordance_datas['left_arm_init_qpos']",
-                                            "is_left": true
+                                            "control_part": "left_arm"
                                         }
                                     }
                                 ]
@@ -118,12 +174,18 @@
                             }
                         ]
                     }
+                ]
+                    }
                 }
             },
             {
                 "lid_pre2_grasp_qpos": {
-                    "name": "generate_lid_pre2_grasp_qpos",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "lid_grasp_pose",
+                                "dst_key": "lid_pre2_grasp_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
@@ -139,27 +201,49 @@
                                     {
                                         "name": "get_offset_pose",
                                         "kwargs": {
+                                            "offset_value": 0.1,
+                                            "direction": "y",
+                                            "mode": "intrinsic"
+                                        }
+                                    },
+                                    {
+                                        "name": "get_offset_pose",
+                                        "kwargs": {
+                                            "offset_value": 0.005,
+                                            "direction": "x",
+                                            "mode": "intrinsic"
+                                        }
+                                    },
+                                    {
+                                        "name": "get_offset_pose",
+                                        "kwargs": {
                                             "offset_value": -0.075,
                                             "direction": "z",
                                             "mode": "intrinsic"
                                         }
                                     }
                                 ]
+                            }
+                        ]
                             },
                             {
+                                "src_key": "lid_pre2_grasp_pose",
+                                "dst_key": "lid_pre2_grasp_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik", 
+                                    "ik_func": "env.robot.compute_ik", 
                                     "qpos_seed": "env.affordance_datas['left_arm_init_qpos']", 
-                                    "is_left": true
+                                    "control_part": "left_arm"
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos", 
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik", 
+                                            "ik_func": "env.robot.compute_ik", 
                                             "qpos_seed": "env.affordance_datas['left_arm_init_qpos']", 
-                                            "is_left": true
+                                            "control_part": "left_arm"
                                         }
                                     }
                                 ]
@@ -176,12 +260,18 @@
                             }
                         ]
                     }
+                ]
+            }
                 }
             },
             {
                 "lid_pre1_grasp_qpos": {
-                    "name": "generate_lid_pre1_grasp_qpos",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "lid_pre2_grasp_pose",
+                                "dst_key": "lid_pre1_grasp_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
@@ -196,21 +286,27 @@
                                         }
                                     }
                                 ]
+                            }
+                        ]
                             },
                             {
+                                "src_key": "lid_pre1_grasp_pose",
+                                "dst_key": "lid_pre1_grasp_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik", 
+                                    "ik_func": "env.robot.compute_ik", 
                                     "qpos_seed": "env.affordance_datas['left_arm_init_qpos']",
-                                    "is_left": true
+                                    "control_part": "left_arm"
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos", 
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik", 
+                                            "ik_func": "env.robot.compute_ik", 
                                             "qpos_seed": "env.affordance_datas['left_arm_init_qpos']",
-                                            "is_left": true
+                                            "control_part": "left_arm"
                                         }
                                     }
                                 ]
@@ -227,12 +323,18 @@
                             }
                         ]
                     }
+                ]
+            }
                 }
             },
             {
                 "lid_lift_qpos": {
-                    "name": "generate_lid_lift_qpos",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "lid_grasp_pose",
+                                "dst_key": "lid_lift_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
@@ -247,21 +349,27 @@
                                         }
                                     }
                                 ]
+                            }
+                        ]
                             },
                             {
+                                "src_key": "lid_lift_pose",
+                                "dst_key": "lid_lift_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik", 
+                                    "ik_func": "env.robot.compute_ik", 
                                     "qpos_seed": "env.affordance_datas['lid_grasp_qpos']", 
-                                    "is_left": true
+                                    "control_part": "left_arm"
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos", 
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik", 
+                                            "ik_func": "env.robot.compute_ik", 
                                             "qpos_seed": "env.affordance_datas['lid_grasp_qpos']", 
-                                            "is_left": true
+                                            "control_part": "left_arm"
                                         }
                                     }
                                 ]
@@ -278,12 +386,18 @@
                             }
                         ]
                     }
+                ]
+            }
                 }
             },
             {
                 "lid_aside_qpos": {
-                    "name": "generate_lid_aside_qpos",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "lid_lift_pose",
+                                "dst_key": "lid_aside_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
@@ -292,7 +406,7 @@
                                     {
                                         "name": "get_offset_pose",
                                         "kwargs": {
-                                            "offset_value": 0.10,
+                                            "offset_value": 0.05,
                                             "direction": "x",
                                             "mode": "extrinsic"
                                         }
@@ -300,27 +414,33 @@
                                     {
                                         "name": "get_offset_pose",
                                         "kwargs": {
-                                            "offset_value": 0.10,
+                                            "offset_value": 0.15,
                                             "direction": "y",
                                             "mode": "extrinsic"
                                         }
                                     }
                                 ]
+                            }
+                        ]
                             },
                             {
+                                "src_key": "lid_aside_pose",
+                                "dst_key": "lid_aside_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik", 
+                                    "ik_func": "env.robot.compute_ik", 
                                     "qpos_seed": "env.affordance_datas['lid_lift_qpos']", 
-                                    "is_left": true
+                                    "control_part": "left_arm"
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos", 
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik", 
+                                            "ik_func": "env.robot.compute_ik", 
                                             "qpos_seed": "env.affordance_datas['lid_lift_qpos']", 
-                                            "is_left": true
+                                            "control_part": "left_arm"
                                         }
                                     }
                                 ]
@@ -337,41 +457,79 @@
                             }
                         ]
                     }
+                ]
+            }
                 }
             },
             {
                 "lid_back_qpos": {
-                    "name": "generate_lid_back_qpos",
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "pan_pose",
+                                "dst_key": "lid_back_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
                                 "kwargs": {},
                                 "pass_processes": [
+
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": 180,
+                                                    "rot_axis": "x",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
+                                            },
                                     {
                                         "name": "get_offset_pose",
                                         "kwargs": {
-                                            "offset_value": 0.005,
+                                            "offset_value": 0.18,
                                             "direction": "z",
+                                            "mode": "extrinsic"
+                                        }
+                                    },
+                                    {
+                                        "name": "get_offset_pose",
+                                        "kwargs": {
+                                            "offset_value": 0.05,
+                                            "direction": "y",
+                                            "mode": "extrinsic"
+                                        }
+                                    },
+                                    {
+                                        "name": "get_offset_pose",
+                                        "kwargs": {
+                                            "offset_value": -0.05,
+                                            "direction": "x",
                                             "mode": "extrinsic"
                                         }
                                     }
                                 ]
+                            }
+                        ]
                             },
                             {
+                                "src_key": "lid_back_pose",
+                                "dst_key": "lid_back_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik", 
+                                    "ik_func": "env.robot.compute_ik", 
                                     "qpos_seed": "env.affordance_datas['lid_aside_qpos']", 
-                                    "is_left": true
+                                    "control_part": "left_arm"
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos", 
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik", 
+                                            "ik_func": "env.robot.compute_ik", 
                                             "qpos_seed": "env.affordance_datas['lid_aside_qpos']", 
-                                            "is_left": true
+                                            "control_part": "left_arm"
                                         }
                                     }
                                 ]
@@ -388,143 +546,105 @@
                             }
                         ]
                     }
-                }
-            },
-            {
-                "left_arm_compute_unoffset_for_exp":{
-                    "name": "left_arm_compute_unoffset_for_exp",
-                    "kwargs": {
-                        "pose_input_output_names_changes": { 
-                            "lid_grasp_unoffset_matrix_object": {
-                                "output_pose_name":"lid_grasp_unoffset_matrix_object",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.lid_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "lid_grasp_pose_object": {
-                                "output_pose_name":"lid_grasp_pose_object_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.lid_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "left_arm_init_pose": {
-                                "output_pose_name":"left_arm_init_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.lid_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "lid_pre2_grasp_pose": {
-                                "output_pose_name":"lid_pre2_grasp_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.lid_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "lid_pre1_grasp_pose": {
-                                "output_pose_name":"lid_pre1_grasp_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.lid_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "lid_grasp_pose": {
-                                "output_pose_name":"lid_grasp_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.lid_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "lid_lift_pose": {
-                                "output_pose_name":"lid_lift_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.lid_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "lid_aside_pose": {
-                                "output_pose_name":"lid_aside_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.lid_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "lid_back_pose": {
-                                "output_pose_name":"lid_back_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.lid_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            }                       
-                        }
-                    }
+                ]
+            }
                 }
             }
         ],
         "right_arm": [
             {
                 "right_arm_init_qpos": {
-                    "name": "generate_right_arm_init_qpos",
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_init_qpos",
+                                "dst_key": "right_arm_init_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation", 
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_fk_xpos",
+                                                "kwargs": {
+                                                    "control_part": "right_arm", 
+                                                    "fk_func": "env.robot.compute_fk"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                        
+                    }
+                }
+            },
+            {
+                "right_arm_aim_qpos": {
+                    "name": "generate_right_arm_aim_qpos",
                     "kwargs": {}
                 }
             },
             {
-                "apple_grasp_qpos": {
-                    "name": "generate_apple_grasp_qpos",
+                "carrot_grasp_qpos": {
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "carrot_pose",
+                                "dst_key": "carrot_grasp_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
                                 "kwargs": {},
                                 "pass_processes": [
-                                    {
-                                        "name": "get_frame_changed_pose",
-                                        "kwargs": {
-                                            "frame_change_matrix": "env.apple_pose_orig"
-                                        }
-                                    },
-                                    {
-                                        "name": "get_offset_pose",
-                                        "kwargs": {
-                                            "offset_value": "env.apple_grasp_offset",
-                                            "direction": "z",
-                                            "mode": "intrinsic"
-                                        }
-                                    },
-                                    {
-                                        "name": "get_aligned_pose",
-                                        "kwargs": {
-                                            "align_vector": [0, 0, -1],
-                                            "pose_axis": "z"
-                                        }
-                                    }
+                                            {
+                                                "name": "get_rotation_replaced_pose",
+                                                "kwargs": {
+                                                    "rotation_value": "env.affordance_datas['right_arm_aim_qpos'][0]",
+                                                    "rot_axis": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_frame_changed_pose",
+                                                "kwargs": {
+                                                    "frame_change_matrix": "env.affordance_datas['carrot_pose']",
+                                                    "mode": "intrinsic",
+                                                    "inverse": true
+                                                }
+                                            },
+                                            {
+                                                "name": "get_frame_changed_pose",
+                                                "kwargs": {
+                                                    "frame_change_matrix": "env.affordance_datas['carrot_grasp_pose']",
+                                                    "mode": "intrinsic"
+                                                }
+                                            }
                                 ]
+                            }
+                        ]
                             },
                             {
+                                "src_key": "carrot_grasp_pose",
+                                "dst_key": "carrot_grasp_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik",
+                                    "ik_func": "env.robot.compute_ik",
                                     "qpos_seed": "env.affordance_datas['right_arm_init_qpos']",
-                                    "is_left": false
+                                    "control_part": "right_arm"
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos",
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik",
+                                            "ik_func": "env.robot.compute_ik",
                                             "qpos_seed": "env.affordance_datas['right_arm_init_qpos']",
-                                            "is_left": false
+                                            "control_part": "right_arm"
                                         }
                                     }
                                 ]
@@ -541,12 +661,18 @@
                             }
                         ]
                     }
+                ]
+            }
                 }
             },
             {
-                "apple_pre1_grasp_pose_qpos": {
-                    "name": "generate_apple_pre1_grasp_pose_qpos",
+                "carrot_pre1_grasp_pose_qpos": {
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "carrot_grasp_pose",
+                                "dst_key": "carrot_pre1_grasp_pose_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
@@ -561,21 +687,27 @@
                                         }
                                     }
                                 ]
+                            }
+                        ]
                             },
                             {
+                                "src_key": "carrot_pre1_grasp_pose_pose",
+                                "dst_key": "carrot_pre1_grasp_pose_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik", 
+                                    "ik_func": "env.robot.compute_ik", 
                                     "qpos_seed": "env.affordance_datas['right_arm_init_qpos']", 
-                                    "is_left": false
+                                    "control_part": "right_arm"
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos", 
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik", 
+                                            "ik_func": "env.robot.compute_ik", 
                                             "qpos_seed": "env.affordance_datas['right_arm_init_qpos']", 
-                                            "is_left": false
+                                            "control_part": "right_arm"
                                         }
                                     }
                                 ]
@@ -592,12 +724,18 @@
                             }
                         ]
                     }
+                ]
+            }
                 }
             },
             {
-                "apple_pre2_grasp_qpos": {
-                    "name": "generate_apple_pre2_grasp_qpos",
+                "carrot_pre2_grasp_qpos": {
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "carrot_pre1_grasp_pose_pose",
+                                "dst_key": "carrot_pre2_grasp_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
@@ -606,7 +744,7 @@
                                     {
                                         "name": "get_replaced_pose",
                                         "kwargs":{
-                                            "pose_replace_value": "env.apple_xy_random_center",
+                                            "pose_replace_value": "env.carrot_xy_random_center",
                                             "axis_str_replace": "xy"
                                         }
                                     },
@@ -619,21 +757,27 @@
                                         }
                                     }
                                 ]
+                            }
+                        ]
                             },
+                            {
+                                "src_key": "carrot_pre2_grasp_pose",
+                                "dst_key": "carrot_pre2_grasp_qpos",
+                                "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik", 
+                                    "ik_func": "env.robot.compute_ik", 
                                     "qpos_seed": "env.affordance_datas['right_arm_init_qpos']", 
-                                    "is_left": false
+                                    "control_part": "right_arm" 
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos", 
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik", 
+                                            "ik_func": "env.robot.compute_ik", 
                                             "qpos_seed": "env.affordance_datas['right_arm_init_qpos']", 
-                                            "is_left": false
+                                            "control_part": "right_arm"
                                         }
                                     }
                                 ]
@@ -650,12 +794,18 @@
                             }
                         ]
                     }
+                ]
+            }
                 }
             },
             {
-                "apple_lift_qpos": {
-                    "name": "generate_apple_lift_qpos",
+                "carrot_lift_qpos": {
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "carrot_pre2_grasp_pose",
+                                "dst_key": "carrot_lift_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
@@ -670,21 +820,27 @@
                                         }
                                     }
                                 ]
+                            }
+                        ]
                             },
                             {
+                                "src_key": "carrot_lift_pose",
+                                "dst_key": "carrot_lift_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik", 
-                                    "qpos_seed": "env.affordance_datas['apple_grasp_qpos']", 
-                                    "is_left": false
+                                    "ik_func": "env.robot.compute_ik", 
+                                    "qpos_seed": "env.affordance_datas['carrot_grasp_qpos']", 
+                                    "control_part": "right_arm"
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos", 
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik", 
-                                            "qpos_seed": "env.affordance_datas['apple_grasp_qpos']", 
-                                            "is_left": false
+                                            "ik_func": "env.robot.compute_ik", 
+                                            "qpos_seed": "env.affordance_datas['carrot_grasp_qpos']", 
+                                            "control_part": "right_arm"
                                         }
                                     }
                                 ]
@@ -701,12 +857,18 @@
                             }
                         ]
                     }
+                ]
+            }
                 }
             },
             {
-                "apple_to_pan_qpos": {
-                    "name": "generate_apple_to_pan_qpos",
+                "carrot_to_pan_qpos": {
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "carrot_lift_pose",
+                                "dst_key": "carrot_to_pan_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
@@ -722,7 +884,7 @@
                                     {
                                         "name": "get_offset_pose",
                                         "kwargs": {
-                                            "offset_value": -0.06,
+                                            "offset_value": -0.056,
                                             "direction": "y",
                                             "mode": "extrinsic"
                                         }
@@ -743,21 +905,27 @@
                                         }
                                     }
                                 ]
+                            }
+                        ]
                             },
                             {
+                                "src_key": "carrot_to_pan_pose",
+                                "dst_key": "carrot_to_pan_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik", 
-                                    "qpos_seed": "env.affordance_datas['apple_lift_qpos']", 
-                                    "is_left": false
+                                    "ik_func": "env.robot.compute_ik", 
+                                    "qpos_seed": "env.affordance_datas['carrot_lift_qpos']", 
+                                    "control_part": "right_arm"
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos", 
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik", 
-                                            "qpos_seed": "env.affordance_datas['apple_lift_qpos']", 
-                                            "is_left": false
+                                            "ik_func": "env.robot.compute_ik", 
+                                            "qpos_seed": "env.affordance_datas['carrot_lift_qpos']", 
+                                            "control_part": "right_arm"
                                         }
                                     }
                                 ]
@@ -774,12 +942,18 @@
                             }
                         ]
                     }
+                ]
+            }
                 }
             },
             {
-                "apple_after_pan_qpos": {
-                    "name": "generate_apple_after_pan_qpos",
+                "carrot_after_pan_qpos": {
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "carrot_to_pan_pose",
+                                "dst_key": "carrot_after_pan_pose",
                         "valid_funcs_name_kwargs_proc": [
                             {
                                 "name": "no_validation",
@@ -828,21 +1002,27 @@
                                         }
                                     }
                                 ]
+                            }
+                        ]
                             },
                             {
+                                "src_key": "carrot_after_pan_pose",
+                                "dst_key": "carrot_after_pan_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
                                 "name": "get_ik_ret",
                                 "kwargs": {
-                                    "ik_func": "env._get_arm_ik", 
-                                    "qpos_seed": "env.affordance_datas['apple_to_pan_qpos']", 
-                                    "is_left": false
+                                    "ik_func": "env.robot.compute_ik", 
+                                    "qpos_seed": "env.affordance_datas['carrot_to_pan_qpos']", 
+                                    "control_part": "right_arm"
                                 },
                                 "pass_processes": [
                                     {
                                         "name": "get_ik_qpos", 
                                         "kwargs": {
-                                            "ik_func": "env._get_arm_ik", 
-                                            "qpos_seed": "env.affordance_datas['apple_to_pan_qpos']", 
-                                            "is_left": false
+                                            "ik_func": "env.robot.compute_ik", 
+                                            "qpos_seed": "env.affordance_datas['carrot_to_pan_qpos']", 
+                                            "control_part": "right_arm"
                                         }
                                     }
                                 ]
@@ -859,79 +1039,8 @@
                             }
                         ]
                     }
-                }
-            },
-            {
-                "right_arm_compute_unoffset_for_exp":{
-                    "name": "right_arm_compute_unoffset_for_exp",
-                    "kwargs": {
-                        "pose_input_output_names_changes": { 
-                            "apple_grasp_unoffset_matrix_object": {
-                                "output_pose_name":"apple_grasp_unoffset_matrix_object",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.apple_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "right_arm_init_pose": {
-                                "output_pose_name":"right_arm_init_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.apple_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "apple_pre2_grasp_pose": {
-                                "output_pose_name":"apple_pre2_grasp_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.apple_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "apple_pre1_grasp_pose": {
-                                "output_pose_name":"apple_pre1_grasp_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.apple_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "apple_grasp_pose": {
-                                "output_pose_name":"apple_grasp_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.apple_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "apple_lift_pose": {
-                                "output_pose_name":"apple_lift_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.apple_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "apple_to_pan_pose": {
-                                "output_pose_name":"apple_to_pan_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.apple_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "apple_after_pan_pose": {
-                                "output_pose_name":"apple_after_pan_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.apple_grasp_offset"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            }                   
-                        }
-                    }
+                ]
+            }
                 }
             }
         ],
@@ -1045,7 +1154,7 @@
                 "left_aside_to_back": {
                     "src": "lid_aside_qpos",
                     "sink": "lid_back_qpos",
-                    "duration": 24,
+                    "duration": 36,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "left_arm",
@@ -1061,89 +1170,89 @@
             {
                 "right_init_to_pre2_grasp": {
                     "src": "right_arm_init_qpos",
-                    "sink": "apple_pre2_grasp_qpos",
+                    "sink": "carrot_pre2_grasp_qpos",
                     "duration": 24,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
                             "right_arm_init_qpos",
-                            "apple_pre2_grasp_qpos"
+                            "carrot_pre2_grasp_qpos"
                         ]
                     }
                 }
             },
             {
                 "right_pre2_to_pre1_grasp": {
-                    "src": "apple_pre2_grasp_qpos",
-                    "sink": "apple_pre1_grasp_qpos",
+                    "src": "carrot_pre2_grasp_qpos",
+                    "sink": "carrot_pre1_grasp_pose_qpos",
                     "duration": 24,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
-                            "apple_pre2_grasp_qpos",
-                            "apple_pre1_grasp_qpos"
+                            "carrot_pre2_grasp_qpos",
+                            "carrot_pre1_grasp_pose_qpos"
                         ]
                     }
                 }
             },
             {
                 "right_pre1_grasp_to_grasp": {
-                    "src": "apple_pre1_grasp_qpos",
-                    "sink": "apple_grasp_qpos",
+                    "src": "carrot_pre1_grasp_pose_qpos",
+                    "sink": "carrot_grasp_qpos",
                     "duration": 24,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
-                            "apple_pre1_grasp_qpos",
-                            "apple_grasp_qpos"
+                            "carrot_pre1_grasp_pose_qpos",
+                            "carrot_grasp_qpos"
                         ]
                     }
                 }
             },
             {
                 "right_grasp_to_lift": {
-                    "src": "apple_grasp_qpos",
-                    "sink": "apple_lift_qpos",
+                    "src": "carrot_grasp_qpos",
+                    "sink": "carrot_lift_qpos",
                     "duration": 24,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
-                            "apple_grasp_qpos",
-                            "apple_lift_qpos"
+                            "carrot_grasp_qpos",
+                            "carrot_lift_qpos"
                         ]
                     }
                 }
             },
             {
                 "right_lift_to_pan": {
-                    "src": "apple_lift_qpos",
-                    "sink": "apple_to_pan_qpos",
+                    "src": "carrot_lift_qpos",
+                    "sink": "carrot_to_pan_qpos",
                     "duration": 24,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
-                            "apple_lift_qpos",
-                            "apple_to_pan_qpos"
+                            "carrot_lift_qpos",
+                            "carrot_to_pan_qpos"
                         ]
                     }
                 }
             },
             {
                 "right_pan_to_after_pan": {
-                    "src": "apple_to_pan_qpos",
-                    "sink": "apple_after_pan_qpos",
+                    "src": "carrot_to_pan_qpos",
+                    "sink": "carrot_after_pan_qpos",
                     "duration": 24,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
-                            "apple_to_pan_qpos",
-                            "apple_after_pan_qpos"
+                            "carrot_to_pan_qpos",
+                            "carrot_after_pan_qpos"
                         ]
                     }
                 }

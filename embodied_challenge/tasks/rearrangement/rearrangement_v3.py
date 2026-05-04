@@ -90,28 +90,39 @@ class RearrangementEnv3(EmbodiedEnv):
             return None
 
         # TODO: to be removed, need a unified interface in robot class
-        left_arm_joints = self.robot.get_joint_ids(name="left_arm")
-        right_arm_joints = self.robot.get_joint_ids(name="right_arm")
-        left_eef_joints = self.robot.get_joint_ids(name="left_eef")
-        right_eef_joints = self.robot.get_joint_ids(name="right_eef")
+        left_arm_joints = self.robot.get_joint_ids(name="left_arm", remove_mimic=True)
+        right_arm_joints = self.robot.get_joint_ids(name="right_arm", remove_mimic=True)
+        left_eef_joints = self.robot.get_joint_ids(name="left_eef", remove_mimic=True)
+        right_eef_joints = self.robot.get_joint_ids(name="right_eef", remove_mimic=True)
+
 
         total_traj_num = ret[list(ret.keys())[0]].shape[-1]
+        num_active_joints = len(self.active_joint_ids)
         actions = torch.zeros(
-            (total_traj_num, self.num_envs, self.robot.dof), dtype=torch.float32
+            (total_traj_num, self.num_envs, num_active_joints), dtype=torch.float32
         )
+
+        # 建立一个从全局 joint_id 到 active_joint_id 在 action 数组中正确存放位置的映射
+        global_to_active_idx = {
+            joint_id: active_idx for active_idx, joint_id in enumerate(self.active_joint_ids)
+        }
 
         for key, joints in [
             ("left_arm", left_arm_joints),
-            ("right_arm", right_arm_joints),
             ("left_eef", left_eef_joints),
+            ("right_arm", right_arm_joints),
             ("right_eef", right_eef_joints),
         ]:
             if key in ret:
                 # TODO: only 1 env supported now
-                actions[:, 0, joints] = torch.as_tensor(ret[key].T, dtype=torch.float32)
+                local_action_data = torch.as_tensor(ret[key].T, dtype=torch.float32)
 
+                # 【修改重点2】：使用映射精准定位它在 action tensor 中的正确位置存放
+                for i, joint_id in enumerate(joints):
+                    if joint_id in global_to_active_idx:
+                        active_idx = global_to_active_idx[joint_id]
+                        actions[:, 0, active_idx] = local_action_data[:, i]
         return actions
-
     def get_arm_fk(
         self, qpos: np.ndarray, control_part: str, is_world_coordinates=True
     ) -> np.ndarray:
