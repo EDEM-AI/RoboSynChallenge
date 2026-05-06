@@ -1,6 +1,6 @@
 {
     "id": "BeatHammerBlock-v3",
-    "max_episodes": 1000,
+    "max_episodes": 200,
     "max_episode_steps": 361,
     "env": {
         "events": {
@@ -20,8 +20,29 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "button"},
-                    "position_range": [[-0.02, -0.02, 0.0], [0.02, 0.02, 0.0]],
-                    "relative_position": true
+                    "position_range": [[0.4, -0.3, 0.83], [0.85, 0.3, 0.83]],
+                    "relative_position": false
+                }
+            },
+            "random_robot_init_eef_pose": {
+                "func": "randomize_robot_eef_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "CobotMagic", "control_parts": ["left_arm", "right_arm"]},
+                    "position_range":  [[-0.01, -0.01, -0.01], [0.01, 0.01, 0]]
+                }
+            },
+            "random_robot_qpos": {
+                "func": "randomize_robot_qpos",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "CobotMagic"},
+                    "qpos_range": [
+                        [-0.06, -0.05, -0.06, -0.06, -0.05, -0.05, -0.06, -0.05, -0.06, -0.06, -0.05, -0.05],
+                        [0.06, 0.05, 0.06, 0.06, 0.05, 0.05, 0.06, 0.05, 0.06, 0.06, 0.05, 0.05]
+                    ],
+                    "relative_qpos": true,
+                    "joint_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
                 }
             },
             "prepare_extra_attr": {
@@ -142,27 +163,6 @@
                 }
             },
 
-            "random_robot_init_eef_pose": {
-                "func": "randomize_robot_eef_pose",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "CobotMagic", "control_parts": ["left_arm", "right_arm"]},
-                    "position_range":  [[-0.01, -0.01, -0.01], [0.01, 0.01, 0]]
-                }
-            },
-            "random_robot_qpos": {
-                "func": "randomize_robot_qpos",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "CobotMagic"},
-                    "qpos_range": [
-                        [-0.06, -0.05, -0.06, -0.06, -0.05, -0.05, -0.06, -0.05, -0.06, -0.06, -0.05, -0.05],
-                        [0.06, 0.05, 0.06, 0.06, 0.05, 0.05, 0.06, 0.05, 0.06, 0.06, 0.05, 0.05]
-                    ],
-                    "relative_qpos": true,
-                    "joint_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-                }
-            },
             "random_plane_material": {
                 "func": "randomize_visual_material",
                 "mode": "reset",
@@ -351,7 +351,7 @@
         {
             "uid": "button",
             "fpath": "/root/workspace/Embodied_Challenge/assets/button/button.urdf",
-            "init_pos": [0.60, -0.2, 0.83],
+            "init_pos": [0.9, -0.3, 0.83],
             "init_rot": [0, 0, 0],
             "attrs": {
                 "mass": 0.01,

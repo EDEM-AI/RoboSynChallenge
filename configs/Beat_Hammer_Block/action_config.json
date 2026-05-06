@@ -120,6 +120,15 @@
                                                     "mode": "intrinsic",
                                                     "degrees": true
                                                 }
+                                            },
+                                            {
+                                                "name": "get_rotated_pose",
+                                                "kwargs": {
+                                                    "rot_angle": 20,
+                                                    "rot_axis": "y",
+                                                    "mode": "intrinsic",
+                                                    "degrees": true
+                                                }
                                             }
                                         ]
                                     }
@@ -397,7 +406,7 @@
         "aim_back_to_init": {
             "depend_tasks": [
                 "aim_to_prepress_pre"
-                
+
             ]
         },
         "left_support_back_to_init": {
