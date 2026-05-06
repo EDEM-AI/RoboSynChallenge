@@ -1,0 +1,175 @@
+{
+  "asset_id": "assets",
+  "identity": {
+    "name": "095dca04-8b8d-4888-8340-1e1ecf6e2d11",
+    "source_dir": "tomato",
+    "category": "dex10000",
+    "ingest_mode": "unified",
+    "source_file": "095dca04-8b8d-4888-8340-1e1ecf6e2d11.glb",
+    "source_type": ".glb",
+    "normalized_source": "asset.obj"
+  },
+  "asset_data": {
+    "id": "assets",
+    "type": "mesh",
+    "format": "obj",
+    "path": "asset_source/asset.obj"
+  },
+  "parsed": {
+    "visual": {
+      "visual_ingest": "Basecolor Texture from PBR as Visual",
+      "visual_source": {
+        "visual_category": "texture",
+        "uv_present": true,
+        "texture_count_total": 2,
+        "material_kind": "pbr",
+        "textures": {
+          "baseColorTexture": {
+            "present": true,
+            "type": "Image",
+            "meta": {
+              "type": "Image",
+              "size": [
+                4096,
+                4096
+              ],
+              "mode": "RGBA"
+            }
+          },
+          "metallicRoughnessTexture": {
+            "present": true,
+            "type": "Image",
+            "meta": {
+              "type": "Image",
+              "size": [
+                4096,
+                4096
+              ],
+              "mode": "RGB"
+            }
+          },
+          "normalTexture": {
+            "present": false,
+            "type": null,
+            "meta": null
+          },
+          "occlusionTexture": {
+            "present": false,
+            "type": null,
+            "meta": null
+          },
+          "emissiveTexture": {
+            "present": false,
+            "type": null,
+            "meta": null
+          }
+        }
+      }
+    },
+    "geometry": {
+      "vertices": 1245258,
+      "faces": 483320,
+      "bounds": [
+        [
+          -0.485317,
+          -0.372074,
+          -0.499563
+        ],
+        [
+          0.485507,
+          0.369119,
+          0.500899
+        ]
+      ],
+      "extents": [
+        0.970824,
+        0.741193,
+        1.000462
+      ],
+      "area": 5.594328710559506,
+      "is_empty": false,
+      "is_watertight": false,
+      "is_winding_consistent": true,
+      "is_volume": false,
+      "euler_number": 333023,
+      "body_count": 356213,
+      "face_component_count": null,
+      "broken_face_count": 72226,
+      "boundary_edge_count": 1341150,
+      "manifold_edge_count": 54405,
+      "nonmanifold_edge_count": 0,
+      "edge_incidence_hist": null
+    }
+  },
+  "quality": {},
+  "semantics": {
+    "object_name_generated": "tomato",
+    "semantic_tag_generated": "tomato",
+    "description_generated": "A tomato-shaped object with a deep red, slightly segmented body and a green leafy top, resembling a whole tomato. The surface appears mostly matte with slight sheen and soft, rounded edges, suggesting a flexible, slightly deformable organic fruit rather than a hard shell. No additional functional parts are visible beyond the main body and stylized calyx.",
+    "primary_materials_generated": [
+      "organic_fruit_flesh",
+      "water_content"
+    ]
+  },
+  "physics": {
+    "mode": "softbody",
+    "properties": {
+      "mode": "softbody",
+      "data": {
+        "triangle_remesh_resolution": 0,
+        "triangle_simplify_target": 0,
+        "maximal_edge_length": 0.02,
+        "simulation_mesh_resolution": 0,
+        "simulation_mesh_output_obj": false,
+        "mass": 0.12,
+        "density": 950.0,
+        "youngs_modulus": 500000.0,
+        "poissons_ratio": 0.45,
+        "material_model": "CO_ROTATIONAL",
+        "elasticity_damping": 0.2,
+        "vertex_velocity_damping": 0.1,
+        "linear_damping": 0.05,
+        "enable_ccd": true,
+        "enable_self_collision": true,
+        "self_collision_stress_tolerance": 1.0,
+        "collision_mesh_simplification": true,
+        "self_collision_filter_distance": 0.005,
+        "has_gravity": true,
+        "max_velocity": 5.0,
+        "max_depenetration_velocity": 10.0,
+        "sleep_threshold": 0.001,
+        "settling_threshold": 0.0005,
+        "settling_damping": 0.1,
+        "solver_min_position_iters": 8,
+        "solver_min_velocity_iters": 2
+      }
+    },
+    "source": "generative",
+    "confidence": 0.86
+  },
+  "simulation": {
+    "articulation": null,
+    "sim_ready": {
+      "is_sim_ready": true,
+      "sim_ready_path": "asset_simready/asset_simready.obj"
+    },
+    "blockers": []
+  },
+  "usd": {
+    "is_usd": true,
+    "usd_path": "asset_usd/asset_simready_inst.usdc"
+  },
+  "provenance": {},
+  "status": {
+    "last_updated": "2026-05-06T21:31:56.181046",
+    "ingested": true,
+    "parsed": true,
+    "validated": false
+  },
+  "internal": {
+    "thumbnail_path": "assets/assets.png",
+    "rendered": true,
+    "error": null
+  },
+  "affordance": {}
+}
