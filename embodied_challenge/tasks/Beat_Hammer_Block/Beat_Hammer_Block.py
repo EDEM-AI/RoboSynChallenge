@@ -15,12 +15,13 @@
 # ----------------------------------------------------------------------------
 
 import torch
-from typing import Dict, Optional
+from typing import Dict, Optional, Sequence
 
 from embodichain.lab.gym.envs import EmbodiedEnv, EmbodiedEnvCfg
 from embodichain.lab.gym.utils.registration import register_env
 from embodichain.utils import logger
-from embodied_challenge.managers.events import visualize_rigid_body_pose 
+from embodichain.lab.sim.cfg import MarkerCfg
+
 from embodichain.lab.gym.envs.tasks.tableware.base_agent_env import BaseAgentEnv
 from .action_bank import (
     BeatHammerBlockActionBank,
@@ -29,8 +30,10 @@ from .action_bank import (
 __all__ = ["BeatHammerBlockActionBankEnv", "BeatHammerBlockAgentEnv"]
 
 
+
 @register_env("BeatHammerBlock-v3", max_episode_steps=600)
 class BeatHammerBlockEnv(EmbodiedEnv):
+
     def __init__(self, cfg: EmbodiedEnvCfg = None, **kwargs):
         super().__init__(cfg, **kwargs)
 
@@ -122,7 +125,19 @@ class BeatHammerBlockEnv(EmbodiedEnv):
                         active_idx = global_to_active_idx[joint_id]
                         actions[:, 0, active_idx] = local_action_data[:, i]
         return actions
+    def compute_task_state(self, **kwargs):
+        button = self.sim.get_articulation("button")
+        button_qpos = button.get_qpos()
 
+        # button.urdf uses a single prismatic joint with range [-0.005, 0.0].
+        # Treat any detectable displacement as success (with tiny epsilon to avoid numerical noise).
+        press_depth = -button_qpos[:, 0]
+        movement_threshold = float(kwargs.get("movement_threshold", 1e-5))
+        print(f"press_depth: {press_depth}, movement_threshold: {movement_threshold}")
+        success = press_depth >= movement_threshold
+
+        fail = torch.zeros_like(success, dtype=torch.bool)
+        return success, fail, {}
     def is_task_success(self, **kwargs) -> torch.Tensor:
         button = self.sim.get_articulation("button")
         button_qpos = button.get_qpos()
@@ -131,6 +146,7 @@ class BeatHammerBlockEnv(EmbodiedEnv):
         # Treat any detectable displacement as success (with tiny epsilon to avoid numerical noise).
         press_depth = -button_qpos[:, 0]
         movement_threshold = float(kwargs.get("movement_threshold", 1e-5))
+        print(f"press_depth: {press_depth}, movement_threshold: {movement_threshold}")
         pressed = press_depth >= movement_threshold
 
         return pressed
