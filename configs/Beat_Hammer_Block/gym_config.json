@@ -357,6 +357,13 @@
                 "mass": 0.01,
                 "dynamic_friction": 0.5,
                 "static_friction": 0.5
+            },
+            "drive_pros": {
+                "drive_type": "force",
+                "stiffness": 100.0,
+                "damping": 30.0,
+                "max_effort": 200.0,
+                "max_velocity": 2.0
             }
         }
     ],

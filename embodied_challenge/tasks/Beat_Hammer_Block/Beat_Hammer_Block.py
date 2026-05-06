@@ -41,6 +41,9 @@ class BeatHammerBlockEnv(EmbodiedEnv):
         if action_config is not None:
             self.action_config = action_config
 
+        self._button_pressed = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
     def create_demo_action_list(self, *args, **kwargs):
         """
         Create a demonstration action list for the current task.
@@ -132,24 +135,46 @@ class BeatHammerBlockEnv(EmbodiedEnv):
         # button.urdf uses a single prismatic joint with range [-0.005, 0.0].
         # Treat any detectable displacement as success (with tiny epsilon to avoid numerical noise).
         press_depth = -button_qpos[:, 0]
-        movement_threshold = float(kwargs.get("movement_threshold", 1e-5))
-        print(f"press_depth: {press_depth}, movement_threshold: {movement_threshold}")
+        movement_threshold = 0.004
         success = press_depth >= movement_threshold
-
+        # print(f"press_depth: {press_depth}, movement_threshold: {movement_threshold}")
+        self._button_pressed |= success
         fail = torch.zeros_like(success, dtype=torch.bool)
+        success = torch.zeros_like(fail, dtype=torch.bool)
         return success, fail, {}
+
     def is_task_success(self, **kwargs) -> torch.Tensor:
+
+        return self._button_pressed
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
+        obs, info = super().reset(seed=seed, options=options)
+
+        if options is None:
+            options = {}
+        reset_ids = options.get(
+            "reset_ids",
+            torch.arange(self.num_envs, dtype=torch.int32, device=self.device),
+        )
+        self._button_pressed[reset_ids] = False
+
+        return obs, info
+
+@register_env("BeatHammerBlockTest-v3", max_episode_steps=600)
+class BeatHammerBlockEnvTest(BeatHammerBlockEnv):
+    def compute_task_state(self, **kwargs):
         button = self.sim.get_articulation("button")
         button_qpos = button.get_qpos()
 
         # button.urdf uses a single prismatic joint with range [-0.005, 0.0].
         # Treat any detectable displacement as success (with tiny epsilon to avoid numerical noise).
         press_depth = -button_qpos[:, 0]
-        movement_threshold = float(kwargs.get("movement_threshold", 1e-5))
-        print(f"press_depth: {press_depth}, movement_threshold: {movement_threshold}")
-        pressed = press_depth >= movement_threshold
+        movement_threshold = 0.004
+        success = press_depth >= movement_threshold
+        # print(f"press_depth: {press_depth}, movement_threshold: {movement_threshold}")
+        self._button_pressed |= success
+        fail = torch.zeros_like(success, dtype=torch.bool)
 
-        return pressed
+        return success, fail, {}
 
 @register_env("BeatHammerBlockAgent-v3", max_episode_steps=600)
 class BeatHammerBlockAgentEnv(BaseAgentEnv, BeatHammerBlockEnv):
