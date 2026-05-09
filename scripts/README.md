@@ -54,6 +54,8 @@
 - 假设你有一个 v3.0 格式的数据集在 `/root/workspace/Embodied_Challenge/lerobot_dataset/cobotmagic_Sim_items_handover_place_000`，转换命令：
   ```bash
   python convert_lerobot3.0_to_2.1.py --repo-id cobotmagic_Sim_items_handover_place_000 --root /root/workspace/Embodied_Challenge/lerobot_dataset/
+  python convert_lerobot3.0_to_2.1.py --repo-id cobotmagic_Sim_manipulate_pipette --root /root/workspace/Embodied_Challenge/lerobot_dataset/
+
   ```
 - 转换后会在目标目录生成 v2.1 兼容的数据结构和元数据。
 
@@ -66,9 +68,11 @@
 ```bash
 cd ~/workspace
 # 先检查dataset文件夹映射关系
-python3 Embodied_Challenge/scripts/add_lerobot_eef_pose.py --dataset Embodied_Challenge/lerobot_dataset/cobotmagic_Sim_sample_loading_duel/ --gym_config Embodied_Challenge/configs/sample_loading_duel/gym_config.json --dry-run
+python3 scripts/add_lerobot_eef_pose.py --dataset /path/to/datasets/ --gym_config /path/to/gym_config.json --dry-run
 # 运行
-python3 Embodied_Challenge/scripts/add_lerobot_eef_pose.py --dataset Embodied_Challenge/lerobot_dataset/cobotmagic_Sim_sample_loading_duel/ --gym_config Embodied_Challenge/configs/sample_loading_duel/gym_config.json
+python3 scripts/add_lerobot_eef_pose.py --dataset /path/to/datasets/ --gym_config /path/to/gym_config.json
+
+python3 scripts/add_lerobot_eef_pose.py --dataset lerobot_dataset/cobotmagic_Sim_beaker_mixer --gym_config configs/beaker_mixer/gym_config_duel.json
 ```
 ---
 
@@ -130,19 +134,18 @@ Run this in a second terminal from the workspace root:
 ```bash
 cd /home/wu/AA-Program/docker-volume-EmbodiChain
 
-python Embodied_Challenge/scripts/eval_openpi0_embodichain.py \
-  --gym_config Embodied_Challenge/configs/beaker_mixer/gym_config.json \
-  --action_config Embodied_Challenge/configs/beaker_mixer/action_config.json \
+python scripts/eval_openpi0_embodichain.py \
+  --gym_config configs/Beat_Hammer_Block/gym_config.json \
+  --action_config configs/Beat_Hammer_Block/action_config.json \
   --num_envs 1 \
-  --device cuda \
   --enable_rt \
-  --filter_visual_rand \
   --filter_dataset_saving \
   --host 127.0.0.1 \
   --port 8000 \
-  --episodes 20 \
+  --episodes 10 \
   --max_steps 500 \
-  --output results/pi0_beaker_mixer_eval.json
+  --output results/pi0_Beat_Hammer_Block_eval.json
+  # --filter_visual_rand \
 ```
 
 You can evaluate another EmbodiChain task by swapping `--gym_config` and
@@ -197,6 +200,61 @@ episode_mean_model_forward_ms
   python run_env.py --env-id=embodied_challenge-v0 --config=configs/beaker_mixer/gym_config_duel.json
   ```
 - 支持自定义动作空间、观测空间等高级参数。
+
+
+
+---
+
+## analyze_rigid_spawn_range.py
+
+**用途**：
+基于给定 `gym_config` 和 `action_config`，采样某个任务物体在 pose 随机化事件 `position_range` 内的生成位置，并调用现有专家动作图生成流程检测 IK / 节点可行性，最后输出更适合域随机化的推荐 `position_range`。目前支持 `randomize_rigid_object_pose` 和 `randomize_articulation_root_pose`。
+
+**使用方法**：
+先列出配置里的刚体随机化事件：
+```bash
+python Embodied_Challenge/scripts/analyze_rigid_spawn_range.py \
+  --gym_config Embodied_Challenge/configs/pour_water/gym_config.json \
+  --list-events
+```
+
+分析指定刚体，例如 `bottle`：
+```bash
+python scripts/analyze_rigid_spawn_range.py \
+  --gym_config configs/beaker_mixer/gym_config_duel.json \
+  --action_config configs/beaker_mixer/action_config_duel.json \
+  --uid beaker \
+  --grid-size 9 9 \
+  --output results/beaker_mixer_spawn_range_report.json \
+  --list-events
+```
+
+分析 articulation，例如 `Beat_Hammer_Block` 中的 `button`：
+```bash
+python scripts/analyze_rigid_spawn_range.py \
+  --gym_config configs/Beat_Hammer_Block/gym_config.json \
+  --action_config configs/Beat_Hammer_Block/action_config.json \
+  --uid button \
+  --grid-size 9 9 \
+  --output results/button_spawn_range_report.json
+```
+
+如果需要把推荐范围直接写到一份新的配置中：
+```bash
+python Embodied_Challenge/scripts/analyze_rigid_spawn_range.py \
+  --gym_config Embodied_Challenge/configs/pour_water/gym_config.json \
+  --action_config Embodied_Challenge/configs/pour_water/action_config.json \
+  --uid bottle \
+  --write-gym-config Embodied_Challenge/configs/pour_water/gym_config_bottle_safe.json
+```
+
+默认判据是“专家轨迹能够成功生成”，这会覆盖 `action_config` 中 `get_ik_ret` 等 IK 校验失败的情况。若希望在 Docker 环境内额外复核推荐范围，可加入 `--validation-samples 30`；若希望进一步验证生成后的动作实际执行成功，可加入 `--rollout`。
+
+脚本默认会在创建环境前过滤 distractor 随机化事件，避免缺少 distractor asset index 时影响 IK 可达范围分析。若确实需要保留 distractor 事件，可加 `--no-filter_distractor_events`。
+
+分析结束后默认会绘制成功/失败采样点和推荐 bbox。若指定了 `--output results/report.json`，图片默认保存为 `results/report.png`；也可以用 `--plot results/custom.png` 指定路径，或用 `--no-plot` 关闭绘图。
+
+对于 `relative_position=true` 的 pose 随机化事件，脚本会按配置中的 offset 范围采样，但在验证时会转换为 `init_pos + offset` 的实际位置，并临时以 `relative_position=false` 固定目标事件，避免 articulation 或连续 reset 出现相对位移累积。JSON 报告中 `recommended_position_range` 保持原配置语义，可直接写回 `gym_config`；`recommended_actual_position_range` 和图片中的 bbox 表示实际位置范围。
 
 ---
 

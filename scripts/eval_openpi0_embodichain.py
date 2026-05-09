@@ -60,13 +60,23 @@ class EpisodeResult:
 class OpenPIChunkPolicy:
     """Caches OpenPI action chunks and records timing only once per model call."""
 
-    def __init__(self, host: str, port: int | None, api_key: str | None = None):
-        from openpi_client import websocket_client_policy
-
-        self._policy = websocket_client_policy.WebsocketClientPolicy(
+    def __init__(
+        self,
+        host: str,
+        port: int | None,
+        api_key: str | None = None,
+        *,
+        ws_ping_interval: float | None = None,
+        ws_ping_timeout: float | None = None,
+        ws_close_timeout: float | None = 1.0,
+    ):
+        self._policy = _EvalWebsocketClientPolicy(
             host=host,
             port=port,
             api_key=api_key,
+            ping_interval=ws_ping_interval,
+            ping_timeout=ws_ping_timeout,
+            close_timeout=ws_close_timeout,
         )
         self._chunk: np.ndarray | None = None
         self._chunk_index = 0
@@ -98,13 +108,91 @@ class OpenPIChunkPolicy:
             self._chunk_index = 0
             self.infer_calls += 1
 
-            timing = result.get("policy_timing", {})
+            timing = result.get("policy_timing", result.get("server_timing", {}))
             if "infer_ms" in timing:
                 self.model_forward_ms.append(float(timing["infer_ms"]))
 
         action = self._chunk[self._chunk_index]
         self._chunk_index += 1
         return action
+
+    def close(self) -> None:
+        self._policy.close()
+
+
+class _EvalWebsocketClientPolicy:
+    """OpenPI websocket client with eval-friendly keepalive settings.
+
+    The upstream OpenPI client uses the websockets defaults. During the first
+    JAX compile or a long policy call, those defaults can close the connection
+    before the server has a chance to respond. Keeping this small client local
+    avoids modifying OpenPI itself.
+    """
+
+    def __init__(
+        self,
+        host: str = "0.0.0.0",
+        port: int | None = None,
+        api_key: str | None = None,
+        *,
+        ping_interval: float | None = None,
+        ping_timeout: float | None = None,
+        close_timeout: float | None = 1.0,
+    ) -> None:
+        if host.startswith("ws"):
+            self._uri = host
+        else:
+            self._uri = f"ws://{host}"
+        if port is not None:
+            self._uri += f":{port}"
+
+        from openpi_client import msgpack_numpy
+
+        self._msgpack_numpy = msgpack_numpy
+        self._packer = msgpack_numpy.Packer()
+        self._api_key = api_key
+        self._ping_interval = ping_interval
+        self._ping_timeout = ping_timeout
+        self._close_timeout = close_timeout
+        self._ws, self._server_metadata = self._wait_for_server()
+
+    def get_server_metadata(self) -> dict[str, Any]:
+        return self._server_metadata
+
+    def _wait_for_server(self):
+        import websockets.sync.client
+
+        print(f"Waiting for OpenPI server at {self._uri}...")
+        while True:
+            try:
+                headers = {"Authorization": f"Api-Key {self._api_key}"} if self._api_key else None
+                conn = websockets.sync.client.connect(
+                    self._uri,
+                    compression=None,
+                    max_size=None,
+                    additional_headers=headers,
+                    ping_interval=self._ping_interval,
+                    ping_timeout=self._ping_timeout,
+                    close_timeout=self._close_timeout,
+                )
+                metadata = self._msgpack_numpy.unpackb(conn.recv())
+                return conn, metadata
+            except ConnectionRefusedError:
+                print("Still waiting for OpenPI server...")
+                time.sleep(5)
+
+    def infer(self, obs: dict[str, Any]) -> dict[str, Any]:
+        self._ws.send(self._packer.pack(obs))
+        response = self._ws.recv()
+        if isinstance(response, str):
+            raise RuntimeError(f"Error in inference server:\n{response}")
+        return self._msgpack_numpy.unpackb(response)
+
+    def close(self) -> None:
+        try:
+            self._ws.close()
+        except Exception:
+            pass
 
 
 def _add_env_args(parser: argparse.ArgumentParser) -> None:

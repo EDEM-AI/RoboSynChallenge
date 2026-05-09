@@ -50,7 +50,7 @@ POSE_FIELDS = {
 
 
 # python3 Embodied_Challenge/scripts/add_lerobot_eef_pose.py \
-#   --dataset Embodied_Challenge/lerobot_dataset/cobotmagic_Sim_manipulate_mixer_duel_046 \
+#   --dataset Embodied_Challenge/lerobot_dataset/cobotmagic_Sim_manipulate_mixer_dual_046 \
 #   --gym_config Embodied_Challenge/configs/manipulate_pipette/gym_config.json \
 #   --device cuda
 
@@ -71,7 +71,7 @@ def parse_args() -> argparse.Namespace:
         "--repo-id",
         help=(
             "Dataset repo id/name under --root, e.g. "
-            "cobotmagic_Sim_manipulate_mixer_duel_046."
+            "cobotmagic_Sim_manipulate_mixer_dual."
         ),
     )
     parser.add_argument(
