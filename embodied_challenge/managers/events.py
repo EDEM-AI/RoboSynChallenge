@@ -43,6 +43,8 @@ from embodichain.utils.file import get_all_files_in_directory
 from embodichain.utils.math import (
     sample_uniform,
     pose_inv,
+    matrix_from_euler,
+    matrix_from_quat,
     xyz_quat_to_4x4_matrix,
     trans_matrix_to_xyz_quat,
 )
@@ -347,6 +349,453 @@ def visualize_rigid_body_pose(
             name=marker_name,
             marker_type="axis",
             axis_xpos=pose_np,
+            axis_size=axis_size,
+            axis_len=axis_len,
+            arena_index=arena_index,
+        )
+    )
+
+
+def _cfg_get(cfg, key: str, default=None):
+    if isinstance(cfg, dict):
+        return cfg.get(key, default)
+    return getattr(cfg, key, default)
+
+
+def _iter_event_cfgs(events_cfg):
+    if events_cfg is None:
+        return []
+    if isinstance(events_cfg, dict):
+        return list(events_cfg.items())
+    if hasattr(events_cfg, "items"):
+        return list(events_cfg.items())
+    if hasattr(events_cfg, "__dict__"):
+        return list(vars(events_cfg).items())
+    return []
+
+
+def _callable_name(func) -> str:
+    if isinstance(func, str):
+        return func.rsplit(".", 1)[-1]
+    return getattr(func, "__name__", func.__class__.__name__)
+
+
+def _resolve_entity_uid(entity_cfg=None, uid: str | None = None) -> str | None:
+    if uid is not None:
+        return uid
+    if entity_cfg is None:
+        return None
+    if isinstance(entity_cfg, str):
+        return entity_cfg
+    if isinstance(entity_cfg, dict):
+        return entity_cfg.get("uid", None)
+    return getattr(entity_cfg, "uid", None)
+
+
+def _resolve_entity_uids_from_params(params) -> list[str]:
+    uids = []
+    single_uid = _resolve_entity_uid(_cfg_get(params, "entity_cfg", None))
+    if single_uid is not None:
+        uids.append(single_uid)
+
+    entity_cfgs = _cfg_get(params, "entity_cfgs", None)
+    if entity_cfgs is None:
+        return uids
+    if isinstance(entity_cfgs, (str, dict, SceneEntityCfg)):
+        entity_cfgs = [entity_cfgs]
+
+    for entity_cfg in entity_cfgs:
+        uid = _resolve_entity_uid(entity_cfg)
+        if uid is not None:
+            uids.append(uid)
+    return uids
+
+
+def _normalize_event_env_ids(
+    env: EmbodiedEnv,
+    env_ids: torch.Tensor | slice | list[int] | tuple[int, ...] | None,
+) -> torch.Tensor:
+    if env_ids is None:
+        return torch.arange(env.num_envs, dtype=torch.long, device=env.device)
+    if isinstance(env_ids, slice):
+        return torch.arange(env.num_envs, dtype=torch.long, device=env.device)[env_ids]
+    if isinstance(env_ids, torch.Tensor):
+        return env_ids.to(device=env.device, dtype=torch.long)
+    return torch.as_tensor(env_ids, dtype=torch.long, device=env.device)
+
+
+def _as_scene_entity_cfgs(
+    entity_cfgs: List[SceneEntityCfg] | List[Dict] | None = None,
+    entity_cfg: SceneEntityCfg | Dict | None = None,
+    entity_uids: List[str] | str | None = None,
+) -> list[SceneEntityCfg]:
+    if entity_cfgs is None:
+        if entity_cfg is not None:
+            entity_cfgs = [entity_cfg]
+        elif entity_uids is not None:
+            if isinstance(entity_uids, str):
+                entity_uids = [entity_uids]
+            entity_cfgs = [SceneEntityCfg(uid=uid) for uid in entity_uids]
+        else:
+            logger.log_error(
+                "randomize_entity_root_pose_group requires entity_cfgs, entity_cfg, or entity_uids."
+            )
+
+    resolved_cfgs = []
+    for cfg in entity_cfgs:
+        if isinstance(cfg, SceneEntityCfg):
+            resolved_cfgs.append(cfg)
+        elif isinstance(cfg, dict):
+            resolved_cfgs.append(SceneEntityCfg(**cfg))
+        elif isinstance(cfg, str):
+            resolved_cfgs.append(SceneEntityCfg(uid=cfg))
+        else:
+            logger.log_error(f"Unsupported entity cfg type: {type(cfg)}.")
+    return resolved_cfgs
+
+
+def _get_asset_initial_root_pose(
+    env: EmbodiedEnv,
+    asset: RigidObject | Articulation,
+    env_ids: torch.Tensor,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    num_instance = len(env_ids)
+    asset_cfg = getattr(asset, "cfg", None)
+    init_pos = getattr(asset_cfg, "init_pos", None)
+    init_rot = getattr(asset_cfg, "init_rot", None)
+
+    if init_pos is not None and init_rot is not None:
+        init_pos = torch.as_tensor(init_pos, dtype=torch.float32, device=env.device)
+        if init_pos.ndim == 1:
+            init_pos = init_pos.unsqueeze(0).repeat(num_instance, 1)
+        else:
+            init_pos = init_pos[env_ids]
+
+        init_rot = torch.as_tensor(init_rot, dtype=torch.float32, device=env.device)
+        if init_rot.ndim == 1:
+            init_rot = init_rot.unsqueeze(0).repeat(num_instance, 1)
+        else:
+            init_rot = init_rot[env_ids]
+        init_rot = matrix_from_euler(init_rot * torch.pi / 180.0)
+        return init_pos, init_rot
+
+    current_pose = asset.get_local_pose()[env_ids]
+    if current_pose.ndim == 2 and current_pose.shape[-1] == 7:
+        return current_pose[:, :3], matrix_from_quat(current_pose[:, 3:7])
+    if current_pose.ndim == 3 and current_pose.shape[-2:] == (4, 4):
+        return current_pose[:, :3, 3], current_pose[:, :3, :3]
+
+    logger.log_error(
+        f"Cannot infer root pose for asset '{asset.cfg.uid}' from cfg or current pose."
+    )
+
+
+def randomize_entity_root_pose_group(
+    env: EmbodiedEnv,
+    env_ids: torch.Tensor | None,
+    entity_cfgs: List[SceneEntityCfg] | List[Dict] | None = None,
+    entity_cfg: SceneEntityCfg | Dict | None = None,
+    entity_uids: List[str] | str | None = None,
+    position_range: tuple[list[float], list[float]] | None = None,
+    rotation_range: tuple[list[float], list[float]] | None = None,
+    relative_position: bool = True,
+    relative_rotation: bool = True,
+    physics_update_step: int = -1,
+) -> None:
+    """Randomize multiple entity root poses with one shared sampled offset.
+
+    The same sampled translation and Euler-angle rotation are reused for every
+    entity in ``entity_cfgs``. This keeps paired objects, such as a visual
+    background and its physical drawer, aligned during domain randomization.
+    ``RigidObject`` and ``Articulation`` assets are supported.
+    """
+    env_ids = _normalize_event_env_ids(env, env_ids)
+    entity_cfgs = _as_scene_entity_cfgs(
+        entity_cfgs=entity_cfgs,
+        entity_cfg=entity_cfg,
+        entity_uids=entity_uids,
+    )
+
+    num_instance = len(env_ids)
+    if num_instance == 0 or len(entity_cfgs) == 0:
+        return
+
+    pos_sample = None
+    if position_range is not None:
+        pos_sample = sample_uniform(
+            lower=torch.tensor(position_range[0], dtype=torch.float32, device=env.device),
+            upper=torch.tensor(position_range[1], dtype=torch.float32, device=env.device),
+            size=(num_instance, 3),
+            device=env.device,
+        )
+
+    rot_sample = None
+    if rotation_range is not None:
+        rot_euler = (
+            sample_uniform(
+                lower=torch.tensor(rotation_range[0], dtype=torch.float32, device=env.device),
+                upper=torch.tensor(rotation_range[1], dtype=torch.float32, device=env.device),
+                size=(num_instance, 3),
+                device=env.device,
+            )
+            * torch.pi
+            / 180.0
+        )
+        rot_sample = matrix_from_euler(rot_euler)
+
+    changed = False
+    for cfg in entity_cfgs:
+        asset = env.sim.get_asset(cfg.uid)
+        if not isinstance(asset, (RigidObject, Articulation)):
+            logger.log_warning(
+                f"randomize_entity_root_pose_group only supports RigidObject or "
+                f"Articulation. Got uid='{cfg.uid}', type={type(asset)}. Skipping."
+            )
+            continue
+
+        init_pos, init_rot = _get_asset_initial_root_pose(env, asset, env_ids)
+
+        pose = (
+            torch.eye(4, dtype=torch.float32, device=env.device)
+            .unsqueeze(0)
+            .repeat(num_instance, 1, 1)
+        )
+        pose[:, :3, 3] = init_pos
+        pose[:, :3, :3] = init_rot
+
+        if pos_sample is not None:
+            pose[:, :3, 3] = init_pos + pos_sample if relative_position else pos_sample
+        if rot_sample is not None:
+            pose[:, :3, :3] = (
+                torch.bmm(init_rot, rot_sample) if relative_rotation else rot_sample
+            )
+
+        asset.set_local_pose(pose, env_ids=env_ids)
+        asset.clear_dynamics(env_ids=env_ids)
+        changed = True
+
+    if changed and physics_update_step > 0:
+        env.sim.update(step=physics_update_step)
+
+
+def _find_entity_position_randomization_event(
+    env: EmbodiedEnv,
+    uid: str,
+):
+    randomization_func_names = {
+        "randomize_rigid_object_pose",
+        "randomize_articulation_root_pose",
+        "randomize_entity_root_pose_group",
+    }
+    events_cfg = getattr(env.cfg, "events", None)
+
+    matches = []
+    for event_name, event_cfg in _iter_event_cfgs(events_cfg):
+        func_name = _callable_name(_cfg_get(event_cfg, "func", None))
+        if func_name not in randomization_func_names:
+            continue
+        params = _cfg_get(event_cfg, "params", {}) or {}
+        event_uids = _resolve_entity_uids_from_params(params)
+        if uid is not None and uid not in event_uids:
+            continue
+        if _cfg_get(params, "position_range", None) is None:
+            continue
+        matches.append((event_name, event_cfg, params))
+
+    if len(matches) > 1:
+        match_names = [name for name, _, _ in matches]
+        logger.log_warning(
+            f"Found multiple position randomization events for uid='{uid}'. "
+            f"Using first matched event '{matches[0][0]}'. Matched events: {match_names}."
+        )
+    return matches[0] if matches else None
+
+
+def _get_entity_init_position(
+    env: EmbodiedEnv,
+    uid: str,
+    arena_index: int = 0,
+) -> torch.Tensor:
+    asset = env.sim.get_asset(uid)
+    if asset is None:
+        logger.log_error(f"Cannot visualize position range: asset '{uid}' not found.")
+
+    asset_cfg = getattr(asset, "cfg", None)
+    init_pos = getattr(asset_cfg, "init_pos", None)
+    if init_pos is not None:
+        return torch.as_tensor(init_pos, dtype=torch.float32, device=env.device)
+
+    try:
+        pose = asset.get_local_pose(to_matrix=True)
+        if isinstance(pose, torch.Tensor):
+            pose = pose[min(max(arena_index, 0), pose.shape[0] - 1)]
+            return pose[:3, 3].to(device=env.device, dtype=torch.float32)
+    except TypeError:
+        pass
+
+    pose = asset.get_local_pose()
+    if isinstance(pose, torch.Tensor):
+        pose = pose[min(max(arena_index, 0), pose.shape[0] - 1)]
+        return pose[:3].to(device=env.device, dtype=torch.float32)
+
+    pose = np.asarray(pose)
+    if pose.ndim == 3 and pose.shape[-2:] == (4, 4):
+        index = min(max(arena_index, 0), pose.shape[0] - 1)
+        return torch.as_tensor(pose[index, :3, 3], dtype=torch.float32, device=env.device)
+    if pose.ndim == 2 and pose.shape[-1] >= 3:
+        index = min(max(arena_index, 0), pose.shape[0] - 1)
+        return torch.as_tensor(pose[index, :3], dtype=torch.float32, device=env.device)
+
+    logger.log_error(
+        f"Cannot infer init position for uid='{uid}' from asset cfg or current pose."
+    )
+
+
+def _make_position_range_corner_points(
+    low: torch.Tensor,
+    high: torch.Tensor,
+    table_height: float,
+    include_center: bool = False,
+) -> torch.Tensor:
+    bbox_low = torch.minimum(low, high)
+    bbox_high = torch.maximum(low, high)
+    z_value = torch.as_tensor(table_height, dtype=bbox_low.dtype, device=bbox_low.device)
+    values = [
+        [bbox_low[0], bbox_high[0]],
+        [bbox_low[1], bbox_high[1]],
+        [z_value],
+    ]
+
+    corners = []
+    seen = set()
+    for x in values[0]:
+        for y in values[1]:
+            for z in values[2]:
+                point = torch.stack([x, y, z])
+                key = tuple(round(float(v), 8) for v in point.detach().cpu().tolist())
+                if key in seen:
+                    continue
+                seen.add(key)
+                corners.append(point)
+
+    if include_center:
+        center = torch.stack(
+            [
+                (bbox_low[0] + bbox_high[0]) * 0.5,
+                (bbox_low[1] + bbox_high[1]) * 0.5,
+                z_value,
+            ]
+        )
+        key = tuple(round(float(v), 8) for v in center.detach().cpu().tolist())
+        if key not in seen:
+            corners.append(center)
+
+    return torch.stack(corners, dim=0)
+
+
+def visualize_entity_position_range(
+    env: EmbodiedEnv,
+    env_ids: torch.Tensor | None,
+    uid: str,
+    table_height: float,
+    marker_name: str | None = None,
+    axis_size: float = 0.003,
+    axis_len: float = 0.05,
+    corner_mode: str = "xy",
+    include_center: bool = False,
+    arena_index: int = 0,
+    remove_old: bool = True,
+    verbose: bool = False,
+):
+    """Visualize the configured position-randomization range for a rigid/articulation uid.
+
+    The function only needs a uid. It searches env.cfg.events for the first matching
+    randomize_rigid_object_pose/randomize_articulation_root_pose event, reads its
+    position_range and relative_position flag, and draws axes at the XY corners of
+    the actual sampled range. The marker z position is always table_height. When
+    relative_position is true, the configured offset range is added to the asset's
+    initial position before extracting the XY bounds.
+    """
+    from embodichain.lab.sim.cfg import MarkerCfg
+
+    _ = env_ids
+    _ = corner_mode
+
+    matched_event = _find_entity_position_randomization_event(env=env, uid=uid)
+    if matched_event is None:
+        logger.log_error(
+            f"Cannot visualize position range for uid='{uid}': no matching "
+            "randomize_rigid_object_pose/randomize_articulation_root_pose event with "
+            "position_range was found in env.cfg.events."
+        )
+
+    event_name, _, params = matched_event
+    position_range = _cfg_get(params, "position_range", None)
+    relative_position = bool(_cfg_get(params, "relative_position", True))
+
+    asset = env.sim.get_asset(uid)
+    if not isinstance(asset, (RigidObject, Articulation)):
+        logger.log_warning(
+            f"Position range visualization supports RigidObject or Articulation. "
+            f"Got uid='{uid}', type={type(asset)}."
+        )
+        return None
+
+    range_tensor = torch.as_tensor(
+        position_range, dtype=torch.float32, device=env.device
+    )
+    if range_tensor.shape != (2, 3):
+        logger.log_error(
+            f"position_range for uid='{uid}' must have shape (2, 3), got {tuple(range_tensor.shape)}."
+        )
+
+    low = range_tensor[0]
+    high = range_tensor[1]
+    if relative_position:
+        base_pos = _get_entity_init_position(
+            env=env,
+            uid=uid,
+            arena_index=arena_index,
+        )
+        low = low + base_pos
+        high = high + base_pos
+
+    points = _make_position_range_corner_points(
+        low=low,
+        high=high,
+        table_height=table_height,
+        include_center=include_center,
+    )
+
+    poses = torch.eye(4, dtype=torch.float32, device=env.device).unsqueeze(0)
+    poses = poses.repeat(points.shape[0], 1, 1)
+    poses[:, :3, 3] = points
+
+    if marker_name is None:
+        marker_name = f"{uid}_position_range_axis"
+
+    marker_storage_name = (
+        f"{marker_name}_{arena_index}" if arena_index >= 0 else marker_name
+    )
+    if remove_old:
+        marker_map = getattr(env.sim, "_markers", None)
+        if isinstance(marker_map, dict) and marker_storage_name in marker_map:
+            env.sim.remove_marker(marker_storage_name)
+
+    if verbose:
+        event_part = f" from event '{event_name}'" if event_name is not None else ""
+        logger.log_info(
+            f"Visualizing position range for uid='{uid}'{event_part}: "
+            f"low={low.detach().cpu().tolist()}, high={high.detach().cpu().tolist()}, "
+            f"table_height={table_height}, corner_count={points.shape[0]}",
+            color="green",
+        )
+
+    return env.sim.draw_marker(
+        cfg=MarkerCfg(
+            name=marker_name,
+            marker_type="axis",
+            axis_xpos=poses.detach().cpu().numpy(),
             axis_size=axis_size,
             axis_len=axis_len,
             arena_index=arena_index,
