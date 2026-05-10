@@ -31,7 +31,7 @@
                 "method": "given_qpos",
                 "kwargs": {
                     "given_qpos": [
-                        1
+                        0
                     ]
                 },
                 "init_node_name": ""
@@ -47,7 +47,7 @@
                 "method": "given_qpos",
                 "kwargs": {
                     "given_qpos": [
-                        1
+                        0
                     ]
                 },
                 "init_node_name": ""
@@ -243,6 +243,78 @@
                             }
                         ]
 
+                    }
+                }
+            },
+            {
+                "right_arm_pipette_up_pose": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_pipette_grasp_pose",
+                                "dst_key": "right_arm_pipette_up_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.05,
+                                                    "direction": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "right_arm_pipette_up_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_pipette_up_pose",
+                                "dst_key": "right_arm_pipette_up_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['right_arm_pipette_grasp_qpos']",
+                                            "control_part": "right_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['right_arm_pipette_grasp_qpos']",
+                                                    "control_part": "right_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 }
             },
@@ -1409,13 +1481,19 @@
         ],
         "right_eef": [
             {
+                "rclose0": {
+                    "name": "execute_open",
+                    "kwargs": {}
+                }
+            },
+            {
                 "ropen": {
                     "name": "execute_open",
                     "kwargs": {}
                 }
             },
             {
-                "rclose": {
+                "rclose1": {
                     "name": "execute_close",
                     "kwargs": {}
                 }
@@ -1425,30 +1503,15 @@
     "edge": {
         "right_arm": [
             {
-                "init_to_aim": {
+                "init_to_pre1": {
                     "src": "right_arm_init_qpos",
-                    "sink": "right_arm_aim_qpos",
-                    "duration": 10,
+                    "sink": "right_arm_pipette_pre1_qpos",
+                    "duration": 35,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
                             "right_arm_init_qpos",
-                            "right_arm_aim_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "aim_to_pre1": {
-                    "src": "right_arm_aim_qpos",
-                    "sink": "right_arm_pipette_pre1_qpos",
-                    "duration": 24,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "right_arm",
-                        "keypose_names": [
-                            "right_arm_aim_qpos",
                             "right_arm_pipette_pre1_qpos"
                         ]
                     }
@@ -1605,31 +1668,16 @@
                 }
             },
             {
-                "grasp_to_grasp_pre1": {
+                "grasp_to_up": {
                     "src": "right_arm_pipette_grasp_qpos",
-                    "sink": "right_arm_pipette_pre1_qpos",
+                    "sink": "right_arm_pipette_up_qpos",
                     "duration": 10,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
                             "right_arm_pipette_grasp_qpos",
-                            "right_arm_pipette_pre1_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "grasp_pre1_to_init": {
-                    "src": "right_arm_pipette_pre1_qpos",
-                    "sink": "right_arm_init_qpos",
-                    "duration": 25,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "right_arm",
-                        "keypose_names": [
-                            "right_arm_pipette_pre1_qpos",
-                            "right_arm_init_qpos"
+                            "right_arm_pipette_up_qpos"
                         ]
                     }
                 }
@@ -1637,30 +1685,15 @@
         ],
         "left_arm": [
             {
-                "left_init_to_aim_beaker1": {
+                "left_init_to_beaker1": {
                     "src": "left_arm_init_qpos",
-                    "sink": "left_arm_aim_beaker1_qpos",
-                    "duration": 15,
+                    "sink": "left_arm_pipette_beaker1_qpos",
+                    "duration": 30,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "left_arm",
                         "keypose_names": [
                             "left_arm_init_qpos",
-                            "left_arm_aim_beaker1_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "left_aim_beaker1_to_beaker1": {
-                    "src": "left_arm_aim_beaker1_qpos",
-                    "sink": "left_arm_pipette_beaker1_qpos",
-                    "duration": 15,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "left_arm",
-                        "keypose_names": [
-                            "left_arm_aim_beaker1_qpos",
                             "left_arm_pipette_beaker1_qpos"
                         ]
                     }
@@ -1697,30 +1730,30 @@
                 }
             },
             {
-                "left_beaker1_up_to_beaker2_wait": {
+                "left_beaker1_up_to_init": {
                     "src": "left_arm_pipette_beaker1_up_qpos",
-                    "sink": "left_arm_pipette_beaker2_wait_qpos",
+                    "sink": "left_arm_init_qpos",
                     "duration": 25,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "left_arm",
                         "keypose_names": [
                             "left_arm_pipette_beaker1_up_qpos",
-                            "left_arm_pipette_beaker2_wait_qpos"
+                            "left_arm_init_qpos"
                         ]
                     }
                 }
             },
             {
-                "left_beaker2_wait_to_beaker2": {
-                    "src": "left_arm_pipette_beaker2_wait_qpos",
+                "left_init_to_beaker2": {
+                    "src": "left_arm_init_qpos",
                     "sink": "left_arm_pipette_beaker2_qpos",
-                    "duration": 15,
+                    "duration": 25,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "left_arm",
                         "keypose_names": [
-                            "left_arm_pipette_beaker2_wait_qpos",
+                            "left_arm_init_qpos",
                             "left_arm_pipette_beaker2_qpos"
                         ]
                     }
@@ -1745,7 +1778,7 @@
                 "left_beaker2_press_to_beaker2_up": {
                     "src": "left_arm_pipette_beaker2_press_qpos",
                     "sink": "left_arm_pipette_beaker2_up_qpos",
-                    "duration": 35,
+                    "duration": 15,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "left_arm",
@@ -1760,7 +1793,7 @@
                 "left_beaker2_up_to_init": {
                     "src": "left_arm_pipette_beaker2_up_qpos",
                     "sink": "left_arm_init_qpos",
-                    "duration": 15,
+                    "duration": 30,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "left_arm",
@@ -1773,18 +1806,6 @@
             }
         ],
         "left_eef": [
-            {
-                "close0": {
-                    "src": "open",
-                    "sink": "close",
-                    "duration": 30,
-                    "name": "execute_close",
-                    "kwargs": {
-                        "return_action": true,
-                        "expand": true
-                    }
-                }
-            },
             {
                 "open0": {
                     "src": "close",
@@ -1800,9 +1821,21 @@
         ],
         "right_eef": [
             {
+                "ropen0": {
+                    "src": "rclose0",
+                    "sink": "ropen",
+                    "duration": 10,
+                    "name": "execute_open",
+                    "kwargs": {
+                        "return_action": true,
+                        "expand": true
+                    }
+                }
+            },
+            {
                 "rclose0": {
                     "src": "ropen",
-                    "sink": "rclose",
+                    "sink": "rclose1",
                     "duration": 30,
                     "name": "execute_close",
                     "kwargs": {
@@ -1812,8 +1845,8 @@
                 }
             },
             {
-                "ropen0": {
-                    "src": "rclose",
+                "ropen1": {
+                    "src": "rclose1",
                     "sink": "ropen",
                     "duration": 11,
                     "name": "execute_open",
@@ -1836,19 +1869,18 @@
                 "rclose0"
             ]
         },
-        "left_aim_beaker1_to_beaker1": {
+        "left_init_to_beaker1": {
             "depend_tasks": [
-                "beaker1_pre_to_beaker1",
-                "close0"
+                "beaker1_pre_to_beaker1"
             ]
         },
         "beaker1_to_beaker1_pre": {
             "depend_tasks": [
                 "left_beaker1_press_to_beaker1_up",
-                "left_beaker1_up_to_beaker2_wait"
+                "left_beaker1_up_to_init"
             ]
         },
-        "left_beaker2_wait_to_beaker2": {
+        "left_init_to_beaker2": {
             "depend_tasks": [
                 "beaker2_pre_to_beaker2"
             ]
@@ -1858,14 +1890,14 @@
                 "left_beaker2_up_to_init"
             ]
         },
-        "ropen0": {
+        "ropen1": {
             "depend_tasks": [
                 "grasp_pre1_to_grasp"
             ]
         },
-        "grasp_to_grasp_pre1": {
+        "grasp_to_up": {
             "depend_tasks": [
-                "ropen0"
+                "ropen1"
             ]
         },
        "open0": {

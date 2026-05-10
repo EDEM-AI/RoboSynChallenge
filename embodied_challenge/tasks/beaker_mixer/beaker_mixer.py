@@ -25,7 +25,7 @@ from embodichain.utils import logger
 from embodichain.lab.gym.envs.tasks.tableware.base_agent_env import BaseAgentEnv
 from .action_bank import BeakerMixerActionBank
 
-__all__ = ["BeakerMixerEnv", "BeakerMixerAgentEnv"]
+__all__ = ["BeakerMixerEnv", "BeakerMixerTestEnv", "BeakerMixerAgentEnv"]
 
 
 @register_env("BeakerMixer-v0", max_episode_steps=600)
@@ -318,6 +318,24 @@ class BeakerMixerEnv(EmbodiedEnv):
         # Compute angle and check if fallen
         angle = torch.arccos(dot_product)
         return angle >= torch.pi / 3
+
+
+@register_env("BeakerMixerTest-v0", max_episode_steps=600)
+class BeakerMixerTestEnv(BeakerMixerEnv):
+    def compute_task_state(self, **kwargs):
+        button = self.sim.get_articulation("button")
+        button_qpos = button.get_qpos()
+
+        # button.urdf uses a single prismatic joint with range [-0.005, 0.0].
+        # Treat any detectable displacement as success (with tiny epsilon to avoid numerical noise).
+        press_depth = -button_qpos[:, 0]
+        movement_threshold = 0.004
+        success = press_depth >= movement_threshold
+        # print(f"press_depth: {press_depth}, movement_threshold: {movement_threshold}")
+        self._button_pressed |= success
+        fail = torch.zeros_like(success, dtype=torch.bool)
+
+        return success, fail, {}
 
 @register_env("BeakerMixerAgent-v0", max_episode_steps=600)
 class BeakerMixerAgentEnv(BaseAgentEnv, BeakerMixerEnv):

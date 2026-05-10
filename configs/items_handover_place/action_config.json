@@ -23,7 +23,7 @@
             "dim": [1],
             "init": {
                 "method": "given_qpos",
-                "kwargs": {"given_qpos": [1]},
+                "kwargs": {"given_qpos": [0]},
                 "init_node_name": ""
             },
             "dtype": "float32"
@@ -33,7 +33,7 @@
             "dim": [1],
             "init": {
                 "method": "given_qpos",
-                "kwargs": {"given_qpos": [1]},
+                "kwargs": {"given_qpos": [0]},
                 "init_node_name": ""
             },
             "dtype": "float32"
@@ -244,7 +244,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": 0.35,
+                                                    "offset_value": 0.3,
                                                     "direction": "z",
                                                     "mode": "extrinsic"
                                                 }
@@ -440,32 +440,6 @@
                                 ]
                             }
                         ]
-                    }
-                }
-            },
-            {
-                "compute_unoffset_for_exp":{
-                    "name": "compute_unoffset_for_exp",
-                    "kwargs": {
-                        "pose_input_output_names_changes": {
-                            "right_arm_pen_grasp_pose": {
-                                "output_pose_name":"right_arm_pen_grasp_pose_object_unoffset",
-                                "pose_changes": [
-                                    ["framechange_extrinsic_inverse", "env.affordance_datas['pen_pose']"],
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", 0.025],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "right_arm_pen_handover_pose": {
-                                "output_pose_name":"right_arm_pen_handover_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", 0.025],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            }
-                        }
                     }
                 }
             }
@@ -874,74 +848,110 @@
                 }
             },
             {
-                "left_arm_compute_unoffset_for_exp":{
-                    "name": "compute_unoffset_for_exp",
+                "left_arm_pen_up_qpos": {
+                    "name": "generate_affordances_from_src",
                     "kwargs": {
-                        "pose_input_output_names_changes": {
-                            "left_arm_pen_pre2_takeover_pose": {
-                                "output_pose_name":"left_arm_pen_pre2_takeover_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.affordance_datas['pen_left_arm_takeover_grasp_offset']"],
-                                    ["rotation_z_intrinsic_degrees", -90]
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_pen_place_pose",
+                                "dst_key": "left_arm_pen_up_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": -0.05,
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
                                 ]
                             },
-                            "left_arm_pen_pre1_takeover_pose": {
-                                "output_pose_name":"left_arm_pen_pre1_takeover_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.affordance_datas['pen_left_arm_takeover_grasp_offset']"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "left_arm_pen_takeover_pose": {
-                                "output_pose_name":"left_arm_pen_takeover_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.affordance_datas['pen_left_arm_takeover_grasp_offset']"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "left_arm_pen_move_pose": {
-                                "output_pose_name":"left_arm_pen_move_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.affordance_datas['pen_left_arm_takeover_grasp_offset']"],
-                                    ["rotation_z_intrinsic_degrees", -90]
-                                ]
-                            },
-                            "left_arm_pen_place_pose": {
-                                "output_pose_name":"left_arm_pen_place_pose_unoffset",
-                                "pose_changes": [
-                                    ["rotation_z_intrinsic_degrees", 90],
-                                    ["offset_-z_intrinsic", "env.affordance_datas['pen_left_arm_takeover_grasp_offset']"],
-                                    ["rotation_z_intrinsic_degrees", -90]
+                            {
+                                "src_key": "left_arm_pen_up_pose",
+                                "dst_key": "left_arm_pen_up_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_pen_place_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_pen_place_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
                                 ]
                             }
-                        }
+                        ]
                     }
                 }
             }
         ],
         "left_eef": [
-            {"left_close": {
+            {
+                "left_open0": {
                 "name": "execute_close",
                 "kwargs": {}
                 }
             },
-            {"left_open": {
+            {
+                "left_close": {
+                "name": "execute_close",
+                "kwargs": {}
+                }
+            },
+            {
+                "left_open1": {
                 "name": "execute_open",
                 "kwargs": {}
                 }
             }
         ],
         "right_eef": [
-            {"right_close": {
+            {
+                "right_init": {
                 "name": "execute_close",
                 "kwargs": {}
                 }
             },
-            {"right_open": {
+            {
+                "right_open0": {
+                "name": "execute_open",
+                "kwargs": {}
+                }
+            },
+            {
+                "right_close": {
+                "name": "execute_close",
+                "kwargs": {}
+                }
+            },
+            {
+                "right_open1": {
                 "name": "execute_open",
                 "kwargs": {}
                 }
@@ -951,30 +961,15 @@
     "edge": {
         "right_arm": [
             {
-                "right_init_to_aim": {
+                "right_init_to_pre1": {
                     "src": "right_arm_init_qpos",
-                    "sink": "right_arm_aim_qpos",
-                    "duration": 10,
+                    "sink": "right_arm_pen_pre1_qpos",
+                    "duration": 35,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
                             "right_arm_init_qpos",
-                            "right_arm_aim_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "right_aim_to_pre1": {
-                    "src": "right_arm_aim_qpos",
-                    "sink": "right_arm_pen_pre1_qpos",
-                    "duration": 24,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "right_arm",
-                        "keypose_names": [
-                            "right_arm_aim_qpos",
                             "right_arm_pen_pre1_qpos"
                         ]
                     }
@@ -1039,21 +1034,6 @@
                         ]
                     }
                 }
-            },
-            {
-                "right_back_to_init": {
-                    "src": "right_arm_pen_back_qpos",
-                    "sink": "right_arm_init_qpos",
-                    "duration": 24,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "right_arm",
-                        "keypose_names": [
-                            "right_arm_pen_back_qpos",
-                            "right_arm_init_qpos"
-                        ]
-                    }
-                }
             }
         ],
         "left_arm": [
@@ -1091,7 +1071,7 @@
                 "left_takeover_to_move": {
                     "src": "left_arm_pen_takeover_qpos",
                     "sink": "left_arm_pen_move_pose_qpos",
-                    "duration": 4,
+                    "duration": 25,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "left_arm",
@@ -1118,16 +1098,16 @@
                 }
             },
             {
-                "left_place_to_init": {
+                "left_place_to_up": {
                     "src": "left_arm_pen_place_pose_qpos",
-                    "sink": "left_arm_init_qpos",
-                    "duration": 24,
+                    "sink": "left_arm_pen_up_qpos",
+                    "duration": 15,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "left_arm",
                         "keypose_names": [
                             "left_arm_pen_place_qpos",
-                            "left_arm_init_qpos"
+                            "left_arm_pen_up_qpos"
                         ]
                     }
                 }
@@ -1135,8 +1115,20 @@
         ],
         "right_eef": [
             {
+                "right_open0": {
+                    "src": "right_init",
+                    "sink": "right_open0",
+                    "duration": 15,
+                    "name": "execute_open",
+                    "kwargs": {
+                        "return_action": true,
+                        "expand": true
+                    }
+                }
+            },
+            {
                 "right_close0": {
-                    "src": "right_open",
+                    "src": "right_open0",
                     "sink": "right_close",
                     "duration": 15,
                     "name": "execute_close",
@@ -1147,9 +1139,9 @@
                 }
             },
             {
-                "right_open0": {
+                "right_open1": {
                     "src": "right_close",
-                    "sink": "right_open",
+                    "sink": "right_open1",
                     "duration": 10,
                     "name": "execute_open",
                     "kwargs": {
@@ -1160,9 +1152,21 @@
             }
         ],
         "left_eef": [
+            {
+                "left_open0": {
+                    "src": "left_init",
+                    "sink": "left_open0",
+                    "duration": 15,
+                    "name": "execute_open",
+                    "kwargs": {
+                        "return_action": true,
+                        "expand": true
+                    }
+                }
+            },
              {
                 "left_close0": {
-                    "src": "left_open",
+                    "src": "left_open0",
                     "sink": "left_close",
                     "duration": 15,
                     "name": "execute_close",
@@ -1173,9 +1177,9 @@
                 }
             },
             {
-                "left_open0": {
+                "left_open1": {
                     "src": "left_close",
-                    "sink": "left_open",
+                    "sink": "left_open1",
                     "duration": 10,
                     "name": "execute_open",
                     "kwargs": {
@@ -1187,6 +1191,11 @@
         ]
     },
     "sync": {
+        "right_init_to_pre1": {
+            "depend_tasks": [
+                "right_open0"
+            ]
+        },
         "right_close0": {
             "depend_tasks": [
                 "right_pre1_to_grasp"
@@ -1197,14 +1206,14 @@
                 "right_close0"
             ]
         },
-        "right_open0": {
+        "right_open1": {
             "depend_tasks": [
                 "left_close0"
             ]
         },
         "right_handover_to_back": {
             "depend_tasks": [
-                "right_open0"
+                "right_open1"
             ]
         },
         "left_init_to_pre1": {
@@ -1221,18 +1230,18 @@
         "left_takeover_to_move": {
             "depend_tasks": [
                 "left_close0",
-                "right_open0",
-                "right_back_to_init"
+                "right_open1",
+                "right_handover_to_back"
             ]
         },
-        "left_open0": {
+        "left_open1": {
             "depend_tasks": [
                 "left_move_to_place"
             ]
         },
-        "left_place_to_init": {
+        "left_place_to_up": {
             "depend_tasks": [
-                "left_open0"
+                "left_open1"
             ]
         }
     },

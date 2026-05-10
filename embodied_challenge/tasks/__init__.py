@@ -46,7 +46,7 @@ from .carry_basket.carry_basket import (
 )
 from .Beat_Hammer_Block.Beat_Hammer_Block import (
     BeatHammerBlockEnv,
-    BeatHammerBlockEnvTest,
+    BeatHammerBlockTestEnv,
     BeatHammerBlockAgentEnv,
 )
 

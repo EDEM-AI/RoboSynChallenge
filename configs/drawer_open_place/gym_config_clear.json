@@ -9,9 +9,9 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "duck"},
-                    "position_range": [[-0.05, -0.03, 0.0], [0.05, 0.03, 0.0]],
+                    "position_range": [[0.53, 0.18, 0.87], [0.8, 0.35, 0.87]],
                     "rotation_range": [[0, 0, -30], [0, 0, 30]],
-                    "relative_position": true,
+                    "relative_position": false,
                     "relative_rotation": true
                 }
             },
@@ -23,7 +23,7 @@
                         {"uid": "drawer"},
                         {"uid": "drawer_background"}
                     ],
-                    "position_range": [[-0.01, -0.005, 0.0], [0.01, 0.005, 0.0]],
+                    "position_range": [[-0.01, -0.18, 0.0], [0.05, 0.0, 0.0]],
                     "relative_position": true,
                     "physics_update_step": 1
                 }
@@ -355,6 +355,20 @@
         "attrs": {
             "contact_offset": 0.0002,
             "rest_offset": 0.00005
+        },
+        "drive_pros": {
+            "stiffness": {
+                "LEFT_JOINT[7-8]": 600.0,
+                "RIGHT_JOINT[7-8]": 600.0
+            },
+            "damping": {
+                "LEFT_JOINT[7-8]": 60.0,
+                "RIGHT_JOINT[7-8]": 60.0
+            },
+            "max_effort": {
+                "LEFT_JOINT[7-8]": 6000.0,
+                "RIGHT_JOINT[7-8]": 6000.0
+            }
         }
     },
     "sensor": [
@@ -564,8 +578,8 @@
             "fpath": "SlidingBoxDrawer/SlidingBoxDrawer.urdf",
             "uid": "drawer",
             "init_pos": [
-                0.84,
-                -0.1,
+                0.8,
+                0.0,
                 0.9
             ],
             "body_scale": [
@@ -583,14 +597,14 @@
                 "dynamic_friction": 4.8
             },
             "drive_pros": {
-                "stiffness": 20.0,
-                "damping": 5.0
+                "stiffness": 10.0,
+                "damping": 3.0
             }
         },
         {
             "fpath": "SlidingBoxDrawer/SlidingBoxDrawer.urdf",
             "uid": "drawer_background",
-            "init_pos": [0.84, -0.1, 0.825],
+            "init_pos": [0.8, 0.0, 0.825],
             "body_scale": [1.0, 1.0, 0.35],
             "body_type": "kinematic",
             "init_rot": [0.3, 0, 180],
@@ -601,8 +615,8 @@
                 "rest_offset": 0.00005
             },
             "drive_pros": {
-                "stiffness": 20.0,
-                "damping": 5.0
+                "stiffness": 10.0,
+                "damping": 3.0
             }
         }
     ]

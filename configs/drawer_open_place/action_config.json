@@ -410,7 +410,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": 0.28,
+                                                    "offset_value": 0.15,
                                                     "direction": "z",
                                                     "mode": "intrinsic"
                                                 }
@@ -516,7 +516,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": 0.28,
+                                                    "offset_value": 0.15,
                                                     "direction": "z",
                                                     "mode": "intrinsic"
                                                 }
@@ -576,6 +576,69 @@
                                                 "kwargs": {
                                                     "ik_func": "env.robot.compute_ik",
                                                     "qpos_seed": "env.affordance_datas['left_arm_place_hover_qpos']",
+                                                    "control_part": "left_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "left_arm_up_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "left_arm_place_drop_pose",
+                                "dst_key": "left_arm_up_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.05,
+                                                    "direction": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "left_arm_up_pose",
+                                "dst_key": "left_arm_up_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['left_arm_place_drop_qpos']",
+                                            "control_part": "left_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['left_arm_place_drop_qpos']",
                                                     "control_part": "left_arm"
                                                 }
                                             }
@@ -936,7 +999,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": -0.18,
+                                                    "offset_value": -0.16,
                                                     "direction": "x",
                                                     "mode": "extrinsic"
                                                 }
@@ -1020,6 +1083,77 @@
                             {
                                 "src_key": "right_arm_drawer_pull_pre_pose",
                                 "dst_key": "right_arm_drawer_pull_pre_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['right_arm_handle_start_qpos']",
+                                            "control_part": "right_arm"
+                                        },
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_ik_qpos",
+                                                "kwargs": {
+                                                    "ik_func": "env.robot.compute_ik",
+                                                    "qpos_seed": "env.affordance_datas['right_arm_handle_start_qpos']",
+                                                    "control_part": "right_arm"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_flip",
+                                        "kwargs": {
+                                            "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
+                                            "qpos_ids": [3, 4],
+                                            "threshold": 3.455751918948773,
+                                            "mode": "delta",
+                                            "return_inverse": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "right_arm_up_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "right_arm_handle_start_pose",
+                                "dst_key": "right_arm_up_pose",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": -0.05,
+                                                    "direction": "z",
+                                                    "mode": "intrinsic"
+                                                }
+                                            },
+                                            {
+                                                "name": "get_offset_pose",
+                                                "kwargs": {
+                                                    "offset_value": 0.05,
+                                                    "direction": "z",
+                                                    "mode": "extrinsic"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "src_key": "right_arm_up_pose",
+                                "dst_key": "right_arm_up_qpos",
                                 "valid_funcs_name_kwargs_proc": [
                                     {
                                         "name": "get_ik_ret",
@@ -1206,15 +1340,15 @@
             {
                 "left_return_home": {
                     "src": "left_arm_place_hover_qpos",
-                    "sink": "left_arm_init_qpos",
-                    "duration": 65,
+                    "sink": "left_arm_up_qpos",
+                    "duration": 25,
                     "fill_type": "scalable",
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "left_arm",
                         "keypose_names": [
                             "left_arm_place_hover_qpos",
-                            "left_arm_init_qpos"
+                            "left_arm_up_qpos"
                         ],
                         "edge_name": "left_return_home"
                     }
@@ -1349,19 +1483,19 @@
                 }
             },
             {
-                "right_return_home": {
+                "right_back": {
                     "src": "right_arm_handle_start_qpos",
-                    "sink": "right_arm_init_qpos",
-                    "duration": 65,
+                    "sink": "right_arm_up_qpos",
+                    "duration": 30,
                     "fill_type": "scalable",
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
                             "right_arm_handle_start_qpos",
-                            "right_arm_init_qpos"
+                            "right_arm_up_qpos"
                         ],
-                        "edge_name": "right_return_home"
+                        "edge_name": "right_back"
                     }
                 }
             }
@@ -1455,7 +1589,7 @@
                 "right_open_handle_after_close"
             ]
         },
-        "right_return_home": {
+        "right_back": {
             "depend_tasks": [
                 "right_retreat_after_close"
             ]

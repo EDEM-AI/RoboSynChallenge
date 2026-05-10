@@ -94,7 +94,7 @@
                 "params": {
                     "entity_cfg": {"uid": "pipette", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
-                    "texture_path": "CocoBackground/coco",
+                    "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -128,36 +128,36 @@
                     }
                 }
             },
-            "init_pipette_pose": {
-                "func": "randomize_articulation_root_pose",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "pipette"},
-                    "position_range": [[-0.05, -0.08, 0.0], [0.1, 0.0, 0.0]],
-                    "rotation_range": [[0, 0, -30], [0, 0, 30]],
-                    "relative_position": true,
-                    "relative_rotation": true
-                }
-            },
-            "init_beaker1_pose": {
+            "random_beaker1_pose": {
                 "func": "randomize_rigid_object_pose",
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "beaker1"},
-                    "position_range": [[-0.02, -0.1, 0.0], [0.05, 0.05, 0.0]],
-                    "rotation_range": [[0, 0, 0], [0, 0, 0]],
-                    "relative_position": true,
+                    "position_range": [[0.48, -0.05, 0.83], [0.54, 0.2, 0.83]],
+                    "rotation_range": [[0, 0, -180], [0, 0, 180]],
+                    "relative_position": false,
                     "relative_rotation": true
                 }
             },
-            "init_beaker2_pose": {
+            "random_beaker2_pose": {
                 "func": "randomize_rigid_object_pose",
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "beaker2"},
-                    "position_range": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-                    "rotation_range": [[0, -0.1, 0], [0, 0.08, 0]],
-                    "relative_position": true,
+                    "position_range": [[0.62, -0.05, 0.83], [0.7, 0.2, 0.83]],
+                    "rotation_range": [[0, 0, -180], [0, 0, 180]],
+                    "relative_position": false,
+                    "relative_rotation": true
+                }
+            },
+            "random_pipette_pose": {
+                "func": "randomize_articulation_root_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "pipette"},
+                    "position_range": [[0.45, -0.28, 0.86], [0.72, -0.1, 0.86]],
+                    "rotation_range": [[0, 0, -30], [0, 0, 30]],
+                    "relative_position": false,
                     "relative_rotation": true
                 }
             },
@@ -181,8 +181,8 @@
                         [-180.0, 180.0]
                     ],
                     "hide_position": [0.0, 0.0, -10.0],
-                    "avoid_uids": ["button"],
-                    "min_distance_to_avoid": 0.08,
+                    "avoid_uids": ["beaker1", "beaker2", "pipette"],
+                    "min_distance_to_avoid": 0.1,
                     "max_resample_attempts": 100,
                     "physics_update_step": 1
                 }
@@ -344,17 +344,17 @@
             "beaker_1_pose": {
                 "func": "get_rigid_object_pose",
                 "mode": "add",
-                "name": "beaker_1_pose",
+                "name": "beaker1_pose",
                 "params": {
-                    "entity_cfg": {"uid": "beaker_1"}
+                    "entity_cfg": {"uid": "beaker1"}
                 }
             },
             "beaker_2_pose": {
                 "func": "get_rigid_object_pose",
                 "mode": "add",
-                "name": "beaker_2_pose",
+                "name": "beaker2_pose",
                 "params": {
-                    "entity_cfg": {"uid": "beaker_2"}
+                    "entity_cfg": {"uid": "beaker2"}
                 }
             },
             "pipette_pose": {
@@ -371,7 +371,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/",
+                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/manipulate_pipette/",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -595,7 +595,7 @@
                 "min_velocity_iters":8,
                 "enable_ccd": true
             },
-            "body_scale":[1.8, 1.8, 1.8],
+            "body_scale":[1.4, 1.4, 1.5],
             "max_convex_hull_num": 24,
             "init_pos": [0.5, 0.0, 0.83],
             "init_rot": [0, 0, 0]
@@ -618,7 +618,7 @@
                 "min_velocity_iters":8,
                 "enable_ccd": true
             },
-            "body_scale":[1.8, 1.8, 1.8],
+            "body_scale":[1.4, 1.4, 1.5],
             "max_convex_hull_num": 24,
             "init_pos": [0.65, 0.0, 0.83],
             "init_rot": [0, 0, 0]

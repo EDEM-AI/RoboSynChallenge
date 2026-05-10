@@ -27,7 +27,7 @@ from .action_bank import (
     BeatHammerBlockActionBank,
 )
 
-__all__ = ["BeatHammerBlockEnv", "BeatHammerBlockEnvTest", "BeatHammerBlockAgentEnv"]
+__all__ = ["BeatHammerBlockEnv", "BeatHammerBlockTestEnv", "BeatHammerBlockAgentEnv"]
 
 
 
@@ -160,7 +160,7 @@ class BeatHammerBlockEnv(EmbodiedEnv):
         return obs, info
 
 @register_env("BeatHammerBlockTest-v3", max_episode_steps=600)
-class BeatHammerBlockEnvTest(BeatHammerBlockEnv):
+class BeatHammerBlockTestEnv(BeatHammerBlockEnv):
     def compute_task_state(self, **kwargs):
         button = self.sim.get_articulation("button")
         button_qpos = button.get_qpos()

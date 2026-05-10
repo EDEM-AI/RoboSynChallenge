@@ -208,18 +208,9 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": 0.2,
+                                                    "offset_value": 0.05,
                                                     "direction": "z",
                                                     "mode":"extrinsic"
-                                                }
-                                            },
-                                            {
-                                                "name": "get_rotated_pose",
-                                                "kwargs": {
-                                                    "rot_angle": 60,
-                                                    "rot_axis": "y",
-                                                    "mode": "intrinsic",
-                                                    "degrees": true
                                                 }
                                             }
                                         ]
