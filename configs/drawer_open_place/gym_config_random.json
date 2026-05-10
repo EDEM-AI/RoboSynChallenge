@@ -513,6 +513,20 @@
         "attrs": {
             "contact_offset": 0.0002,
             "rest_offset": 0.00005
+        },
+        "drive_pros": {
+            "stiffness": {
+                "LEFT_JOINT[7-8]": 600.0,
+                "RIGHT_JOINT[7-8]": 600.0
+            },
+            "damping": {
+                "LEFT_JOINT[7-8]": 60.0,
+                "RIGHT_JOINT[7-8]": 60.0
+            },
+            "max_effort": {
+                "LEFT_JOINT[7-8]": 6000.0,
+                "RIGHT_JOINT[7-8]": 6000.0
+            }
         }
     },
     "sensor": [
