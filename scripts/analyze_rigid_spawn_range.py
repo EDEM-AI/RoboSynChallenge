@@ -57,6 +57,8 @@ def require_numpy() -> None:
 
 POSE_RANDOMIZATION_FUNCS = {
     "randomize_rigid_object_pose": "rigid_object",
+    "randomize_entity_root_pose_group": "rigid_object",
+    "randomize_entity_root_pose_group": "articulation",
     "randomize_articulation_root_pose": "articulation",
 }
 
@@ -330,6 +332,28 @@ def find_entity_init_pos(
     return walk(gym_config)
 
 
+def find_entity_type(
+    gym_config: dict[str, Any],
+    uid: str,
+    default: str,
+) -> str:
+    for entity_type in ("rigid_object", "background", "articulation"):
+        for entity_cfg in gym_config.get(entity_type, []):
+            if entity_cfg.get("uid") == uid:
+                return entity_type
+    return default
+
+
+def iter_pose_randomization_entity_cfgs(params: dict[str, Any]) -> list[dict[str, Any]]:
+    if isinstance(params.get("entity_cfg"), dict):
+        return [params["entity_cfg"]]
+    return [
+        entity_cfg
+        for entity_cfg in params.get("entity_cfgs", [])
+        if isinstance(entity_cfg, dict)
+    ]
+
+
 def find_pose_randomization_events(
     gym_config: dict[str, Any],
 ) -> list[PoseRandomizationEvent]:
@@ -340,24 +364,28 @@ def find_pose_randomization_events(
         if func not in POSE_RANDOMIZATION_FUNCS:
             continue
         params = event_cfg.get("params", {})
-        entity_cfg = params.get("entity_cfg", {})
-        uid = entity_cfg.get("uid")
         position_range = params.get("position_range")
-        if not uid or position_range is None:
+        if position_range is None:
             continue
-        entity_type = POSE_RANDOMIZATION_FUNCS[func]
-        found.append(
-            PoseRandomizationEvent(
-                name=event_name,
-                uid=uid,
-                entity_type=entity_type,
-                func=func,
-                position_range=position_range,
-                relative_position=bool(params.get("relative_position", True)),
-                relative_rotation=bool(params.get("relative_rotation", False)),
-                init_pos=find_entity_init_pos(gym_config, uid, entity_type),
+        for entity_cfg in iter_pose_randomization_entity_cfgs(params):
+            uid = entity_cfg.get("uid")
+            if not uid:
+                continue
+            entity_type = find_entity_type(
+                gym_config, uid, POSE_RANDOMIZATION_FUNCS[func]
             )
-        )
+            found.append(
+                PoseRandomizationEvent(
+                    name=event_name,
+                    uid=uid,
+                    entity_type=entity_type,
+                    func=func,
+                    position_range=position_range,
+                    relative_position=bool(params.get("relative_position", True)),
+                    relative_rotation=bool(params.get("relative_rotation", False)),
+                    init_pos=find_entity_init_pos(gym_config, uid, entity_type),
+                )
+            )
     return found
 
 
