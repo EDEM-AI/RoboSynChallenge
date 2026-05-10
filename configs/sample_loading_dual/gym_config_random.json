@@ -119,9 +119,9 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "cube"},
-                    "position_range": [[-0.05, -0.04, 0.0], [0.05, 0.04, 0.0]],
+                    "position_range": [[0.45, -0.28, 0.86], [0.68, 0.0, 0.86]],
                     "rotation_range": [[-20, 0, 0], [20, 0, 0]],
-                    "relative_position": true,
+                    "relative_position": false,
                     "relative_rotation": true
                 }
             },
@@ -130,9 +130,9 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "rack"},
-                    "position_range": [[-0.05, -0.05, 0.0], [0.05, 0.15, 0.0]],
-                    "rotation_range": [[0, 0, -20], [0, 0, 20]],
-                    "relative_position": true,
+                    "position_range": [[0.63, 0, 0.865], [0.7, 0.15, 0.865]],
+                    "rotation_range": [[0, 0, 0], [0, 0, 90]],
+                    "relative_position": false,
                     "relative_rotation": true
                 }
             },
@@ -156,7 +156,7 @@
                         [-180.0, 180.0]
                     ],
                     "hide_position": [0.0, 0.0, -10.0],
-                    "avoid_uids": ["beaker", "beaker_mixer"],
+                    "avoid_uids": ["cube", "rack"],
                     "min_distance_to_avoid": 0.4,
                     "max_resample_attempts": 100,
                     "physics_update_step": 1
@@ -305,7 +305,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/",
+                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/sample_loading_dual/",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
