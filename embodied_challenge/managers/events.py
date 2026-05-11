@@ -33,6 +33,7 @@ from embodichain.lab.sim.objects import (
     Robot,
 )
 from embodichain.lab.gym.envs.managers.events import resolve_uids
+from embodichain.lab.sim import VisualMaterialCfg
 from embodichain.lab.sim.cfg import RigidObjectCfg, ArticulationCfg
 from embodichain.lab.sim.shapes import MeshCfg
 from embodichain.lab.gym.envs.managers.cfg import SceneEntityCfg
@@ -187,6 +188,47 @@ def print_articulation_attrs(
         f"[DEBUG][Articulation:{entity_cfg.uid}] runtime physical attrs:\n{json.dumps(runtime_attrs, indent=2, default=str)}",
         color="green",
     )
+
+
+def set_articulation_visual_material(
+    env: EmbodiedEnv,
+    env_ids: torch.Tensor | None,
+    entity_cfg: SceneEntityCfg,
+    mat_cfg: VisualMaterialCfg | Dict,
+) -> None:
+    """Set an articulation's visual material deterministically."""
+
+    asset = env.sim.get_asset(entity_cfg.uid)
+    if asset is None:
+        logger.log_error(
+            f"Cannot set articulation material: asset '{entity_cfg.uid}' not found."
+        )
+        return
+
+    if not isinstance(asset, (Articulation, Robot)):
+        logger.log_warning(
+            f"Asset '{entity_cfg.uid}' is type {type(asset)}, not Articulation. Skipping material set."
+        )
+        return
+
+    if env_ids is None:
+        env_ids = torch.arange(env.num_envs, device="cpu")
+    else:
+        env_ids = env_ids.cpu()
+
+    if isinstance(mat_cfg, dict):
+        mat_cfg = VisualMaterialCfg.from_dict(mat_cfg)
+
+    mat_cfg = deepcopy(mat_cfg)
+    if not mat_cfg.uid or mat_cfg.uid == "default_mat":
+        mat_cfg.uid = f"{entity_cfg.uid}_mat"
+
+    link_names = entity_cfg.link_names
+    if link_names is not None:
+        _, link_names = resolve_matching_names(link_names, asset.link_names)
+
+    mat = env.sim.create_visual_material(mat_cfg)
+    asset.set_visual_material(mat, env_ids=env_ids, link_names=link_names)
 
 
 
