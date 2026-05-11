@@ -344,11 +344,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-<<<<<<< HEAD
-                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/open_drawer/",
-=======
                     "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/drawer_open_place",
->>>>>>> origin/main
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
