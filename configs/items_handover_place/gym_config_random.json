@@ -114,16 +114,16 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "holder"},
-                    "position_range": [[0.5, 0.0, 0.884], [0.8, 0.25, 0.884]],
+                    "position_range": [[0.5, 0.0, 0.884], [0.7, 0.25, 0.884]],
                     "relative_position": false
                 }
             },
-           "random_pen_pose": {
+            "random_pen_pose": {
                 "func": "randomize_rigid_object_pose",
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "pen"},
-                    "position_range": [[0.52, -0.3, 0.884], [0.68, -0.05, 0.884]],
+                    "position_range": [[0.52, -0.3, 0.884], [0.675, 0.0, 0.884]],
                     "rotation_range": [[0, 0, -30], [0, 0, 30]],
                     "relative_position": false,
                     "relative_rotation": true
@@ -211,7 +211,7 @@
                             "entity_cfg": {
                                 "uid": "pen"
                             },
-                            "value": -0.06
+                            "value": -0.08
                         }
 
                     ]
@@ -521,7 +521,7 @@
             },
             "init_pos": [0.5, 0.1, 0.884],
             "init_rot": [90, 0, 0],
-            "body_scale":[0.5, 0.75, 0.5],
+            "body_scale":[0.56, 0.45, 0.56],
             "max_convex_hull_num": 8
         },
         {
@@ -529,7 +529,13 @@
             "shape": {
                 "shape_type": "Mesh",
                 "fpath": "/root/workspace/Embodied_Challenge/assets/Pen/the_pen.obj",
-                "compute_uv": true
+                "compute_uv": true,
+                "visual_material": {
+                    "uid": "black_pen_mat",
+                    "base_color": [0.0, 0.0, 0.0, 1.0],
+                    "metallic": 0.0,
+                    "roughness": 0.8
+                }
             },
             "attrs" : {
                 "mass": 0.005,
@@ -542,7 +548,7 @@
             },
             "init_pos": [0.6, -0.1, 0.884],
             "init_rot": [0, 0, 0],
-            "body_scale":[1, 1, 1],
+            "body_scale":[1, 1.6, 1.6],
             "max_convex_hull_num": 8
         },
         {

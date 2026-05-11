@@ -46,10 +46,6 @@ class ItemsHandoverPlaceActionBank(ActionBank):
         env,
         valid_funcs_name_kwargs_proc: list | None = None,
     ):
-        # FIXME FIXME FIXME FIXME
-        logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_right_arm_aim_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
-        )
         right_aim_horizontal_angle = np.arctan2(
             *(
                 (
@@ -58,9 +54,58 @@ class ItemsHandoverPlaceActionBank(ActionBank):
                 )[1::-1]
             )
         )
+
+        init_yaw = float(env.affordance_datas["right_arm_init_qpos"][0])
+        yaw_candidates = np.array(
+            [
+                right_aim_horizontal_angle - 2.0 * np.pi,
+                right_aim_horizontal_angle,
+                right_aim_horizontal_angle + 2.0 * np.pi,
+            ],
+            dtype=np.float64,
+        )
+        right_aim_horizontal_angle = float(
+            yaw_candidates[np.argmin(np.abs(yaw_candidates - init_yaw))]
+        )
+
         right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
         right_arm_aim_qpos[0] = right_aim_horizontal_angle
         env.affordance_datas["right_arm_aim_qpos"] = right_arm_aim_qpos
+        return True
+
+    @staticmethod
+    @tag_node
+    @resolve_env_params
+    # DONE: valid & process qpos & fk
+    def generate_left_arm_aim_qpos(
+        env,
+        valid_funcs_name_kwargs_proc: list | None = None,
+    ):
+        left_aim_horizontal_angle = np.arctan2(
+            *(
+                (
+                    env.affordance_datas["holder_pose"][:2, 3]
+                    - env.affordance_datas["left_arm_base_pose"][:2, 3]
+                )[1::-1]
+            )
+        )
+
+        init_yaw = float(env.affordance_datas["left_arm_init_qpos"][0])
+        yaw_candidates = np.array(
+            [
+                left_aim_horizontal_angle - 2.0 * np.pi,
+                left_aim_horizontal_angle,
+                left_aim_horizontal_angle + 2.0 * np.pi,
+            ],
+            dtype=np.float64,
+        )
+        left_aim_horizontal_angle = float(
+            yaw_candidates[np.argmin(np.abs(yaw_candidates - init_yaw))]
+        )
+
+        left_arm_aim_qpos = deepcopy(env.affordance_datas["left_arm_init_qpos"])
+        left_arm_aim_qpos[0] = left_aim_horizontal_angle
+        env.affordance_datas["left_arm_aim_qpos"] = left_arm_aim_qpos
         return True
 
     @staticmethod
