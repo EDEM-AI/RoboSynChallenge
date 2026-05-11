@@ -1,0 +1,640 @@
+{
+    "id": "OpenPanPickAndPlaceEnv-v1",
+    "max_episodes": 100,
+    "max_episode_steps": 600,
+    "env": {
+        "events": {
+            "random_light": {
+                "func": "randomize_light",
+                "mode": "interval",
+                "interval_step": 10,
+                "params": {
+                    "entity_cfg": {"uid": "light_0"},
+                    "position_range": [[-0.5, -0.5, 2], [0.5, 0.5, 2]],
+                    "color_range": [[0.6, 0.6, 0.6], [1, 1, 1]],
+                    "intensity_range": [10.0, 30.0]
+                }
+            },
+            "random_camera_high_intrinsics": {
+                "func": "randomize_camera_intrinsics",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "cam_high"},
+                    "focal_x_range": [-50, 50],
+                    "focal_y_range": [-50, 50]
+                }
+            },
+            "random_camera_high_extrinsics": {
+                "func": "randomize_camera_extrinsics",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "cam_high"},
+                    "pos_range": [[0.0, -0.02, 0.0], [0.02, 0.02, 0.02]],
+                    "euler_range": [[-0.175, -0.175, -0.175], [0.175, 0.175, 0.175]]
+                }
+            },
+            "random_robot_init_eef_pose": {
+                "func": "randomize_robot_eef_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "CobotMagic", "control_parts": ["left_arm", "right_arm"]},
+                    "position_range":  [[-0.01, -0.01, -0.01], [0.01, 0.01, 0]]
+                }
+            },
+            "random_robot_qpos": {
+                "func": "randomize_robot_qpos",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "CobotMagic"},
+                    "qpos_range": [
+                        [-0.06, -0.05, -0.06, -0.06, -0.05, -0.05, -0.06, -0.05, -0.06, -0.06, -0.05, -0.05],
+                        [0.06, 0.05, 0.06, 0.06, 0.05, 0.05, 0.06, 0.05, 0.06, 0.06, 0.05, 0.05]
+                    ],
+                    "relative_qpos": true,
+                    "joint_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                }
+            },
+            "random_material": {
+                "func": "randomize_visual_material",
+                "mode": "interval",
+                "interval_step": 10,
+                "params": {
+                    "entity_cfg": {"uid": "table"},
+                    "random_texture_prob": 0.5,
+                    "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
+                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
+                }
+            },
+            "random_robot_material": {
+                "func": "randomize_visual_material",
+                "mode": "interval",
+                "interval_step": 10,
+                "params": {
+                    "entity_cfg": {"uid": "CobotMagic", "link_names": [".*"]},
+                    "random_texture_prob": 0.5,
+                    "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
+                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
+                }
+            },
+            "random_plane_material": {
+                "func": "randomize_visual_material",
+                "mode": "interval",
+                "interval_step": 10,
+                "params": {
+                    "entity_cfg": {"uid": "default_plane"},
+                    "random_texture_prob": 0.5,
+                    "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
+                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
+                }
+            },
+            "init_pan_pose": {
+                "func": "randomize_rigid_object_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "pan"},
+                    "position_range": [[0.4, -0.05,0.83],[0.55, 0.15,0.83]],
+                    "relative_position": false
+                }
+            },
+            "sync_lid_to_pan": {
+                "func": "sync_object_xy_position",
+                "mode": "reset",
+                "params": {
+                    "target_entity_cfg": {"uid": "lid"},
+                    "reference_entity_cfg": {"uid": "pan"},
+                    "position_offset": [0.0, 0.0, 0.1]
+                }
+            },
+            "init_carrot_pose": {
+                "func": "randomize_rigid_object_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "carrot"},
+                    "position_range": [[0.4, -0.25,0.83],[0.55, -0.15,0.83]],
+                    "relative_position": false
+                }
+            },
+            "random_pan_material": {
+                "func": "randomize_visual_material",
+                "mode": "interval",
+                "interval_step": 10,
+                "params": {
+                    "entity_cfg": {"uid": "pan", "link_names": [".*"]},
+                    "random_texture_prob": 0.5,
+                    "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
+                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
+                }
+            },
+            "random_lid_material": {
+                "func": "randomize_visual_material",
+                "mode": "interval",
+                "interval_step": 10,
+                "params": {
+                    "entity_cfg": {"uid": "lid", "link_names": [".*"]},
+                    "random_texture_prob": 0.5,
+                    "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
+                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
+                }
+            },
+            "random_carrot_material": {
+                "func": "randomize_visual_material",
+                "mode": "interval",
+                "interval_step": 10,
+                "params": {
+                    "entity_cfg": {"uid": "carrot", "link_names": [".*"]},
+                    "random_texture_prob": 0.5,
+                    "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
+                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
+                }
+            },
+            "randomize_distractor_slots": {
+                "func": "replace_distractor_slots_from_library",
+                "mode": "reset",
+                "params": {
+                    "entity_cfgs": [
+                        {"uid": "distractor_0"},
+                        {"uid": "distractor_1"}
+                    ],
+                    "library_index_path": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/ASSET_INDEX.json",
+                    "categories": ["PaperCup", "fork", "spoon"],
+                    "position_ranges": [
+                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]],
+                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]]
+                    ],
+                    "appear_probs": [1.0, 1.0],
+                    "z_rotation_ranges": [
+                        [-180.0, 180.0],
+                        [-180.0, 180.0]
+                    ],
+                    "hide_position": [0.0, 0.0, -10.0],
+                    "avoid_uids": ["pot", "lid", "carrot"],
+                    "min_distance_to_avoid": 0.08,
+                    "max_resample_attempts": 100,
+                    "physics_update_step": 1
+                }
+            },
+            "prepare_extra_attr": {
+                "func": "prepare_extra_attr",
+                "mode": "reset",
+                "params": {
+                    "attrs": [
+                        {
+                            "name": "object_lengths",
+                            "mode": "callable",
+                            "entity_uids": "all_objects",
+                            "func_name": "compute_object_length",
+                            "func_kwargs": {
+                                "is_svd_frame": true,
+                                "sample_points": 5000
+                            }
+                        },
+                        {
+                            "name": "grasp_pose_object",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "lid"
+                            },
+                            "value": [[
+                                [0.0, -1.0, 0.0, 0.0],
+                                [-0.95133, 0.0, -0.30817, 0.0],
+                                [0.30817, 0.0, -0.95133, 0.03],
+                                [0.0, 0.0, 0.0, 1.0]
+                            ]]
+                        },
+                        {
+                            "name": "grasp_offset",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "lid"
+                            },
+                            "value": 0.0
+                        },
+                        {
+                            "name": "grasp_pose_object",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "carrot"
+                            },
+                            "value": [[
+                                [1.0, 0.0, 0.0, 0.0],
+                                [0.0, -1.0, 0.0, 0.0],
+                                [0.0, 0.0, -1.0, 0.0],
+                                [0.0, 0.0, 0.0, 1.0]
+                            ]]
+                        },
+                        {
+                            "name": "grasp_offset",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "carrot"
+                            },
+                            "value": 0.02
+                        },
+                        {
+                            "name": "left_arm_base_pose",
+                            "mode": "callable",
+                            "entity_cfg": {
+                                "uid": "CobotMagic"
+                            },
+                            "func_name": "get_link_pose",
+                            "func_kwargs": {
+                                "link_name": "left_arm_base",
+                                "to_matrix": true
+                            }
+                        },
+                        {
+                            "name": "right_arm_base_pose",
+                            "mode": "callable",
+                            "entity_cfg": {
+                                "uid": "CobotMagic"
+                            },
+                            "func_name": "get_link_pose",
+                            "func_kwargs": {
+                                "link_name": "right_arm_base",
+                                "to_matrix": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "register_info_to_env": {
+                "func": "register_info_to_env",
+                "mode": "reset",
+                "params": {
+                    "registry": [
+                        {
+                            "entity_cfg": {
+                                "uid": "pan"
+                            },
+                            "pose_register_params": {
+                                "compute_relative": false,
+                                "compute_pose_object_to_arena": true,
+                                "to_matrix": true
+                            }
+                        },
+                        {
+                            "entity_cfg": {
+                                "uid": "lid"
+                            },
+                            "attrs": ["grasp_pose_object", "grasp_offset"],
+                            "pose_register_params": {
+                                "compute_relative": false,
+                                "compute_pose_object_to_arena": true,
+                                "to_matrix": true
+                            }
+                        },
+                        {
+                            "entity_cfg": {
+                                "uid": "carrot"
+                            },
+                            "attrs": ["grasp_pose_object", "grasp_offset"],
+                            "pose_register_params": {
+                                "compute_relative": false,
+                                "compute_pose_object_to_arena": true,
+                                "to_matrix": true
+                            }
+                        },
+                        {
+                            "entity_cfg": {
+                                "uid": "CobotMagic",
+                                "control_parts": ["left_arm"]
+                            },
+                            "attrs": ["left_arm_base_pose"],
+                            "pose_register_params": {
+                                "compute_relative": "lid",
+                                "compute_pose_object_to_arena": false,
+                                "to_matrix": true
+                            },
+                            "prefix": false
+                        },
+                        {
+                            "entity_cfg": {
+                                "uid": "CobotMagic",
+                                "control_parts": ["right_arm"]
+                            },
+                            "attrs": ["right_arm_base_pose"],
+                            "pose_register_params": {
+                                "compute_relative": "carrot",
+                                "compute_pose_object_to_arena": false,
+                                "to_matrix": true
+                            },
+                            "prefix": false
+                        }
+                    ],
+                    "registration": "affordance_datas",
+                    "sim_update": true
+                }
+            }
+        },
+        "observations": {
+            "norm_robot_eef_joint": {
+                "func": "normalize_robot_joint_data",
+                "mode": "modify",
+                "name": "robot/qpos",
+                "params": {
+                    "joint_ids": [6, 13]
+                }
+            }
+        },
+        "dataset": {
+            "lerobot": {
+                "func": "LeRobotRecorder",
+                "mode": "save",
+                "params": {
+                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/open_pan",
+                    "robot_meta": {
+                        "robot_type": "CobotMagic",
+                        "control_freq": 25,
+                        "arm_dofs": 12,
+                        "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"]
+                    },
+                    "instruction": {
+                        "lang": "Grab the knod on the pan lid, lift it to open the pan, then pick the carrot with the other arm, place it in the pan, then move the lid back to the pan to close it."
+                    },
+                    "extra": {
+                        "scene_type": "Sim",
+                        "task_description": "Grab the knod on the pan lid, lift it to open the pan, then pick the carrot with the other arm, place it in the pan, then move the lid back to the pan to close it.",
+                        "data_type": "sim"
+                    },
+                    "use_videos": true
+                }
+            }
+        },
+        "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"]
+    },
+    "robot": {
+        "uid": "CobotMagic",
+        "robot_type": "CobotMagic",
+        "init_pos": [0.0, 0.0, 0.835],
+        "init_qpos": [-0.05918411, 0.08932595, 0.00076794, 0.00970403, -0.12870058, -0.21027726, -0.13548991, -0.08838347, 0.29586821,0.39285615,0.13372713,0.08686504,0.0,0.0,0.0,0.0]
+    },
+    "sensor": [
+        {
+            "sensor_type": "Camera",
+            "uid": "cam_high",
+            "width": 640,
+            "height": 480,
+            "enable_mask": false,
+            "intrinsics": [606.315186, 606.100952, 320.549316, 245.877106],
+            "extrinsics": {
+                "eye": [
+                    0.257046,
+                    0.049382,
+                    1.459689
+                ],
+                "target": [
+                    0.599275,
+                    0.044517,
+                    0.520085
+                ],
+                "up": [
+                    0.939547,
+                    -0.010356,
+                    0.342262
+                ]
+            }
+        },
+        {
+            "sensor_type": "Camera",
+            "uid": "cam_right_wrist",
+            "width": 640,
+            "height": 480,
+            "enable_mask": false,
+            "intrinsics": [603.117004394531, 602.418640136719, 326.727478027344, 251.933990478516],
+            "extrinsics": {
+                "parent": "right_link6",
+                "pos": [-0.12, 0.01, 0.03],
+                "quat": [0.1949, 0.6797, -0.6797, -0.1949]
+            }
+        },
+        {
+            "sensor_type": "Camera",
+            "uid": "cam_left_wrist",
+            "width": 640,
+            "height": 480,
+            "enable_mask": false,
+            "intrinsics": [603.117004394531, 602.418640136719, 326.727478027344, 251.933990478516],
+            "extrinsics": {
+                "parent": "left_link6",
+                "pos": [-0.12, 0.01, 0.03],
+                "quat": [0.1949, 0.6797, -0.6797, -0.1949]
+            }
+        }
+    ],
+    "light": {
+        "indirect": {
+            "emission_light":{
+                "color": [1.0, 1.0, 1.0],
+                "intensity": 180
+            }
+        },
+        "direct": [
+            {
+                "uid": "light_0",
+                "light_type": "point",
+                "color": [1.0, 1.0, 1.0],
+                "intensity": 15.0,
+                "init_pos": [0.8, 0.0, 2.0],
+                "radius": 20.0
+            }
+        ]
+    },
+    "background": [
+        {
+            "uid": "table",
+            "shape": {
+                "shape_type": "Cube",
+                "size": [1.0, 1.0, 0.1],
+                "visual_material": {
+                    "uid": "white_table_mat",
+                    "base_color": [1.0, 1.0, 1.0, 1.0],
+                    "metallic": 0.0,
+                    "roughness": 1.0
+                }
+            },
+            "attrs" : {
+                "mass": 10.0,
+                "static_friction": 0.95,
+                "dynamic_friction": 0.9,
+                "restitution": 0.01
+            },
+            "body_scale": [1, 1, 1],
+            "body_type": "kinematic",
+            "init_pos": [0.725, 0.0, 0.775],
+            "init_rot": [0, 0, 0]
+        },
+        {
+            "uid": "green_back_wall",
+            "shape": {
+                "shape_type": "Cube",
+                "size": [0.04, 2.2, 1.6],
+                "visual_material": {
+                    "uid": "real_green_wall_mat",
+                    "base_color": [0.0, 0.48, 0.16, 1.0],
+                    "metallic": 0.0,
+                    "roughness": 1.0
+                }
+            },
+            "attrs": {
+                "mass": 10.0,
+                "static_friction": 0.95,
+                "dynamic_friction": 0.9,
+                "restitution": 0.01
+            },
+            "body_scale": [1, 1, 1],
+            "body_type": "kinematic",
+            "init_pos": [1.18, 0.0,0.8 ],
+            "init_rot": [0, 0, 0]
+        },
+        {
+            "uid": "green_left_wall",
+            "shape": {
+                "shape_type": "Cube",
+                "size": [0.9, 0.04, 1.6],
+                "visual_material": {
+                    "uid": "real_green_wall_mat",
+                    "base_color": [0.0, 0.48, 0.16, 1.0],
+                    "metallic": 0.0,
+                    "roughness": 1.0
+                }
+            },
+            "attrs": {
+                "mass": 10.0,
+                "static_friction": 0.95,
+                "dynamic_friction": 0.9,
+                "restitution": 0.01
+            },
+            "body_scale": [1, 1, 1],
+            "body_type": "kinematic",
+            "init_pos": [0.74, 1.0, 0.8],
+            "init_rot": [0, 0, 0]
+        },
+        {
+            "uid": "green_right_wall",
+            "shape": {
+                "shape_type": "Cube",
+                "size": [0.9, 0.04, 1.6],
+                "visual_material": {
+                    "uid": "real_green_wall_mat",
+                    "base_color": [0.0, 0.48, 0.16, 1.0],
+                    "metallic": 0.0,
+                    "roughness": 1.0
+                }
+            },
+            "attrs": {
+                "mass": 10.0,
+                "static_friction": 0.95,
+                "dynamic_friction": 0.9,
+                "restitution": 0.01
+            },
+            "body_scale": [1, 1, 1],
+            "body_type": "kinematic",
+            "init_pos": [0.74, -1.0, 0.8],
+            "init_rot": [0, 0, 0]
+        }
+    ],
+    "rigid_object": [
+        {
+            "uid": "pan",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "/root/workspace/Embodied_Challenge/assets/Pan/pot.ply",
+                "compute_uv": true
+            },
+            "attrs": {
+                "mass": 0.2,
+                "contact_offset": 0.003,
+                "rest_offset": 0.001,
+                "restitution": 0.01,
+                "max_depenetration_velocity": 10.0,
+                "min_position_iters": 32,
+                "min_velocity_iters": 8
+            },
+            "init_pos": [0.58, 0.06, 0.8],
+            "init_rot": [0.0, 0.0, 180.0],
+            "body_scale": [0.001, 0.001, 0.000666],
+            "max_convex_hull_num": 64
+        },
+        {
+            "uid": "lid",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "/root/workspace/Embodied_Challenge/assets/Pan/lid_remeshed.ply",
+                "compute_uv": true
+            },
+            "attrs": {
+                "mass": 0.01,
+                "contact_offset": 0.003,
+                "rest_offset": 0.001,
+                "restitution": 0.01,
+                "max_depenetration_velocity": 10.0,
+                "min_position_iters": 32,
+                "min_velocity_iters": 8
+            },
+            "init_pos": [0.58, 0.06, 0.9],
+            "init_rot": [0.0, 0.0, 0.0],
+            "body_scale": [0.34, 0.34, 0.57],
+            "max_convex_hull_num": 64
+        },
+        {
+            "uid": "carrot",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "/root/workspace/Embodied_Challenge/assets/Carrot/carrot_centered.obj",
+                "compute_uv": true
+            },
+            "attrs": {
+                "mass": 0.01,
+                "contact_offset": 0.003,
+                "rest_offset": 0.001,
+                "restitution": 0.01,
+                "max_depenetration_velocity": 10.0,
+                "min_position_iters": 32,
+                "min_velocity_iters": 8
+            },
+            "init_pos": [0.65, -0.2, 0.932],
+            "init_rot": [90.0,0.0 ,0.0 ],
+            "body_scale": [0.02, 0.03, 0.03],
+            "max_convex_hull_num": 8
+        },
+        {
+            "uid":"distractor_0",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply",
+                "compute_uv": true
+            },
+            "attrs" : {
+                "mass": 0.01,
+                "contact_offset": 0.003,
+                "rest_offset": 0.001,
+                "restitution": 0.01,
+                "max_depenetration_velocity": 1e1,
+                "min_position_iters": 32,
+                "min_velocity_iters": 8
+            },
+            "init_pos": [0.5, 0.0, -20.0],
+            "body_scale":[0.85, 0.85, 0.85]
+        },
+        {
+            "uid":"distractor_1",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply",
+                "compute_uv": true
+            },
+            "attrs" : {
+                "mass": 0.01,
+                "contact_offset": 0.003,
+                "rest_offset": 0.001,
+                "restitution": 0.01,
+                "max_depenetration_velocity": 1e1,
+                "min_position_iters": 32,
+                "min_velocity_iters": 8
+            },
+            "init_pos": [0.5, 0.0, -20.0],
+            "body_scale":[0.9, 0.9, 0.9]
+        }
+
+    ]
+}

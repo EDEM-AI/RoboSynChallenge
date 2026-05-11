@@ -1207,3 +1207,68 @@ class replace_distractor_slots_from_library(Functor):
 
 
 #######Distractor库实现###############################
+
+##两物体xy坐标同步
+def sync_object_xy_position(
+    env: EmbodiedEnv,
+    env_ids: torch.Tensor | None,
+    target_entity_cfg: SceneEntityCfg | Dict | None = None,
+    reference_entity_cfg: SceneEntityCfg | Dict | None = None,
+    position_offset: list[float] | None = None,
+) -> None:
+    """Synchronize target object's x,y coordinates to match reference object's x,y.
+    
+    This is useful for keeping paired objects (like pot and lid) at the same x,y position
+    during domain randomization, while maintaining a fixed z-axis offset.
+    
+    Args:
+        env: The environment instance.
+        env_ids: Target environment IDs.
+        target_entity_cfg: Configuration for the target object (e.g., lid).
+        reference_entity_cfg: Configuration for the reference object (e.g., pan).
+        position_offset: [dx, dy, dz] offset to apply (default [0, 0, 0.1]).
+    """
+    env_ids = env_ids if env_ids is not None else torch.arange(env.num_envs, device=env.device)
+    
+    if position_offset is None:
+        position_offset = [0.0, 0.0, 0.1]
+    
+    # Convert entity configs if needed
+    if isinstance(target_entity_cfg, dict):
+        target_entity_cfg = SceneEntityCfg(**target_entity_cfg)
+    if isinstance(reference_entity_cfg, dict):
+        reference_entity_cfg = SceneEntityCfg(**reference_entity_cfg)
+    
+    # Get the objects
+    target_obj = env.sim.get_asset(target_entity_cfg.uid)
+    reference_obj = env.sim.get_asset(reference_entity_cfg.uid)
+    
+    if target_obj is None:
+        logger.log_error(f"Target object '{target_entity_cfg.uid}' not found.")
+        return
+    if reference_obj is None:
+        logger.log_error(f"Reference object '{reference_entity_cfg.uid}' not found.")
+        return
+    
+    if not isinstance(target_obj, (RigidObject, Articulation)):
+        logger.log_warning(f"Target object '{target_entity_cfg.uid}' is not RigidObject or Articulation.")
+        return
+    if not isinstance(reference_obj, (RigidObject, Articulation)):
+        logger.log_warning(f"Reference object '{reference_entity_cfg.uid}' is not RigidObject or Articulation.")
+        return
+    
+    # Get reference object's pose
+    ref_pose = reference_obj.get_local_pose()[env_ids, :]  # [num_env, 7] - [x,y,z, qw,qx,qy,qz]
+    
+    # Get target object's current pose
+    tgt_pose = target_obj.get_local_pose()[env_ids, :].clone()  # [num_env, 7]
+    
+    # Sync x,y from reference, maintain z offset, keep rotation
+    tgt_pose[:, 0] = ref_pose[:, 0] + position_offset[0]  # x
+    tgt_pose[:, 1] = ref_pose[:, 1] + position_offset[1]  # y
+    tgt_pose[:, 2] = ref_pose[:, 2] + position_offset[2]  # z (with offset)
+    # Keep quaternion unchanged (tgt_pose[:, 3:7] stays the same)
+    
+    # Set the synchronized pose
+    target_obj.set_local_pose(tgt_pose, env_ids=env_ids)
+    target_obj.clear_dynamics(env_ids=env_ids)
