@@ -92,7 +92,7 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "pan"},
-                    "position_range": [[0.4, -0.05,0.83],[0.55, 0.15,0.83]],
+                    "position_range": [[0.5, 0.05,0.83],[0.65, 0.25,0.83]],
                     "relative_position": false
                 }
             },
@@ -110,7 +110,7 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "carrot"},
-                    "position_range": [[0.4, -0.25,0.83],[0.55, -0.15,0.83]],
+                    "position_range": [[0.4, -0.25, 0.83],[0.65, -0.1, 0.83]],
                     "relative_position": false
                 }
             },
@@ -119,7 +119,7 @@
                 "mode": "interval",
                 "interval_step": 10,
                 "params": {
-                    "entity_cfg": {"uid": "pan", "link_names": [".*"]},
+                    "entity_cfg": {"uid": "pan"},
                     "random_texture_prob": 0.5,
                     "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
@@ -130,7 +130,7 @@
                 "mode": "interval",
                 "interval_step": 10,
                 "params": {
-                    "entity_cfg": {"uid": "lid", "link_names": [".*"]},
+                    "entity_cfg": {"uid": "lid"},
                     "random_texture_prob": 0.5,
                     "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
@@ -141,7 +141,7 @@
                 "mode": "interval",
                 "interval_step": 10,
                 "params": {
-                    "entity_cfg": {"uid": "carrot", "link_names": [".*"]},
+                    "entity_cfg": {"uid": "carrot"},
                     "random_texture_prob": 0.5,
                     "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
@@ -168,7 +168,7 @@
                     ],
                     "hide_position": [0.0, 0.0, -10.0],
                     "avoid_uids": ["pot", "lid", "carrot"],
-                    "min_distance_to_avoid": 0.08,
+                    "min_distance_to_avoid": 0.15,
                     "max_resample_attempts": 100,
                     "physics_update_step": 1
                 }
@@ -179,14 +179,30 @@
                 "params": {
                     "attrs": [
                         {
-                            "name": "object_lengths",
-                            "mode": "callable",
-                            "entity_uids": "all_objects",
-                            "func_name": "compute_object_length",
-                            "func_kwargs": {
-                                "is_svd_frame": true,
-                                "sample_points": 5000
-                            }
+                            "name": "identity_pose",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "lid"
+                            },
+                            "value": [[
+                                [1.0, 0.0, 0.0, 0.0],
+                                [0.0, 1.0, 0.0, 0.0],
+                                [0.0, 0.0, 1.0, 0.0],
+                                [0.0, 0.0, 0.0, 1.0]
+                            ]]
+                        },
+                        {
+                            "name": "identity_pose",
+                            "mode": "static",
+                            "entity_cfg": {
+                                "uid": "carrot"
+                            },
+                            "value": [[
+                                [1.0, 0.0, 0.0, 0.0],
+                                [0.0, 1.0, 0.0, 0.0],
+                                [0.0, 0.0, 1.0, 0.0],
+                                [0.0, 0.0, 0.0, 1.0]
+                            ]]
                         },
                         {
                             "name": "grasp_pose_object",
@@ -195,9 +211,9 @@
                                 "uid": "lid"
                             },
                             "value": [[
-                                [0.0, -1.0, 0.0, 0.0],
-                                [-0.95133, 0.0, -0.30817, 0.0],
-                                [0.30817, 0.0, -0.95133, 0.03],
+                                [0.0, 1.0, 0.0, 0.0],
+                                [1.0, 0.0, 0.0, 0.0],
+                                [0.0, 0.0, -1.0, 0.03],
                                 [0.0, 0.0, 0.0, 1.0]
                             ]]
                         },
@@ -276,7 +292,7 @@
                             "entity_cfg": {
                                 "uid": "lid"
                             },
-                            "attrs": ["grasp_pose_object", "grasp_offset"],
+                            "attrs": ["grasp_pose_object", "grasp_offset", "identity_pose"],
                             "pose_register_params": {
                                 "compute_relative": false,
                                 "compute_pose_object_to_arena": true,
@@ -287,7 +303,7 @@
                             "entity_cfg": {
                                 "uid": "carrot"
                             },
-                            "attrs": ["grasp_pose_object", "grasp_offset"],
+                            "attrs": ["grasp_pose_object", "grasp_offset", "identity_pose"],
                             "pose_register_params": {
                                 "compute_relative": false,
                                 "compute_pose_object_to_arena": true,
@@ -353,7 +369,7 @@
                     },
                     "extra": {
                         "scene_type": "Sim",
-                        "task_description": "Grab the knod on the pan lid, lift it to open the pan, then pick the carrot with the other arm, place it in the pan, then move the lid back to the pan to close it.",
+                        "task_description": "open_pan",
                         "data_type": "sim"
                     },
                     "use_videos": true
@@ -551,8 +567,8 @@
                 "min_velocity_iters": 8
             },
             "init_pos": [0.58, 0.06, 0.8],
-            "init_rot": [0.0, 0.0, 180.0],
-            "body_scale": [0.001, 0.001, 0.000666],
+            "init_rot": [0.0, 0.0, 0.0],
+            "body_scale": [0.001, 0.001, 0.000675],
             "max_convex_hull_num": 64
         },
         {
@@ -572,8 +588,8 @@
                 "min_velocity_iters": 8
             },
             "init_pos": [0.58, 0.06, 0.9],
-            "init_rot": [0.0, 0.0, 0.0],
-            "body_scale": [0.34, 0.34, 0.57],
+            "init_rot": [0.0, 0.0, -90.0],
+            "body_scale": [0.315, 0.315, 0.42],
             "max_convex_hull_num": 64
         },
         {
@@ -581,7 +597,7 @@
             "shape": {
                 "shape_type": "Mesh",
                 "fpath": "/root/workspace/Embodied_Challenge/assets/Carrot/carrot_centered.obj",
-                "compute_uv": true
+                "compute_uv": false
             },
             "attrs": {
                 "mass": 0.01,
@@ -592,9 +608,9 @@
                 "min_position_iters": 32,
                 "min_velocity_iters": 8
             },
-            "init_pos": [0.65, -0.2, 0.932],
-            "init_rot": [90.0,0.0 ,0.0 ],
-            "body_scale": [0.02, 0.03, 0.03],
+            "init_pos": [0.65, -0.2, 0.83],
+            "init_rot": [0.0, 0.0 ,0.0],
+            "body_scale": [0.02, 0.03, 0.031],
             "max_convex_hull_num": 8
         },
         {
@@ -635,6 +651,5 @@
             "init_pos": [0.5, 0.0, -20.0],
             "body_scale":[0.9, 0.9, 0.9]
         }
-
     ]
 }

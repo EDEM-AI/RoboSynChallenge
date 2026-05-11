@@ -20,7 +20,7 @@ from typing import Dict, Optional, Tuple
 
 import numpy as np
 import torch
-from embodied_challenge.managers.events import visualize_rigid_body_pose 
+from embodied_challenge.managers.events import visualize_rigid_body_pose
 from embodichain.lab.gym.envs import EmbodiedEnv, EmbodiedEnvCfg
 from embodichain.lab.gym.envs.tasks.tableware.base_agent_env import BaseAgentEnv
 from embodichain.lab.gym.utils.registration import register_env

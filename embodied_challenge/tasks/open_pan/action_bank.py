@@ -59,7 +59,18 @@ class OpenPanActionBank(ActionBank):
             *((env.affordance_datas["lid_pose"][:2, 3] - env.affordance_datas["left_arm_base_pose"][:2, 3])[1::-1])
         )
         left_arm_aim_qpos = deepcopy(env.affordance_datas["left_arm_init_qpos"])
-        left_arm_aim_qpos[0] = left_aim_horizontal_angle
+        init_yaw = float(left_arm_aim_qpos[0])
+        yaw_candidates = np.array(
+            [
+                left_aim_horizontal_angle - 2 * np.pi,
+                left_aim_horizontal_angle,
+                left_aim_horizontal_angle + 2 * np.pi,
+            ],
+            dtype=np.float64,
+        )
+        left_arm_aim_qpos[0] = float(
+            yaw_candidates[np.argmin(np.abs(yaw_candidates - init_yaw))]
+        )
         env.affordance_datas["left_arm_aim_qpos"] = left_arm_aim_qpos
         return True
 
@@ -71,11 +82,42 @@ class OpenPanActionBank(ActionBank):
         valid_funcs_name_kwargs_proc: List | None = None,
     ):
         right_aim_horizontal_angle = np.arctan2(
-            *((env.affordance_datas["apple_pose"][:2, 3] - env.affordance_datas["right_arm_base_pose"][:2, 3])[1::-1])
+            *((env.affordance_datas["carrot_pose"][:2, 3] - env.affordance_datas["right_arm_base_pose"][:2, 3])[1::-1])
         )
+
         right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
-        right_arm_aim_qpos[0] = right_aim_horizontal_angle
+        init_yaw = float(right_arm_aim_qpos[0])
+        yaw_candidates = np.array(
+            [
+                right_aim_horizontal_angle - 2 * np.pi,
+                right_aim_horizontal_angle,
+                right_aim_horizontal_angle + 2 * np.pi,
+            ],
+            dtype=np.float64,
+        )
+        right_arm_aim_qpos[0] = float(
+            yaw_candidates[np.argmin(np.abs(yaw_candidates - init_yaw))]
+        )
         env.affordance_datas["right_arm_aim_qpos"] = right_arm_aim_qpos
+
+        right_aim_horizontal_angle = np.arctan2(
+            *((env.affordance_datas["pan_pose"][:2, 3] - env.affordance_datas["right_arm_base_pose"][:2, 3])[1::-1])
+        )
+
+        right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
+        init_yaw = float(right_arm_aim_qpos[0])
+        yaw_candidates = np.array(
+            [
+                right_aim_horizontal_angle - 2 * np.pi,
+                right_aim_horizontal_angle,
+                right_aim_horizontal_angle + 2 * np.pi,
+            ],
+            dtype=np.float64,
+        )
+        right_arm_aim_qpos[0] = float(
+            yaw_candidates[np.argmin(np.abs(yaw_candidates - init_yaw))]
+        )
+        env.affordance_datas["right_arm_aim_pan_qpos"] = right_arm_aim_qpos
         return True
 
     @staticmethod
