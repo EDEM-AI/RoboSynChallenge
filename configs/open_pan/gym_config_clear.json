@@ -1,6 +1,6 @@
 {
     "id": "OpenPanPickAndPlaceEnv-v1",
-    "max_episodes": 100,
+    "max_episodes": 1,
     "max_episode_steps": 600,
     "env": {
         "events": {
