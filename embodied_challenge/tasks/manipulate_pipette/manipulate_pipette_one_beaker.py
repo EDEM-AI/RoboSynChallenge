@@ -168,10 +168,10 @@ class ManipulatePipetteOneBeakerEnv(EmbodiedEnv):
         self._pipette_was_at_min = at_min
 
         # print(
-        #     "[ManipulatePipette] pipette sliding joint "
-        #     f"qpos={slide_qpos.detach().cpu().tolist()}, "
-        #     f"min={slide_min.detach().cpu().tolist()}, "
-        #     f"at_min={at_min.detach().cpu().tolist()}, "
+        #     "[ManipulatePipette] pipette sliding joint \n"
+        #     f"qpos={slide_qpos.detach().cpu().tolist()}, \n"
+        #     f"min={slide_min.detach().cpu().tolist()}, \n"
+        #     f"at_min={at_min.detach().cpu().tolist()}, \n"
         #     f"min_reach_count={self._pipette_min_reach_count.detach().cpu().tolist()}"
         # )
 
@@ -187,7 +187,7 @@ class ManipulatePipetteOneBeakerEnv(EmbodiedEnv):
         dot_product = torch.sum(pose_rz * world_z_axis, dim=-1)
         dot_product = torch.clamp(dot_product, -1.0, 1.0)
         angle = torch.arccos(dot_product)
-        return angle >= torch.pi / 4
+        return angle >= torch.pi / 9
 
     def _is_fall_x(self, pose: torch.Tensor) -> torch.Tensor:
         pose_rz = pose[:, :3, 0]
@@ -195,7 +195,7 @@ class ManipulatePipetteOneBeakerEnv(EmbodiedEnv):
         dot_product = torch.sum(pose_rz * world_z_axis, dim=-1)
         dot_product = torch.clamp(dot_product, -1.0, 1.0)
         angle = torch.arccos(dot_product)
-        return angle >= torch.pi / 4
+        return angle >= torch.pi / 9
     def _get_pipette_slide_min(self, pipette) -> torch.Tensor:
         try:
             limits = pipette.qpos_limits

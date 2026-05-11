@@ -1,6 +1,6 @@
 {
     "id": "ManipulatePipetteOneBeaker-v1",
-    "max_episodes": 100,
+    "max_episodes": 1,
     "max_episode_steps": 1000,
     "env": {
         "events": {
@@ -116,7 +116,7 @@
                             "entity_cfg": {
                                 "uid": "pipette"
                             },
-                            "value": -0.04
+                            "value": -0.032
                         }
 
                     ]
@@ -444,7 +444,7 @@
             "build_pk_chain": false,
             "init_pos": [0.6, -0.25, 0.86],
             "init_rot": [0, -7, 0],
-            "init_qpos": [1.0],
+            "init_qpos": [0.01401],
             "fix_base": false,
             "body_scale": [3, 3, 3],
             "compute_uv": true,

@@ -5,7 +5,7 @@
     <parent link="root"/>
     <child link="pipette_button_link"/>
     <axis xyz="1. 0. 0."/>
-    <limit lower="-0.005" upper="0." effort="10000000." velocity="0."/>
+    <limit lower="-0.002" upper="0.00467" effort="10000000." velocity="0."/>
   </joint>
   <link name="pipette_button_link">
     <inertial>
