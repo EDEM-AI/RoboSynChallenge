@@ -158,7 +158,7 @@ class RearrangementEnv3(EmbodiedEnv):
         plate = self.sim.get_rigid_object("plate")
         plate_pose = plate.get_local_pose(to_matrix=True)
 
-        if "spoon_place_pose" in self.affordance_datas:
+        if "spoon_place_pose" in self.affordance_datas and "fork_place_pose" in self.affordance_datas:
             # TODO: now only for 1 env
             (
                 spoon_place_target_x,

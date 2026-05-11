@@ -31,7 +31,7 @@
                 "method": "given_qpos",
                 "kwargs": {
                     "given_qpos": [
-                        1
+                        0
                     ]
                 },
                 "init_node_name": ""
@@ -47,7 +47,7 @@
                 "method": "given_qpos",
                 "kwargs": {
                     "given_qpos": [
-                        1
+                        0
                     ]
                 },
                 "init_node_name": ""
@@ -1239,6 +1239,18 @@
         ],
         "left_eef": [
             {
+                "lopen_grasp": {
+                    "src": "lclose",
+                    "sink": "lopen",
+                    "duration": 11,
+                    "name": "execute_open",
+                    "kwargs": {
+                        "return_action": true,
+                        "expand": true
+                    }
+                }
+            },
+            {
                 "lclose0": {
                     "src": "lopen",
                     "sink": "lclose",
@@ -1264,6 +1276,18 @@
             }
         ],
         "right_eef": [
+            {
+                "ropen_grasp": {
+                    "src": "lclose",
+                    "sink": "lopen",
+                    "duration": 11,
+                    "name": "execute_open",
+                    "kwargs": {
+                        "return_action": true,
+                        "expand": true
+                    }
+                }
+            },
             {
                 "rclose0": {
                     "src": "ropen",
@@ -1291,6 +1315,17 @@
         ]
     },
     "sync": {
+        "lopen_grasp": {
+            "depend_tasks": [
+                "right_init_to_pre2"
+            ]
+        },
+        "ropen_grasp": {
+            "depend_tasks": [
+                "left_init_to_pre2"
+            ]
+        },
+
         "lclose0": {
             "depend_tasks": [
                 "left_pre1_to_grasp"
