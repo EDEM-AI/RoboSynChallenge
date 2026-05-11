@@ -125,8 +125,8 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "bottle"},
-                    "position_range": [[0.5, -0.25, 0.882], [0.7, 0.05, 0.882]],
-                    "rotation_range": [[0.0, 0.0, -180], [0.1, 0.1, 180]],
+                    "position_range": [[0.5, -0.25, 0.83], [0.7, 0.0, 0.83]],
+                    "rotation_range": [[0.0, -180, 0.0], [0.0, 180, 0.0]],
                     "relative_position": false,
                     "relative_rotation": true
                 }
@@ -180,8 +180,8 @@
                             },
                             "value": [[
                                     [0.32243,  0.03245,  0.94604,  0.025],
-                                    [0.00706, -0.99947,  0.03188, -0.0  ],
-                                    [0.94657, -0.0036 , -0.32249,  -0.03  ],
+                                    [0.00706, -0.99947,  0.03188, 0.0  ],
+                                    [0.94657, -0.0036 , -0.32249,  0.08  ],
                                     [0.0    ,  0.0    ,  0.0    ,  1.0  ]
                             ]]
                         },
@@ -511,7 +511,13 @@
             "shape": {
                 "shape_type": "Mesh",
                 "fpath": "PaperCup/paper_cup.ply",
-                "compute_uv": true
+                "compute_uv": true,
+                "visual_material": {
+                    "uid": "cup_mat",
+                    "base_color": [0.458, 0.498, 0.475, 1.0],
+                    "metallic": 0.0,
+                    "roughness": 1.0
+                }
             },
             "attrs" : {
                 "mass": 0.01,
@@ -529,8 +535,8 @@
             "uid":"bottle",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "ScannedBottle/kashijia_processed.ply",
-                "compute_uv": true
+                "fpath": "/root/workspace/Embodied_Challenge/assets/bottle/bottle.obj",
+                "compute_uv": false
             },
             "attrs" : {
                 "mass": 0.01,
@@ -541,8 +547,10 @@
                 "min_position_iters": 32,
                 "min_velocity_iters":8
             },
-            "init_pos": [0.65, -0.1, 0.882],
-            "body_scale":[1, 1, 1]
+            "init_pos": [0.65, -0.1, 0.83],
+            "init_rot": [90, 0, 0],
+            "body_scale":[0.15, 0.15, 0.15],
+            "max_convex_hull_num": 8
         },
         {
             "uid":"distractor_0",

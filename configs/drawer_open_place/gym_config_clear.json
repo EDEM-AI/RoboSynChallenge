@@ -1,6 +1,6 @@
 {
     "id": "DrawerOpenPlace-v1",
-    "max_episodes": 100,
+    "max_episodes": 1,
     "max_episode_steps": 900,
     "env": {
         "events": {
@@ -49,8 +49,10 @@
                         {"uid": "drawer"},
                         {"uid": "drawer_background"}
                     ],
-                    "position_range": [[-0.01, -0.18, 0.0], [0.05, 0.0, 0.0]],
+                    "position_range": [[-0.15, -0.18, 0.0], [0.0, 0.0, 0.0]],
+                    "rotation_range": [[0.3, 0, 180], [0.3, 0, 180]],
                     "relative_position": true,
+                    "relative_rotation": false,
                     "physics_update_step": 1
                 }
             },
@@ -342,7 +344,11 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
+<<<<<<< HEAD
                     "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/open_drawer/",
+=======
+                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/drawer_open_place",
+>>>>>>> origin/main
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -570,9 +576,9 @@
                 "fpath": "/root/workspace/Embodied_Challenge/assets/tomato/tomato_asset_simready/asset_simready.obj"
             },
             "body_scale": [
-                1.0,
-                1.0,
-                1.0
+                0.8,
+                0.8,
+                0.8
             ],
             "init_pos": [
                 0.65,

@@ -139,12 +139,26 @@ class PourWaterDualEnv(EmbodiedEnv):
         bottle_final_xpos = bottle.get_local_pose(to_matrix=True)
         cup_final_xpos = cup.get_local_pose(to_matrix=True)
 
-        bottle_ret = self._is_fall(bottle_final_xpos)
-        cup_ret = self._is_fall(cup_final_xpos)
+        bottle_ret = self._is_fall_y(bottle_final_xpos)
+        cup_ret = self._is_fall_z(cup_final_xpos)
 
         return ~(bottle_ret | cup_ret)
 
-    def _is_fall(self, pose: torch.Tensor) -> torch.Tensor:
+    def _is_fall_y(self, pose: torch.Tensor) -> torch.Tensor:
+        # Extract z-axis from rotation matrix (last column, first 3 elements)
+        pose_rz = pose[:, :3, 1]
+        world_z_axis = torch.tensor([0, 0, 1], dtype=pose.dtype, device=pose.device)
+
+        # Compute dot product for each batch element
+        dot_product = torch.sum(pose_rz * world_z_axis, dim=-1)  # Shape: (batch_size,)
+
+        # Clamp to avoid numerical issues with arccos
+        dot_product = torch.clamp(dot_product, -1.0, 1.0)
+
+        # Compute angle and check if fallen
+        angle = torch.arccos(dot_product)
+        return angle >= torch.pi / 4
+    def _is_fall_z(self, pose: torch.Tensor) -> torch.Tensor:
         # Extract z-axis from rotation matrix (last column, first 3 elements)
         pose_rz = pose[:, :3, 2]
         world_z_axis = torch.tensor([0, 0, 1], dtype=pose.dtype, device=pose.device)

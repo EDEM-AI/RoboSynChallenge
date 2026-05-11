@@ -189,42 +189,48 @@ class DrawerOpenPlaceActionBank(ActionBank):
 
     @staticmethod
     @tag_edge
-    @tag_node
-    def execute_close(env, return_action: bool = False, **kwargs):
-
-        if return_action:
-            duration = kwargs.get("duration", 1)
-            expand = kwargs.get("expand", False)
-            if expand:
-                # 设置保持闭合的步数，例如提前 5 步完成
-                hold_steps = 5
-
-                if duration > hold_steps:
-                    # 前 duration - hold_steps 步进行平滑插值（从 1.0 变到 0.0）
-                    interp_steps = (duration - hold_steps) - 1
-                    if interp_steps > 0:
-                        interp_action = mul_linear_expand(np.array([[1.0], [0.0]]), [interp_steps]) # 形状 (interp_steps, 1)
-                    else:
-                        interp_action = np.array([[0.0]]) # 形状 (1, 1)
-
-                    # 最后 hold_steps + 1 步保持值为 0.0
-                    hold_action = np.zeros((hold_steps + 1, 1)) # 形状 (hold_steps + 1, 1)
-
-                    if interp_steps > 0:
-                        # 沿着 axis=0 拼接列向量，然后再转置
-                        action = np.concatenate([interp_action, hold_action], axis=0).transpose()
-                    else:
-                        # 极端边界处理
-                        action = np.concatenate([np.array([[1.0]]), np.zeros((duration - 1, 1))], axis=0).transpose()
-                else:
-                    # 如果 duration 不足 5 步，退回普通插值模式
-                    action = mul_linear_expand(np.array([[1.0], [0.0]]), [duration - 1])
-                    action = np.concatenate([action, np.array([[0.0]])], axis=0).transpose()
-            else:
-                action = np.zeros((1, duration))
-            return action
-        else:
+    @resolve_env_params
+    def execute_close(
+        env,
+        control_part: str | None = None,
+        return_action: bool = False,
+        duration: int = 15,
+        from_ratio: float = 0.0,
+        close_ratio: float | None = None,
+        **kwargs,
+    ):
+        if return_action is False:
             return True
+        if control_part is None:
+            raise ValueError("execute_close requires control_part.")
+
+        open_qpos = env.affordance_datas.get(
+            f"{control_part}_open_qpos",
+            DrawerOpenPlaceActionBank._get_eef_limit_qpos(
+                env, control_part, is_open=True
+            ),
+        )
+        close_qpos = env.affordance_datas.get(
+            f"{control_part}_close_qpos",
+            DrawerOpenPlaceActionBank._get_eef_limit_qpos(
+                env, control_part, is_open=False
+            ),
+        )
+        if close_ratio is None:
+            close_ratio = env.affordance_datas.get(f"{control_part}_close_ratio", 1.0)
+
+        from_ratio = max(0.0, min(1.0, float(from_ratio)))
+        close_ratio = max(0.0, min(1.0, close_ratio))
+        open_qpos_np = DrawerOpenPlaceActionBank._to_numpy(open_qpos)
+        close_qpos_np = DrawerOpenPlaceActionBank._to_numpy(close_qpos)
+        start_qpos = open_qpos_np + (close_qpos_np - open_qpos_np) * from_ratio
+        target_qpos = DrawerOpenPlaceActionBank._to_numpy(open_qpos) + (
+            close_qpos_np
+            - open_qpos_np
+        ) * close_ratio
+        return DrawerOpenPlaceActionBank._interpolate_qpos(
+            start_qpos, target_qpos, duration
+        )
 
     @staticmethod
     @tag_edge
