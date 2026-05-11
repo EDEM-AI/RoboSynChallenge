@@ -2,7 +2,9 @@
     "scope": {
         "left_arm": {
             "type": "DiGraph",
-            "dim": [6],
+            "dim": [
+                6
+            ],
             "init": {
                 "method": "current_qpos",
                 "init_node_name": "left_arm_init_qpos"
@@ -11,19 +13,25 @@
         },
         "left_eef": {
             "type": "DiGraph",
-            "dim": [1],
+            "dim": [
+                1
+            ],
             "init": {
                 "method": "given_qpos",
                 "kwargs": {
-                    "given_qpos": [0]
+                    "given_qpos": [
+                        0
+                    ]
                 },
-                "init_node_name": "left_eef_init_qpos"
+                "init_node_name": ""
             },
             "dtype": "float32"
         },
         "right_arm": {
             "type": "DiGraph",
-            "dim": [6],
+            "dim": [
+                6
+            ],
             "init": {
                 "method": "current_qpos",
                 "init_node_name": "right_arm_init_qpos"
@@ -32,13 +40,17 @@
         },
         "right_eef": {
             "type": "DiGraph",
-            "dim": [1],
+            "dim": [
+                1
+            ],
             "init": {
                 "method": "given_qpos",
                 "kwargs": {
-                    "given_qpos": [0]
+                    "given_qpos": [
+                        0
+                    ]
                 },
-                "init_node_name": "right_eef_init_qpos"
+                "init_node_name": ""
             },
             "dtype": "float32"
         }
@@ -89,8 +101,22 @@
                                             {
                                                 "name": "get_replaced_qpos",
                                                 "kwargs": {
-                                                    "replace_value": [0.0, 0.7853982, -0.7853982, 0.0, 0.7853982, 0.0],
-                                                    "joint_list_replace": [0, 1, 2, 3, 4, 5]
+                                                    "replace_value": [
+                                                        0.0,
+                                                        0.7853982,
+                                                        -0.7853982,
+                                                        0.0,
+                                                        0.7853982,
+                                                        0.0
+                                                    ],
+                                                    "joint_list_replace": [
+                                                        0,
+                                                        1,
+                                                        2,
+                                                        3,
+                                                        4,
+                                                        5
+                                                    ]
                                                 }
                                             }
                                         ]
@@ -132,15 +158,13 @@
             {
                 "left_arm_aim_duck_qpos": {
                     "name": "generate_left_arm_aim_qpos",
-                    "kwargs": {
-                    }
+                    "kwargs": {}
                 }
             },
             {
                 "left_arm_aim_drawer_qpos": {
                     "name": "generate_left_arm_aim_drawer_qpos",
-                    "kwargs": {
-                    }
+                    "kwargs": {}
                 }
             },
             {
@@ -206,7 +230,6 @@
                                                     "mode": "intrinsic"
                                                 }
                                             }
-
                                         ]
                                     }
                                 ]
@@ -237,7 +260,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -300,7 +326,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -366,7 +395,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -449,7 +481,6 @@
                                                     "mode": "intrinsic"
                                                 }
                                             }
-
                                         ]
                                     }
                                 ]
@@ -480,7 +511,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -585,7 +619,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -648,7 +685,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['left_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -665,6 +705,14 @@
             {
                 "left_eef_init_qpos": {
                     "name": "prepare_eef_qpos_limits",
+                    "kwargs": {
+                        "control_part": "left_eef"
+                    }
+                }
+            },
+            {
+                "left_eef_open_before_grasp": {
+                    "name": "execute_open",
                     "kwargs": {
                         "control_part": "left_eef"
                     }
@@ -732,8 +780,22 @@
                                             {
                                                 "name": "get_replaced_qpos",
                                                 "kwargs": {
-                                                    "replace_value": [0.0, 2.06, -0.75, 0.0, -1.20, 1.6],
-                                                    "joint_list_replace": [0, 1, 2, 3, 4, 5]
+                                                    "replace_value": [
+                                                        0.0,
+                                                        2.06,
+                                                        -0.75,
+                                                        0.0,
+                                                        -1.2,
+                                                        1.6
+                                                    ],
+                                                    "joint_list_replace": [
+                                                        0,
+                                                        1,
+                                                        2,
+                                                        3,
+                                                        4,
+                                                        5
+                                                    ]
                                                 }
                                             }
                                         ]
@@ -775,8 +837,7 @@
             {
                 "right_arm_aim_drawer_qpos": {
                     "name": "generate_right_arm_aim_qpos",
-                    "kwargs": {
-                    }
+                    "kwargs": {}
                 }
             },
             {
@@ -862,7 +923,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -896,7 +960,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -962,7 +1029,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -1034,7 +1104,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -1106,7 +1179,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -1177,7 +1253,10 @@
                                         "name": "is_qpos_flip",
                                         "kwargs": {
                                             "qpos_ref": "env.affordance_datas['right_arm_init_qpos']",
-                                            "qpos_ids": [3, 4],
+                                            "qpos_ids": [
+                                                3,
+                                                4
+                                            ],
                                             "threshold": 3.455751918948773,
                                             "mode": "delta",
                                             "return_inverse": true
@@ -1194,6 +1273,14 @@
             {
                 "right_eef_init_qpos": {
                     "name": "prepare_eef_qpos_limits",
+                    "kwargs": {
+                        "control_part": "right_eef"
+                    }
+                }
+            },
+            {
+                "right_eef_open_before_pull": {
+                    "name": "execute_open",
                     "kwargs": {
                         "control_part": "right_eef"
                     }
@@ -1357,8 +1444,20 @@
         ],
         "left_eef": [
             {
-                "left_close_duck": {
+                "left_open_init": {
                     "src": "left_eef_init_qpos",
+                    "sink": "left_eef_open_before_grasp",
+                    "duration": 1,
+                    "name": "execute_open",
+                    "kwargs": {
+                        "control_part": "left_eef",
+                        "return_action": true
+                    }
+                }
+            },
+            {
+                "left_close_duck": {
+                    "src": "left_eef_open_before_grasp",
                     "sink": "left_eef_closed_duck",
                     "duration": 30,
                     "name": "execute_close",
@@ -1382,7 +1481,7 @@
             }
         ],
         "right_arm": [
-             {
+            {
                 "right_to_handle_start_pre": {
                     "src": "right_arm_init_qpos",
                     "sink": "right_arm_handle_start_pre_qpos",
@@ -1502,8 +1601,20 @@
         ],
         "right_eef": [
             {
-                "right_close_handle": {
+                "right_open_init": {
                     "src": "right_eef_init_qpos",
+                    "sink": "right_eef_open_before_pull",
+                    "duration": 1,
+                    "name": "execute_open",
+                    "kwargs": {
+                        "control_part": "right_eef",
+                        "return_action": true
+                    }
+                }
+            },
+            {
+                "right_close_handle": {
+                    "src": "right_eef_open_before_pull",
                     "sink": "right_eef_closed_for_pull",
                     "duration": 20,
                     "name": "execute_close",

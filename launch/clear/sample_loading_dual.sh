@@ -3,4 +3,5 @@ python -m scripts.run_env \
        --action_config configs/sample_loading_dual/action_config.json \
        --num_envs 1 \
        --enable_rt \
+       --headless \
        # --filter_visual_rand \

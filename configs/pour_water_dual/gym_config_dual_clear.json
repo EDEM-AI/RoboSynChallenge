@@ -1,6 +1,6 @@
 {
     "id": "PourWaterDual",
-    "max_episodes": 100,
+    "max_episodes": 1,
     "max_episode_steps": 500,
     "env": {
         "events": {
