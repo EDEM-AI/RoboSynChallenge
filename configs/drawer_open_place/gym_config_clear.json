@@ -4,6 +4,32 @@
     "max_episode_steps": 900,
     "env": {
         "events": {
+            "set_drawer_material": {
+                "func": "set_articulation_visual_material",
+                "mode": "startup",
+                "params": {
+                    "entity_cfg": {"uid": "drawer"},
+                    "mat_cfg": {
+                        "uid": "white_drawer_mat",
+                        "base_color": [1.0, 1.0, 1.0, 1.0],
+                        "metallic": 0.0,
+                        "roughness": 1.0
+                    }
+                }
+            },
+            "set_drawer_background_material": {
+                "func": "set_articulation_visual_material",
+                "mode": "startup",
+                "params": {
+                    "entity_cfg": {"uid": "drawer_background"},
+                    "mat_cfg": {
+                        "uid": "dark_gray_drawer_background_mat",
+                        "base_color": [0.05, 0.05, 0.05, 1.0],
+                        "metallic": 0.0,
+                        "roughness": 1.0
+                    }
+                }
+            },
             "random_duck_pose": {
                 "func": "randomize_rigid_object_pose",
                 "mode": "reset",
