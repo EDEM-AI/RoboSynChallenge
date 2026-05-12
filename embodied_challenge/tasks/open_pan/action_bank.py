@@ -44,7 +44,7 @@ from embodichain.lab.sim.planners import (
 )
 from embodichain.utils import logger
 
-__all__ = ["OpenPanPickandPlaceActionBank"]
+__all__ = ["OpenPanPickandPlaceActionBank", "OpenPanActionBank"]
 
 
 class OpenPanPickandPlaceActionBank(ActionBank):
@@ -592,7 +592,7 @@ class OpenPanPickandPlaceActionBank(ActionBank):
             logger.log_warning(
                 "Applying plan_trajectory to two very close qpos! Using stand_still."
             )
-            return OpenPanActionBank.stand_still(
+            return OpenPanPickandPlaceActionBank.stand_still(
                 env,
                 agent_uid,
                 keypose_names,
@@ -619,3 +619,7 @@ class OpenPanPickandPlaceActionBank(ActionBank):
         )
 
         return ret.positions.numpy().T
+
+
+# Backward-compatible alias for legacy imports and configs.
+OpenPanActionBank = OpenPanPickandPlaceActionBank

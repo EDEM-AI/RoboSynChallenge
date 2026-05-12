@@ -180,7 +180,7 @@ class OpenPanPickAndPlaceEnv(EmbodiedEnv):
             logger.log_error("No action_config found in env, please check again.")
 
         self._sync_open_pan_runtime_attrs()
-        self._init_action_bank(OpenPanActionBank, self.action_config)
+        self._init_action_bank(OpenPanPickandPlaceActionBank, self.action_config)
         action_list = self.create_expert_demo_action_list(*args, **kwargs)
 
         if action_list is None:
