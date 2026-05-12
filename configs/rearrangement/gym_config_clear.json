@@ -1,5 +1,5 @@
 {   
-    "id": "Rearrangement-v3",
+    "id": "RearrangementChallenge-v3",
     "max_episodes": 100,
     "max_episode_steps": 361,
     "env": {
