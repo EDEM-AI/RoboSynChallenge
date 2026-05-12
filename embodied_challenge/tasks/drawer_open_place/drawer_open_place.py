@@ -1,5 +1,5 @@
 import torch
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 from embodichain.lab.gym.envs import EmbodiedEnv, EmbodiedEnvCfg
 from embodichain.lab.gym.utils.registration import register_env
