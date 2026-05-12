@@ -26,18 +26,17 @@ from embodichain.lab.gym.envs.tasks.tableware.base_agent_env import BaseAgentEnv
 from embodichain.lab.gym.utils.registration import register_env
 from embodichain.utils import logger
 
-from .action_bank import OpenPanActionBank
+from .action_bank import OpenPanPickandPlaceActionBank
 
 __all__ = [
-    "OpenPanEnv",
-    "OpenPanAgentEnv",
     "OpenPanPickAndPlaceEnv",
+    "OpenPanPickAndPlaceTestEnv",
     "OpenPanPickAndPlaceAgentEnv",
 ]
 
 
 @register_env("OpenPanPickAndPlaceEnv-v1", max_episode_steps=600)
-class OpenPanEnv(EmbodiedEnv):
+class OpenPanPickAndPlaceEnv(EmbodiedEnv):
     def __init__(self, cfg: EmbodiedEnvCfg = None, **kwargs):
         super().__init__(cfg, **kwargs)
 
@@ -230,39 +229,53 @@ class OpenPanEnv(EmbodiedEnv):
 
         return actions
 
+    def _evaluate_task_state(self) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
+        pan = self.sim.get_rigid_object("pan")
+        lid = self.sim.get_rigid_object("lid")
+        carrot = self.sim.get_rigid_object("carrot")
+
+        pan_pose = pan.get_local_pose(to_matrix=True)
+        lid_pose = lid.get_local_pose(to_matrix=True)
+        carrot_pose = carrot.get_local_pose(to_matrix=True)
+
+        pan_xy = pan_pose[:, :2, 3]
+        lid_xy = lid_pose[:, :2, 3]
+        carrot_xy = carrot_pose[:, :2, 3]
+
+        carrot_pan_dist = torch.linalg.norm(carrot_xy - pan_xy, dim=-1)
+        lid_pan_dist = torch.linalg.norm(lid_xy - pan_xy, dim=-1)
+
+        pan_z = pan_pose[:, 2, 3]
+        lid_z = lid_pose[:, 2, 3]
+        carrot_z = carrot_pose[:, 2, 3]
+
+        carrot_in_pan_region = (carrot_pan_dist < 0.10) & (carrot_z > pan_z - 0.03)
+        lid_back_on_pan = (lid_pan_dist < 0.08) & (lid_z > pan_z)
+        success = carrot_in_pan_region & lid_back_on_pan
+        fail = torch.zeros_like(success, dtype=torch.bool)
+        metrics = {
+            "carrot_pan_dist": carrot_pan_dist,
+            "lid_pan_dist": lid_pan_dist,
+            "carrot_in_pan_region": carrot_in_pan_region,
+            "lid_back_on_pan": lid_back_on_pan,
+        }
+
+        return success, fail, metrics
+
+
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        try:
-            pan = self.sim.get_rigid_object("pan")
-            lid = self.sim.get_rigid_object("lid")
-            carrot = self.sim.get_rigid_object("carrot")
-            if carrot is None:
-                carrot = self.sim.get_rigid_object("apple")
+        success, _, _ = self._evaluate_task_state()
+        return success
 
-            pan_pose = pan.get_local_pose(to_matrix=True)
-            lid_pose = lid.get_local_pose(to_matrix=True)
-            carrot_pose = carrot.get_local_pose(to_matrix=True)
 
-            pan_xy = pan_pose[:, :2, 3]
-            lid_xy = lid_pose[:, :2, 3]
-            carrot_xy = carrot_pose[:, :2, 3]
-
-            carrot_pan_dist = torch.linalg.norm(carrot_xy - pan_xy, dim=-1)
-            lid_pan_dist = torch.linalg.norm(lid_xy - pan_xy, dim=-1)
-
-            pan_z = pan_pose[:, 2, 3]
-            lid_z = lid_pose[:, 2, 3]
-            carrot_z = carrot_pose[:, 2, 3]
-
-            carrot_in_pan_region = (carrot_pan_dist < 0.10) & (carrot_z > pan_z - 0.03)
-            lid_back_on_pan = (lid_pan_dist < 0.08) & (lid_z > pan_z)
-
-            return carrot_in_pan_region & lid_back_on_pan
-        except Exception:
-            return torch.zeros((self.num_envs,), dtype=torch.bool, device=self.device)
+@register_env("OpenPanPickAndPlaceTest-v1", max_episode_steps=600)
+class OpenPanPickAndPlaceTestEnv(OpenPanPickAndPlaceEnv):
+    def compute_task_state(self, **kwargs):
+        return self._evaluate_task_state()
 
 
 @register_env("OpenPanPickAndPlaceAgent-v1", max_episode_steps=600)
-class OpenPanAgentEnv(BaseAgentEnv, OpenPanEnv):
+class OpenPanPickAndPlaceAgentEnv(BaseAgentEnv, OpenPanPickAndPlaceEnv):
     def __init__(self, cfg: EmbodiedEnvCfg = None, **kwargs):
         super().__init__(cfg, **kwargs)
         super()._init_agents(**kwargs)
@@ -274,5 +287,6 @@ class OpenPanAgentEnv(BaseAgentEnv, OpenPanEnv):
 
 
 # Backward-compatible aliases matching legacy naming.
-OpenPanPickAndPlaceEnv = OpenPanEnv
-OpenPanPickAndPlaceAgentEnv = OpenPanAgentEnv
+OpenPanEnv = OpenPanPickAndPlaceEnv
+OpenPanTestEnv = OpenPanPickAndPlaceTestEnv
+OpenPanAgentEnv = OpenPanPickAndPlaceAgentEnv

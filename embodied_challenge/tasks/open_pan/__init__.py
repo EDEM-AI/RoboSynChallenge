@@ -14,6 +14,20 @@
 # limitations under the License.
 # ----------------------------------------------------------------------------
 
-from .open_pan import OpenPanEnv, OpenPanAgentEnv
+from .open_pan import (
+    OpenPanEnv,
+    OpenPanTestEnv,
+    OpenPanAgentEnv,
+    OpenPanPickAndPlaceEnv,
+    OpenPanPickAndPlaceTestEnv,
+    OpenPanPickAndPlaceAgentEnv,
+)
 
-__all__ = ["OpenPanEnv", "OpenPanAgentEnv"]
+__all__ = [
+    "OpenPanEnv",
+    "OpenPanTestEnv",
+    "OpenPanAgentEnv",
+    "OpenPanPickAndPlaceEnv",
+    "OpenPanPickAndPlaceTestEnv",
+    "OpenPanPickAndPlaceAgentEnv",
+]

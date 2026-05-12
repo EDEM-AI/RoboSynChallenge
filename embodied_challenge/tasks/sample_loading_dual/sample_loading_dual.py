@@ -15,7 +15,7 @@
 # ----------------------------------------------------------------------------
 
 import torch
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 from embodichain.lab.gym.envs import EmbodiedEnv, EmbodiedEnvCfg
 from embodichain.lab.gym.utils.registration import register_env
@@ -26,7 +26,11 @@ from .action_bank import (
     SampleLoadingDualActionBank,
 )
 
-__all__ = ["SampleLoadingDualEnv", "SampleLoadingDualAgentEnv"]
+__all__ = [
+    "SampleLoadingDualEnv",
+    "SampleLoadingDualTestEnv",
+    "SampleLoadingDualAgentEnv",
+]
 
 
 @register_env("SampleLoadingDual-v1", max_episode_steps=600)
@@ -123,7 +127,7 @@ class SampleLoadingDualEnv(EmbodiedEnv):
                         actions[:, 0, active_idx] = local_action_data[:, i]
         return actions
 
-    def is_task_success(self, **kwargs) -> torch.Tensor:
+    def _evaluate_task_state(self) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
         cube = self.sim.get_rigid_object("cube")
         rack = self.sim.get_rigid_object("rack")
 
@@ -135,8 +139,13 @@ class SampleLoadingDualEnv(EmbodiedEnv):
         cube_pos_xy = cube_final_xpos[:, :2, 3]
         rack_pos_xy = rack_final_xpos[:, :2, 3]
 
+        success = ~(cube_ret | rack_ret)
 
-        return (~cube_ret) & (~rack_ret)
+        return success, {}, {}
+
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        success, _, _ = self._evaluate_task_state()
+        return success
 
     def _is_fall(self, pose: torch.Tensor) -> torch.Tensor:
         # Extract z-axis from rotation matrix (last column, first 3 elements)
@@ -151,10 +160,15 @@ class SampleLoadingDualEnv(EmbodiedEnv):
 
         # Compute angle and check if fallen
         angle = torch.arccos(dot_product)
-        print(f"angle: {angle.item()}")
         return angle >= 0.1745 #10度
 
 
+
+
+@register_env("SampleLoadingDualTest-v1", max_episode_steps=600)
+class SampleLoadingDualTestEnv(SampleLoadingDualEnv):
+    def compute_task_state(self, **kwargs):
+        return super().compute_task_state(**kwargs)
 
 
 @register_env("SampleLoadingDualAgent-v1", max_episode_steps=600)

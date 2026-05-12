@@ -9,7 +9,7 @@ from embodichain.utils import logger
 
 from .action_bank import DrawerOpenPlaceActionBank
 
-__all__ = ["DrawerOpenPlaceEnv", "DrawerOpenPlaceAgentEnv"]
+__all__ = ["DrawerOpenPlaceEnv", "DrawerOpenPlaceTestEnv", "DrawerOpenPlaceAgentEnv"]
 
 
 @register_env("DrawerOpenPlace-v1", max_episode_steps=900)
@@ -83,7 +83,7 @@ class DrawerOpenPlaceEnv(EmbodiedEnv):
                     actions[:, 0, active_idx] = local_action_data[:, i]
         return actions
 
-    def is_task_success(self, **kwargs) -> torch.Tensor:
+    def _evaluate_task_state(self) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
         duck = self.sim.get_rigid_object("duck")
         drawer = self.sim.get_articulation("drawer")
 
@@ -99,7 +99,23 @@ class DrawerOpenPlaceEnv(EmbodiedEnv):
         dist_threshold = 0.1
         duck_near_drawer = duck_drawer_dist <= dist_threshold
 
-        return duck_near_drawer
+        success = duck_near_drawer
+        metrics = {
+            "duck_drawer_dist": duck_drawer_dist,
+        }
+        return success, {}, metrics
+
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        success, _, _ = self._evaluate_task_state()
+        return success
+
+
+@register_env("DrawerOpenPlaceTest-v1", max_episode_steps=900)
+class DrawerOpenPlaceTestEnv(DrawerOpenPlaceEnv):
+    def compute_task_state(self, **kwargs):
+    # It is difficult to determine whether a task has failed or succeeded based on conditions,
+    # and manual assessment is required.
+        return self._evaluate_task_state()
 
 
 @register_env("DrawerOpenPlaceAgent-v1", max_episode_steps=900)

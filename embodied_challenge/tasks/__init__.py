@@ -19,19 +19,23 @@ from .simple_motion import SimpleMotionEnv
 
 from .items_handover_place.items_handover_place import (
     ItemsHandoverPlaceEnv,
+    ItemsHandoverPlaceTestEnv,
 )
 from .sample_loading.sample_loading import (
     SampleLoadingEnv,
 )
 from .sample_loading_dual.sample_loading_dual import (
     SampleLoadingDualEnv,
+    SampleLoadingDualTestEnv,
 )
 from .manipulate_pipette.manipulate_pipette_one_beaker import (
     ManipulatePipetteOneBeakerEnv,
+    ManipulatePipetteOneBeakerTestEnv,
     ManipulatePipetteOneBeakerAgentEnv,
 )
 from .manipulate_pipette.manipulate_pipette_two_beaker import (
     ManipulatePipetteTwoBeakerEnv,
+    ManipulatePipetteTwoBeakerTestEnv,
     ManipulatePipetteTwoBeakerAgentEnv,
 )
 from .drawer_open_place.drawer_open_place import (
@@ -43,6 +47,7 @@ from .beaker_mixer.beaker_mixer import (
 )
 from .pour_water_dual.pour_water import (
     PourWaterDualEnv,
+    PourWaterDualTestEnv,
     PourWaterDualAgentEnv,
 )
 from .carry_basket.carry_basket import (
@@ -57,6 +62,7 @@ from .Beat_Hammer_Block.Beat_Hammer_Block import (
 
 from .open_pan.open_pan import (
     OpenPanPickAndPlaceEnv,
+    OpenPanPickAndPlaceTestEnv,
     OpenPanPickAndPlaceAgentEnv,
 )
 from .rearrangement.rearrangement_v3 import (

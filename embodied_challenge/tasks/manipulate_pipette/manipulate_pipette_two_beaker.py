@@ -26,7 +26,11 @@ from .action_bank_two_beaker import (
     ManipulatePipetteTwoBeakerActionBank,
 )
 
-__all__ = ["ManipulatePipetteTwoBeakerEnv", "ManipulatePipetteTwoBeakerAgentEnv"]
+__all__ = [
+    "ManipulatePipetteTwoBeakerEnv",
+    "ManipulatePipetteTwoBeakerTestEnv",
+    "ManipulatePipetteTwoBeakerAgentEnv",
+]
 
 
 @register_env("ManipulatePipetteTwoBeaker-v1", max_episode_steps=600)
@@ -135,7 +139,7 @@ class ManipulatePipetteTwoBeakerEnv(EmbodiedEnv):
         return success
 
     def compute_task_state(self, **kwargs):
-        success, fail= self._evaluate_task_state()
+        success, fail = self._evaluate_task_state()
         return super().compute_task_state(**kwargs)
 
     def _initialize_episode(self, env_ids=None, **kwargs) -> None:
@@ -210,6 +214,13 @@ class ManipulatePipetteTwoBeakerEnv(EmbodiedEnv):
         return limits[:, 0, 0]
 
 
+
+
+@register_env("ManipulatePipetteTwoBeakerTest-v1", max_episode_steps=600)
+class ManipulatePipetteTwoBeakerTestEnv(ManipulatePipetteTwoBeakerEnv):
+    def compute_task_state(self, **kwargs):
+        success, fail = self._evaluate_task_state()
+        return success, fail, {}
 
 
 @register_env("ManipulatePipetteTwoBeakerAgent-v1", max_episode_steps=600)

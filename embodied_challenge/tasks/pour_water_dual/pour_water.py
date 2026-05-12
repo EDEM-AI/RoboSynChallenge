@@ -15,7 +15,7 @@
 # ----------------------------------------------------------------------------
 
 import torch
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 from embodichain.lab.gym.envs import EmbodiedEnv, EmbodiedEnvCfg
 from embodichain.lab.gym.utils.registration import register_env
@@ -26,7 +26,7 @@ from .action_bank import (
     PourWaterDualActionBank,
 )
 
-__all__ = ["PourWaterDualEnv", "PourWaterDualAgentEnv"]
+__all__ = ["PourWaterDualEnv", "PourWaterDualTestEnv", "PourWaterDualAgentEnv"]
 
 
 @register_env("PourWaterDual", max_episode_steps=600)
@@ -122,17 +122,8 @@ class PourWaterDualEnv(EmbodiedEnv):
                         active_idx = global_to_active_idx[joint_id]
                         actions[:, 0, active_idx] = local_action_data[:, i]
         return actions
-    def is_task_success(self, **kwargs) -> torch.Tensor:
-        """Determine if the task is successfully completed. This is mainly used in the data generation process
-        of the imitation learning.
 
-        Args:
-            **kwargs: Additional arguments for task-specific success criteria.
-
-        Returns:
-            torch.Tensor: A boolean tensor indicating success for each environment in the batch.
-        """
-
+    def _evaluate_task_state(self) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
         bottle = self.sim.get_rigid_object("bottle")
         cup = self.sim.get_rigid_object("cup")
 
@@ -142,7 +133,14 @@ class PourWaterDualEnv(EmbodiedEnv):
         bottle_ret = self._is_fall_y(bottle_final_xpos)
         cup_ret = self._is_fall_z(cup_final_xpos)
 
-        return ~(bottle_ret | cup_ret)
+        success = ~(bottle_ret | cup_ret)
+        fail = bottle_ret | cup_ret
+
+        return success, fail, {}
+
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        success, _, _ = self._evaluate_task_state()
+        return success
 
     def _is_fall_y(self, pose: torch.Tensor) -> torch.Tensor:
         # Extract z-axis from rotation matrix (last column, first 3 elements)
@@ -172,6 +170,13 @@ class PourWaterDualEnv(EmbodiedEnv):
         # Compute angle and check if fallen
         angle = torch.arccos(dot_product)
         return angle >= torch.pi / 4
+
+
+@register_env("PourWaterDualTest", max_episode_steps=600)
+class PourWaterDualTestEnv(PourWaterDualEnv):
+    def compute_task_state(self, **kwargs):
+        _, fail, _ = self._evaluate_task_state()
+        return {}, fail, {}
 
 
 @register_env("PourWaterDualAgent", max_episode_steps=600)

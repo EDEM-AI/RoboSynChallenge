@@ -15,7 +15,7 @@
 # ----------------------------------------------------------------------------
 
 import torch
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 from embodichain.lab.gym.envs import EmbodiedEnv, EmbodiedEnvCfg
 from embodichain.lab.gym.utils.registration import register_env
@@ -25,7 +25,11 @@ from embodichain.lab.gym.envs.tasks.tableware.base_agent_env import BaseAgentEnv
 from .action_bank import (
     ItemsHandoverPlaceActionBank,
 )
-__all__ = ["ItemsHandoverPlaceEnv"]
+__all__ = [
+    "ItemsHandoverPlaceEnv",
+    "ItemsHandoverPlaceTestEnv",
+    "ItemsHandoverPlaceAgentEnv",
+]
 
 
 @register_env("ItemsHandoverPlace-v0", max_episode_steps=600)
@@ -122,15 +126,15 @@ class ItemsHandoverPlaceEnv(EmbodiedEnv):
                         actions[:, 0, active_idx] = local_action_data[:, i]
         return actions
 
-    def is_task_success(self, **kwargs) -> torch.Tensor:
-
+    def _evaluate_task_state(self) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
         pen = self.sim.get_rigid_object("pen")
         holder = self.sim.get_rigid_object("holder")
 
         pen_final_xpos = pen.get_local_pose(to_matrix=True)
         holder_final_xpos = holder.get_local_pose(to_matrix=True)
 
-        pen_ret = self._is_fall(pen_final_xpos)
+        pen_ret = self._is_fall_x(pen_final_xpos)
+        holder_ret = self._is_fall_y(holder_final_xpos)
         pen_pos_xy = pen_final_xpos[:, :2, 3]
         holder_pos_xy = holder_final_xpos[:, :2, 3]
 
@@ -139,9 +143,18 @@ class ItemsHandoverPlaceEnv(EmbodiedEnv):
         dist_threshold = 0.03
         pen_near_holder = dist <= dist_threshold
 
-        return (~pen_ret) & pen_near_holder
+        success = (~holder_ret) & pen_near_holder & (~pen_ret)
+        metrics = {
+            "pen_holder_dist": dist,
+            "holder_fall": holder_ret,
+        }
+        return success, holder_ret, metrics
 
-    def _is_fall(self, pose: torch.Tensor) -> torch.Tensor:
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        success, _, _ = self._evaluate_task_state()
+        return success
+
+    def _is_fall_x(self, pose: torch.Tensor) -> torch.Tensor:
         # Extract x-axis from rotation matrix (last column, first 3 elements)
         pose_rz = pose[:, :3, 0]
         world_z_axis = torch.tensor([0, 0, 1], dtype=pose.dtype, device=pose.device)
@@ -155,6 +168,26 @@ class ItemsHandoverPlaceEnv(EmbodiedEnv):
         # Compute angle and check if fallen
         angle = torch.arccos(dot_product)
         return angle >= 1.309 #75度
+
+    def _is_fall_y(self, pose: torch.Tensor) -> torch.Tensor:
+        # Extract x-axis from rotation matrix (last column, first 3 elements)
+        pose_rz = pose[:, :3, 1]
+        world_z_axis = torch.tensor([0, 0, 1], dtype=pose.dtype, device=pose.device)
+
+        # Compute dot product for each batch element
+        dot_product = torch.sum(pose_rz * world_z_axis, dim=-1)  # Shape: (batch_size,)
+
+        # Clamp to avoid numerical issues with arccos
+        dot_product = torch.clamp(dot_product, -1.0, 1.0)
+
+        # Compute angle and check if fallen
+        angle = torch.arccos(dot_product)
+        return angle >= 1.309 #75度
+
+@register_env("ItemsHandoverPlaceTest-v0", max_episode_steps=600)
+class ItemsHandoverPlaceTestEnv(ItemsHandoverPlaceEnv):
+    def compute_task_state(self, **kwargs):
+        return self._evaluate_task_state()
 
 
 @register_env("ItemsHandoverPlaceAgent-v0", max_episode_steps=600)

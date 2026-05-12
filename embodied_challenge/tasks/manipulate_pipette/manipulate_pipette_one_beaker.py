@@ -26,7 +26,11 @@ from .action_bank_one_beaker import (
     ManipulatePipetteOneBeakerActionBank,
 )
 
-__all__ = ["ManipulatePipetteOneBeakerEnv", "ManipulatePipetteOneBeakerAgentEnv"]
+__all__ = [
+    "ManipulatePipetteOneBeakerEnv",
+    "ManipulatePipetteOneBeakerTestEnv",
+    "ManipulatePipetteOneBeakerAgentEnv",
+]
 
 
 @register_env("ManipulatePipetteOneBeaker-v1", max_episode_steps=600)
@@ -177,9 +181,7 @@ class ManipulatePipetteOneBeakerEnv(EmbodiedEnv):
 
         pipette_pressed_twice = self._pipette_min_reach_count >= 1
         success = (~failed) & pipette_pressed_twice
-        # fail = failed
-
-        return success, {}
+        return success, beaker1_fall
 
     def _is_fall_z(self, pose: torch.Tensor) -> torch.Tensor:
         pose_rz = pose[:, :3, 2]
@@ -216,6 +218,13 @@ class ManipulatePipetteOneBeakerEnv(EmbodiedEnv):
         return limits[:, 0, 0]
 
 
+
+
+@register_env("ManipulatePipetteOneBeakerTest-v1", max_episode_steps=600)
+class ManipulatePipetteOneBeakerTestEnv(ManipulatePipetteOneBeakerEnv):
+    def compute_task_state(self, **kwargs):
+        success, fail = self._evaluate_task_state()
+        return success, fail, {}
 
 
 @register_env("ManipulatePipetteOneBeakerAgent-v1", max_episode_steps=600)

@@ -44,10 +44,10 @@ from embodichain.lab.sim.planners import (
 )
 from embodichain.utils import logger
 
-__all__ = ["OpenPanActionBank"]
+__all__ = ["OpenPanPickandPlaceActionBank"]
 
 
-class OpenPanActionBank(ActionBank):
+class OpenPanPickandPlaceActionBank(ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params

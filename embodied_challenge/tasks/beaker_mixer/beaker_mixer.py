@@ -319,6 +319,30 @@ class BeakerMixerEnv(EmbodiedEnv):
         angle = torch.arccos(dot_product)
         return angle >= torch.pi / 3
 
+@register_env("BeakerMixerTest-v0", max_episode_steps=600)
+class BeakerMixerTestEnv(BeakerMixerEnv):
+    def compute_task_state(self, **kwargs):
+        beaker = self.sim.get_rigid_object("beaker")
+        mixer = self.sim.get_rigid_object("beaker_mixer")
+
+        self._update_button_contact_history()
+
+        beaker_pose = beaker.get_local_pose(to_matrix=True)
+        mixer_pose = mixer.get_local_pose(to_matrix=True)
+        # self._visualize_button_axis(mixer_pose)
+
+        beaker_fall = self._is_fall(beaker_pose)
+        beaker_pos_xy = beaker_pose[:, :2, 3]
+        beaker_mixer_pos_xy = mixer_pose[:, :2, 3]
+        success = torch.zeros_like(beaker_fall, dtype=torch.bool)
+
+        # Success requires the beaker to stay near the mixer in XY plane.
+        beaker_mixer_dist = torch.linalg.norm(beaker_pos_xy - beaker_mixer_pos_xy, dim=-1)
+        dist_threshold = 0.08
+        beaker_near_mixer = beaker_mixer_dist <= dist_threshold
+        success = (~beaker_fall) & beaker_near_mixer & self._button_contact_happened
+        return success, beaker_fall, {}
+
 
 @register_env("BeakerMixerTest-v0", max_episode_steps=600)
 class BeakerMixerTestEnv(BeakerMixerEnv):
