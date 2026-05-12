@@ -9,7 +9,7 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "fork"},
-                    "position_range": [[0.4, 0.1, 0.83], [0.65, 0.3, 0.83]],
+                    "position_range": [[0.4, 0.15, 0.83], [0.65, 0.3, 0.83]],
                     "rotation_range": [[0, 0, -45], [0, 0, 45]],
                     "relative_position": false,                
                     "relative_rotation": false               
@@ -20,7 +20,7 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "spoon"},
-                    "position_range": [[0.4, -0.3, 0.83], [0.65, -0.1, 0.83]],
+                    "position_range": [[0.4, -0.3, 0.83], [0.65, -0.15, 0.83]],
                     "rotation_range": [[0, 0, -45], [0, 0, 45]],
                     "relative_position": false,
                     "relative_rotation": false

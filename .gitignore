@@ -210,3 +210,5 @@ __marimo__/
 
 *.mp4
 lerobot_dataset/
+
+**/results/

@@ -377,7 +377,7 @@
       "uid": "milk",
       "shape": {
         "shape_type": "Mesh",
-        "fpath": "/root/Embodied_Challenge/assets/MilkBox/source/Milk_Packaging.glb",
+        "fpath": "/root/workspace/Embodied_Challenge/assets/MilkBox/source/Milk_Packaging.glb",
         "compute_uv": true
       },
             "attrs" : {
@@ -400,7 +400,7 @@
       "uid": "basket",
       "shape": {
         "shape_type": "Mesh",
-        "fpath": "/root/Embodied_Challenge/assets/Basket/kago3_deform.obj",
+        "fpath": "/root/workspace/Embodied_Challenge/assets/Basket/kago3_deform.obj",
         "compute_uv": true
       },
             "attrs" : {
