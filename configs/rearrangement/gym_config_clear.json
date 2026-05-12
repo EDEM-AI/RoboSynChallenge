@@ -335,7 +335,8 @@
             "shape": {
                 "shape_type": "Mesh",
                 "fpath": "TableWare/tableware/plate/3_center.ply",
-                "compute_uv": true
+                "compute_uv": true,
+                "visual_material": {"uid": "plate_warm_gray_mat", "base_color": [0.70, 0.69, 0.67, 1.0], "metallic": 0.0, "roughness": 0.70}
             },
             "body_scale": [0.001, 0.001, 0.001],
             "init_pos": [0.5, 0.0, 1.0],
@@ -346,7 +347,8 @@
             "shape": {
                 "shape_type": "Mesh",
                 "fpath": "TableWare/tableware/fork/standard_fork_scale.ply",
-                "compute_uv": true
+                "compute_uv": true,
+                "visual_material": {"uid": "fork_silver_metal_mat", "base_color": [0.52, 0.52, 0.51, 1.0], "metallic": 1.0, "roughness": 0.38}
             },
             "body_scale": [1.0, 1.0, 1.0],
             "init_pos": [0.5, 0.21, 1.0],
@@ -364,7 +366,8 @@
             "shape": {
                 "shape_type": "Mesh",
                 "fpath": "TableWare/tableware/spoon/standard_spoon_a_rescale.ply",
-                "compute_uv": true
+                "compute_uv": true,
+                "visual_material": {"uid": "spoon_silver_metal_mat", "base_color": [0.52, 0.52, 0.51, 1.0], "metallic": 1.0, "roughness": 0.38}
             },
             "body_scale": [1.0, 1.0, 1.0],
             "init_pos": [0.5, -0.21, 1.0],
