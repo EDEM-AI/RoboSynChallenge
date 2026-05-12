@@ -60,7 +60,7 @@ from .open_pan.open_pan import (
     OpenPanPickAndPlaceAgentEnv,
 )
 from .rearrangement.rearrangement_v3 import (
-    RearrangementEnv3,
+    RearrangementEnv3Challenge,
 )
 from .Articulated_object_operation.Articulated_object_operation import (
     ArticulatedobjectoperationEnv,
