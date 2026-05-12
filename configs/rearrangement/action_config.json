@@ -497,6 +497,41 @@
                         ]
                     }
                 }
+            },
+            {
+                "fork_after_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "fork_place_qpos",
+                                "dst_key": "fork_after_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_qpos", 
+                                                "kwargs": {
+                                                    "offset_value": -0.35,
+                                                    "joint_list_offset": [4]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_exceed",
+                                        "kwargs": {
+                                            "robot": "env.robot",
+                                            "control_part": "left_arm"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
             }
         ],
         "right_arm": [
@@ -942,6 +977,41 @@
                 }
             },
             {
+                "spoon_after_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "spoon_place_qpos",
+                                "dst_key": "spoon_after_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "no_validation",
+                                        "kwargs": {},
+                                        "pass_processes": [
+                                            {
+                                                "name": "get_offset_qpos", 
+                                                "kwargs": {
+                                                    "offset_value": -0.35,
+                                                    "joint_list_offset": [4]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "is_qpos_exceed",
+                                        "kwargs": {
+                                            "robot": "env.robot",
+                                            "control_part": "right_arm"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
                 "compute_unoffset_for_exp":{
                     "name": "compute_unoffset_for_exp",
                     "kwargs": {
@@ -1085,31 +1155,16 @@
                 }
             },
             {
-                "right_place_down_back_to_place": {
+                "right_place_down_back_to_after": {
                     "src": "spoon_place_down_qpos",
-                    "sink": "spoon_place_qpos",
+                    "sink": "spoon_after_qpos",
                     "duration": 24,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
                             "spoon_place_down_qpos",
-                            "spoon_place_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "right_place_back_to_init": {
-                    "src": "spoon_place_qpos",
-                    "sink": "right_arm_init_qpos",
-                    "duration": 24,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "right_arm",
-                        "keypose_names": [
-                            "spoon_place_qpos",
-                            "right_arm_init_qpos"
+                            "spoon_after_qpos"
                         ]
                     }
                 }
@@ -1207,31 +1262,16 @@
                 }
             },
             {
-                "left_place_down_back_to_place": {
+                "left_place_down_back_to_after": {
                     "src": "fork_place_down_qpos",
-                    "sink": "fork_place_qpos",
+                    "sink": "fork_after_qpos",
                     "duration": 24,
                     "name": "plan_trajectory",
                     "kwargs": {
                         "agent_uid": "left_arm",
                         "keypose_names": [
                             "fork_place_down_qpos",
-                            "fork_place_qpos"
-                        ]
-                    }
-                }
-            },
-            {
-                "left_place_back_to_init": {
-                    "src": "fork_place_qpos",
-                    "sink": "left_arm_init_qpos",
-                    "duration": 24,
-                    "name": "plan_trajectory",
-                    "kwargs": {
-                        "agent_uid": "left_arm",
-                        "keypose_names": [
-                            "fork_place_qpos",
-                            "left_arm_init_qpos"
+                            "fork_after_qpos"
                         ]
                     }
                 }
@@ -1341,7 +1381,7 @@
                 "left_place_to_place_down"
             ]
         },
-        "left_place_down_back_to_place":{
+        "left_place_down_back_to_after":{
             "depend_tasks": [
                 "lopen0"
             ]
@@ -1361,7 +1401,7 @@
                 "right_place_to_place_down"
             ]
         },
-        "right_place_down_back_to_place":{
+        "right_place_down_back_to_after":{
             "depend_tasks": [
                 "ropen0"
             ]

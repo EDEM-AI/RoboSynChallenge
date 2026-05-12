@@ -137,7 +137,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_datasetrearrange_table",
+                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/rearrangement",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -149,7 +149,7 @@
                     },
                     "extra": {
                         "scene_type": "Sim",
-                        "task_description": "Pick the fork and the spoon, place them next to the plate.",
+                        "task_description": "rearrangement",
                         "data_type": "sim"
                     },
                     "use_videos": true
