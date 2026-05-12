@@ -27,11 +27,11 @@ from .action_bank import (
 )
 from embodichain.utils import configclass, logger
 
-__all__ = ["RearrangementEnv3"]
+__all__ = ["RearrangementEnv3Challenge"]
 
 
-@register_env("Rearrangement-v3")
-class RearrangementEnv3(EmbodiedEnv):
+@register_env("RearrangementChallenge-v3")
+class RearrangementEnv3Challenge(EmbodiedEnv):
     def __init__(self, cfg: EmbodiedEnvCfg = None, **kwargs):
         super().__init__(cfg, **kwargs)
 
@@ -158,36 +158,20 @@ class RearrangementEnv3(EmbodiedEnv):
         plate = self.sim.get_rigid_object("plate")
         plate_pose = plate.get_local_pose(to_matrix=True)
 
-        if "spoon_place_pose" in self.affordance_datas and "fork_place_pose" in self.affordance_datas:
-            # TODO: now only for 1 env
-            (
-                spoon_place_target_x,
-                spoon_place_target_y,
-                spoon_place_target_z,
-            ) = self.affordance_datas["spoon_place_pose"][:3, 3]
-            (
-                fork_place_target_x,
-                fork_place_target_y,
-                fork_place_target_z,
-            ) = self.affordance_datas["fork_place_pose"][:3, 3]
+        # Compute target positions from plate pose
+        spoon_place_target_y = plate_pose[0, 1, 3] - 0.16
+        fork_place_target_y = plate_pose[0, 1, 3] + 0.16
 
-            spoon_pose = spoon.get_local_pose(to_matrix=True)
-            spoon_x, spoon_y, spoon_z = spoon_pose[0, :3, 3]
+        spoon_pose = spoon.get_local_pose(to_matrix=True)
+        spoon_y = spoon_pose[0, 1, 3]
 
-            fork_pose = fork.get_local_pose(to_matrix=True)
-            fork_x, fork_y, fork_z = fork_pose[0, :3, 3]
+        fork_pose = fork.get_local_pose(to_matrix=True)
+        fork_y = fork_pose[0, 1, 3]
 
-            tolerance = self.metadata.get("success_params", {}).get("tolerance", 0.02)
+        tolerance = self.metadata.get("success_params", {}).get("tolerance", 0.02)
 
-            # spoon and fork should with the x y range of tolerance related to plate.
-            return ~(
-                abs(spoon_x - spoon_place_target_x) > tolerance
-                or abs(spoon_y - spoon_place_target_y) > tolerance
-                or abs(fork_x - fork_place_target_x) > tolerance
-                or abs(fork_y - fork_place_target_y) > tolerance
-            )
-        else:
-            logger.log_warning(
-                "No affordance data found for spoon and fork place poses."
-            )
-            return False
+        # spoon and fork should with the y range of tolerance related to plate.
+        return (
+            abs(spoon_y - spoon_place_target_y) <= tolerance
+            and abs(fork_y - fork_place_target_y) <= tolerance
+        )
