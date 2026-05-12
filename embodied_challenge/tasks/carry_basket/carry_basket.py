@@ -52,6 +52,8 @@ class CarryBasketEnvV2(EmbodiedEnv):
         self.agent_qpos_flip_ids = [3, 4]
         self.agent_qpos_flip_threshold = 3.455751918948773
         self.agent_qpos_flip_mode = "delta"
+        # Keep old pose prior optional so v2 configs can use raw registered poses.
+        self.use_legacy_pose_prior = bool(kwargs.get("use_legacy_pose_prior", False))
 
     @staticmethod
     def _to_matrix4(data: np.ndarray | torch.Tensor | list | tuple) -> np.ndarray:
@@ -101,8 +103,8 @@ class CarryBasketEnvV2(EmbodiedEnv):
                     return self._to_matrix4(aff[key]).astype(np.float32)
             return None
 
-        milk_pose = _first_existing("milk_pose_orig", "milk_pose")
-        basket_pose = _first_existing("basket_pose_orig", "basket_pose")
+        milk_pose = _first_existing("milk_pose", "milk_pose_orig")
+        basket_pose = _first_existing("basket_pose", "basket_pose_orig")
         milk_grasp_pose_obj = _first_existing(
             "milk_grasp_pose_object",
             "milk_milk_grasp_pose_object",
@@ -121,9 +123,10 @@ class CarryBasketEnvV2(EmbodiedEnv):
         if basket_grasp_pose_obj is not None:
             self.basket_grasp_pose_object = basket_grasp_pose_obj
 
-        # Keep action config aligned with legacy carry_basket pose conventions.
-        self.milk_pose_orig = self._apply_legacy_pose_prior(self.milk_pose_orig, "milk")
-        self.basket_pose_orig = self._apply_legacy_pose_prior(self.basket_pose_orig, "basket")
+        if self.use_legacy_pose_prior:
+            # Keep action config aligned with legacy carry_basket pose conventions.
+            self.milk_pose_orig = self._apply_legacy_pose_prior(self.milk_pose_orig, "milk")
+            self.basket_pose_orig = self._apply_legacy_pose_prior(self.basket_pose_orig, "basket")
 
         self.milk_xy_random_center = np.asarray(self.milk_pose_orig[:2, 3], dtype=np.float32)
         self.basket_xy_random_center = np.asarray(self.basket_pose_orig[:2, 3], dtype=np.float32)
@@ -267,9 +270,18 @@ class CarryBasketEnvV2(EmbodiedEnv):
                         actions[:, 0, active_idx] = local_action_data[:, i]
 
         return actions
-
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        return torch.ones((self.num_envs,), dtype=torch.bool, device=self.device)
+        try:
+            basket = self.sim.get_rigid_object("basket")
+            milk = self.sim.get_rigid_object("milk")
+            basket_pose = basket.get_local_pose(to_matrix=True)
+            milk_pose = milk.get_local_pose(to_matrix=True)
+            basket_xy = basket_pose[:, :2, 3]
+            milk_xy = milk_pose[:, :2, 3]
+            dist = torch.linalg.norm(milk_xy - basket_xy, dim=-1)
+            return dist < 0.12
+        except Exception:
+            return torch.zeros((self.num_envs,), dtype=torch.bool, device=self.device)
 
 
 @register_env("CarryBasketAgent-v2", max_episode_steps=600)
