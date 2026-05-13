@@ -83,6 +83,61 @@ class DrawerOpenPlaceEnv(EmbodiedEnv):
                     actions[:, 0, active_idx] = local_action_data[:, i]
         return actions
 
+    def _normalize_eef_action_for_dataset(self, action: torch.Tensor) -> torch.Tensor:
+        normalized_action = action.clone()
+        global_to_active_idx = {
+            joint_id: active_idx
+            for active_idx, joint_id in enumerate(self.active_joint_ids)
+        }
+
+        active_indices = []
+        robot_joint_ids = []
+        for control_part in ("left_eef", "right_eef"):
+            for joint_id in self.robot.get_joint_ids(
+                name=control_part, remove_mimic=True
+            ):
+                if joint_id in global_to_active_idx:
+                    active_indices.append(global_to_active_idx[joint_id])
+                    robot_joint_ids.append(joint_id)
+
+        if not active_indices:
+            return normalized_action
+
+        active_indices_tensor = torch.as_tensor(
+            active_indices, device=normalized_action.device, dtype=torch.long
+        )
+        robot_joint_ids_tensor = torch.as_tensor(
+            robot_joint_ids, device=self.device, dtype=torch.long
+        )
+        limits = self.robot.body_data.qpos_limits[
+            0, robot_joint_ids_tensor, :
+        ].to(device=normalized_action.device, dtype=normalized_action.dtype)
+        low = limits[:, 0]
+        high = limits[:, 1]
+        span = torch.clamp(
+            high - low, min=torch.finfo(normalized_action.dtype).eps
+        )
+
+        normalized_action[..., active_indices_tensor] = (
+            normalized_action[..., active_indices_tensor] - low
+        ) / span
+        normalized_action[..., active_indices_tensor] = normalized_action[
+            ..., active_indices_tensor
+        ].clamp(0.0, 1.0)
+        return normalized_action
+
+    def _postprocess_action(self, action):
+        action = super()._postprocess_action(action)
+        if isinstance(action, torch.Tensor):
+            return self._normalize_eef_action_for_dataset(action)
+        if hasattr(action, "keys") and "qpos" in action.keys():
+            processed_action = action.clone()
+            processed_action["qpos"] = self._normalize_eef_action_for_dataset(
+                processed_action["qpos"]
+            )
+            return processed_action
+        return action
+
     def _evaluate_task_state(self) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
         duck = self.sim.get_rigid_object("duck")
         drawer = self.sim.get_articulation("drawer")
