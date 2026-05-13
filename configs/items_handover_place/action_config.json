@@ -92,7 +92,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": -0.0129,
+                                                    "offset_value": -0.016,
                                                     "direction": "z",
                                                     "mode": "extrinsic"
                                                 }
