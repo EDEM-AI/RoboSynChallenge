@@ -187,8 +187,12 @@ class ItemsHandoverPlaceEnv(EmbodiedEnv):
 @register_env("ItemsHandoverPlaceTest-v0", max_episode_steps=600)
 class ItemsHandoverPlaceTestEnv(ItemsHandoverPlaceEnv):
     def compute_task_state(self, **kwargs):
-        return self._evaluate_task_state()
+        success, fail, _ = self._evaluate_task_state()
+        return torch.zeros_like(fail, dtype=torch.bool), fail, None
 
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        success, _, _ = self._evaluate_task_state()
+        return torch.ones_like(success, dtype=torch.bool)
 
 @register_env("ItemsHandoverPlaceAgent-v0", max_episode_steps=600)
 class ItemsHandoverPlaceAgentEnv(BaseAgentEnv, ItemsHandoverPlaceEnv):

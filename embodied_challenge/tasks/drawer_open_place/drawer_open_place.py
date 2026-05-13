@@ -170,7 +170,10 @@ class DrawerOpenPlaceTestEnv(DrawerOpenPlaceEnv):
     def compute_task_state(self, **kwargs):
     # It is difficult to determine whether a task has failed or succeeded based on conditions,
     # and manual assessment is required.
-        return self._evaluate_task_state()
+        return torch.zeros(self.num_envs, dtype=torch.bool), torch.zeros(self.num_envs, dtype=torch.bool), None
+    def is_task_success(self, **kwargs):
+        success, _, _ = self._evaluate_task_state()
+        return torch.ones_like(success, dtype=torch.bool)
 
 
 @register_env("DrawerOpenPlaceAgent-v1", max_episode_steps=900)

@@ -224,8 +224,11 @@ class ManipulatePipetteOneBeakerEnv(EmbodiedEnv):
 class ManipulatePipetteOneBeakerTestEnv(ManipulatePipetteOneBeakerEnv):
     def compute_task_state(self, **kwargs):
         success, fail = self._evaluate_task_state()
-        return success, fail, {}
+        return success, fail, None
 
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        success, _ = self._evaluate_task_state()
+        return torch.ones_like(success, dtype=torch.bool)
 
 @register_env("ManipulatePipetteOneBeakerAgent-v1", max_episode_steps=600)
 class ManipulatePipetteOneBeakerAgentEnv(BaseAgentEnv, ManipulatePipetteOneBeakerEnv):

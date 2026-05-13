@@ -174,7 +174,9 @@ class BeatHammerBlockTestEnv(BeatHammerBlockEnv):
         self._button_pressed |= success
         fail = torch.zeros_like(success, dtype=torch.bool)
 
-        return success, fail, {}
+        return success, fail, None
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        return torch.ones_like(self._button_pressed, dtype=torch.bool)
 
 @register_env("BeatHammerBlockAgent-v3", max_episode_steps=600)
 class BeatHammerBlockAgentEnv(BaseAgentEnv, BeatHammerBlockEnv):

@@ -286,7 +286,9 @@ class CarryBasketTestEnvV2(CarryBasketEnvV2):
     def compute_task_state(self, **kwargs):
     # It is difficult to determine whether a task has failed or succeeded based on conditions,
     # and manual assessment is required.
-        return {}, {}, {}
+        return torch.zeros(self.num_envs, dtype=torch.bool), torch.zeros(self.num_envs, dtype=torch.bool), None
+    def is_task_success(self, **kwargs):
+        return torch.ones(self.num_envs, dtype=torch.bool)
 
 @register_env("CarryBasketAgent-v2", max_episode_steps=600)
 class CarryBasketAgentEnvV2(BaseAgentEnv, CarryBasketEnvV2):

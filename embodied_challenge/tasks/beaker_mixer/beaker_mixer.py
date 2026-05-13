@@ -341,7 +341,10 @@ class BeakerMixerTestEnv(BeakerMixerEnv):
         dist_threshold = 0.08
         beaker_near_mixer = beaker_mixer_dist <= dist_threshold
         success = (~beaker_fall) & beaker_near_mixer & self._button_contact_happened
-        return success, beaker_fall, {}
+        return success, beaker_fall, None
+
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        return torch.ones(self.num_envs, dtype=torch.bool)
 
 @register_env("BeakerMixerAgent-v0", max_episode_steps=600)
 class BeakerMixerAgentEnv(BaseAgentEnv, BeakerMixerEnv):

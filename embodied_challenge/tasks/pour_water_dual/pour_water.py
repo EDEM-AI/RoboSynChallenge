@@ -134,7 +134,7 @@ class PourWaterDualEnv(EmbodiedEnv):
         cup_ret = self._is_fall_z(cup_final_xpos)
 
         success = ~(bottle_ret | cup_ret)
-        fail = bottle_ret | cup_ret
+        fail = cup_ret
 
         return success, fail, {}
 
@@ -176,8 +176,11 @@ class PourWaterDualEnv(EmbodiedEnv):
 class PourWaterDualTestEnv(PourWaterDualEnv):
     def compute_task_state(self, **kwargs):
         _, fail, _ = self._evaluate_task_state()
-        return {}, fail, {}
+        return torch.zeros(self.num_envs, dtype=torch.bool), fail, None
 
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        success, _, _ = self._evaluate_task_state()
+        return torch.ones_like(success, dtype=torch.bool)
 
 @register_env("PourWaterDualAgent", max_episode_steps=600)
 class PourWaterDualAgentEnv(BaseAgentEnv, PourWaterDualEnv):

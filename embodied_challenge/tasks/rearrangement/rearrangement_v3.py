@@ -152,52 +152,39 @@ class RearrangementEnv3Challenge(EmbodiedEnv):
         )
         return ret.all().item(), qpos.squeeze(0).cpu().numpy()
 
-    def is_task_success(self, *args, **kwargs) -> bool:
+    def is_task_success(self, *args, **kwargs) -> torch.Tensor:
         fork = self.sim.get_rigid_object("fork")
         spoon = self.sim.get_rigid_object("spoon")
         plate = self.sim.get_rigid_object("plate")
         plate_pose = plate.get_local_pose(to_matrix=True)
 
         # Compute target positions from plate pose
-        spoon_place_target_y = plate_pose[0, 1, 3] - 0.16
-        fork_place_target_y = plate_pose[0, 1, 3] + 0.16
+        spoon_place_target_y = plate_pose[:, 1, 3] - 0.16
+        fork_place_target_y = plate_pose[:, 1, 3] + 0.16
 
         spoon_pose = spoon.get_local_pose(to_matrix=True)
-        spoon_y = spoon_pose[0, 1, 3]
+        spoon_y = spoon_pose[:, 1, 3]
 
         fork_pose = fork.get_local_pose(to_matrix=True)
-        fork_y = fork_pose[0, 1, 3]
+        fork_y = fork_pose[:, 1, 3]
 
         tolerance = self.metadata.get("success_params", {}).get("tolerance", 0.02)
 
         # spoon and fork should with the y range of tolerance related to plate.
         return (
-            abs(spoon_y - spoon_place_target_y) <= tolerance
-            and abs(fork_y - fork_place_target_y) <= tolerance
+            (torch.abs(spoon_y - spoon_place_target_y) <= tolerance)
+            & (torch.abs(fork_y - fork_place_target_y) <= tolerance)
         )
 
 @register_env("RearrangementChallengeTest-v3", max_episode_steps=600)
 class RearrangementTestEnv(RearrangementEnv3Challenge):
     def compute_task_state(self, **kwargs):
-        fork = self.sim.get_rigid_object("fork")
-        spoon = self.sim.get_rigid_object("spoon")
-        plate = self.sim.get_rigid_object("plate")
-        plate_pose = plate.get_local_pose(to_matrix=True)
-
-        # Compute target positions from plate pose
-        spoon_place_target_y = plate_pose[0, 1, 3] - 0.16
-        fork_place_target_y = plate_pose[0, 1, 3] + 0.16
-
-        spoon_pose = spoon.get_local_pose(to_matrix=True)
-        spoon_y = spoon_pose[0, 1, 3]
-
-        fork_pose = fork.get_local_pose(to_matrix=True)
-        fork_y = fork_pose[0, 1, 3]
-
-        tolerance = self.metadata.get("success_params", {}).get("tolerance", 0.02)
-
-        # spoon and fork should with the y range of tolerance related to plate.
+        success = super().is_task_success(**kwargs)
         return (
-            abs(spoon_y - spoon_place_target_y) <= tolerance
-            and abs(fork_y - fork_place_target_y) <= tolerance
-        ), {}, {}
+            torch.zeros_like(success, dtype=torch.bool),
+            torch.zeros_like(success, dtype=torch.bool),
+            {},
+        )
+
+    def is_task_success(self, *args, **kwargs) -> torch.Tensor:
+        return torch.ones(self.num_envs, device=self.device, dtype=torch.bool)

@@ -252,7 +252,6 @@ class OpenPanPickAndPlaceEnv(EmbodiedEnv):
         carrot_in_pan_region = (carrot_pan_dist < 0.10) & (carrot_z > pan_z - 0.03)
         lid_back_on_pan = (lid_pan_dist < 0.08) & (lid_z > pan_z)
         success = carrot_in_pan_region & lid_back_on_pan
-        fail = torch.zeros_like(success, dtype=torch.bool)
         metrics = {
             "carrot_pan_dist": carrot_pan_dist,
             "lid_pan_dist": lid_pan_dist,
@@ -260,7 +259,7 @@ class OpenPanPickAndPlaceEnv(EmbodiedEnv):
             "lid_back_on_pan": lid_back_on_pan,
         }
 
-        return success, fail, metrics
+        return success, None, metrics
 
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
@@ -271,7 +270,11 @@ class OpenPanPickAndPlaceEnv(EmbodiedEnv):
 @register_env("OpenPanPickAndPlaceTest-v1", max_episode_steps=600)
 class OpenPanPickAndPlaceTestEnv(OpenPanPickAndPlaceEnv):
     def compute_task_state(self, **kwargs):
-        return self._evaluate_task_state()
+        return None, None, None
+
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        success, _, _ = self._evaluate_task_state()
+        return torch.ones_like(success, dtype=torch.bool)
 
 
 @register_env("OpenPanPickAndPlaceAgent-v1", max_episode_steps=600)

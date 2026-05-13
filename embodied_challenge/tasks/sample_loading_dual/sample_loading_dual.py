@@ -163,13 +163,14 @@ class SampleLoadingDualEnv(EmbodiedEnv):
         return angle >= 0.1745 #10度
 
 
-
-
 @register_env("SampleLoadingDualTest-v1", max_episode_steps=600)
 class SampleLoadingDualTestEnv(SampleLoadingDualEnv):
     def compute_task_state(self, **kwargs):
-        return super().compute_task_state(**kwargs)
+        success, _, _ =self._evaluate_task_state()
+        return success, torch.zeros(self.num_envs, dtype=torch.bool), None
 
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        return torch.ones(self.num_envs, dtype=torch.bool)
 
 @register_env("SampleLoadingDualAgent-v1", max_episode_steps=600)
 class SampleLoadingDualAgentEnv(BaseAgentEnv, SampleLoadingDualEnv):
