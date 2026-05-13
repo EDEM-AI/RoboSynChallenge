@@ -67,6 +67,7 @@ from .open_pan.open_pan import (
 )
 from .rearrangement.rearrangement_v3 import (
     RearrangementEnv3Challenge,
+    RearrangementTestEnv
 )
 from .Articulated_object_operation.Articulated_object_operation import (
     ArticulatedobjectoperationEnv,

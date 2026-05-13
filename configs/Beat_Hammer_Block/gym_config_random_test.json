@@ -1,7 +1,7 @@
 {
-    "id": "ItemsHandoverPlaceTest-v0",
+    "id": "BeatHammerBlockTest-v3",
     "max_episodes": 100,
-    "max_episode_steps": 300,
+    "max_episode_steps": 361,
     "env": {
         "events": {
             "random_light": {
@@ -87,46 +87,24 @@
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            "random_pen_material": {
+            "random_button_material": {
                 "func": "randomize_visual_material",
                 "mode": "interval",
                 "interval_step": 10,
                 "params": {
-                    "entity_cfg": {"uid": "pen"},
+                    "entity_cfg": {"uid": "button", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
                     "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            "random_holder_material": {
-                "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
-                "params": {
-                    "entity_cfg": {"uid": "holder"},
-                    "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/Embodied_Challenge/assets/background_texture/100",
-                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
-                }
-            },
-            "random_holder_pose": {
-                "func": "randomize_rigid_object_pose",
+            "init_button_pose": {
+                "func": "randomize_articulation_root_pose",
                 "mode": "reset",
                 "params": {
-                    "entity_cfg": {"uid": "holder"},
-                    "position_range": [[0.5, 0.0, 0.884], [0.7, 0.25, 0.884]],
+                    "entity_cfg": {"uid": "button"},
+                    "position_range": [[0.4, -0.3, 0.83], [0.85, 0.3, 0.83]],
                     "relative_position": false
-                }
-            },
-            "random_pen_pose": {
-                "func": "randomize_rigid_object_pose",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "pen"},
-                    "position_range": [[0.52, -0.3, 0.884], [0.675, 0.0, 0.884]],
-                    "rotation_range": [[0, 0, -30], [0, 0, 30]],
-                    "relative_position": false,
-                    "relative_rotation": true
                 }
             },
             "randomize_distractor_slots": {
@@ -149,8 +127,8 @@
                         [-180.0, 180.0]
                     ],
                     "hide_position": [0.0, 0.0, -10.0],
-                    "avoid_uids": ["pen", "holder"],
-                    "min_distance_to_avoid": 0.1,
+                    "avoid_uids": ["button"],
+                    "min_distance_to_avoid": 0.08,
                     "max_resample_attempts": 100,
                     "physics_update_step": 1
                 }
@@ -178,7 +156,7 @@
                         -0.010356,
                         0.342262
                     ],
-                    "save_path": "./outputs/videos/items_handover_place/"
+                    "save_path": "./outputs/videos/press_button/"
                 }
             },
             "prepare_extra_attr": {
@@ -187,16 +165,28 @@
                 "params": {
                     "attrs": [
                         {
+                            "name": "right_arm_base_pose",
+                            "mode": "callable",
+                            "entity_cfg": {
+                                "uid": "CobotMagic"
+                            },
+                            "func_name": "get_link_pose",
+                            "func_kwargs": {
+                                "link_name": "right_arm_base",
+                                "to_matrix": true
+                            }
+                        },
+                        {
                             "name": "grasp_pose_object",
                             "mode": "static",
                             "entity_cfg": {
-                                "uid": "pen"
+                                "uid": "button"
                             },
                             "value": [[
-                                    [1.0, 0.0, 0.0, 0.03],
-                                    [0.0, 1.0, 0.0, 0.0],
-                                    [0.0, 0.0, 1.0, 0.01],
-                                    [0.0, 0.0, 0.0, 1.0]
+                                    [0.32243,  0.03245,  0.94604,  0.025],
+                                    [0.00706, -0.99947,  0.03188, -0.0  ],
+                                    [0.94657, -0.0036 , -0.32249,  0.0  ],
+                                    [0.0    ,  0.0    ,  0.0    ,  1.0  ]
                             ]]
                         },
                         {
@@ -212,34 +202,17 @@
                             }
                         },
                         {
-                            "name": "right_arm_base_pose",
+                            "name": "button_pose",
                             "mode": "callable",
                             "entity_cfg": {
-                                "uid": "CobotMagic"
+                                "uid": "button"
                             },
                             "func_name": "get_link_pose",
                             "func_kwargs": {
-                                "link_name": "right_arm_base",
+                                "link_name": "button_base",
                                 "to_matrix": true
                             }
-                        },
-                        {
-                            "name": "left_arm_takeover_grasp_offset",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "pen"
-                            },
-                            "value": 0.02
-                        },
-                        {
-                            "name": "opposite_pen_grasp_offset",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "pen"
-                            },
-                            "value": -0.08
                         }
-
                     ]
                 }
             },
@@ -250,37 +223,9 @@
                     "registry": [
                         {
                             "entity_cfg": {
-                                "uid": "pen"
+                                "uid": "button"
                             },
-                            "attrs": ["left_arm_takeover_grasp_offset",
-                                       "opposite_pen_grasp_offset"],
-                            "pose_register_params": {
-                                "compute_relative": false,
-                                "compute_pose_object_to_arena": true,
-                                "to_matrix": true
-                            }
-                        },
-                        {
-                            "entity_cfg": {
-                                "uid": "holder"
-                            },
-                            "pose_register_params": {
-                                "compute_relative": false,
-                                "compute_pose_object_to_arena": true,
-                                "to_matrix": true
-                            }
-                        },
-                        {
-                            "entity_cfg": {
-                                "uid": "CobotMagic",
-                                "control_parts": ["left_arm"]
-                            },
-                            "attrs": ["left_arm_base_pose"],
-                            "pose_register_params": {
-                                "compute_relative": "pen",
-                                "compute_pose_object_to_arena": false,
-                                "to_matrix": true
-                            },
+                            "attrs": ["grasp_pose_object", "button_pose"],
                             "prefix": false
                         },
                         {
@@ -290,7 +235,7 @@
                             },
                             "attrs": ["right_arm_base_pose"],
                             "pose_register_params": {
-                                "compute_relative": "pen",
+                                "compute_relative": "button",
                                 "compute_pose_object_to_arena": false,
                                 "to_matrix": true
                             },
@@ -310,22 +255,6 @@
                 "params": {
                     "joint_ids": [6, 13]
                 }
-            },
-            "pen_pose": {
-                "func": "get_rigid_object_pose",
-                "mode": "add",
-                "name": "pen_pose",
-                "params": {
-                    "entity_cfg": {"uid": "pen"}
-                }
-            },
-            "holder_pose": {
-                "func": "get_rigid_object_pose",
-                "mode": "add",
-                "name": "holder_pose",
-                "params": {
-                    "entity_cfg": {"uid": "holder"}
-                }
             }
         },
         "dataset": {
@@ -333,18 +262,18 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/items_handover_place/",
+                    "save_path": "/root/workspace/Embodied_Challenge/lerobot_dataset/Click_Button",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
                         "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"]
                     },
                     "instruction": {
-                        "lang": "Pick up the pen, hand it over to the other arm and then place it in to the pen holder"
+                        "lang": "Click the bell"
                     },
                     "extra": {
                         "scene_type": "Sim",
-                        "task_description": "items_handover_place",
+                        "task_description": "Click the bell",
                         "data_type": "sim"
                     },
                     "use_videos": true
@@ -357,11 +286,7 @@
         "uid": "CobotMagic",
         "robot_type": "CobotMagic",
         "init_pos": [0.0, 0.0, 0.835],
-        "init_qpos": [-0.05918411, 0.08932595, 0.00076794, 0.00970403, -0.12870058, -0.21027726, -0.13548991, -0.08838347, 0.29586821,0.39285615,0.13372713,0.08686504,0.0,0.0,0.0,0.0],
-        "attrs": {
-            "contact_offset": 0.0002,
-            "rest_offset": 0.00005
-        }
+        "init_qpos": [-0.05918411, 0.08932595, 0.00076794, 0.00970403, -0.12870058, -0.21027726, -0.13548991, -0.08838347, 0.29586821,0.39285615,0.13372713,0.08686504,0.0,0.0,0.0,0.0]
     },
     "sensor": [
         {
@@ -528,70 +453,65 @@
             "init_rot": [0, 0, 0]
         }
     ],
+    "articulation": [
+        {
+            "uid": "button",
+            "fpath": "/root/workspace/Embodied_Challenge/assets/button/button.urdf",
+            "init_pos": [0.7, 0.3, 0.83],
+            "init_rot": [0, 0, 0],
+            "attrs": {
+                "mass": 0.01,
+                "dynamic_friction": 0.5,
+                "static_friction": 0.5
+            },
+            "drive_pros": {
+                "drive_type": "force",
+                "stiffness": 100.0,
+                "damping": 30.0,
+                "max_effort": 200.0,
+                "max_velocity": 2.0
+            }
+        }
+    ],
     "rigid_object": [
         {
-            "uid":"holder",
+            "uid":"distractor_0",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/Embodied_Challenge/assets/PenHolder/pen_holder.obj",
+                "fpath": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply",
                 "compute_uv": true
             },
             "attrs" : {
-                "mass": 0.005,
-                "contact_offset": 0.003,
-                "rest_offset": 0.001,
-                "restitution": 0.1,
-                "max_depenetration_velocity": 1e1,
-                "min_position_iters": 32,
-                "min_velocity_iters":8
-            },
-            "init_pos": [0.5, 0.1, 0.884],
-            "init_rot": [90, 0, 0],
-            "body_scale":[0.56, 0.45, 0.56],
-            "max_convex_hull_num": 8
-        },
-        {
-            "uid":"pen",
-            "shape": {
-                "shape_type": "Mesh",
-                "fpath": "/root/workspace/Embodied_Challenge/assets/Pen/the_pen.obj",
-                "compute_uv": true,
-                "visual_material": {
-                    "uid": "black_pen_mat",
-                    "base_color": [0.0, 0.0, 0.0, 1.0],
-                    "metallic": 0.0,
-                    "roughness": 0.8
-                }
-            },
-            "attrs" : {
-                "mass": 0.005,
+                "mass": 0.01,
                 "contact_offset": 0.003,
                 "rest_offset": 0.001,
                 "restitution": 0.01,
                 "max_depenetration_velocity": 1e1,
                 "min_position_iters": 32,
-                "min_velocity_iters":8
+                "min_velocity_iters": 8
             },
-            "init_pos": [0.6, -0.1, 0.884],
-            "init_rot": [0, 0, 0],
-            "body_scale":[1, 1.6, 1.6],
-            "max_convex_hull_num": 8
+            "init_pos": [0.5, 0.0, -20.0],
+            "body_scale":[0.85, 0.85, 0.85]
         },
         {
-            "uid": "distractor_0",
+            "uid":"distractor_1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/Embodied_Challenge/assets/Beaker/beaker.ply",
+                "fpath": "/root/workspace/Embodied_Challenge/embodied_challenge/Distractor/PaperCup/paper_cup.ply",
                 "compute_uv": true
-            }
-        },
-        {
-            "uid": "distractor_1",
-            "shape": {
-                "shape_type": "Mesh",
-                "fpath": "/root/workspace/Embodied_Challenge/assets/Beaker/beaker.ply",
-                "compute_uv": true
-            }
+            },
+            "attrs" : {
+                "mass": 0.01,
+                "contact_offset": 0.003,
+                "rest_offset": 0.001,
+                "restitution": 0.01,
+                "max_depenetration_velocity": 1e1,
+                "min_position_iters": 32,
+                "min_velocity_iters": 8
+            },
+            "init_pos": [0.5, 0.0, -20.0],
+            "body_scale":[0.9, 0.9, 0.9]
         }
+
     ]
 }
