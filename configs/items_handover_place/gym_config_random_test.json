@@ -15,6 +15,15 @@
                     "intensity_range": [10.0, 30.0]
                 }
             },
+            "random_table_height": {
+                "func": "randomize_rigid_object_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "table"},
+                    "position_range": [[0.0, 0.0, -0.05], [0.0, 0.0, 0.05]],
+                    "relative_position": true
+                }
+            },
             "random_camera_high_intrinsics": {
                 "func": "randomize_camera_intrinsics",
                 "mode": "reset",
@@ -359,8 +368,13 @@
         "init_pos": [0.0, 0.0, 0.835],
         "init_qpos": [-0.05918411, 0.08932595, 0.00076794, 0.00970403, -0.12870058, -0.21027726, -0.13548991, -0.08838347, 0.29586821,0.39285615,0.13372713,0.08686504,0.0,0.0,0.0,0.0],
         "attrs": {
-            "contact_offset": 0.0002,
-            "rest_offset": 0.00005
+            "contact_offset": 0.0,
+            "rest_offset": 0.0
+        },
+        "drive_pros": {
+            "stiffness": {
+                "RIGHT_JOINT[1-6]": 10000.0
+            }
         }
     },
     "sensor": [
@@ -449,9 +463,11 @@
             },
             "attrs" : {
                 "mass": 10.0,
-                "static_friction": 0.95,
-                "dynamic_friction": 0.9,
-                "restitution": 0.01
+                "static_friction": 0.0,
+                "dynamic_friction": 0.0,
+                "restitution": 0.01,
+                "contact_offset": 0.0,
+                "rest_offset": 0.0
             },
             "body_scale": [1, 1, 1],
             "body_type": "kinematic",
