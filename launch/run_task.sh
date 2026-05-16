@@ -20,6 +20,7 @@ if [[ "$#" -eq 1 && ("$1" == "-h" || "$1" == "--help") ]]; then
     echo -e "\033[1;33mAvailable Extra Arguments:\033[0m"
     echo -e "  \033[1;35m--filter_visual_rand\033[0m     : Disable visual randomization"
     echo -e "  \033[1;35m--filter_dataset_saving\033[0m  : Disable dataset saving\n"
+    echo -e "  \033[1;35m--headless\033[0m  : Run in headless mode\n"
 
     echo -e "\033[1;33mAvailable task name examples:\033[0m"
 
