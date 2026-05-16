@@ -43,33 +43,10 @@ from embodichain.lab.sim.planners import (
 from embodichain.utils import logger
 
 
-__all__ = ["SampleLoadingActionBank"]
+__all__ = ["ManipulatePipetteActionBank"]
 
 
-class SampleLoadingActionBank(ActionBank):
-    @staticmethod
-    @tag_node
-    @resolve_env_params
-    def generate_left_arm_aim_qpos(
-        env,
-        valid_funcs_name_kwargs_proc: List | None = None,
-    ):
-        # FIXME FIXME FIXME FIXME
-        logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_left_arm_aim_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
-        )
-        left_aim_horizontal_angle = np.arctan2(
-            *(
-                (
-                    env.affordance_datas["rack_pose"][:2, 3]
-                    - env.affordance_datas["left_arm_base_pose"][:2, 3]
-                )[1::-1]
-            )
-        )
-        left_arm_aim_qpos = deepcopy(env.affordance_datas["left_arm_init_qpos"])
-        left_arm_aim_qpos[0] = left_aim_horizontal_angle
-        env.affordance_datas["left_arm_aim_qpos"] = left_arm_aim_qpos
-        return True
+class ManipulatePipetteActionBank(ActionBank):
 
     @staticmethod
     @tag_node
@@ -86,7 +63,7 @@ class SampleLoadingActionBank(ActionBank):
         right_aim_horizontal_angle = np.arctan2(
             *(
                 (
-                    env.affordance_datas["cube_pose"][:2, 3]
+                    env.affordance_datas["pipette_base_pose"][:2, 3]
                     - env.affordance_datas["right_arm_base_pose"][:2, 3]
                 )[1::-1]
             )
@@ -100,26 +77,52 @@ class SampleLoadingActionBank(ActionBank):
     @tag_node
     @resolve_env_params
     # DONE: valid & process qpos & fk
-    def generate_right_arm_aim_rack_qpos(
+    def generate_right_arm_aim_beaker1_qpos(
         env,
         valid_funcs_name_kwargs_proc: list | None = None,
     ):
         # FIXME FIXME FIXME FIXME
         logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_right_arm_aim_rack_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
+            f"CAUTION=============================THIS FUNC generate_right_arm_aim_beaker1_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
         )
         right_aim_horizontal_angle = np.arctan2(
             *(
                 (
-                    env.affordance_datas["rack_pose"][:2, 3]
+                    env.affordance_datas["beaker1_pose"][:2, 3]
                     - env.affordance_datas["right_arm_base_pose"][:2, 3]
                 )[1::-1]
             )
         )
         right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
         right_arm_aim_qpos[0] = right_aim_horizontal_angle
-        env.affordance_datas["right_arm_aim_rack_qpos"] = right_arm_aim_qpos
+        env.affordance_datas["right_arm_aim_beaker1_qpos"] = right_arm_aim_qpos
         return True
+
+    @staticmethod
+    @tag_node
+    @resolve_env_params
+    # DONE: valid & process qpos & fk
+    def generate_left_arm_aim_beaker1_qpos(
+        env,
+        valid_funcs_name_kwargs_proc: list | None = None,
+    ):
+        # FIXME FIXME FIXME FIXME
+        logger.log_warning(
+            f"CAUTION=============================THIS FUNC generate_left_arm_aim_beaker1_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
+        )
+        left_aim_horizontal_angle = np.arctan2(
+            *(
+                (
+                    env.affordance_datas["beaker1_pose"][:2, 3]
+                    - env.affordance_datas["left_arm_base_pose"][:2, 3]
+                )[1::-1]
+            )
+        )
+        left_arm_aim_qpos = deepcopy(env.affordance_datas["left_arm_init_qpos"])
+        left_arm_aim_qpos[0] = left_aim_horizontal_angle
+        env.affordance_datas["left_arm_aim_beaker1_qpos"] = left_arm_aim_qpos
+        return True
+
 
     @staticmethod
     @tag_node
@@ -187,7 +190,7 @@ class SampleLoadingActionBank(ActionBank):
             expand = kwargs.get("expand", False)
             if expand:
                 # 设置保持闭合的步数，例如提前 5 步完成
-                hold_steps = 5
+                hold_steps = 10
 
                 if duration > hold_steps:
                     # 前 duration - hold_steps 步进行平滑插值（从 1.0 变到 0.0）
@@ -242,7 +245,7 @@ class SampleLoadingActionBank(ActionBank):
                 f"Applying plan_trajectory to two very close qpos! Using stand_still."
             )
             keyposes = [keyposes[0]] * 2
-            ret_transposed = SampleLoadingActionBank.stand_still(
+            ret_transposed = ManipulatePipetteActionBank.stand_still(
                 env,
                 agent_uid,
                 keypose_names,

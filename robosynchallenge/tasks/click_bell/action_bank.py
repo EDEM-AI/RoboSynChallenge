@@ -43,10 +43,10 @@ from embodichain.lab.sim.planners import (
 from embodichain.utils import logger
 
 
-__all__ = ["SampleLoadingActionBank"]
+__all__ = ["ClickBellActionBank"]
 
 
-class SampleLoadingActionBank(ActionBank):
+class ClickBellActionBank(ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params
@@ -58,10 +58,11 @@ class SampleLoadingActionBank(ActionBank):
         logger.log_warning(
             f"CAUTION=============================THIS FUNC generate_left_arm_aim_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
         )
+
         left_aim_horizontal_angle = np.arctan2(
             *(
                 (
-                    env.affordance_datas["rack_pose"][:2, 3]
+                    env.affordance_datas["button_pose"][:2, 3]
                     - env.affordance_datas["left_arm_base_pose"][:2, 3]
                 )[1::-1]
             )
@@ -79,18 +80,29 @@ class SampleLoadingActionBank(ActionBank):
         env,
         valid_funcs_name_kwargs_proc: list | None = None,
     ):
-        # FIXME FIXME FIXME FIXME
-        logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_right_arm_aim_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
-        )
         right_aim_horizontal_angle = np.arctan2(
             *(
                 (
-                    env.affordance_datas["cube_pose"][:2, 3]
+                    env.affordance_datas["button_pose"][:2, 3]
                     - env.affordance_datas["right_arm_base_pose"][:2, 3]
                 )[1::-1]
             )
         )
+
+        # Avoid branch jumps at +/-pi by choosing the equivalent yaw closest to init qpos[0].
+        init_yaw = float(env.affordance_datas["right_arm_init_qpos"][0])
+        yaw_candidates = np.array(
+            [
+                right_aim_horizontal_angle - 2.0 * np.pi,
+                right_aim_horizontal_angle,
+                right_aim_horizontal_angle + 2.0 * np.pi,
+            ],
+            dtype=np.float64,
+        )
+        right_aim_horizontal_angle = float(
+            yaw_candidates[np.argmin(np.abs(yaw_candidates - init_yaw))]
+        )
+
         right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
         right_arm_aim_qpos[0] = right_aim_horizontal_angle
         env.affordance_datas["right_arm_aim_qpos"] = right_arm_aim_qpos
@@ -99,36 +111,10 @@ class SampleLoadingActionBank(ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params
-    # DONE: valid & process qpos & fk
-    def generate_right_arm_aim_rack_qpos(
-        env,
-        valid_funcs_name_kwargs_proc: list | None = None,
-    ):
-        # FIXME FIXME FIXME FIXME
-        logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_right_arm_aim_rack_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
-        )
-        right_aim_horizontal_angle = np.arctan2(
-            *(
-                (
-                    env.affordance_datas["rack_pose"][:2, 3]
-                    - env.affordance_datas["right_arm_base_pose"][:2, 3]
-                )[1::-1]
-            )
-        )
-        right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
-        right_arm_aim_qpos[0] = right_aim_horizontal_angle
-        env.affordance_datas["right_arm_aim_rack_qpos"] = right_arm_aim_qpos
-        return True
-
-    @staticmethod
-    @tag_node
-    @resolve_env_params
     def compute_unoffset_for_exp(env, pose_input_output_names_changes: Dict = {}):
-        env.affordance_datas["cube_grasp_unoffset_matrix_object"] = np.eye(
+        env.affordance_datas["button_press_unoffset_matrix_object"] = np.eye(
             4
         )  # For the overall transform matrix calculation
-
         for input_pose_name, change_params in pose_input_output_names_changes.items():
             output_pose_name = change_params["output_pose_name"]
             pose_changes = change_params["pose_changes"]
@@ -147,30 +133,8 @@ class SampleLoadingActionBank(ActionBank):
             duration = kwargs.get("duration", 1)
             expand = kwargs.get("expand", False)
             if expand:
-                # 设置保持开启的步数，例如提前 5 步完成
-                hold_steps = 2
-
-                if duration > hold_steps:
-                    # 前 duration - hold_steps 步进行平滑插值（从 0.0 变到 1.0）
-                    interp_steps = (duration - hold_steps) - 1
-                    if interp_steps > 0:
-                        interp_action = mul_linear_expand(np.array([[0.0], [1.0]]), [interp_steps]) # 形状 (interp_steps, 1)
-                    else:
-                        interp_action = np.array([[1.0]]) # 形状 (1, 1)
-
-                    # 最后 hold_steps + 1 步保持值为 1.0
-                    hold_action = np.ones((hold_steps + 1, 1)) # 形状 (hold_steps + 1, 1)
-
-                    if interp_steps > 0:
-                        # 沿着 axis=0 拼接列向量，然后再转置
-                        action = np.concatenate([interp_action, hold_action], axis=0).transpose()
-                    else:
-                        # 极端边界处理
-                        action = np.concatenate([np.array([[0.0]]), np.ones((duration - 1, 1))], axis=0).transpose()
-                else:
-                    # 如果 duration 不足 5 步，退回普通插值模式
-                    action = mul_linear_expand(np.array([[0.0], [1.0]]), [duration - 1])
-                    action = np.concatenate([action, np.array([[1.0]])], axis=0).transpose()
+                action = mul_linear_expand(np.array([[0.0], [1.0]]), [duration - 1])
+                action = np.concatenate([action, np.array([[1.0]])]).transpose()
             else:
                 action = np.ones((1, duration))
             return action
@@ -186,30 +150,8 @@ class SampleLoadingActionBank(ActionBank):
             duration = kwargs.get("duration", 1)
             expand = kwargs.get("expand", False)
             if expand:
-                # 设置保持闭合的步数，例如提前 5 步完成
-                hold_steps = 5
-
-                if duration > hold_steps:
-                    # 前 duration - hold_steps 步进行平滑插值（从 1.0 变到 0.0）
-                    interp_steps = (duration - hold_steps) - 1
-                    if interp_steps > 0:
-                        interp_action = mul_linear_expand(np.array([[1.0], [0.0]]), [interp_steps]) # 形状 (interp_steps, 1)
-                    else:
-                        interp_action = np.array([[0.0]]) # 形状 (1, 1)
-
-                    # 最后 hold_steps + 1 步保持值为 0.0
-                    hold_action = np.zeros((hold_steps + 1, 1)) # 形状 (hold_steps + 1, 1)
-
-                    if interp_steps > 0:
-                        # 沿着 axis=0 拼接列向量，然后再转置
-                        action = np.concatenate([interp_action, hold_action], axis=0).transpose()
-                    else:
-                        # 极端边界处理
-                        action = np.concatenate([np.array([[1.0]]), np.zeros((duration - 1, 1))], axis=0).transpose()
-                else:
-                    # 如果 duration 不足 5 步，退回普通插值模式
-                    action = mul_linear_expand(np.array([[1.0], [0.0]]), [duration - 1])
-                    action = np.concatenate([action, np.array([[0.0]])], axis=0).transpose()
+                action = mul_linear_expand(np.array([[1.0], [0.0]]), [duration - 1])
+                action = np.concatenate([action, np.array([[0.0]])]).transpose()
             else:
                 action = np.zeros((1, duration))
             return action
@@ -242,7 +184,7 @@ class SampleLoadingActionBank(ActionBank):
                 f"Applying plan_trajectory to two very close qpos! Using stand_still."
             )
             keyposes = [keyposes[0]] * 2
-            ret_transposed = SampleLoadingActionBank.stand_still(
+            ret_transposed = ClickBellActionBank.stand_still(
                 env,
                 agent_uid,
                 keypose_names,
@@ -307,3 +249,16 @@ class SampleLoadingActionBank(ActionBank):
         ret = np.asarray([stand_still_qpos] * duration)
 
         return ret.T
+
+    @staticmethod
+    @tag_edge
+    def left_arm_go_back(env, duration: int):
+        left_arm_monitor_qpos, left_arm_init_qpos = (
+            env.affordance_datas["left_arm_monitor_qpos"],
+            env.affordance_datas["left_arm_init_qpos"],
+        )
+        left_home_sample_num = duration
+        qpos_expand_left = np.array([left_arm_monitor_qpos, left_arm_init_qpos])
+        qpos_expand_left = mul_linear_expand(qpos_expand_left, [left_home_sample_num])
+        ret = np.array(qpos_expand_left).T
+        return ret

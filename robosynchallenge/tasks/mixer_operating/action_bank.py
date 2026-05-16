@@ -17,19 +17,15 @@
 import torch
 import numpy as np
 from copy import deepcopy
-from typing import Dict, List
+from typing import List
+
 from embodichain.lab.gym.envs.action_bank.configurable_action import (
     ActionBank,
     tag_node,
     tag_edge,
 )
 
-from embodichain.lab.gym.utils.misc import (
-    resolve_env_params,
-    mul_linear_expand,
-    get_offset_pose_list,
-    get_changed_pose,
-)
+from embodichain.lab.gym.utils.misc import resolve_env_params, mul_linear_expand
 
 from embodichain.lab.sim.planners import (
     MoveType,
@@ -43,132 +39,132 @@ from embodichain.lab.sim.planners import (
 from embodichain.utils import logger
 
 
-__all__ = ["SampleLoadingActionBank"]
+__all__ = ["MixerOperatingActionBank"]
 
 
-class SampleLoadingActionBank(ActionBank):
+class MixerOperatingActionBank(ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params
-    def generate_left_arm_aim_qpos(
+    def generate_right_arm_aim_beaker_qpos(
         env,
-        valid_funcs_name_kwargs_proc: List | None = None,
+        valid_funcs_name_kwargs_proc: list | None = None,
     ):
-        # FIXME FIXME FIXME FIXME
         logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_left_arm_aim_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
+            "CAUTION=============================THIS FUNC generate_right_arm_aim_beaker_qpos IS GEOMETRY-HEURISTIC."
+        )
+        right_aim_horizontal_angle = np.arctan2(
+            *(
+                (
+                    env.affordance_datas["beaker_pose"][:2, 3]
+                    - env.affordance_datas["right_arm_base_pose"][:2, 3]
+                )[1::-1]
+            )
+        )
+        right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
+        right_arm_aim_qpos[0] = right_aim_horizontal_angle
+        env.affordance_datas["right_arm_aim_beaker_qpos"] = right_arm_aim_qpos
+        return True
+
+    @staticmethod
+    @tag_node
+    @resolve_env_params
+    def generate_right_arm_aim_mixer_qpos(
+        env,
+        valid_funcs_name_kwargs_proc: list | None = None,
+    ):
+        logger.log_warning(
+            "CAUTION=============================THIS FUNC generate_right_arm_aim_mixer_qpos IS GEOMETRY-HEURISTIC."
+        )
+        right_aim_horizontal_angle = np.arctan2(
+            *(
+                (
+                    env.affordance_datas["beaker_mixer_pose"][:2, 3]
+                    - env.affordance_datas["right_arm_base_pose"][:2, 3]
+                )[1::-1]
+            )
+        )
+        right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
+        right_arm_aim_qpos[0] = right_aim_horizontal_angle
+        env.affordance_datas["right_arm_aim_mixer_qpos"] = right_arm_aim_qpos
+        return True
+
+    @staticmethod
+    @tag_node
+    @resolve_env_params
+    def generate_left_arm_aim_beaker_qpos(
+        env,
+        valid_funcs_name_kwargs_proc: list | None = None,
+    ):
+        logger.log_warning(
+            "CAUTION=============================THIS FUNC generate_left_arm_aim_beaker_qpos IS GEOMETRY-HEURISTIC."
         )
         left_aim_horizontal_angle = np.arctan2(
             *(
                 (
-                    env.affordance_datas["rack_pose"][:2, 3]
+                    env.affordance_datas["beaker_pose"][:2, 3]
                     - env.affordance_datas["left_arm_base_pose"][:2, 3]
                 )[1::-1]
             )
         )
         left_arm_aim_qpos = deepcopy(env.affordance_datas["left_arm_init_qpos"])
         left_arm_aim_qpos[0] = left_aim_horizontal_angle
-        env.affordance_datas["left_arm_aim_qpos"] = left_arm_aim_qpos
+        env.affordance_datas["left_arm_aim_beaker_qpos"] = left_arm_aim_qpos
         return True
 
     @staticmethod
     @tag_node
     @resolve_env_params
-    # DONE: valid & process qpos & fk
-    def generate_right_arm_aim_qpos(
+    def generate_left_arm_aim_mixer_qpos(
         env,
         valid_funcs_name_kwargs_proc: list | None = None,
     ):
-        # FIXME FIXME FIXME FIXME
         logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_right_arm_aim_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
+            "CAUTION=============================THIS FUNC generate_left_arm_aim_mixer_qpos IS GEOMETRY-HEURISTIC."
         )
-        right_aim_horizontal_angle = np.arctan2(
+        left_aim_horizontal_angle = np.arctan2(
             *(
                 (
-                    env.affordance_datas["cube_pose"][:2, 3]
-                    - env.affordance_datas["right_arm_base_pose"][:2, 3]
+                    env.affordance_datas["beaker_mixer_pose"][:2, 3]
+                    - env.affordance_datas["left_arm_base_pose"][:2, 3]
                 )[1::-1]
             )
         )
-        right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
-        right_arm_aim_qpos[0] = right_aim_horizontal_angle
-        env.affordance_datas["right_arm_aim_qpos"] = right_arm_aim_qpos
-        return True
-
-    @staticmethod
-    @tag_node
-    @resolve_env_params
-    # DONE: valid & process qpos & fk
-    def generate_right_arm_aim_rack_qpos(
-        env,
-        valid_funcs_name_kwargs_proc: list | None = None,
-    ):
-        # FIXME FIXME FIXME FIXME
-        logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_right_arm_aim_rack_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
-        )
-        right_aim_horizontal_angle = np.arctan2(
-            *(
-                (
-                    env.affordance_datas["rack_pose"][:2, 3]
-                    - env.affordance_datas["right_arm_base_pose"][:2, 3]
-                )[1::-1]
-            )
-        )
-        right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
-        right_arm_aim_qpos[0] = right_aim_horizontal_angle
-        env.affordance_datas["right_arm_aim_rack_qpos"] = right_arm_aim_qpos
-        return True
-
-    @staticmethod
-    @tag_node
-    @resolve_env_params
-    def compute_unoffset_for_exp(env, pose_input_output_names_changes: Dict = {}):
-        env.affordance_datas["cube_grasp_unoffset_matrix_object"] = np.eye(
-            4
-        )  # For the overall transform matrix calculation
-
-        for input_pose_name, change_params in pose_input_output_names_changes.items():
-            output_pose_name = change_params["output_pose_name"]
-            pose_changes = change_params["pose_changes"]
-            env.affordance_datas[output_pose_name] = get_changed_pose(
-                env.affordance_datas[input_pose_name], pose_changes
-            )
-
+        left_arm_aim_qpos = deepcopy(env.affordance_datas["left_arm_init_qpos"])
+        left_arm_aim_qpos[0] = left_aim_horizontal_angle
+        env.affordance_datas["left_arm_aim_mixer_qpos"] = left_arm_aim_qpos
         return True
 
     @staticmethod
     @tag_edge
     @tag_node
-    # TODO: Got the dimension from the scope
     def execute_open(env, return_action: bool = False, **kwargs):
         if return_action:
             duration = kwargs.get("duration", 1)
             expand = kwargs.get("expand", False)
             if expand:
-                # 设置保持开启的步数，例如提前 5 步完成
                 hold_steps = 2
 
                 if duration > hold_steps:
-                    # 前 duration - hold_steps 步进行平滑插值（从 0.0 变到 1.0）
                     interp_steps = (duration - hold_steps) - 1
                     if interp_steps > 0:
-                        interp_action = mul_linear_expand(np.array([[0.0], [1.0]]), [interp_steps]) # 形状 (interp_steps, 1)
+                        interp_action = mul_linear_expand(
+                            np.array([[0.0], [1.0]]), [interp_steps]
+                        )
                     else:
-                        interp_action = np.array([[1.0]]) # 形状 (1, 1)
+                        interp_action = np.array([[1.0]])
 
-                    # 最后 hold_steps + 1 步保持值为 1.0
-                    hold_action = np.ones((hold_steps + 1, 1)) # 形状 (hold_steps + 1, 1)
+                    hold_action = np.ones((hold_steps + 1, 1))
 
                     if interp_steps > 0:
-                        # 沿着 axis=0 拼接列向量，然后再转置
-                        action = np.concatenate([interp_action, hold_action], axis=0).transpose()
+                        action = np.concatenate(
+                            [interp_action, hold_action], axis=0
+                        ).transpose()
                     else:
-                        # 极端边界处理
-                        action = np.concatenate([np.array([[0.0]]), np.ones((duration - 1, 1))], axis=0).transpose()
+                        action = np.concatenate(
+                            [np.array([[0.0]]), np.ones((duration - 1, 1))], axis=0
+                        ).transpose()
                 else:
-                    # 如果 duration 不足 5 步，退回普通插值模式
                     action = mul_linear_expand(np.array([[0.0], [1.0]]), [duration - 1])
                     action = np.concatenate([action, np.array([[1.0]])], axis=0).transpose()
             else:
@@ -181,33 +177,32 @@ class SampleLoadingActionBank(ActionBank):
     @tag_edge
     @tag_node
     def execute_close(env, return_action: bool = False, **kwargs):
-
         if return_action:
             duration = kwargs.get("duration", 1)
             expand = kwargs.get("expand", False)
             if expand:
-                # 设置保持闭合的步数，例如提前 5 步完成
                 hold_steps = 5
 
                 if duration > hold_steps:
-                    # 前 duration - hold_steps 步进行平滑插值（从 1.0 变到 0.0）
                     interp_steps = (duration - hold_steps) - 1
                     if interp_steps > 0:
-                        interp_action = mul_linear_expand(np.array([[1.0], [0.0]]), [interp_steps]) # 形状 (interp_steps, 1)
+                        interp_action = mul_linear_expand(
+                            np.array([[1.0], [0.0]]), [interp_steps]
+                        )
                     else:
-                        interp_action = np.array([[0.0]]) # 形状 (1, 1)
+                        interp_action = np.array([[0.0]])
 
-                    # 最后 hold_steps + 1 步保持值为 0.0
-                    hold_action = np.zeros((hold_steps + 1, 1)) # 形状 (hold_steps + 1, 1)
+                    hold_action = np.zeros((hold_steps + 1, 1))
 
                     if interp_steps > 0:
-                        # 沿着 axis=0 拼接列向量，然后再转置
-                        action = np.concatenate([interp_action, hold_action], axis=0).transpose()
+                        action = np.concatenate(
+                            [interp_action, hold_action], axis=0
+                        ).transpose()
                     else:
-                        # 极端边界处理
-                        action = np.concatenate([np.array([[1.0]]), np.zeros((duration - 1, 1))], axis=0).transpose()
+                        action = np.concatenate(
+                            [np.array([[1.0]]), np.zeros((duration - 1, 1))], axis=0
+                        ).transpose()
                 else:
-                    # 如果 duration 不足 5 步，退回普通插值模式
                     action = mul_linear_expand(np.array([[1.0], [0.0]]), [duration - 1])
                     action = np.concatenate([action, np.array([[0.0]])], axis=0).transpose()
             else:
@@ -239,10 +234,10 @@ class SampleLoadingActionBank(ActionBank):
             for former, latter in zip(keyposes, keyposes[1:])
         ):
             logger.log_warning(
-                f"Applying plan_trajectory to two very close qpos! Using stand_still."
+                "Applying plan_trajectory to two very close qpos! Using stand_still."
             )
             keyposes = [keyposes[0]] * 2
-            ret_transposed = SampleLoadingActionBank.stand_still(
+            ret_transposed = MixerOperatingActionBank.stand_still(
                 env,
                 agent_uid,
                 keypose_names,
@@ -287,10 +282,8 @@ class SampleLoadingActionBank(ActionBank):
 
         stand_still_qpos = keyposes[0]
 
-        if (
-            stand_still_qpos.shape
-            != np.asarray(env.robot.get_joint_ids("left_arm")).shape
-        ):
+        target_joint_ids = np.asarray(env.robot.get_joint_ids(agent_uid))
+        if stand_still_qpos.shape != target_joint_ids.shape:
             logger.log_error(
                 f"The shape of stand_still qpos is different from {agent_uid}'s setting."
             )
@@ -302,7 +295,6 @@ class SampleLoadingActionBank(ActionBank):
             logger.log_warning(
                 f"Applying stand still to two different qpos! Using the first qpos {stand_still_qpos}"
             )
-            keyposes = [stand_still_qpos] * 2
 
         ret = np.asarray([stand_still_qpos] * duration)
 

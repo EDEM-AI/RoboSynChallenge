@@ -1,7 +1,7 @@
 {
-    "id": "DrawerOpenPlaceTest",
+    "id": "ItemAssembly",
     "max_episodes": 100,
-    "max_episode_steps": 900,
+    "max_episode_steps": 361,
     "env": {
         "events": {
             "random_light": {
@@ -13,6 +13,15 @@
                     "position_range": [[-0.5, -0.5, 2], [0.5, 0.5, 2]],
                     "color_range": [[0.6, 0.6, 0.6], [1, 1, 1]],
                     "intensity_range": [10.0, 30.0]
+                }
+            },
+            "random_table_height": {
+                "func": "randomize_rigid_object_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "table"},
+                    "position_range": [[0.0, 0.0, -0.05], [0.0, 0.0, 0.05]],
+                    "relative_position": true
                 }
             },
             "random_camera_high_intrinsics": {
@@ -87,61 +96,44 @@
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            "random_duck_material": {
+            "random_guijiao1_material": {
                 "func": "randomize_visual_material",
                 "mode": "interval",
                 "interval_step": 10,
                 "params": {
-                    "entity_cfg": {"uid": "duck"},
+                    "entity_cfg": {"uid": "guijiao1"},
                     "random_texture_prob": 0.5,
                     "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            "random_drawer_material": {
+            "random_guijiao2_material": {
                 "func": "randomize_visual_material",
                 "mode": "interval",
                 "interval_step": 10,
                 "params": {
-                    "entity_cfg": {"uid": "drawer", "link_names": [".*"]},
+                    "entity_cfg": {"uid": "guijiao2"},
                     "random_texture_prob": 0.5,
                     "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            "random_drawer_background_material": {
-                "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
-                "params": {
-                    "entity_cfg": {"uid": "drawer_background", "link_names": [".*"]},
-                    "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
-                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
-                }
-            },
-            "random_duck_pose": {
+            "init_guijiao1_pose": {
                 "func": "randomize_rigid_object_pose",
                 "mode": "reset",
                 "params": {
-                    "entity_cfg": {"uid": "duck"},
-                    "position_range": [[0.53, 0.18, 0.87], [0.8, 0.35, 0.87]],
-                    "rotation_range": [[0, 0, -30], [0, 0, 30]],
-                    "relative_position": false,
-                    "relative_rotation": true
+                    "entity_cfg": {"uid": "guijiao1"},
+                    "position_range": [[-0.05, -0.01, 0.0], [0.08, 0.01, 0.0]],
+                    "relative_position": true
                 }
             },
-            "random_drawer_pose": {
-                "func": "randomize_entity_root_pose_group",
+            "init_guijiao2_pose": {
+                "func": "randomize_rigid_object_pose",
                 "mode": "reset",
                 "params": {
-                    "entity_cfgs": [
-                        {"uid": "drawer"},
-                        {"uid": "drawer_background"}
-                    ],
-                    "position_range": [[-0.01, -0.18, 0.0], [0.05, 0.0, 0.0]],
-                    "relative_position": true,
-                    "physics_update_step": 1
+                    "entity_cfg": {"uid": "guijiao2"},
+                    "position_range": [[-0.08, -0.02, 0.0], [0.08, 0.05, 0.0]],
+                    "relative_position": true
                 }
             },
             "randomize_distractor_slots": {
@@ -164,36 +156,10 @@
                         [-180.0, 180.0]
                     ],
                     "hide_position": [0.0, 0.0, -10.0],
-                    "avoid_uids": ["duck", "drawer"],
-                    "min_distance_to_avoid": 0.4,
+                    "avoid_uids": ["guijiao1", "guijiao2"],
+                    "min_distance_to_avoid": 0.1,
                     "max_resample_attempts": 100,
                     "physics_update_step": 1
-                }
-            },
-            "record_camera": {
-                "func": "record_camera_data",
-                "mode": "interval",
-                "interval_step": 1,
-                "params": {
-                    "name": "cam1",
-                    "resolution": [640, 480],
-                    "intrinsics": [606.315186, 606.100952, 320.549316, 245.877106],
-                    "eye": [
-                        0.257046,
-                        0.049382,
-                        1.459689
-                    ],
-                    "target": [
-                        0.599275,
-                        0.044517,
-                        0.520085
-                    ],
-                    "up": [
-                        0.939547,
-                        -0.010356,
-                        0.342262
-                    ],
-                    "save_path": "./outputs/videos/drawer_open_place/"
                 }
             },
             "prepare_extra_attr": {
@@ -202,28 +168,27 @@
                 "params": {
                     "attrs": [
                         {
-                            "name": "pose",
+                            "name": "object_lengths",
                             "mode": "callable",
-                            "entity_cfg": {
-                                "uid": "drawer"
-                            },
-                            "func_name": "get_link_pose",
+                            "entity_uids": "all_objects",
+                            "func_name": "compute_object_length",
                             "func_kwargs": {
-                                "link_name": "outer_box",
-                                "to_matrix": true
+                                "is_svd_frame": true,
+                                "sample_points": 5000
                             }
                         },
                         {
-                            "name": "handle_pose",
-                            "mode": "callable",
+                            "name": "grasp_pose_object",
+                            "mode": "static",
                             "entity_cfg": {
-                                "uid": "drawer"
+                                "uid": "guijiao1"
                             },
-                            "func_name": "get_link_pose",
-                            "func_kwargs": {
-                                "link_name": "handle_xpos",
-                                "to_matrix": true
-                            }
+                            "value": [[
+                                    [0.32243,  0.03245,  0.94604,  0.025],
+                                    [0.00706, -0.99947,  0.03188, -0.0  ],
+                                    [0.94657, -0.0036 , -0.32249,  0.0  ],
+                                    [0.0    ,  0.0    ,  0.0    ,  1.0  ]
+                            ]]
                         },
                         {
                             "name": "left_arm_base_pose",
@@ -248,128 +213,6 @@
                                 "link_name": "right_arm_base",
                                 "to_matrix": true
                             }
-                        },
-                        {
-                            "name": "nominal_drawer_xy",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "drawer"
-                            },
-                            "value": [0.84, -0.1]
-                        },
-                        {
-                            "name": "drawer_pull_distance",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "drawer"
-                            },
-                            "value": -0.12
-                        },
-                        {
-                            "name": "duck_grasp_offset_xyz",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "duck"
-                            },
-                            "value": [-0.015, 0.01, 0.033]
-                        },
-                        {
-                            "name": "duck_hover_height",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "duck"
-                            },
-                            "value": 0.24
-                        },
-                        {
-                            "name": "duck_pregrasp_height",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "duck"
-                            },
-                            "value": 0.1
-                        },
-                        {
-                            "name": "drawer_inner_offset_xyz",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "drawer"
-                            },
-                            "value": [-0.14, 0.05, 0.18]
-                        },
-                        {
-                            "name": "drawer_place_hover_offset_xyz",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "drawer"
-                            },
-                            "value": [0.0, 0.0, 0.08]
-                        },
-                        {
-                            "name": "right_handle_start_offset_xyz",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "drawer"
-                            },
-                            "value": [0.0, 0.0, 0.0]
-                        },
-                        {
-                            "name": "right_handle_contact_offset_xyz",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "drawer"
-                            },
-                            "value": [0.0, 0.0, 0.0]
-                        },
-                        {
-                            "name": "right_handle_pull_offset_xyz",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "drawer"
-                            },
-                            "value": [-0.06, 0.0, 0.0]
-                        },
-                        {
-                            "name": "right_retreat_offset_xyz",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "drawer"
-                            },
-                            "value": [-0.17, 0.0, 0.0]
-                        },
-                        {
-                            "name": "left_eef_close_ratio",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "CobotMagic",
-                                "control_parts": ["left_arm"]
-                            },
-                            "value": 1.0
-                        },
-                        {
-                            "name": "right_eef_close_ratio",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "CobotMagic",
-                                "control_parts": ["right_arm"]
-                            },
-                            "value": 1.0
-                        },
-                        {
-                            "name": "drawer_success_distance_threshold",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "drawer"
-                            },
-                            "value": 0.12
-                        },
-                        {
-                            "name": "grasp_offset",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "duck"
-                            },
-                            "value": 0.02
                         }
                     ]
                 }
@@ -381,7 +224,7 @@
                     "registry": [
                         {
                             "entity_cfg": {
-                                "uid": "duck"
+                                "uid": "guijiao1"
                             },
                             "pose_register_params": {
                                 "compute_relative": false,
@@ -391,50 +234,24 @@
                         },
                         {
                             "entity_cfg": {
-                                "uid": "drawer"
+                                "uid": "guijiao2"
                             },
-                            "attrs": ["pose"],
-                            "prefix": true
+                            "pose_register_params": {
+                                "compute_relative": false,
+                                "compute_pose_object_to_arena": true,
+                                "to_matrix": true
+                            }
                         },
                         {
                             "entity_cfg": {
-                                "uid": "drawer"
+                                "uid": "guijiao1"
                             },
-                            "attrs": ["handle_pose"],
-                            "prefix": true
-                        },
-                        {
-                            "entity_cfg": {
-                                "uid": "duck"
+                            "attrs": ["grasp_pose_object"],
+                            "pose_register_params": {
+                                "compute_relative": false,
+                                "compute_pose_object_to_arena": false,
+                                "to_matrix": true
                             },
-                            "attrs": [
-                                "duck_grasp_offset_xyz",
-                                "duck_hover_height",
-                                "duck_pregrasp_height",
-                                "grasp_offset"
-                            ],
-                            "prefix": false
-                        },
-                        {
-                            "entity_cfg": {
-                                "uid": "drawer"
-                            },
-                            "attrs": [
-                                "drawer_inner_offset_xyz",
-                                "drawer_place_hover_offset_xyz",
-                                "right_handle_start_offset_xyz",
-                                "right_handle_contact_offset_xyz",
-                                "right_handle_pull_offset_xyz",
-                                "right_retreat_offset_xyz",
-                                "drawer_success_distance_threshold"
-                            ],
-                            "prefix": false
-                        },
-                        {
-                            "entity_cfg": {
-                                "uid": "CobotMagic"
-                            },
-                            "attrs": ["left_eef_close_ratio", "right_eef_close_ratio"],
                             "prefix": false
                         },
                         {
@@ -444,7 +261,7 @@
                             },
                             "attrs": ["left_arm_base_pose"],
                             "pose_register_params": {
-                                "compute_relative": false,
+                                "compute_relative": "guijiao2",
                                 "compute_pose_object_to_arena": false,
                                 "to_matrix": true
                             },
@@ -457,7 +274,7 @@
                             },
                             "attrs": ["right_arm_base_pose"],
                             "pose_register_params": {
-                                "compute_relative": false,
+                                "compute_relative": "guijiao1",
                                 "compute_pose_object_to_arena": false,
                                 "to_matrix": true
                             },
@@ -478,20 +295,20 @@
                     "joint_ids": [6, 13]
                 }
             },
-            "duck_pose": {
+            "guijiao1_pose": {
                 "func": "get_rigid_object_pose",
                 "mode": "add",
-                "name": "duck_pose",
+                "name": "guijiao1_pose",
                 "params": {
-                    "entity_cfg": {"uid": "duck"}
+                    "entity_cfg": {"uid": "guijiao1"}
                 }
             },
-            "drawer_pose": {
+            "guijiao2_pose": {
                 "func": "get_rigid_object_pose",
                 "mode": "add",
-                "name": "drawer_pose",
+                "name": "guijiao2_pose",
                 "params": {
-                    "entity_cfg": {"uid": "drawer"}
+                    "entity_cfg": {"uid": "guijiao2"}
                 }
             }
         },
@@ -500,36 +317,25 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/drawer_open_place",
+                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/item_assembly",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
-                        "control_parts": [
-                            "left_arm",
-                            "left_eef",
-                            "right_arm",
-                            "right_eef"
-                        ]
+                        "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"]
                     },
                     "instruction": {
-                        "lang": "Open the drawer, pick the tomato with the other arm then place it in the drawer."
+                        "lang": "Pick up two centrifuge tubes from the table and dock them horizontally."
                     },
                     "extra": {
                         "scene_type": "Sim",
-                        "task_description": "drawer_open_place",
+                        "task_description": "item_assembly",
                         "data_type": "sim"
                     },
                     "use_videos": true
                 }
             }
         },
-        "extensions": {},
-        "control_parts": [
-            "left_arm",
-            "left_eef",
-            "right_arm",
-            "right_eef"
-        ]
+        "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"]
     },
     "robot": {
         "uid": "CobotMagic",
@@ -537,21 +343,12 @@
         "init_pos": [0.0, 0.0, 0.835],
         "init_qpos": [-0.05918411, 0.08932595, 0.00076794, 0.00970403, -0.12870058, -0.21027726, -0.13548991, -0.08838347, 0.29586821,0.39285615,0.13372713,0.08686504,0.0,0.0,0.0,0.0],
         "attrs": {
-            "contact_offset": 0.0002,
-            "rest_offset": 0.00005
+            "contact_offset": 0.0,
+            "rest_offset": 0.0
         },
         "drive_pros": {
             "stiffness": {
-                "LEFT_JOINT[7-8]": 600.0,
-                "RIGHT_JOINT[7-8]": 600.0
-            },
-            "damping": {
-                "LEFT_JOINT[7-8]": 60.0,
-                "RIGHT_JOINT[7-8]": 60.0
-            },
-            "max_effort": {
-                "LEFT_JOINT[7-8]": 6000.0,
-                "RIGHT_JOINT[7-8]": 6000.0
+                "RIGHT_JOINT[1-6]": 10000.0
             }
         }
     },
@@ -641,9 +438,11 @@
             },
             "attrs" : {
                 "mass": 10.0,
-                "static_friction": 0.95,
-                "dynamic_friction": 0.9,
-                "restitution": 0.01
+                "static_friction": 0.0,
+                "dynamic_friction": 0.0,
+                "restitution": 0.01,
+                "contact_offset": 0.0,
+                "rest_offset": 0.0
             },
             "body_scale": [1, 1, 1],
             "body_type": "kinematic",
@@ -722,99 +521,63 @@
     ],
     "rigid_object": [
         {
-            "uid": "duck",
+            "uid":"guijiao2",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/tomato/tomato_asset_simready/asset_simready.obj"
+                "fpath": "/root/workspace/RoboSynChallenge/assets/guijiao_standard/1guijiao_standard.ply",
+                "compute_uv": true
             },
-            "body_scale": [
-                0.8,
-                0.8,
-                0.8
-            ],
-            "init_pos": [
-                0.65,
-                0.16,
-                0.87
-            ],
-            "init_rot": [
-                90,
-                0,
-                0
-            ],
-            "attrs": {
-                "mass": 0.1,
-                "static_friction": 5.0,
-                "dynamic_friction": 5.0,
-                "restitution": 0.0,
-                "contact_offset": 0.004,
-                "rest_offset": 0.0015,
-                "max_depenetration_velocity": 2.0,
+            "attrs" : {
+                "mass": 0.001,
+                "contact_offset": 0.007,
+                "rest_offset": 0.0005,
+                "static_friction": 2.0,
+                "dynamic_friction": 2.0,
+                "restitution": 0.01,
+                "max_depenetration_velocity": 1e1,
                 "min_position_iters": 32,
-                "min_velocity_iters": 8
+                "min_velocity_iters":8
             },
+            "init_pos": [0.6, 0.16, 0.8],
+            "body_scale":[2, 2, 2],
+            "max_convex_hull_num": 8
+        },
+        {
+            "uid":"guijiao1",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "/root/workspace/RoboSynChallenge/assets/guijiao_standard/2guijiao_standard.ply",
+                "compute_uv": true
+            },
+            "attrs" : {
+                "mass": 0.01,
+                "contact_offset": 0.003,
+                "rest_offset": 0.001,
+                "static_friction": 2.0,
+                "dynamic_friction": 2.0,
+                "restitution": 0.01,
+                "max_depenetration_velocity": 1e1,
+                "min_position_iters": 32,
+                "min_velocity_iters":8
+            },
+            "init_pos": [0.6, -0.15, 0.8],
+            "body_scale":[1.7, 1.7, 1.7],
             "max_convex_hull_num": 8
         },
         {
             "uid": "distractor_0",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
+                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply",
+                "compute_uv": true
             }
         },
         {
             "uid": "distractor_1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
-            }
-        }
-    ],
-    "rigid_object_group": [],
-    "articulation": [
-        {
-            "fpath": "SlidingBoxDrawer/SlidingBoxDrawer.urdf",
-            "uid": "drawer",
-            "init_pos": [
-                0.8,
-                0.0,
-                0.9
-            ],
-            "body_scale": [
-                1.0,
-                1.0,
-                0.35
-            ],
-            "init_rot": [
-                0.3,
-                0,
-                180
-            ],
-            "attrs": {
-                "static_friction": 5.0,
-                "dynamic_friction": 4.8
-            },
-            "drive_pros": {
-                "stiffness": 10.0,
-                "damping": 3.0
-            }
-        },
-        {
-            "fpath": "SlidingBoxDrawer/SlidingBoxDrawer.urdf",
-            "uid": "drawer_background",
-            "init_pos": [0.8, 0.0, 0.825],
-            "body_scale": [1.0, 1.0, 0.35],
-            "body_type": "kinematic",
-            "init_rot": [0.3, 0, 180],
-            "attrs": {
-                "static_friction": 5.0,
-                "dynamic_friction": 4.8,
-                "contact_offset": 0.0002,
-                "rest_offset": 0.00005
-            },
-            "drive_pros": {
-                "stiffness": 10.0,
-                "damping": 3.0
+                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply",
+                "compute_uv": true
             }
         }
     ]

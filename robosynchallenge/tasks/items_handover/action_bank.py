@@ -1,23 +1,13 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2021-2026 DexForce Technology Co., Ltd.
+# Copyright (c) 2021-2025 DexForce Technology Co., Ltd.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# All rights reserved.
 # ----------------------------------------------------------------------------
-
 import torch
 import numpy as np
 from copy import deepcopy
-from typing import Dict, List
+from typing import Dict, Tuple, Union, List, Any, Optional, Callable
+
 from embodichain.lab.gym.envs.action_bank.configurable_action import (
     ActionBank,
     tag_node,
@@ -40,36 +30,13 @@ from embodichain.lab.sim.planners import (
     ToppraPlanOptions,
     ToppraPlannerCfg,
 )
+
 from embodichain.utils import logger
 
+__all__ = ["ItemsHandoverActionBank"]
 
-__all__ = ["SampleLoadingActionBank"]
 
-
-class SampleLoadingActionBank(ActionBank):
-    @staticmethod
-    @tag_node
-    @resolve_env_params
-    def generate_left_arm_aim_qpos(
-        env,
-        valid_funcs_name_kwargs_proc: List | None = None,
-    ):
-        # FIXME FIXME FIXME FIXME
-        logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_left_arm_aim_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
-        )
-        left_aim_horizontal_angle = np.arctan2(
-            *(
-                (
-                    env.affordance_datas["rack_pose"][:2, 3]
-                    - env.affordance_datas["left_arm_base_pose"][:2, 3]
-                )[1::-1]
-            )
-        )
-        left_arm_aim_qpos = deepcopy(env.affordance_datas["left_arm_init_qpos"])
-        left_arm_aim_qpos[0] = left_aim_horizontal_angle
-        env.affordance_datas["left_arm_aim_qpos"] = left_arm_aim_qpos
-        return True
+class ItemsHandoverActionBank(ActionBank):
 
     @staticmethod
     @tag_node
@@ -79,18 +46,28 @@ class SampleLoadingActionBank(ActionBank):
         env,
         valid_funcs_name_kwargs_proc: list | None = None,
     ):
-        # FIXME FIXME FIXME FIXME
-        logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_right_arm_aim_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
-        )
         right_aim_horizontal_angle = np.arctan2(
             *(
                 (
-                    env.affordance_datas["cube_pose"][:2, 3]
+                    env.affordance_datas["pen_pose"][:2, 3]
                     - env.affordance_datas["right_arm_base_pose"][:2, 3]
                 )[1::-1]
             )
         )
+
+        init_yaw = float(env.affordance_datas["right_arm_init_qpos"][0])
+        yaw_candidates = np.array(
+            [
+                right_aim_horizontal_angle - 2.0 * np.pi,
+                right_aim_horizontal_angle,
+                right_aim_horizontal_angle + 2.0 * np.pi,
+            ],
+            dtype=np.float64,
+        )
+        right_aim_horizontal_angle = float(
+            yaw_candidates[np.argmin(np.abs(yaw_candidates - init_yaw))]
+        )
+
         right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
         right_arm_aim_qpos[0] = right_aim_horizontal_angle
         env.affordance_datas["right_arm_aim_qpos"] = right_arm_aim_qpos
@@ -100,42 +77,35 @@ class SampleLoadingActionBank(ActionBank):
     @tag_node
     @resolve_env_params
     # DONE: valid & process qpos & fk
-    def generate_right_arm_aim_rack_qpos(
+    def generate_left_arm_aim_qpos(
         env,
         valid_funcs_name_kwargs_proc: list | None = None,
     ):
-        # FIXME FIXME FIXME FIXME
-        logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_right_arm_aim_rack_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
-        )
-        right_aim_horizontal_angle = np.arctan2(
+        left_aim_horizontal_angle = np.arctan2(
             *(
                 (
-                    env.affordance_datas["rack_pose"][:2, 3]
-                    - env.affordance_datas["right_arm_base_pose"][:2, 3]
+                    env.affordance_datas["holder_pose"][:2, 3]
+                    - env.affordance_datas["left_arm_base_pose"][:2, 3]
                 )[1::-1]
             )
         )
-        right_arm_aim_qpos = deepcopy(env.affordance_datas["right_arm_init_qpos"])
-        right_arm_aim_qpos[0] = right_aim_horizontal_angle
-        env.affordance_datas["right_arm_aim_rack_qpos"] = right_arm_aim_qpos
-        return True
 
-    @staticmethod
-    @tag_node
-    @resolve_env_params
-    def compute_unoffset_for_exp(env, pose_input_output_names_changes: Dict = {}):
-        env.affordance_datas["cube_grasp_unoffset_matrix_object"] = np.eye(
-            4
-        )  # For the overall transform matrix calculation
+        init_yaw = float(env.affordance_datas["left_arm_init_qpos"][0])
+        yaw_candidates = np.array(
+            [
+                left_aim_horizontal_angle - 2.0 * np.pi,
+                left_aim_horizontal_angle,
+                left_aim_horizontal_angle + 2.0 * np.pi,
+            ],
+            dtype=np.float64,
+        )
+        left_aim_horizontal_angle = float(
+            yaw_candidates[np.argmin(np.abs(yaw_candidates - init_yaw))]
+        )
 
-        for input_pose_name, change_params in pose_input_output_names_changes.items():
-            output_pose_name = change_params["output_pose_name"]
-            pose_changes = change_params["pose_changes"]
-            env.affordance_datas[output_pose_name] = get_changed_pose(
-                env.affordance_datas[input_pose_name], pose_changes
-            )
-
+        left_arm_aim_qpos = deepcopy(env.affordance_datas["left_arm_init_qpos"])
+        left_arm_aim_qpos[0] = left_aim_horizontal_angle
+        env.affordance_datas["left_arm_aim_qpos"] = left_arm_aim_qpos
         return True
 
     @staticmethod
@@ -148,7 +118,7 @@ class SampleLoadingActionBank(ActionBank):
             expand = kwargs.get("expand", False)
             if expand:
                 # 设置保持开启的步数，例如提前 5 步完成
-                hold_steps = 2
+                hold_steps = 5
 
                 if duration > hold_steps:
                     # 前 duration - hold_steps 步进行平滑插值（从 0.0 变到 1.0）
@@ -242,7 +212,7 @@ class SampleLoadingActionBank(ActionBank):
                 f"Applying plan_trajectory to two very close qpos! Using stand_still."
             )
             keyposes = [keyposes[0]] * 2
-            ret_transposed = SampleLoadingActionBank.stand_still(
+            ret_transposed = ItemsHandoverActionBank.stand_still(
                 env,
                 agent_uid,
                 keypose_names,
@@ -307,3 +277,19 @@ class SampleLoadingActionBank(ActionBank):
         ret = np.asarray([stand_still_qpos] * duration)
 
         return ret.T
+
+    @staticmethod
+    @tag_node
+    @resolve_env_params
+    def compute_unoffset_for_exp(env, pose_input_output_names_changes: Dict = {}):
+        env.affordance_datas["pen_grasp_unoffset_matrix_object"] = np.eye(
+            4
+        )  # For the overall transform matrix calculation
+        for input_pose_name, change_params in pose_input_output_names_changes.items():
+            output_pose_name = change_params["output_pose_name"]
+            pose_changes = change_params["pose_changes"]
+            env.affordance_datas[output_pose_name] = get_changed_pose(
+                env.affordance_datas[input_pose_name], pose_changes
+            )
+
+        return True

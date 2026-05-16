@@ -61,7 +61,7 @@ class SampleLoadingActionBank(ActionBank):
         left_aim_horizontal_angle = np.arctan2(
             *(
                 (
-                    env.affordance_datas["rack_pose"][:2, 3]
+                    env.affordance_datas["cup_pose"][:2, 3]
                     - env.affordance_datas["left_arm_base_pose"][:2, 3]
                 )[1::-1]
             )
@@ -129,6 +129,17 @@ class SampleLoadingActionBank(ActionBank):
             4
         )  # For the overall transform matrix calculation
 
+        # Debug target place poses to verify they are generated as 4x4 matrices.
+        for pose_key in ["rack_pose", "right_arm_cube_place_pose", "right_arm_cube_place_pre_pose"]:
+            pose_val = env.affordance_datas.get(pose_key, None)
+            if pose_val is None:
+                logger.log_warning(f"[DEBUG] affordance_datas['{pose_key}'] not found.")
+                continue
+            pose_shape = pose_val.shape if hasattr(pose_val, "shape") else "no-shape"
+            logger.log_info(
+                f"[DEBUG] affordance_datas['{pose_key}']: type={type(pose_val)}, shape={pose_shape}, value={pose_val}"
+            )
+
         for input_pose_name, change_params in pose_input_output_names_changes.items():
             output_pose_name = change_params["output_pose_name"]
             pose_changes = change_params["pose_changes"]
@@ -187,7 +198,7 @@ class SampleLoadingActionBank(ActionBank):
             expand = kwargs.get("expand", False)
             if expand:
                 # 设置保持闭合的步数，例如提前 5 步完成
-                hold_steps = 5
+                hold_steps = 2
 
                 if duration > hold_steps:
                     # 前 duration - hold_steps 步进行平滑插值（从 1.0 变到 0.0）
@@ -307,3 +318,16 @@ class SampleLoadingActionBank(ActionBank):
         ret = np.asarray([stand_still_qpos] * duration)
 
         return ret.T
+
+    @staticmethod
+    @tag_edge
+    def left_arm_go_back(env, duration: int):
+        left_arm_monitor_qpos, left_arm_init_qpos = (
+            env.affordance_datas["left_arm_monitor_qpos"],
+            env.affordance_datas["left_arm_init_qpos"],
+        )
+        left_home_sample_num = duration
+        qpos_expand_left = np.array([left_arm_monitor_qpos, left_arm_init_qpos])
+        qpos_expand_left = mul_linear_expand(qpos_expand_left, [left_home_sample_num])
+        ret = np.array(qpos_expand_left).T
+        return ret

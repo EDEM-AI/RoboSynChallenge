@@ -1,123 +1,33 @@
 {
-    "id": "DrawerOpenPlaceTest",
+    "id": "DrawerOpenPlace",
     "max_episodes": 100,
     "max_episode_steps": 900,
     "env": {
         "events": {
-            "random_light": {
-                "func": "randomize_light",
-                "mode": "interval",
-                "interval_step": 10,
+            "set_drawer_material": {
+                "func": "set_articulation_visual_material",
+                "mode": "startup",
                 "params": {
-                    "entity_cfg": {"uid": "light_0"},
-                    "position_range": [[-0.5, -0.5, 2], [0.5, 0.5, 2]],
-                    "color_range": [[0.6, 0.6, 0.6], [1, 1, 1]],
-                    "intensity_range": [10.0, 30.0]
+                    "entity_cfg": {"uid": "drawer"},
+                    "mat_cfg": {
+                        "uid": "white_drawer_mat",
+                        "base_color": [1.0, 1.0, 1.0, 1.0],
+                        "metallic": 0.0,
+                        "roughness": 1.0
+                    }
                 }
             },
-            "random_camera_high_intrinsics": {
-                "func": "randomize_camera_intrinsics",
-                "mode": "reset",
+            "set_drawer_background_material": {
+                "func": "set_articulation_visual_material",
+                "mode": "startup",
                 "params": {
-                    "entity_cfg": {"uid": "cam_high"},
-                    "focal_x_range": [-50, 50],
-                    "focal_y_range": [-50, 50]
-                }
-            },
-            "random_camera_high_extrinsics": {
-                "func": "randomize_camera_extrinsics",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "cam_high"},
-                    "pos_range": [[0.0, -0.02, 0.0], [0.02, 0.02, 0.02]],
-                    "euler_range": [[-0.175, -0.175, -0.175], [0.175, 0.175, 0.175]]
-                }
-            },
-            "random_robot_init_eef_pose": {
-                "func": "randomize_robot_eef_pose",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "CobotMagic", "control_parts": ["left_arm", "right_arm"]},
-                    "position_range":  [[-0.01, -0.01, -0.01], [0.01, 0.01, 0]]
-                }
-            },
-            "random_robot_qpos": {
-                "func": "randomize_robot_qpos",
-                "mode": "reset",
-                "params": {
-                    "entity_cfg": {"uid": "CobotMagic"},
-                    "qpos_range": [
-                        [-0.06, -0.05, -0.06, -0.06, -0.05, -0.05, -0.06, -0.05, -0.06, -0.06, -0.05, -0.05],
-                        [0.06, 0.05, 0.06, 0.06, 0.05, 0.05, 0.06, 0.05, 0.06, 0.06, 0.05, 0.05]
-                    ],
-                    "relative_qpos": true,
-                    "joint_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-                }
-            },
-            "random_material": {
-                "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
-                "params": {
-                    "entity_cfg": {"uid": "table"},
-                    "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
-                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
-                }
-            },
-            "random_robot_material": {
-                "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
-                "params": {
-                    "entity_cfg": {"uid": "CobotMagic", "link_names": [".*"]},
-                    "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
-                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
-                }
-            },
-            "random_plane_material": {
-                "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
-                "params": {
-                    "entity_cfg": {"uid": "default_plane"},
-                    "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
-                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
-                }
-            },
-            "random_duck_material": {
-                "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
-                "params": {
-                    "entity_cfg": {"uid": "duck"},
-                    "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
-                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
-                }
-            },
-            "random_drawer_material": {
-                "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
-                "params": {
-                    "entity_cfg": {"uid": "drawer", "link_names": [".*"]},
-                    "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
-                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
-                }
-            },
-            "random_drawer_background_material": {
-                "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
-                "params": {
-                    "entity_cfg": {"uid": "drawer_background", "link_names": [".*"]},
-                    "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
-                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
+                    "entity_cfg": {"uid": "drawer_background"},
+                    "mat_cfg": {
+                        "uid": "dark_gray_drawer_background_mat",
+                        "base_color": [0.05, 0.05, 0.05, 1.0],
+                        "metallic": 0.0,
+                        "roughness": 1.0
+                    }
                 }
             },
             "random_duck_pose": {
@@ -139,61 +49,11 @@
                         {"uid": "drawer"},
                         {"uid": "drawer_background"}
                     ],
-                    "position_range": [[-0.01, -0.18, 0.0], [0.05, 0.0, 0.0]],
+                    "position_range": [[-0.15, -0.18, 0.0], [0.0, 0.0, 0.0]],
+                    "rotation_range": [[0.3, 0, 180], [0.3, 0, 180]],
                     "relative_position": true,
+                    "relative_rotation": false,
                     "physics_update_step": 1
-                }
-            },
-            "randomize_distractor_slots": {
-                "func": "replace_distractor_slots_from_library",
-                "mode": "reset",
-                "params": {
-                    "entity_cfgs": [
-                        {"uid": "distractor_0"},
-                        {"uid": "distractor_1"}
-                    ],
-                    "library_index_path": "/root/workspace/RoboSynChallenge/robosynchallenge/Distractor/ASSET_INDEX.json",
-                    "categories": ["PaperCup", "fork", "spoon"],
-                    "position_ranges": [
-                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]],
-                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]]
-                    ],
-                    "appear_probs": [1.0, 1.0],
-                    "z_rotation_ranges": [
-                        [-180.0, 180.0],
-                        [-180.0, 180.0]
-                    ],
-                    "hide_position": [0.0, 0.0, -10.0],
-                    "avoid_uids": ["duck", "drawer"],
-                    "min_distance_to_avoid": 0.4,
-                    "max_resample_attempts": 100,
-                    "physics_update_step": 1
-                }
-            },
-            "record_camera": {
-                "func": "record_camera_data",
-                "mode": "interval",
-                "interval_step": 1,
-                "params": {
-                    "name": "cam1",
-                    "resolution": [640, 480],
-                    "intrinsics": [606.315186, 606.100952, 320.549316, 245.877106],
-                    "eye": [
-                        0.257046,
-                        0.049382,
-                        1.459689
-                    ],
-                    "target": [
-                        0.599275,
-                        0.044517,
-                        0.520085
-                    ],
-                    "up": [
-                        0.939547,
-                        -0.010356,
-                        0.342262
-                    ],
-                    "save_path": "./outputs/videos/drawer_open_place/"
                 }
             },
             "prepare_extra_attr": {
@@ -477,22 +337,6 @@
                 "params": {
                     "joint_ids": [6, 13]
                 }
-            },
-            "duck_pose": {
-                "func": "get_rigid_object_pose",
-                "mode": "add",
-                "name": "duck_pose",
-                "params": {
-                    "entity_cfg": {"uid": "duck"}
-                }
-            },
-            "drawer_pose": {
-                "func": "get_rigid_object_pose",
-                "mode": "add",
-                "name": "drawer_pose",
-                "params": {
-                    "entity_cfg": {"uid": "drawer"}
-                }
             }
         },
         "dataset": {
@@ -754,20 +598,6 @@
                 "min_velocity_iters": 8
             },
             "max_convex_hull_num": 8
-        },
-        {
-            "uid": "distractor_0",
-            "shape": {
-                "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
-            }
-        },
-        {
-            "uid": "distractor_1",
-            "shape": {
-                "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
-            }
         }
     ],
     "rigid_object_group": [],

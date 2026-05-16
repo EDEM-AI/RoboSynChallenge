@@ -1,5 +1,5 @@
 {
-    "id": "DrawerOpenPlaceTest",
+    "id": "DrawerOpenPlace",
     "max_episodes": 100,
     "max_episode_steps": 900,
     "env": {
@@ -168,32 +168,6 @@
                     "min_distance_to_avoid": 0.4,
                     "max_resample_attempts": 100,
                     "physics_update_step": 1
-                }
-            },
-            "record_camera": {
-                "func": "record_camera_data",
-                "mode": "interval",
-                "interval_step": 1,
-                "params": {
-                    "name": "cam1",
-                    "resolution": [640, 480],
-                    "intrinsics": [606.315186, 606.100952, 320.549316, 245.877106],
-                    "eye": [
-                        0.257046,
-                        0.049382,
-                        1.459689
-                    ],
-                    "target": [
-                        0.599275,
-                        0.044517,
-                        0.520085
-                    ],
-                    "up": [
-                        0.939547,
-                        -0.010356,
-                        0.342262
-                    ],
-                    "save_path": "./outputs/videos/drawer_open_place/"
                 }
             },
             "prepare_extra_attr": {

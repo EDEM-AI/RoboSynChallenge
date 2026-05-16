@@ -12,7 +12,7 @@ from .action_bank import DrawerOpenPlaceActionBank
 __all__ = ["DrawerOpenPlaceEnv", "DrawerOpenPlaceTestEnv", "DrawerOpenPlaceAgentEnv"]
 
 
-@register_env("DrawerOpenPlace-v1", max_episode_steps=900)
+@register_env("DrawerOpenPlace", max_episode_steps=900)
 class DrawerOpenPlaceEnv(EmbodiedEnv):
     def __init__(self, cfg: EmbodiedEnvCfg = None, **kwargs):
         super().__init__(cfg, **kwargs)
@@ -165,7 +165,7 @@ class DrawerOpenPlaceEnv(EmbodiedEnv):
         return success
 
 
-@register_env("DrawerOpenPlaceTest-v1", max_episode_steps=900)
+@register_env("DrawerOpenPlaceTest", max_episode_steps=900)
 class DrawerOpenPlaceTestEnv(DrawerOpenPlaceEnv):
     def compute_task_state(self, **kwargs):
     # It is difficult to determine whether a task has failed or succeeded based on conditions,
@@ -176,7 +176,7 @@ class DrawerOpenPlaceTestEnv(DrawerOpenPlaceEnv):
         return torch.ones_like(success, dtype=torch.bool)
 
 
-@register_env("DrawerOpenPlaceAgent-v1", max_episode_steps=900)
+@register_env("DrawerOpenPlaceAgent", max_episode_steps=900)
 class DrawerOpenPlaceAgentEnv(BaseAgentEnv, DrawerOpenPlaceEnv):
     def __init__(self, cfg: EmbodiedEnvCfg = None, **kwargs):
         super().__init__(cfg, **kwargs)
