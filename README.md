@@ -32,6 +32,7 @@ cd EmbodiChain
 conda activate py310
 cd /path/to/EmbodiChain
 pip install -e . --extra-index-url http://pyp.open3dv.site:2345/simple/ --trusted-host pyp.open3dv.site
+pip install "numpy<2.0"
 ```
 
 Then install the `RoboSynChallenge` package:
