@@ -1,9 +1,10 @@
 <div align="center">
-## **RoboSynChallenge**
+<h1>RoboSynChallenge</h1>
 
 [[Website]](https://edem-ai.github.io/robosynchallenge.github.io/)
 ______________________________________________________________________
-![pull_figure](https://github.com/wuxinxin27/RoboSynChallenge/blob/main/misc/robosynchallenge-pipeline.pdf)
+![image](misc/robosynchallenge-pipeline.png)
+
 </div>
 
 ---
