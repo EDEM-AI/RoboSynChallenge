@@ -195,10 +195,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     add_env_launcher_args_to_parser(parser)
+    parser.add_argument(
+        "--max_episodes",
+        help="Override the maximum number of episodes to run.",
+        default=None,
+        type=int,
+    )
 
     args = parser.parse_args()
 
     env_cfg, gym_config, action_config = build_env_cfg_from_args(args)
+    if args.max_episodes is not None:
+        gym_config["max_episodes"] = args.max_episodes
 
     env = gym.make(id=gym_config["id"], cfg=env_cfg, **action_config)
 
