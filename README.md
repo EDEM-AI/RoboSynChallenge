@@ -46,9 +46,10 @@ We provide 1,000 pre-collected trajectories per task as part of the open-source 
 
 However, we still strongly recommend users to perform data collection themselves.
 ```python
-bash launch/[random|clear]/**.sh
-# Clean Data Example: bash launch/clear/beaker_mixer_duel.sh
-# Radomized Data Example: bash launch/random/beaker_mixer_duel.sh
+bash launch/run_task.sh {task_name} [random|clear]
+# View supported tasks: bash launch/run_task.sh -h
+# Clean Data Example: bash launch/run_task.sh mixer_operating clear
+# Radomized Data Example: bash launch/run_task.sh mixer_operating random
 ```
 After data collection is completed, the collected data will be stored under `lerobot_dataset/{task_name}/`.
 
