@@ -1,8 +1,8 @@
 <div align="center">
-<h1>RoboSynChallenge</h1>
+<h1>RoboSynChallenge: Mastering Real-World Dexterity via Generalizing Synthesized Manipulation Skills</h1>
 
-[[Website]](https://edem-ai.github.io/robosynchallenge.github.io/)
-______________________________________________________________________
+<h2 align="center"> 👉<a href="https://edem-ai.github.io/robosynchallenge.github.io/">Webpage</a> | <a href="https://edem-ai.github.io/RoboSynChallenge/html/">Document</a> | <a href="">Paper</a> | <a href="https://edem-ai.github.io/robosynchallenge.github.io/#/leaderboard">Leaderboard</a></h2>
+
 ![image](misc/robosynchallenge-pipeline.png)
 
 </div>
@@ -32,7 +32,8 @@ cd EmbodiChain
 conda activate py310
 cd /path/to/EmbodiChain
 pip install -e . --extra-index-url http://pyp.open3dv.site:2345/simple/ --trusted-host pyp.open3dv.site
-pip install "numpy<2.0"
+pip install uv "numpy<2.0"
+
 ```
 
 Then install the `RoboSynChallenge` package:
