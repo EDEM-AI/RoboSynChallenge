@@ -210,4 +210,7 @@ if __name__ == "__main__":
 
     env = gym.make(id=gym_config["id"], cfg=env_cfg, **action_config)
 
-    run_env_main(args, env, gym_config=gym_config)
+    try:
+        run_env_main(args, env, gym_config=gym_config)
+    finally:
+        env.close()
