@@ -1,0 +1,18 @@
+# docs build outputs
+_site/
+site/
+_build/
+.vitepress/dist/
+.docusaurus/
+build/
+
+# docs caches
+.cache/
+.jekyll-cache/
+.sass-cache/
+doctrees/
+.doctrees/
+.ipynb_checkpoints/
+
+# local
+.DS_Store
