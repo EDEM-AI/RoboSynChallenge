@@ -61,7 +61,7 @@
                 "params": {
                     "entity_cfg": {"uid": "table"},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -72,7 +72,7 @@
                 "params": {
                     "entity_cfg": {"uid": "CobotMagic", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -83,7 +83,7 @@
                 "params": {
                     "entity_cfg": {"uid": "default_plane"},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -94,7 +94,7 @@
                 "params": {
                     "entity_cfg": {"uid": "duck"},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -105,7 +105,7 @@
                 "params": {
                     "entity_cfg": {"uid": "drawer", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -116,7 +116,7 @@
                 "params": {
                     "entity_cfg": {"uid": "drawer_background", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -152,7 +152,7 @@
                         {"uid": "distractor_0"},
                         {"uid": "distractor_1"}
                     ],
-                    "library_index_path": "/root/workspace/RoboSynChallenge/robosynchallenge/Distractor/ASSET_INDEX.json",
+                    "library_index_path": "RoboSynChallenge/robosynchallenge/Distractor/ASSET_INDEX.json",
                     "categories": ["PaperCup", "fork", "spoon"],
                     "position_ranges": [
                         [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]],
@@ -474,7 +474,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/drawer_open_place",
+                    "save_path": "lerobot_dataset/drawer_open_place",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -699,7 +699,7 @@
             "uid": "duck",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/tomato/tomato_asset_simready/asset_simready.obj"
+                "fpath": "RoboSynChallenge/assets/tomato/tomato_asset_simready/asset_simready.obj"
             },
             "body_scale": [
                 0.8,
@@ -733,14 +733,14 @@
             "uid": "distractor_0",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
+                "fpath": "RoboSynChallenge/assets/Beaker/beaker.ply"
             }
         },
         {
             "uid": "distractor_1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
+                "fpath": "RoboSynChallenge/assets/Beaker/beaker.ply"
             }
         }
     ],

@@ -68,21 +68,12 @@ from .sample_loading.sample_loading import (
 
 
 # Competition-irrelevant tasks
-# from ._other_tasks.open_pan.open_pan import (
-#     OpenPanPickAndPlaceEnv,
-#     OpenPanPickAndPlaceTestEnv,
-#     OpenPanPickAndPlaceAgentEnv,
-# )
-# from ._other_tasks.sample_loading.sample_loading import (
-#     SampleLoadingEnv,
-#     SampleLoadingAgentEnv,
-# )
-# from ._other_tasks.manipulate_pipette_two_beaker.manipulate_pipette_two_beaker import (
-#     ManipulatePipetteTwoBeakerEnv,
-#     ManipulatePipetteTwoBeakerTestEnv,
-#     ManipulatePipetteTwoBeakerAgentEnv,
-# )
-# from ._other_tasks.pour_water.pour_water import (
-#     PourWaterEnv,
-#     PourWaterAgentEnv,
-# )
+from ._other_tasks.open_pan import open_pan as _open_pan
+from ._other_tasks.manipulate_pipette_two_beaker import (
+    manipulate_pipette_two_beaker as _manipulate_pipette_two_beaker,
+)
+
+# Do not import _other_tasks.sample_loading here. Gymnasium disallows registering
+# SampleLoading-v1 while the official unversioned SampleLoading env is registered.
+# Do not import _other_tasks.pour_water here. Gymnasium disallows registering
+# unversioned PourWater while EmbodiChain's PourWater-v3 env is registered.

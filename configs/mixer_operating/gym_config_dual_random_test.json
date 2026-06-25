@@ -61,7 +61,7 @@
                 "params": {
                     "entity_cfg": {"uid": "table"},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -72,7 +72,7 @@
                 "params": {
                     "entity_cfg": {"uid": "CobotMagic", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -83,7 +83,7 @@
                 "params": {
                     "entity_cfg": {"uid": "default_plane"},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -109,7 +109,7 @@
                 "params": {
                     "entity_cfg": {"uid": "beaker_mixer"},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -143,7 +143,7 @@
                         {"uid": "distractor_0"},
                         {"uid": "distractor_1"}
                     ],
-                    "library_index_path": "/root/workspace/RoboSynChallenge/robosynchallenge/Distractor/ASSET_INDEX.json",
+                    "library_index_path": "RoboSynChallenge/robosynchallenge/Distractor/ASSET_INDEX.json",
                     "categories": ["PaperCup", "fork", "spoon"],
                     "position_ranges": [
                         [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]],
@@ -366,7 +366,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/mixer_operating",
+                    "save_path": "lerobot_dataset/mixer_operating",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -579,7 +579,7 @@
             "uid": "beaker",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply",
+                "fpath": "RoboSynChallenge/assets/Beaker/beaker.ply",
                 "compute_uv": true
             },
             "attrs": {
@@ -603,7 +603,7 @@
             "uid": "beaker_mixer",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/beaker_mixer/beaker_mixer.obj",
+                "fpath": "RoboSynChallenge/assets/beaker_mixer/beaker_mixer.obj",
                 "compute_uv": false
             },
             "attrs": {
@@ -627,14 +627,14 @@
             "uid": "distractor_0",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
+                "fpath": "RoboSynChallenge/assets/Beaker/beaker.ply"
             }
         },
         {
             "uid": "distractor_1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
+                "fpath": "RoboSynChallenge/assets/Beaker/beaker.ply"
             }
         }
     ]

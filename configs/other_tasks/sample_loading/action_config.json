@@ -1053,6 +1053,7 @@
                     "duration": 35,
                     "name": "execute_close",
                     "kwargs": {
+                        "control_part": "right_eef",
                         "return_action": true,
                         "expand": true
                     }
@@ -1065,6 +1066,7 @@
                     "duration": 11,
                     "name": "execute_open",
                     "kwargs": {
+                        "control_part": "right_eef",
                         "return_action": true,
                         "expand": true
                     }

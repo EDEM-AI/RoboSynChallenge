@@ -344,7 +344,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/drawer_open_place",
+                    "save_path": "lerobot_dataset/drawer_open_place",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -569,7 +569,7 @@
             "uid": "duck",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/tomato/tomato_asset_simready/asset_simready.obj"
+                "fpath": "RoboSynChallenge/assets/tomato/tomato_asset_simready/asset_simready.obj"
             },
             "body_scale": [
                 0.8,

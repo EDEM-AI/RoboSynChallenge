@@ -32,6 +32,17 @@ def _get_version():
 
 __version__ = _get_version()
 
+
+def _patch_embodichain_runtime_imports():
+    from embodichain.lab.sim.material import VisualMaterialCfg
+    import embodichain.lab.sim.shapes as shapes
+
+    if not hasattr(shapes, "VisualMaterialCfg"):
+        shapes.VisualMaterialCfg = VisualMaterialCfg
+
+
+_patch_embodichain_runtime_imports()
+
 from . import data as data
 from . import managers as managers
 from . import tasks as tasks

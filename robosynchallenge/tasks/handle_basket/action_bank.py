@@ -24,7 +24,6 @@ import torch
 
 from embodichain.lab.gym.envs.action_bank.configurable_action import (
     ActionBank,
-    tag_edge,
     tag_node,
 )
 from embodichain.lab.gym.utils.misc import (
@@ -43,11 +42,12 @@ from embodichain.lab.sim.planners import (
     ToppraPlannerCfg,
 )
 from embodichain.utils import logger
+from ..atomic_edge_replay import AtomicEdgeReplayActionBankMixin
 
 __all__ = ["HandleBasketActionBank"]
 
 
-class HandleBasketActionBank(ActionBank):
+class HandleBasketActionBank(AtomicEdgeReplayActionBankMixin, ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params
@@ -65,8 +65,6 @@ class HandleBasketActionBank(ActionBank):
         return True
 
     @staticmethod
-    @tag_edge
-    @tag_node
     def execute_open(env, return_action: bool = False, limit: float = 1.0, **kwargs):
         if return_action:
             duration = kwargs.get("duration", 1)
@@ -80,8 +78,6 @@ class HandleBasketActionBank(ActionBank):
         return True
 
     @staticmethod
-    @tag_edge
-    @tag_node
     def execute_close(env, return_action: bool = False, limit: float = 1.0, **kwargs):
         if return_action:
             duration = kwargs.get("duration", 1)
@@ -165,7 +161,6 @@ class HandleBasketActionBank(ActionBank):
 
 
     @staticmethod
-    @tag_edge
     def plan_trajectory(
         env,
         agent_uid: str,
@@ -221,7 +216,6 @@ class HandleBasketActionBank(ActionBank):
 
             return ret.positions.numpy().T
     @staticmethod
-    @tag_edge
     def stand_still(
         env,
         agent_uid: str,

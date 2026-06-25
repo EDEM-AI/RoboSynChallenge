@@ -207,7 +207,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/manipulate_pipette/",
+                    "save_path": "lerobot_dataset/manipulate_pipette/",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -417,7 +417,7 @@
             "uid":"beaker1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
+                "fpath": "RoboSynChallenge/assets/Beaker/beaker.ply"
             },
             "attrs" : {
                 "mass": 0.05,
@@ -440,7 +440,7 @@
     "articulation": [
         {
             "uid": "pipette",
-            "fpath": "/root/workspace/RoboSynChallenge/assets/pipette_good/pipette_good.urdf",
+            "fpath": "RoboSynChallenge/assets/pipette_good/pipette_good.urdf",
             "build_pk_chain": false,
             "init_pos": [0.6, -0.25, 0.86],
             "init_rot": [0, -7, 0],

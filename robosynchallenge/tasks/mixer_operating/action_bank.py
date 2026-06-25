@@ -22,7 +22,6 @@ from typing import List
 from embodichain.lab.gym.envs.action_bank.configurable_action import (
     ActionBank,
     tag_node,
-    tag_edge,
 )
 
 from embodichain.lab.gym.utils.misc import resolve_env_params, mul_linear_expand
@@ -37,12 +36,13 @@ from embodichain.lab.sim.planners import (
     ToppraPlannerCfg,
 )
 from embodichain.utils import logger
+from ..atomic_edge_replay import AtomicEdgeReplayActionBankMixin
 
 
 __all__ = ["MixerOperatingActionBank"]
 
 
-class MixerOperatingActionBank(ActionBank):
+class MixerOperatingActionBank(AtomicEdgeReplayActionBankMixin, ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params
@@ -136,8 +136,6 @@ class MixerOperatingActionBank(ActionBank):
         return True
 
     @staticmethod
-    @tag_edge
-    @tag_node
     def execute_open(env, return_action: bool = False, **kwargs):
         if return_action:
             duration = kwargs.get("duration", 1)
@@ -174,8 +172,6 @@ class MixerOperatingActionBank(ActionBank):
             return True
 
     @staticmethod
-    @tag_edge
-    @tag_node
     def execute_close(env, return_action: bool = False, **kwargs):
         if return_action:
             duration = kwargs.get("duration", 1)
@@ -212,7 +208,6 @@ class MixerOperatingActionBank(ActionBank):
             return True
 
     @staticmethod
-    @tag_edge
     def plan_trajectory(
         env,
         agent_uid: str,
@@ -269,7 +264,6 @@ class MixerOperatingActionBank(ActionBank):
             return ret.positions.numpy().T
 
     @staticmethod
-    @tag_edge
     def stand_still(
         env,
         agent_uid: str,

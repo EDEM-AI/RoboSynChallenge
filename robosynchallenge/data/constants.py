@@ -16,4 +16,11 @@
 
 from pathlib import Path
 
-# Add your constants here. eg, the data download prefix.
+ROBOSYNCHALLENGE_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+class RoboSynChallenge:
+    """Local data namespace for RoboSynChallenge config asset paths."""
+
+    def __init__(self):
+        self.extract_dir = str(ROBOSYNCHALLENGE_PROJECT_ROOT)
