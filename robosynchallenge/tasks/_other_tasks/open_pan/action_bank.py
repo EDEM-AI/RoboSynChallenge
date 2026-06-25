@@ -24,7 +24,6 @@ import torch
 
 from embodichain.lab.gym.envs.action_bank.configurable_action import (
     ActionBank,
-    tag_edge,
     tag_node,
 )
 from embodichain.lab.gym.utils.misc import (
@@ -43,11 +42,12 @@ from embodichain.lab.sim.planners import (
     ToppraPlannerCfg,
 )
 from embodichain.utils import logger
+from ...atomic_edge_replay import AtomicEdgeReplayActionBankMixin
 
 __all__ = ["OpenPanPickandPlaceActionBank", "OpenPanActionBank"]
 
 
-class OpenPanPickandPlaceActionBank(ActionBank):
+class OpenPanPickandPlaceActionBank(AtomicEdgeReplayActionBankMixin, ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params
@@ -519,8 +519,6 @@ class OpenPanPickandPlaceActionBank(ActionBank):
         return True
 
     @staticmethod
-    @tag_edge
-    @tag_node
     def execute_open(env, return_action: bool = False, **kwargs):
         if return_action:
             duration = kwargs.get("duration", 1)
@@ -534,8 +532,6 @@ class OpenPanPickandPlaceActionBank(ActionBank):
         return True
 
     @staticmethod
-    @tag_edge
-    @tag_node
     def execute_close(env, return_action: bool = False, **kwargs):
         if return_action:
             duration = kwargs.get("duration", 1)
@@ -549,7 +545,6 @@ class OpenPanPickandPlaceActionBank(ActionBank):
         return True
 
     @staticmethod
-    @tag_edge
     def stand_still(env, agent_uid: str, keypose_names: List[str], duration: int):
         keyposes = [env.affordance_datas[keypose_name] for keypose_name in keypose_names]
         stand_still_qpos = keyposes[0]
@@ -571,7 +566,6 @@ class OpenPanPickandPlaceActionBank(ActionBank):
         return ret.T
 
     @staticmethod
-    @tag_edge
     def plan_trajectory(
         env,
         agent_uid: str,

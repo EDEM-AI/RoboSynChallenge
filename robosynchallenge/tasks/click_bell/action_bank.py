@@ -41,12 +41,13 @@ from embodichain.lab.sim.planners import (
     ToppraPlannerCfg,
 )
 from embodichain.utils import logger
+from ..atomic_edge_replay import AtomicEdgeReplayActionBankMixin
 
 
 __all__ = ["ClickBellActionBank"]
 
 
-class ClickBellActionBank(ActionBank):
+class ClickBellActionBank(AtomicEdgeReplayActionBankMixin, ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params
@@ -125,8 +126,6 @@ class ClickBellActionBank(ActionBank):
         return True
 
     @staticmethod
-    @tag_edge
-    @tag_node
     # TODO: Got the dimension from the scope
     def execute_open(env, return_action: bool = False, **kwargs):
         if return_action:
@@ -142,8 +141,6 @@ class ClickBellActionBank(ActionBank):
             return True
 
     @staticmethod
-    @tag_edge
-    @tag_node
     def execute_close(env, return_action: bool = False, **kwargs):
 
         if return_action:
@@ -159,7 +156,6 @@ class ClickBellActionBank(ActionBank):
             return True
 
     @staticmethod
-    @tag_edge
     def plan_trajectory(
         env,
         agent_uid: str,
@@ -216,7 +212,6 @@ class ClickBellActionBank(ActionBank):
             return ret.positions.numpy().T
 
     @staticmethod
-    @tag_edge
     def stand_still(
         env,
         agent_uid: str,

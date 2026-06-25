@@ -177,7 +177,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/item_assembly",
+                    "save_path": "lerobot_dataset/item_assembly",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -384,7 +384,7 @@
             "uid":"guijiao2",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/guijiao_standard/1guijiao_standard.ply",
+                "fpath": "RoboSynChallenge/assets/guijiao_standard/1guijiao_standard.ply",
                 "compute_uv": true
             },
             "attrs" : {
@@ -406,7 +406,7 @@
             "uid":"guijiao1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/guijiao_standard/2guijiao_standard.ply",
+                "fpath": "RoboSynChallenge/assets/guijiao_standard/2guijiao_standard.ply",
                 "compute_uv": true
             },
             "attrs" : {

@@ -166,7 +166,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/pour_water_dual/",
+                    "save_path": "lerobot_dataset/pour_water_dual/",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -363,7 +363,7 @@
             "uid":"cup",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/PaperCup/green_cup.ply",
+                "fpath": "RoboSynChallenge/assets/PaperCup/green_cup.ply",
                 "compute_uv": true,
                 "visual_material": {
                     "uid": "cup_mat",
@@ -388,7 +388,7 @@
             "uid":"bottle",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/bottle/bottle.obj",
+                "fpath": "RoboSynChallenge/assets/bottle/bottle.obj",
                 "compute_uv": false
             },
             "attrs" : {

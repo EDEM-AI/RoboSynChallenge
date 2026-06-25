@@ -385,7 +385,7 @@
             "uid":"cube",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/test_tube_standard.ply",
+                "fpath": "RoboSynChallenge/assets/test_tube_standard.ply",
                 "compute_uv": true
             },
             "attrs" : {
@@ -409,7 +409,7 @@
             "uid":"rack",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/test_tube_rack_standard.ply",
+                "fpath": "RoboSynChallenge/assets/test_tube_rack_standard.ply",
                 "compute_uv": true
             },
             "attrs" : {

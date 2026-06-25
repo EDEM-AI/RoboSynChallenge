@@ -61,7 +61,7 @@
                 "params": {
                     "entity_cfg": {"uid": "table"},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -72,7 +72,7 @@
                 "params": {
                     "entity_cfg": {"uid": "CobotMagic", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -83,7 +83,7 @@
                 "params": {
                     "entity_cfg": {"uid": "default_plane"},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -94,7 +94,7 @@
                 "params": {
                     "entity_cfg": {"uid": "pipette", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
-                    "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+                    "texture_path": "RoboSynChallenge/assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
@@ -143,7 +143,7 @@
                         {"uid": "distractor_0"},
                         {"uid": "distractor_1"}
                     ],
-                    "library_index_path": "/root/workspace/RoboSynChallenge/robosynchallenge/Distractor/ASSET_INDEX.json",
+                    "library_index_path": "RoboSynChallenge/robosynchallenge/Distractor/ASSET_INDEX.json",
                     "categories": ["PaperCup", "fork", "spoon"],
                     "position_ranges": [
                         [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]],
@@ -353,7 +353,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/manipulate_pipette/",
+                    "save_path": "lerobot_dataset/manipulate_pipette/",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -563,7 +563,7 @@
             "uid":"beaker1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
+                "fpath": "RoboSynChallenge/assets/Beaker/beaker.ply"
             },
             "attrs" : {
                 "mass": 0.05,
@@ -586,21 +586,21 @@
             "uid": "distractor_0",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
+                "fpath": "RoboSynChallenge/assets/Beaker/beaker.ply"
             }
         },
         {
             "uid": "distractor_1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply"
+                "fpath": "RoboSynChallenge/assets/Beaker/beaker.ply"
             }
         }
     ],
     "articulation": [
         {
             "uid": "pipette",
-            "fpath": "/root/workspace/RoboSynChallenge/assets/pipette_good/pipette_good.urdf",
+            "fpath": "RoboSynChallenge/assets/pipette_good/pipette_good.urdf",
             "build_pk_chain": false,
             "init_pos": [0.6, -0.25, 0.86],
             "init_rot": [0, -7, 0],

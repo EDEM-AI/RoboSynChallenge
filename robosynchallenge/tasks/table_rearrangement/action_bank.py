@@ -22,7 +22,6 @@ from embodichain.lab.sim.planners.motion_generator import MotionGenerator
 from embodichain.lab.gym.envs.action_bank.configurable_action import (
     ActionBank,
     tag_node,
-    tag_edge,
 )
 
 from embodichain.lab.gym.utils.misc import (
@@ -42,12 +41,13 @@ from embodichain.lab.sim.planners import (
     ToppraPlannerCfg,
 )
 from embodichain.utils import logger
+from ..atomic_edge_replay import ExplicitTcpAtomicReplayActionBankMixin
 
 
 __all__ = ["TableRearrangementActionBank"]
 
 
-class TableRearrangementActionBank(ActionBank):
+class TableRearrangementActionBank(ExplicitTcpAtomicReplayActionBankMixin, ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params
@@ -65,8 +65,6 @@ class TableRearrangementActionBank(ActionBank):
         return True
 
     @staticmethod
-    @tag_edge
-    @tag_node
     # TODO: Got the dimension from the scope
     def execute_open(env, return_action: bool = False, limit: float = 0.05, **kwargs):
         if return_action:
@@ -82,8 +80,6 @@ class TableRearrangementActionBank(ActionBank):
             return True
 
     @staticmethod
-    @tag_edge
-    @tag_node
     def execute_close(env, return_action: bool = False, limit: float = 0.05, **kwargs):
 
         if return_action:
@@ -99,7 +95,6 @@ class TableRearrangementActionBank(ActionBank):
             return True
 
     @staticmethod
-    @tag_edge
     def plan_trajectory(
         env,
         agent_uid: str,
@@ -157,7 +152,6 @@ class TableRearrangementActionBank(ActionBank):
 
 
     @staticmethod
-    @tag_edge
     def stand_still(
         env,
         agent_uid: str,

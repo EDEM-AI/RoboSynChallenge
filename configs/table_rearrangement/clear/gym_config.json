@@ -137,7 +137,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/table_rearrangement",
+                    "save_path": "lerobot_dataset/table_rearrangement",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,

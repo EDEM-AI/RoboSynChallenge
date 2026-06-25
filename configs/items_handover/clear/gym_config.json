@@ -169,7 +169,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/items_handover/",
+                    "save_path": "lerobot_dataset/items_handover/",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -376,7 +376,7 @@
             "uid":"holder",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/PenHolder/pen_holder.obj",
+                "fpath": "RoboSynChallenge/assets/PenHolder/pen_holder.obj",
                 "compute_uv": true
             },
             "attrs" : {
@@ -397,7 +397,7 @@
             "uid":"pen",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Pen/the_pen.obj",
+                "fpath": "RoboSynChallenge/assets/Pen/the_pen.obj",
                 "compute_uv": true,
                 "visual_material": {
                     "uid": "black_pen_mat",

@@ -5,7 +5,6 @@ from typing import List
 
 from embodichain.lab.gym.envs.action_bank.configurable_action import (
     ActionBank,
-    tag_edge,
     tag_node,
 )
 from embodichain.lab.gym.utils.misc import resolve_env_params
@@ -19,11 +18,12 @@ from embodichain.lab.sim.planners import (
     ToppraPlannerCfg,
 )
 from embodichain.utils import logger
+from ..atomic_edge_replay import AtomicEdgeReplayActionBankMixin
 
 __all__ = ["DrawerOpenPlaceActionBank"]
 
 
-class DrawerOpenPlaceActionBank(ActionBank):
+class DrawerOpenPlaceActionBank(AtomicEdgeReplayActionBankMixin, ActionBank):
     """Small task-specific action bank for DrawerOpenPlace.
 
     The geometric recipe is intentionally kept in action_config.json. This class
@@ -149,8 +149,6 @@ class DrawerOpenPlaceActionBank(ActionBank):
         return True
 
     @staticmethod
-    @tag_node
-    @tag_edge
     @resolve_env_params
     def execute_open(
         env,
@@ -187,8 +185,6 @@ class DrawerOpenPlaceActionBank(ActionBank):
         )
 
     @staticmethod
-    @tag_node
-    @tag_edge
     @resolve_env_params
     def execute_close(
         env,
@@ -233,7 +229,6 @@ class DrawerOpenPlaceActionBank(ActionBank):
         )
 
     @staticmethod
-    @tag_edge
     def plan_trajectory(
         env,
         agent_uid: str,
@@ -285,7 +280,6 @@ class DrawerOpenPlaceActionBank(ActionBank):
         return positions.T.astype(np.float32)
 
     @staticmethod
-    @tag_edge
     def stand_still(
         env,
         agent_uid: str,
