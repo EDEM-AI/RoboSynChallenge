@@ -14,7 +14,7 @@
 # limitations under the License.
 # ----------------------------------------------------------------------------
 
-"""Shared L1 atomic edge replay helpers for RoboSynChallenge ActionBanks."""
+"""Shared atomic edge replay helpers for RoboSynChallenge ActionBanks."""
 
 from __future__ import annotations
 
@@ -33,7 +33,10 @@ from embodichain.lab.sim.planners import MotionGenCfg, MotionGenerator, ToppraPl
 from embodichain.utils import logger
 
 
-__all__ = ["AtomicEdgeReplayActionBankMixin"]
+__all__ = [
+    "AtomicEdgeReplayActionBankMixin",
+    "ExplicitTcpAtomicReplayActionBankMixin",
+]
 
 
 class AtomicEdgeReplayActionBankMixin(ActionBank):
@@ -411,3 +414,148 @@ class AtomicEdgeReplayActionBankMixin(ActionBank):
         from embodichain.lab.sim.atomic_actions.core import WorldState
 
         return WorldState
+
+
+class ExplicitTcpAtomicReplayActionBankMixin(AtomicEdgeReplayActionBankMixin):
+    """Replay arm edges through explicit TCP targets using ``MoveEndEffector``.
+
+    This L2 helper keeps RoboSyn's task-specific keypose builders intact. It
+    converts the generated qpos keyposes to TCP poses with FK, then asks
+    EmbodiChain's ``MoveEndEffector`` atomic action to replay each arm edge.
+    Gripper edges still come from the L1 ``MoveJoints`` replay path.
+    """
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        ExplicitTcpAtomicReplayActionBankMixin._register_tcp_replay_edges(cls)
+
+    @staticmethod
+    def _register_tcp_replay_edges(action_bank_cls: type) -> None:
+        edge_functions = get_func_tag("edge").functions.setdefault(
+            action_bank_cls.__name__, {}
+        )
+        edge_functions["plan_trajectory"] = getattr(
+            ExplicitTcpAtomicReplayActionBankMixin, "plan_trajectory"
+        )
+
+    @staticmethod
+    @tag_edge
+    def plan_trajectory(
+        env,
+        agent_uid: str,
+        keypose_names: List[str],
+        duration: int,
+        edge_name: str = "",
+    ) -> np.ndarray:
+        keyposes = [
+            ExplicitTcpAtomicReplayActionBankMixin._to_qpos_tensor(
+                env.affordance_datas[keypose_name], device=env.robot.device
+            )
+            for keypose_name in keypose_names
+        ]
+
+        if all(
+            torch.linalg.norm(former - latter).sum() <= 1e-3
+            for former, latter in zip(keyposes, keyposes[1:])
+        ):
+            logger.log_warning(
+                "Applying explicit TCP replay plan_trajectory to very close qpos "
+                "values. Using stand_still."
+            )
+            return AtomicEdgeReplayActionBankMixin.stand_still(
+                env,
+                agent_uid,
+                keypose_names,
+                duration,
+            )
+
+        tcp_poses = [
+            ExplicitTcpAtomicReplayActionBankMixin._compute_tcp_pose_from_qpos(
+                env, agent_uid, keypose
+            )
+            for keypose in keyposes
+        ]
+        segment_durations = ExplicitTcpAtomicReplayActionBankMixin._split_duration(
+            duration, len(keyposes) - 1
+        )
+        action = ExplicitTcpAtomicReplayActionBankMixin._make_move_end_effector_action(
+            env,
+            control_part=agent_uid,
+            sample_interval=segment_durations[0],
+        )
+        state = ExplicitTcpAtomicReplayActionBankMixin._make_world_state(
+            env, action.arm_joint_ids, keyposes[0]
+        )
+
+        local_segments = []
+        for target_pose, segment_duration in zip(tcp_poses[1:], segment_durations):
+            action.cfg.sample_interval = segment_duration
+            result = action.execute(
+                ExplicitTcpAtomicReplayActionBankMixin._end_effector_pose_target(
+                    target_pose
+                ),
+                state,
+            )
+            if not result.success:
+                logger.log_warning(
+                    f"Atomic MoveEndEffector failed for edge '{edge_name}' on "
+                    f"{agent_uid}. Falling back to L1 MoveJoints replay."
+                )
+                return AtomicEdgeReplayActionBankMixin.plan_trajectory(
+                    env,
+                    agent_uid,
+                    keypose_names,
+                    duration,
+                    edge_name=edge_name,
+                )
+            local_segments.append(result.trajectory[:, :, action.arm_joint_ids])
+            state = result.next_state
+
+        return torch.cat(local_segments, dim=1)[0].detach().cpu().numpy().T
+
+    @staticmethod
+    def _compute_tcp_pose_from_qpos(
+        env, control_part: str, qpos: torch.Tensor
+    ) -> torch.Tensor:
+        n_envs = env.robot.get_qpos().shape[0]
+        qpos = ExplicitTcpAtomicReplayActionBankMixin._match_qpos_dim(
+            qpos, len(env.robot.get_joint_ids(name=control_part))
+        )
+        qpos = qpos.unsqueeze(0).repeat(n_envs, 1)
+        return env.robot.compute_fk(
+            qpos=qpos,
+            name=control_part,
+            to_matrix=True,
+        ).to(device=env.robot.device, dtype=torch.float32)
+
+    @staticmethod
+    def _make_move_end_effector_action(
+        env, *, control_part: str, sample_interval: int
+    ):
+        (
+            MoveEndEffector,
+            MoveEndEffectorCfg,
+        ) = ExplicitTcpAtomicReplayActionBankMixin._move_end_effector_types()
+        return MoveEndEffector(
+            ExplicitTcpAtomicReplayActionBankMixin._get_motion_generator(env),
+            MoveEndEffectorCfg(
+                name=f"explicit_tcp_replay_{control_part}",
+                control_part=control_part,
+                sample_interval=max(int(sample_interval), 1),
+            ),
+        )
+
+    @staticmethod
+    def _move_end_effector_types():
+        from embodichain.lab.sim.atomic_actions.actions import (
+            MoveEndEffector,
+            MoveEndEffectorCfg,
+        )
+
+        return MoveEndEffector, MoveEndEffectorCfg
+
+    @staticmethod
+    def _end_effector_pose_target(xpos: torch.Tensor):
+        from embodichain.lab.sim.atomic_actions.core import EndEffectorPoseTarget
+
+        return EndEffectorPoseTarget(xpos=xpos)

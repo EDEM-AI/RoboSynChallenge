@@ -41,13 +41,13 @@ from embodichain.lab.sim.planners import (
     ToppraPlannerCfg,
 )
 from embodichain.utils import logger
-from ..atomic_edge_replay import AtomicEdgeReplayActionBankMixin
+from ..atomic_edge_replay import ExplicitTcpAtomicReplayActionBankMixin
 
 
 __all__ = ["TableRearrangementActionBank"]
 
 
-class TableRearrangementActionBank(AtomicEdgeReplayActionBankMixin, ActionBank):
+class TableRearrangementActionBank(ExplicitTcpAtomicReplayActionBankMixin, ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params

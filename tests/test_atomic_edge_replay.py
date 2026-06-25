@@ -32,6 +32,9 @@ from embodichain.lab.gym.envs.action_bank.configurable_action import (
     get_func_tag,
 )
 from robosynchallenge.tasks.atomic_edge_replay import AtomicEdgeReplayActionBankMixin
+from robosynchallenge.tasks.atomic_edge_replay import (
+    ExplicitTcpAtomicReplayActionBankMixin,
+)
 
 
 TASK_ACTION_BANKS = [
@@ -264,6 +267,11 @@ def test_action_banks_parse_graphs_with_atomic_replay_common_edges() -> None:
 
         assert issubclass(action_bank_cls, AtomicEdgeReplayActionBankMixin), label
         for func_name in COMMON_EDGE_NAMES:
+            if label == "table_rearrangement" and func_name == "plan_trajectory":
+                assert edge_funcs[func_name] is getattr(
+                    ExplicitTcpAtomicReplayActionBankMixin, func_name
+                ), (label, func_name)
+                continue
             assert edge_funcs[func_name] is getattr(
                 AtomicEdgeReplayActionBankMixin, func_name
             ), (label, func_name)
@@ -272,6 +280,116 @@ def test_action_banks_parse_graphs_with_atomic_replay_common_edges() -> None:
             node_funcs["execute_close"]
             is AtomicEdgeReplayActionBankMixin.execute_close
         )
+
+
+def test_table_rearrangement_uses_explicit_tcp_replay_for_arm_edges() -> None:
+    from robosynchallenge.tasks.table_rearrangement.action_bank import (
+        TableRearrangementActionBank,
+    )
+
+    _, edge_funcs = _collect_action_bank_functions(TableRearrangementActionBank)
+
+    assert issubclass(
+        TableRearrangementActionBank,
+        ExplicitTcpAtomicReplayActionBankMixin,
+    )
+    assert (
+        edge_funcs["plan_trajectory"]
+        is ExplicitTcpAtomicReplayActionBankMixin.plan_trajectory
+    )
+
+
+def test_explicit_tcp_replay_returns_local_arm_trajectory(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = []
+
+    class FakeRobot:
+        device = torch.device("cpu")
+
+        def get_qpos(self):
+            return torch.zeros(1, 4, dtype=torch.float32)
+
+        def get_joint_ids(self, name):
+            assert name == "left_arm"
+            return [0, 1]
+
+    class FakeAction:
+        arm_joint_ids = [0, 1]
+
+        def __init__(self) -> None:
+            self.cfg = SimpleNamespace(sample_interval=0)
+
+        def execute(self, target, state):
+            calls.append((self.cfg.sample_interval, target.xpos[0, 0, 3].item()))
+            full_trajectory = torch.zeros(
+                1, self.cfg.sample_interval, 4, dtype=torch.float32
+            )
+            full_trajectory[:, :, 0] = target.xpos[0, 0, 3]
+            full_trajectory[:, :, 1] = target.xpos[0, 0, 3] + 10.0
+            return SimpleNamespace(
+                success=True,
+                trajectory=full_trajectory,
+                next_state=SimpleNamespace(last_qpos=full_trajectory[:, -1, :]),
+            )
+
+    def fake_compute_tcp_pose(env, control_part, qpos):
+        pose = torch.eye(4, dtype=torch.float32).unsqueeze(0)
+        pose[:, 0, 3] = qpos[0]
+        return pose
+
+    def fake_make_action(env, *, control_part, sample_interval):
+        assert control_part == "left_arm"
+        action = FakeAction()
+        action.cfg.sample_interval = sample_interval
+        return action
+
+    def fake_make_world_state(env, joint_ids, start_qpos):
+        assert joint_ids == [0, 1]
+        assert torch.allclose(start_qpos, torch.tensor([0.0, 0.5]))
+        return SimpleNamespace(last_qpos=torch.zeros(1, 4, dtype=torch.float32))
+
+    monkeypatch.setattr(
+        ExplicitTcpAtomicReplayActionBankMixin,
+        "_compute_tcp_pose_from_qpos",
+        staticmethod(fake_compute_tcp_pose),
+    )
+    monkeypatch.setattr(
+        ExplicitTcpAtomicReplayActionBankMixin,
+        "_make_move_end_effector_action",
+        staticmethod(fake_make_action),
+    )
+    monkeypatch.setattr(
+        ExplicitTcpAtomicReplayActionBankMixin,
+        "_make_world_state",
+        staticmethod(fake_make_world_state),
+    )
+    monkeypatch.setattr(
+        ExplicitTcpAtomicReplayActionBankMixin,
+        "_end_effector_pose_target",
+        staticmethod(lambda xpos: SimpleNamespace(xpos=xpos)),
+    )
+    env = SimpleNamespace(
+        robot=FakeRobot(),
+        affordance_datas={
+            "start": torch.tensor([0.0, 0.5]),
+            "middle": torch.tensor([1.0, 1.5]),
+            "end": torch.tensor([3.0, 3.5]),
+        },
+    )
+
+    replay = ExplicitTcpAtomicReplayActionBankMixin.plan_trajectory(
+        env,
+        agent_uid="left_arm",
+        keypose_names=["start", "middle", "end"],
+        duration=5,
+        edge_name="unit_test_edge",
+    )
+
+    assert calls == [(3, 1.0), (2, 3.0)]
+    assert replay.shape == (2, 5)
+    assert np.allclose(replay[0], [1.0, 1.0, 1.0, 3.0, 3.0])
+    assert np.allclose(replay[1], [11.0, 11.0, 11.0, 13.0, 13.0])
 
 
 def test_duration_split_preserves_total_length() -> None:
