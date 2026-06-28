@@ -189,7 +189,7 @@
                         {"uid": "distractor_0"},
                         {"uid": "distractor_1"}
                     ],
-                    "library_index_path": "/root/workspace/RoboSynChallenge/assets/Distractor/ASSET_INDEX.json",
+                    "library_index_path": "robosynchallenge/Distractor/ASSET_INDEX.json",
                     "categories": ["PaperCup", "plastic_bin", "bottles", "fork", "mouse_pad", "plate", "spoon"],
                     "position_ranges": [
                         [[0.62, -0.20, 0.89], [0.86, -0.03, 0.92]],
@@ -380,7 +380,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/",
+                    "save_path": "lerobot_dataset/",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25
@@ -483,7 +483,7 @@
             "uid": "beaker_mixer",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/beaker_mixer/beaker_mixer.obj",
+                "fpath": "assets/beaker_mixer/beaker_mixer.obj",
                 "compute_uv": false
             },
             "attrs": {
@@ -510,7 +510,7 @@
             "uid": "beaker",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply",
+                "fpath": "assets/Beaker/beaker.ply",
                 "compute_uv": true
             },
             "attrs": {
@@ -534,7 +534,7 @@
             "uid": "distractor_0",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply",
+                "fpath": "assets/Beaker/beaker.ply",
                 "compute_uv": true
             }
         },
@@ -542,7 +542,7 @@
             "uid": "distractor_1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply",
+                "fpath": "assets/Beaker/beaker.ply",
                 "compute_uv": true
             }
         }

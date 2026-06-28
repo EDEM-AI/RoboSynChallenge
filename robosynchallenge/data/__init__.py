@@ -15,6 +15,11 @@
 # ----------------------------------------------------------------------------
 
 from .constants import *
+from .asset_resolver import (
+    get_data_path,
+    install_embodichain_asset_resolver,
+    resolve_local_asset_path,
+)
 from embodichain.data import DEFAULT_DATA_MODULES
 
 if "robosynchallenge.data" not in DEFAULT_DATA_MODULES:

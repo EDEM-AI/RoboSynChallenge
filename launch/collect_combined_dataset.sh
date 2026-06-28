@@ -10,7 +10,7 @@ if [[ "$#" -eq 1 && ("$1" == "-h" || "$1" == "--help") ]]; then
     echo -e "  $0 \033[1;32m<task_name>\033[0m \033[1;34m<clear_episodes>\033[0m \033[1;34m<random_episodes>\033[0m \033[1;34m<output_merge_path_or_id>\033[0m \033[1;35m[extra_args...]\033[0m\n"
     echo -e "This script automatically runs the clear and random settings for a task with specified episodes, finds the newly generated datasets, and merges them using \033[1;32mlerobot-edit-dataset\033[0m.\n"
 
-    source "$SCRIPT_DIR/print_available_tasks.sh"
+    source "$SCRIPT_DIR/_print_available_tasks.sh"
 
     exit 0
 fi

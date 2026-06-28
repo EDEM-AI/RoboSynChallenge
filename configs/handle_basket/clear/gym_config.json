@@ -240,7 +240,7 @@
         "func": "LeRobotRecorder",
         "mode": "save",
         "params": {
-          "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/handle_basket/",
+          "save_path": "lerobot_dataset/handle_basket/",
           "robot_meta": {
             "robot_type": "CobotMagic",
             "control_freq": 25,
@@ -596,7 +596,7 @@
       "uid": "milk",
       "shape": {
         "shape_type": "Mesh",
-        "fpath": "/root/workspace/RoboSynChallenge/assets/MilkBox/source/Milk_Packaging.glb",
+        "fpath": "assets/MilkBox/source/Milk_Packaging.glb",
         "compute_uv": true
       },
       "attrs": {
@@ -631,7 +631,7 @@
       "uid": "basket",
       "shape": {
         "shape_type": "Mesh",
-        "fpath": "/root/workspace/RoboSynChallenge/assets/Basket/kago3_deform.obj",
+        "fpath": "assets/Basket/kago3_deform.obj",
         "compute_uv": true,
         "visual_material": {
           "uid": "basket_mat",

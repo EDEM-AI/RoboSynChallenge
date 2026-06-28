@@ -180,7 +180,7 @@
             "uid": "table"
           },
           "random_texture_prob": 0.5,
-          "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+          "texture_path": "assets/background_texture/100",
           "base_color_range": [
             [
               0.2,
@@ -207,7 +207,7 @@
             ]
           },
           "random_texture_prob": 0.5,
-          "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+          "texture_path": "assets/background_texture/100",
           "base_color_range": [
             [
               0.2,
@@ -231,7 +231,7 @@
             "uid": "default_plane"
           },
           "random_texture_prob": 0.5,
-          "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+          "texture_path": "assets/background_texture/100",
           "base_color_range": [
             [
               0.2,
@@ -258,7 +258,7 @@
             ]
           },
           "random_texture_prob": 0.5,
-          "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+          "texture_path": "assets/background_texture/100",
           "base_color_range": [
             [
               0.2,
@@ -285,7 +285,7 @@
             ]
           },
           "random_texture_prob": 0.5,
-          "texture_path": "/root/workspace/RoboSynChallenge/assets/background_texture/100",
+          "texture_path": "assets/background_texture/100",
           "base_color_range": [
             [
               0.2,
@@ -382,7 +382,7 @@
               "uid": "distractor_1"
             }
           ],
-          "library_index_path": "/root/workspace/RoboSynChallenge/robosynchallenge/Distractor/ASSET_INDEX.json",
+          "library_index_path": "robosynchallenge/Distractor/ASSET_INDEX.json",
           "categories": [
             "PaperCup",
             "fork",
@@ -608,7 +608,7 @@
         "func": "LeRobotRecorder",
         "mode": "save",
         "params": {
-          "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/handle_basket/",
+          "save_path": "lerobot_dataset/handle_basket/",
           "robot_meta": {
             "robot_type": "CobotMagic",
             "control_freq": 25,
@@ -964,7 +964,7 @@
       "uid": "milk",
       "shape": {
         "shape_type": "Mesh",
-        "fpath": "/root/workspace/RoboSynChallenge/assets/MilkBox/source/Milk_Packaging.glb",
+        "fpath": "assets/MilkBox/source/Milk_Packaging.glb",
         "compute_uv": true
       },
       "attrs": {
@@ -999,7 +999,7 @@
       "uid": "basket",
       "shape": {
         "shape_type": "Mesh",
-        "fpath": "/root/workspace/RoboSynChallenge/assets/Basket/kago3_deform.obj",
+        "fpath": "assets/Basket/kago3_deform.obj",
         "compute_uv": true,
         "visual_material": {
           "uid": "basket_mat",
@@ -1045,14 +1045,14 @@
       "uid": "distractor_0",
       "shape": {
         "shape_type": "Mesh",
-        "fpath": "/root/workspace/RoboSynChallenge/robosynchallenge/Distractor/PaperCup/paper_cup.ply"
+        "fpath": "robosynchallenge/Distractor/PaperCup/paper_cup.ply"
       }
     },
     {
       "uid": "distractor_1",
       "shape": {
         "shape_type": "Mesh",
-        "fpath": "/root/workspace/RoboSynChallenge/robosynchallenge/Distractor/PaperCup/paper_cup.ply"
+        "fpath": "robosynchallenge/Distractor/PaperCup/paper_cup.ply"
       }
     }
   ]

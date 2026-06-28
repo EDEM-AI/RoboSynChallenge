@@ -16,4 +16,4 @@
 
 from pathlib import Path
 
-# Add your constants here. eg, the data download prefix.
+ROBOSYNCHALLENGE_ROOT = Path(__file__).resolve().parents[2]

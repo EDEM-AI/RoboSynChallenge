@@ -169,7 +169,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/sample_loading/",
+                    "save_path": "lerobot_dataset/sample_loading/",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -365,7 +365,7 @@
             "uid":"cube",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/test_tube_standard.ply",
+                "fpath": "assets/test_tube_standard.ply",
                 "compute_uv": true
             },
             "attrs" : {
@@ -389,7 +389,7 @@
             "uid":"rack",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/test_tube_rack_standard.ply",
+                "fpath": "assets/test_tube_rack_standard.ply",
                 "compute_uv": true
             },
             "attrs" : {

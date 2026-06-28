@@ -23,7 +23,7 @@ if [[ "$#" -eq 1 && ("$1" == "-h" || "$1" == "--help") ]]; then
     echo -e "  \033[1;35m--max_episodes <num>\033[0m  : Specify the maximum number of episodes to generate"
     echo -e "  \033[1;35m--headless\033[0m  : Run in headless mode\n"
 
-    source "$SCRIPT_DIR/print_available_tasks.sh"
+    source "$SCRIPT_DIR/_print_available_tasks.sh"
 
     exit 0
 fi

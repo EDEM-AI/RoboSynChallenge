@@ -19,3 +19,5 @@ from .actions import *
 from .datasets import *
 from .events import *
 from .observations import *
+
+install_lerobot_recorder_override()

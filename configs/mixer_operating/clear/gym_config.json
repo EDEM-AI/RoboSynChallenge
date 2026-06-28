@@ -204,7 +204,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/mixer_operating",
+                    "save_path": "lerobot_dataset/mixer_operating",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -417,7 +417,7 @@
             "uid": "beaker",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Beaker/beaker.ply",
+                "fpath": "assets/Beaker/beaker.ply",
                 "compute_uv": true
             },
             "attrs": {
@@ -441,7 +441,7 @@
             "uid": "beaker_mixer",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/beaker_mixer/beaker_mixer.obj",
+                "fpath": "assets/beaker_mixer/beaker_mixer.obj",
                 "compute_uv": false
             },
             "attrs": {

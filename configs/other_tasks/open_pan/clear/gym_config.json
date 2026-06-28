@@ -215,7 +215,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/open_pan",
+                    "save_path": "lerobot_dataset/open_pan",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -412,7 +412,7 @@
             "uid": "pan",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Pan/pot.ply",
+                "fpath": "assets/Pan/pot.ply",
                 "compute_uv": true
             },
             "attrs": {
@@ -433,7 +433,7 @@
             "uid": "lid",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Pan/lid_remeshed.ply",
+                "fpath": "assets/Pan/lid_remeshed.ply",
                 "compute_uv": true
             },
             "attrs": {
@@ -454,7 +454,7 @@
             "uid": "carrot",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/Carrot/carrot_centered.obj",
+                "fpath": "assets/Carrot/carrot_centered.obj",
                 "compute_uv": false
             },
             "attrs": {

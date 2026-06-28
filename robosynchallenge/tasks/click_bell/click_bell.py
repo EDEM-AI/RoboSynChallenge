@@ -144,7 +144,6 @@ class ClickBellEnv(EmbodiedEnv):
         return success, fail, {}
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
-
         return self._button_pressed
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
         obs, info = super().reset(seed=seed, options=options)

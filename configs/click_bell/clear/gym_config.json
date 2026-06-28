@@ -116,7 +116,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/click_bell",
+                    "save_path": "lerobot_dataset/click_bell",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -310,7 +310,7 @@
     "articulation": [
         {
             "uid": "button",
-            "fpath": "/root/workspace/RoboSynChallenge/assets/button/button.urdf",
+            "fpath": "assets/button/button.urdf",
             "init_pos": [0.7, 0.3, 0.83],
             "init_rot": [0, 0, 0],
             "attrs": {

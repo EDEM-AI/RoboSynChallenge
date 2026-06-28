@@ -33,5 +33,6 @@ def _get_version():
 __version__ = _get_version()
 
 from . import data as data
+data.install_embodichain_asset_resolver()
 from . import managers as managers
 from . import tasks as tasks

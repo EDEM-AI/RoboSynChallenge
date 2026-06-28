@@ -166,7 +166,7 @@
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "/root/workspace/RoboSynChallenge/lerobot_dataset/water_pouring/",
+                    "save_path": "lerobot_dataset/water_pouring/",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
@@ -388,7 +388,7 @@
             "uid":"bottle",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "/root/workspace/RoboSynChallenge/assets/bottle/bottle.obj",
+                "fpath": "assets/bottle/bottle.obj",
                 "compute_uv": false
             },
             "attrs" : {
