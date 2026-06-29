@@ -1,13 +1,7 @@
 #!/bin/bash
 # ----------------------------------------------------------------------------
-# eval.sh — 使用 π₀ 策略评估 RoboSynChallenge 任务
-#
-# 用法:
-#   ./policy/pi0/eval.sh <task_name> <setting> <train_config> <model_name> [checkpoint_id] [gpu_id] [extra_opts...]
-#
-# 示例:
-#   ./policy/pi0/eval.sh click_bell random my_config pi0_base 30000 0
-#   ./policy/pi0/eval.sh water_pouring clear wpm2_embodichain pi0_wpm2 10000 1 --max_episodes 50
+# bash eval.sh <task_name> <setting> <train_config> <model_name> [gpu_id] [extra_opts...]
+# bash eval.sh click_bell random pi0_base_robosynchallenge_full pi0 0 --max_episodes 50
 # ----------------------------------------------------------------------------
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -23,10 +17,9 @@ TASK_NAME="${1}"
 SETTING="${2}"
 TRAIN_CONFIG="${3}"
 MODEL_NAME="${4}"
-CHECKPOINT_ID="${5}"
-GPU_ID="${6}"
+GPU_ID="${5}"
 
-shift 6 2>/dev/null || true
+shift 5 2>/dev/null || true
 EXTRA_ARGS=("$@")
 
 export CUDA_VISIBLE_DEVICES="$GPU_ID"
@@ -36,7 +29,7 @@ export XLA_PYTHON_CLIENT_MEM_FRACTION=0.4
 echo "========================================="
 echo "  π₀ Policy Evaluation"
 echo "  Task:       $TASK_NAME ($SETTING)"
-echo "  Config:     $TRAIN_CONFIG / $MODEL_NAME @ $CHECKPOINT_ID"
+echo "  Config:     $TRAIN_CONFIG / $MODEL_NAME"
 echo "  GPU:        $GPU_ID"
 echo "========================================="
 
@@ -58,7 +51,6 @@ PYTHONWARNINGS=ignore::UserWarning \
     --overrides \
     --task_name "$TASK_NAME" \
     --setting "$SETTING" \
-    --train_config_name "$TRAIN_CONFIG" \
     --model_name "$MODEL_NAME" \
-    --checkpoint_id "$CHECKPOINT_ID" \
+    --train_config_name "$TRAIN_CONFIG" \
     "${EXTRA_ARGS[@]}"

@@ -1,18 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------------
-# RoboSynChallenge — 统一策略评估脚本
-#
-# 设计模式参考 RoboTwin: 通过 --policy_name 参数动态加载不同策略适配层
-# 每个策略在 policy/<policy_name>/deploy_policy.py 中提供:
-#   get_model(usr_args)   — 创建策略模型实例
-#   eval(env, model, obs)  — 执行一次推理并作用于环境
-#   reset_model(model)     — 重置策略内部状态
-#
-# 用法:
-#   python scripts/eval_policy.py --config policy/pi0/deploy_policy.yml \
-#       --policy_name pi0 --task_name click_bell --setting random \
-#       --train_config_name ... --model_name ... --checkpoint_id 30000 \
-#       --max_episodes 100 --seed 0
+# RoboSynChallenge — unified policy eval script
+# python scripts/eval_policy.py --config policy/{policy_name}/deploy_policy.yml
 # ----------------------------------------------------------------------------
 
 import os
@@ -30,6 +19,7 @@ import numpy as np
 import torch
 import gymnasium as gym
 import yaml
+from tqdm.auto import tqdm
 
 # Add policy directory to path for dynamic imports
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -109,12 +99,6 @@ def _set_default(config, key, value):
         config[key] = value
 
 
-def _as_bool(value):
-    if isinstance(value, str):
-        return value.lower() in ("1", "true", "yes", "on")
-    return bool(value)
-
-
 def _as_int_or_none(value):
     if value is None:
         return None
@@ -128,106 +112,6 @@ def resolve_episode_max_steps(config, gym_config):
     candidates = [value for value in (deploy_max_steps, gym_max_steps) if value is not None]
     max_env_steps = max(candidates) if candidates else 300
     return max_env_steps, deploy_max_steps, gym_max_steps
-
-
-def get_policy_eval_step_size(policy_name, config):
-    if policy_name == "pi0":
-        return int(config.get("pi0_step", 50))
-    return int(config.get("policy_eval_step_size", 1))
-
-
-def _to_numpy(value):
-    if isinstance(value, torch.Tensor):
-        return value.detach().cpu().numpy()
-    return np.asarray(value)
-
-
-def _any_bool(value):
-    if value is None:
-        return False
-    return bool(np.asarray(_to_numpy(value)).any())
-
-
-def _format_array_for_log(value):
-    return np.array2string(
-        np.asarray(value),
-        precision=6,
-        separator=", ",
-        suppress_small=False,
-        threshold=sys.maxsize,
-        max_line_width=200,
-    )
-
-
-def _split_policy_eval_result(result):
-    if isinstance(result, tuple) and len(result) == 2 and isinstance(result[1], dict):
-        return result
-    return result, {}
-
-
-def _print_policy_eval_info(
-    policy_name,
-    episode,
-    max_episodes,
-    infer_call,
-    env_steps_after,
-    max_env_steps,
-    env_steps_this_infer,
-    policy_eval_time_s,
-    diagnostics,
-):
-    print(f"\n{'='*50}")
-    print(f"Episode {episode:03d}/{max_episodes:03d} | "
-          f"{policy_name} INFER {infer_call:04d} | "
-          f"Env Step {env_steps_after:04d}/{max_env_steps:04d}")
-    print(f"{'='*50}\n")
-
-    if diagnostics.get("image_available") is not None:
-        print(f"image_available={diagnostics['image_available']}")
-    if diagnostics.get("image_shapes") is not None:
-        print(f"image_shapes={diagnostics['image_shapes']}")
-    if diagnostics.get("state_shape") is not None:
-        print(f"state_shape={diagnostics['state_shape']}")
-    if diagnostics.get("state") is not None:
-        print(f"input_state={_format_array_for_log(diagnostics['state'])}")
-    if diagnostics.get("actions") is not None:
-        actions = np.asarray(diagnostics["actions"])
-        print(
-            f"actions_shape={actions.shape}, "
-            f"actions={_format_array_for_log(actions)}"
-        )
-    print(f"env_steps_this_infer={env_steps_this_infer}")
-    print(f"policy_eval_time_s={policy_eval_time_s:.6f}")
-
-
-def _get_embodichain_camera_color(obs, camera_uid):
-    try:
-        return obs["sensor"][camera_uid]["color"]
-    except Exception:
-        return None
-
-
-def _format_video_frame(frame):
-    frame = _to_numpy(frame)
-
-    if frame.ndim == 4 and frame.shape[0] == 1:
-        frame = frame[0]
-    if frame.ndim != 3:
-        raise ValueError(f"Expected video frame shape (H, W, C), got {frame.shape}.")
-
-    if frame.shape[0] in (3, 4) and frame.shape[-1] not in (3, 4):
-        frame = np.moveaxis(frame, 0, -1)
-    if frame.shape[-1] == 4:
-        frame = frame[..., :3]
-    if frame.shape[-1] != 3:
-        raise ValueError(f"Expected RGB frame with 3 channels, got {frame.shape}.")
-
-    if frame.dtype != np.uint8:
-        if np.issubdtype(frame.dtype, np.floating) and np.max(frame) <= 1.0:
-            frame = frame * 255.0
-        frame = np.clip(frame, 0, 255).astype(np.uint8)
-
-    return np.ascontiguousarray(frame)
 
 
 class EpisodeVideoRecorder:
@@ -260,14 +144,14 @@ class EpisodeVideoRecorder:
         if self._episode_idx is None:
             return
 
-        frame = _get_embodichain_camera_color(obs, self.obs_key)
+        frame = obs["sensor"][self.obs_key]["color"]
         if frame is None:
             raise KeyError(
                 f"EmbodiChain camera color observation 'sensor/{self.obs_key}/color' "
                 "not found for video recording."
             )
 
-        frame = _format_video_frame(frame)
+        frame = np.ascontiguousarray(frame[0, ..., :3])
         height, width = frame.shape[:2]
         if self._process is None:
             self._start_writer(width, height)
@@ -362,27 +246,26 @@ class RecordingEnvProxy:
 
 
 def create_video_recorder(config):
-    if not _as_bool(config.get("eval_video_log", False)):
+    if not config.get("eval_video_log", False):
         return None
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    save_root = Path(config.get("eval_save_dir", "eval_result"))
+    save_root = Path("eval_result")
     save_dir = (
         save_root
-        / str(config.get("task_name", "unknown_task"))
-        / str(config.get("policy_name", "unknown_policy"))
-        / str(config.get("setting", "unknown_setting"))
-        / str(config.get("train_config_name", "unknown_config"))
-        / str(config.get("model_name", "unknown_model"))
-        / str(config.get("checkpoint_id", "unknown_ckpt"))
+        / str(config.get("task_name"))
+        / str(config.get("policy_name"))
+        / str(config.get("setting"))
+        / str(config.get("train_config_name"))
+        / str(config.get("model_name"))
         / timestamp
         / "videos"
     )
     return EpisodeVideoRecorder(
         save_dir=save_dir,
         obs_key=config.get("eval_video_obs_key", "cam_high"),
-        fps=config.get("eval_video_fps", 10),
-        crf=config.get("eval_video_crf", 23),
+        fps=10,
+        crf=23,
     )
 
 
@@ -430,12 +313,6 @@ def make_env_from_configs(config, gym_config_dict, action_config_dict):
     env = gym.make(id=gym_config["id"], cfg=env_cfg, **action_kwargs)
     return env, gym_config
 
-
-def load_json_config(path):
-    with open(path, "r") as f:
-        return json.load(f)
-
-
 def find_gym_config(config):
     """Load configs/<task_name>/<setting>/gym_config.json."""
     task_name = config.get("task_name")
@@ -444,8 +321,8 @@ def find_gym_config(config):
         print("Error: task_name and setting are required to load gym_config")
         sys.exit(1)
 
-    return load_json_config(f"configs/{task_name}/{setting}/gym_config.json")
-
+    with open(f"configs/{task_name}/{setting}/gym_config.json", "r") as f:
+        return json.load(f)
 
 def find_action_config(config):
     """Load the task action_config.json, falling back to the setting folder."""
@@ -459,8 +336,8 @@ def find_action_config(config):
     if not os.path.exists(action_cfg_path) and setting:
         action_cfg_path = f"configs/{task_name}/{setting}/action_config.json"
 
-    return load_json_config(action_cfg_path)
-
+    with open(action_cfg_path, "r") as f:
+        return json.load(f)
 
 def _instruction_to_text(instruction):
     if isinstance(instruction, str):
@@ -559,7 +436,6 @@ def main():
     max_env_steps, deploy_max_steps, gym_max_steps = resolve_episode_max_steps(
         config, gym_config_dict
     )
-    policy_eval_step_size = get_policy_eval_step_size(policy_name, config)
 
     # Build environment
     env_id = gym_config_dict.get("id")
@@ -582,7 +458,7 @@ def main():
     # Evaluation loop
     rng = np.random.RandomState(seed)
     success_count = 0
-    print(f"\n{'='*50}")
+    print(f"\n{'='*25} Starting Evaluation {'='*25}\n")
     print(f"  Policy: {policy_name}  |  Task: {task_name}")
     print(f"  Episodes: {max_episodes}  |  Seed: {seed}")
     print(
@@ -590,8 +466,7 @@ def main():
         f"(deploy_config.max_steps={deploy_max_steps}, "
         f"gym_config.max_episode_steps={gym_max_steps})"
     )
-    print(f"  Policy eval step size: {policy_eval_step_size}")
-    print(f"{'='*50}\n")
+    print(f"{'='*70}\n")
 
     try:
         for episode in range(max_episodes):
@@ -603,67 +478,47 @@ def main():
             episode_policy_eval_times = []
             env_steps = 0
             inference_count = 0
+            progress_bar = None
             try:
                 obs, info = eval_env.reset(seed=ep_seed)
                 policy_pkg.reset_model(model)
+                progress_bar = tqdm(
+                    total=max_env_steps,
+                    desc=f"Episode {episode + 1:03d}/{max_episodes:03d}",
+                    unit="step",
+                    dynamic_ncols=True,
+                    leave=False,
+                )
 
                 while env_steps < max_env_steps:
-                    remaining_env_steps = max_env_steps - env_steps
-                    if remaining_env_steps < policy_eval_step_size:
-                        print(
-                            f"### EP {episode+1:03d}/{max_episodes:03d} | "
-                            f"Tail Dropped | nv Step {env_steps:04d}/{max_env_steps:04d} "
-                            f"| remaining={remaining_env_steps} < "
-                            f"policy_eval_step_size={policy_eval_step_size} ###"
-                        )
-                        break
                     inference_count += 1
                     policy_eval_start = time.perf_counter()
-                    eval_result = policy_pkg.eval(eval_env, model, obs)
+                    obs, info, truncated = policy_pkg.eval(eval_env, model, obs)
                     policy_eval_time_s = time.perf_counter() - policy_eval_start
                     episode_policy_eval_times.append(policy_eval_time_s)
-                    obs, diagnostics = _split_policy_eval_result(eval_result)
-                    env_steps_this_infer = int(diagnostics.get("env_steps_executed", 1))
-                    if env_steps_this_infer <= 0:
-                        raise RuntimeError(
-                            f"Policy '{policy_name}' reported env_steps_executed="
-                            f"{env_steps_this_infer}; cannot advance episode."
-                        )
-                    env_steps += env_steps_this_infer
-                    _print_policy_eval_info(
-                        policy_name,
-                        episode + 1,
-                        max_episodes,
-                        inference_count,
-                        env_steps,
-                        max_env_steps,
-                        env_steps_this_infer,
-                        policy_eval_time_s,
-                        diagnostics,
+
+                    env_steps = int(info["elapsed_steps"].item())
+
+                    progress_bar.update(max(0, min(env_steps, max_env_steps) - progress_bar.n))
+                    progress_bar.set_postfix(
+                        infer=inference_count,
+                        infer_time=f"{policy_eval_time_s:.3f}s",
                     )
 
-                    success = getattr(eval_env, "is_task_success", lambda: torch.tensor(False))()
-                    if _any_bool(success):
+                    if not truncated and env.get_wrapper_attr("is_task_success")():
                         episode_success = True
+                        progress_bar.write("Task success!")
                         break
-                    if _any_bool(diagnostics.get("terminated")) or _any_bool(
-                        diagnostics.get("truncated")
-                    ):
+                    if truncated:
+                        progress_bar.write("Task timeout!")
                         break
             finally:
+                if progress_bar:
+                    progress_bar.close()
                 if video_recorder:
                     video_recorder.close_episode(success=episode_success)
 
-            if episode_policy_eval_times:
-                avg_policy_eval_time = float(np.mean(episode_policy_eval_times))
-                print(
-                    f"  Episode {episode+1} policy eval timing: "
-                    f"avg={avg_policy_eval_time:.6f}s over "
-                    f"{len(episode_policy_eval_times)} inference calls, "
-                    f"env_steps={env_steps}/{max_env_steps}"
-                )
-            else:
-                print(f"  Episode {episode+1} policy eval timing: no eval steps recorded")
+            avg_policy_eval_time = float(np.mean(episode_policy_eval_times))
 
             if episode_success:
                 success_count += 1
@@ -671,6 +526,12 @@ def main():
             else:
                 status = "\033[91mFAIL\033[0m"
 
+            print(
+                f"  Episode {episode+1} policy eval timing: "
+                f"avg={avg_policy_eval_time:.6f}s over "
+                f"{len(episode_policy_eval_times)} inference calls, "
+                f"env_steps={env_steps}/{max_env_steps}"
+            )
             print(f"  [{episode+1:3d}/{max_episodes}] {status}  "
                   f"(success rate: {success_count}/{episode+1} = {100*success_count/(episode+1):.1f}%)")
     finally:
@@ -679,7 +540,7 @@ def main():
         env.close()
 
     print(f"\n{'='*50}")
-    print(f"  Final: {success_count}/{max_episodes} ({100*success_count/max_episodes:.1f}%)")
+    print(f"  Evaluation Results Summary: {success_count}/{max_episodes} ({100*success_count/max_episodes:.1f}%)")
     print(f"{'='*50}")
 
 

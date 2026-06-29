@@ -145,7 +145,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installtion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/code_structure.html">Code Structures</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
@@ -154,7 +154,10 @@
 <li class="toctree-l1"><a class="reference internal" href="domain_randomization.html">Domain Randomization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collect_data.html">Collect Data</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="policy/index.html">Policy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="policy/your_own_policy.html">Deploy Your Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/pi0.html">PI0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy/pi05.html">PI0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy/motus.html">Motus</a></li>
 </ul>
 </details></li>
 </ul>
@@ -325,6 +328,11 @@
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#action-configuration">🔧 Action Configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scope-definition">1. Scope Definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-node-definition">2. Graph Node Definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#directed-edge-for-motion-trajectory">3. Directed Edge for Motion Trajectory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synchronization-timing-rules">4. Synchronization Timing Rules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#misc-auxiliary-configurations">5. Misc Auxiliary Configurations</a></li>
 </ul>
             </nav>
         </div>
@@ -351,12 +359,36 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>| Field          | Type | Required | Description                                                                                                                                               |
-|—————-|——|———-|———————————————————————————————————————————————————–|
-| <code class="docutils literal notranslate"><span class="pre">id</span></code>  | string  | ✅        | The ID here must be exactly the same as the registered environment name, for example <code class="docutils literal notranslate"><span class="pre">&#64;register_env(&quot;BeakerMixer-v0&quot;)</span></code> in the <code class="docutils literal notranslate"><span class="pre">RoboSynChallenge/robsynchallenge/tasks/beaker_mixer/beaker_mixer.py</span></code>                                                                                                           |
-| <code class="docutils literal notranslate"><span class="pre">max_episodes</span></code>  | int  | ✅        | Number of <strong>successful episodes</strong> to collect.                                                                                                             |
-| <code class="docutils literal notranslate"><span class="pre">max_episode_steps</span></code> | int  | ✅        | Maximum step supported by the environment.                                            |</p>
-</section>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>string</td>
+<td>✅</td>
+<td>The ID here must be exactly the same as the registered environment name, for example <code>@register_env("BeakerMixer-v0")</code> in the <code>RoboSynChallenge/robsynchallenge/tasks/beaker_mixer/beaker_mixer.py</code></td>
+</tr>
+<tr>
+<td><code>max_episodes</code></td>
+<td>int</td>
+<td>✅</td>
+<td>Number of <strong>successful episodes</strong> to collect.</td>
+</tr>
+<tr>
+<td><code>max_episode_steps</code></td>
+<td>int</td>
+<td>✅</td>
+<td>Maximum step supported by the environment.</td>
+</tr>
+</tbody>
+</table></section>
 <section id="domain-randomization">
 <h3>🧠 Domain Randomization<a class="headerlink" href="#domain-randomization" title="Link to this heading">#</a></h3>
 <p>Configure task variation for better generalization. Most event functors can be found in detail in: 👉 <a class="reference external" href="https://dexforce.github.io/EmbodiChain/main/api_reference/embodichain/embodichain.lab.gym.envs.managers.html#module-embodichain.lab.gym.envs.managers.randomization">EmbodiChain Randomization Docs</a>.</p>
@@ -617,7 +649,237 @@
 </section>
 <section id="action-configuration">
 <h2>🔧 Action Configuration<a class="headerlink" href="#action-configuration" title="Link to this heading">#</a></h2>
-<p>Action Configuration can be found in detail in: 👉 <a class="reference external" href="https://dexforce.github.io/EmbodiChain/main/tutorial/data_generation.html#step-2-prepare-the-action-configuration">EmbodiChain Action Config Docs</a></p>
+<p>All action logic is stored in <code class="docutils literal notranslate"><span class="pre">action_config.json</span></code>. This file adopts Directed Graph (DiGraph) to describe the complete dual-arm robot task workflow, covering action space definition, key pose generation, trajectory planning, multi-component timing constraints and debug switches.</p>
+<p>There are 5 top-level core fields in the config file:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">scope</span></code>: Define control modules, action dimensions and initialization rules for arms and grippers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">node</span></code>: Graph nodes, generate critical poses including initial joint status, pre-grasp pose, target grasp pose and IK solved joint angles</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge</span></code>: Directed edges, plan smooth motion trajectories between two nodes with adjustable motion steps</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sync</span></code>: Synchronization dependency rules to control execution order between robot arms and grippers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">misc</span></code>: Auxiliary switches for visualization and trajectory smoothing</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="scope-definition">
+<h2>1. Scope Definition<a class="headerlink" href="#scope-definition" title="Link to this heading">#</a></h2>
+<p>Four independent control modules are declared: right arm, left arm, left end-effector, right end-effector. Each module defines action dimension and initialization strategy.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;right_arm&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DiGraph&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;dim&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">6</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;init&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;current_qpos&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;init_node_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;right_arm_init_qpos&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;dtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;float32&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;left_arm&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">        </span><span class="nt">&quot;left_eef&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">        </span><span class="nt">&quot;right_eef&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>string</td>
+<td>Fixed as <code>DiGraph</code>, all motion modules use directed graph structure</td>
+</tr>
+<tr>
+<td><code>dim</code></td>
+<td>list[int]</td>
+<td>Action dimension: 6 DoF for each robotic arm, 1 dimension for gripper open/close control</td>
+</tr>
+<tr>
+<td><code>init.method</code></td>
+<td>string</td>
+<td><code>current_qpos</code>: read real-time joint angles as initial state; <code>given_qpos</code>: use fixed preset value</td>
+</tr>
+<tr>
+<td><code>dtype</code></td>
+<td>string</td>
+<td>Uniformly set to <code>float32</code> for all pose and joint calculations</td>
+</tr>
+</tbody>
+</table><p>The left arm follows the same structure as the right arm. For grippers, set <code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">[1]</span></code> and use <code class="docutils literal notranslate"><span class="pre">given_qpos:</span> <span class="pre">[1]</span></code> to keep gripper open by default. Other modules can be configured by analogy.</p>
+</section>
+<section id="graph-node-definition">
+<h2>2. Graph Node Definition<a class="headerlink" href="#graph-node-definition" title="Link to this heading">#</a></h2>
+<p>Each node stands for a key task pose, such as home pose, pre-grasp pose, grasp target pose and placement pose. The most commonly used node converts Cartesian pose to joint angles via inverse kinematics.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;right_arm&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;bottle_grasp_qpos&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;generate_affordances_from_src&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="nt">&quot;affordance_infos&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                            </span><span class="p">{</span>
+<span class="w">                                </span><span class="nt">&quot;src_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bottle_grasp_pose&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="nt">&quot;dst_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bottle_grasp_qpos&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="nt">&quot;valid_funcs_name_kwargs_proc&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                                    </span><span class="p">{</span>
+<span class="w">                                        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;get_ik_ret&quot;</span><span class="p">,</span>
+<span class="w">                                        </span><span class="nt">&quot;kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                                            </span><span class="nt">&quot;ik_func&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;env.robot.compute_ik&quot;</span><span class="p">,</span>
+<span class="w">                                            </span><span class="nt">&quot;qpos_seed&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;env.affordance_datas[&#39;bottle_pre1_qpos&#39;]&quot;</span><span class="p">,</span>
+<span class="w">                                            </span><span class="nt">&quot;control_part&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;right_arm&quot;</span>
+<span class="w">                                        </span><span class="p">}</span>
+<span class="w">                                    </span><span class="p">}</span>
+<span class="w">                                </span><span class="p">]</span>
+<span class="w">                            </span><span class="p">}</span>
+<span class="w">                        </span><span class="p">]</span>
+<span class="w">                    </span><span class="p">}</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src_key</code></td>
+<td>Input parameter: Cartesian pose of target object</td>
+</tr>
+<tr>
+<td><code>dst_key</code></td>
+<td>Output parameter: solved joint angles of robotic arm</td>
+</tr>
+<tr>
+<td><code>get_ik_ret</code></td>
+<td>Core inverse kinematics solver, convert 6D Cartesian pose to joint qpos</td>
+</tr>
+</tbody>
+</table><p>Pre-grasp waypoints, placement waypoints and return home waypoints reuse this node template. Only modify input <code class="docutils literal notranslate"><span class="pre">src_key</span></code> and offset parameters for different tasks.</p>
+</section>
+<section id="directed-edge-for-motion-trajectory">
+<h2>3. Directed Edge for Motion Trajectory<a class="headerlink" href="#directed-edge-for-motion-trajectory" title="Link to this heading">#</a></h2>
+<p>Edges represent continuous robot movement between two nodes, including start node, end node and total simulation steps to adjust motion speed.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;edge&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;right_arm&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;pre1_to_grasp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bottle_pre1_qpos&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;sink&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bottle_grasp_qpos&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;duration&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">24</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;plan_trajectory&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="nt">&quot;agent_uid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;right_arm&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">&quot;keypose_names&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;bottle_pre1_qpos&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bottle_grasp_qpos&quot;</span><span class="p">]</span>
+<span class="w">                    </span><span class="p">}</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src</code> / <code>sink</code></td>
+<td>Source start node and target sink node</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>Total simulation steps of this motion; larger value leads to slower movement</td>
+</tr>
+<tr>
+<td><code>plan_trajectory</code></td>
+<td>Fixed interpolation function to generate smooth joint trajectories</td>
+</tr>
+</tbody>
+</table><p>All arm movements including lifting, pouring, placing and homing share this edge structure, just replace node names and adjust <code class="docutils literal notranslate"><span class="pre">duration</span></code>.</p>
+</section>
+<section id="synchronization-timing-rules">
+<h2>4. Synchronization Timing Rules<a class="headerlink" href="#synchronization-timing-rules" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">sync</span></code> field defines execution dependencies to avoid disordered parallel motions. A typical scenario: the gripper closes only after the robotic arm reaches the grasp pose.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;sync&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;rclose0&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;depend_tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;pre1_to_grasp&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;grasp_to_up&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;depend_tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;rclose0&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>depend_tasks</code></td>
+<td>List of motion edges that must complete before running current edge</td>
+</tr>
+</tbody>
+</table><p>Add similar synchronization constraints for gripper release after placement and arm homing after object release by following the same logic.</p>
+</section>
+<section id="misc-auxiliary-configurations">
+<h2>5. Misc Auxiliary Configurations<a class="headerlink" href="#misc-auxiliary-configurations" title="Link to this heading">#</a></h2>
+<p>Global switches for debugging visualization and trajectory processing. Turn off all visualization options during dataset collection to reduce computation overhead.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;misc&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;vis_graph&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;vis_gantt&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;warpping&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vis_graph</code></td>
+<td>Switch to render directed action graph for debugging</td>
+</tr>
+<tr>
+<td><code>vis_gantt</code></td>
+<td>Switch to generate Gantt chart to inspect action timeline</td>
+</tr>
+<tr>
+<td><code>warpping</code></td>
+<td>Trajectory smoothing module, must remain enabled</td>
+</tr>
+</tbody>
+</table><p>More details can be found in: 👉 <a class="reference external" href="https://dexforce.github.io/EmbodiChain/main/tutorial/data_generation.html#step-2-prepare-the-action-configuration">EmbodiChain Action Config Docs</a></p>
 </section>
 </section>
 
@@ -676,6 +938,11 @@
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#action-configuration">🔧 Action Configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scope-definition">1. Scope Definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-node-definition">2. Graph Node Definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#directed-edge-for-motion-trajectory">3. Directed Edge for Motion Trajectory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synchronization-timing-rules">4. Synchronization Timing Rules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#misc-auxiliary-configurations">5. Misc Auxiliary Configurations</a></li>
 </ul>
   </nav></div>
 

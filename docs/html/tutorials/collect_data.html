@@ -145,7 +145,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installtion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/code_structure.html">Code Structures</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
@@ -154,7 +154,10 @@
 <li class="toctree-l1"><a class="reference internal" href="domain_randomization.html">Domain Randomization</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Collect Data</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="policy/index.html">Policy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="policy/your_own_policy.html">Deploy Your Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/pi0.html">PI0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy/pi05.html">PI0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy/motus.html">Motus</a></li>
 </ul>
 </details></li>
 </ul>
@@ -323,14 +326,16 @@
 <h1>Collect Data<a class="headerlink" href="#collect-data" title="Link to this heading">#</a></h1>
 <p>We provide 1,000 pre-collected trajectories per task as part of the open-source release <strong>RoboSynChallenge</strong> Dataset. The datasets hosted on HuggingFace are available at <a class="reference external" href="https://edem-ai.github.io/robosynchallenge.github.io/#/data">here</a>.</p>
 <p>However, we still strongly recommend users to perform data collection themselves.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="n">launch</span><span class="o">/</span><span class="n">run_task</span><span class="o">.</span><span class="n">sh</span> <span class="p">{</span><span class="n">task_name</span><span class="p">}</span> <span class="p">[</span><span class="n">random</span><span class="o">|</span><span class="n">clear</span><span class="p">]</span>
-<span class="c1"># View supported tasks: bash launch/run_task.sh -h</span>
-<span class="c1"># Clean Data Example: bash launch/run_task.sh mixer_operating clear</span>
-<span class="c1"># Radomized Data Example: bash launch/run_task.sh mixer_operating random</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="n">launch</span><span class="o">/</span><span class="n">run_task</span><span class="o">.</span><span class="n">sh</span> <span class="p">{</span><span class="n">task_name</span><span class="p">}</span> <span class="p">[</span><span class="n">random</span><span class="o">|</span><span class="n">clear</span><span class="p">]</span> <span class="p">[</span><span class="mi">3_0</span><span class="o">/</span><span class="mi">2_1</span><span class="p">]</span> <span class="p">[</span><span class="n">Other</span> <span class="n">Extra</span> <span class="n">Arguments</span><span class="p">]</span>
+<span class="c1"># View supported tasks and extra arguments: bash launch/run_task.sh -h</span>
+<span class="c1"># bash launch/run_task.sh click_bell clear 3_0</span>
+<span class="c1"># Collect data for the click_bell task without domain randomization and the data is the LeRobot 3.0 format.</span>
+<span class="c1"># bash launch/run_task.sh mixer_operating random 2_1</span>
+<span class="c1"># Collect data for the mixer_operating task involving domain randomization and convert the data to the LeRobot 2.1 format.</span>
 </pre></div>
 </div>
 <p>After data collection is completed, the collected data will be stored under <code class="docutils literal notranslate"><span class="pre">lerobot_dataset/{task_name}/</span></code>.</p>
-<p>Data will be stored in the <code class="docutils literal notranslate"><span class="pre">lerobot</span> <span class="pre">3.0</span></code> format. If you want to convert to the <code class="docutils literal notranslate"><span class="pre">lerobot</span> <span class="pre">2.1</span></code> format, we have also provide ready-made conversion scripts:</p>
+<p>If you want to convert <code class="docutils literal notranslate"><span class="pre">lerobot</span> <span class="pre">3.0</span></code> to the <code class="docutils literal notranslate"><span class="pre">lerobot</span> <span class="pre">2.1</span></code> format manually, we have also provide ready-made conversion scripts:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">scripts</span><span class="o">/</span><span class="n">convert_lerobot3</span><span class="mf">.0</span><span class="n">_to_2</span><span class="mf">.1</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">repo</span><span class="o">-</span><span class="nb">id</span> <span class="p">{</span><span class="n">repo_id</span><span class="p">}</span> <span class="o">--</span><span class="n">root</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">datasets</span>
 </pre></div>
 </div>

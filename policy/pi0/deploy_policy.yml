@@ -1,38 +1,25 @@
 # π₀ Policy Evaluation Configuration
-# 用法:
-#   python scripts/eval_policy.py --config policy/pi0/deploy_policy.yml \
-#       --policy_name pi0 --task_name click_bell --setting random \
-#       --train_config_name my_train_config --model_name pi0_base \
-#       --checkpoint_id 30000 --pi0_step 50 \
-#       --max_episodes 100 --seed 0
+# python scripts/eval_policy.py --config policy/pi0/deploy_policy.yml
 
+# ------------------------------------------------------------------
+# Basic experiment configuration (Each policy must be retained.)
+# ------------------------------------------------------------------
 policy_name: pi0
-
-# env settings
 task_name: null
 setting: null
-
-# PI0 model parameters
-train_config_name: null
 model_name: null
-checkpoint_id: null
-pi0_step: 1000 # It only represents the number of execution steps.
-pytorch_device: cpu
-
-# Evaluation settings
-max_episodes: 10
-# Maximum environment steps per episode. Effective limit is
-# max(deploy_config.max_steps, gym_config.max_episode_steps).
-max_steps: 10
 seed: 0
+max_episodes: 20
+max_steps: 1000 # Maximum environment steps per episode. Effective limit is max(deploy_config.max_steps, gym_config.max_episode_steps).
 headless: false
+pytorch_device: cuda
 filter_dataset_saving: true
-
-# Evaluation video recording
 eval_video_log: true
-eval_save_dir: eval_result
 eval_video_obs_key: cam_high
-eval_video_fps: 10
-eval_video_crf: 23
-# note: The pi0 and robosyc environments have version conflicts with the lerobot version.
-# Using the pi0 version prevents the simulation environment from saving the lerobot version.
+
+# ------------------------------------------------------------------
+# Add policy-related parameters you needing, used for get_model()
+# ------------------------------------------------------------------
+train_config_name: null
+checkpoint_id: 30000
+pi0_step: 10 # It only represents the number of execution steps. not the horizon of reasoning, it's the horizon of execution.

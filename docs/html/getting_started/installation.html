@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Installtion &#8212; RoboSynChallenge 0.1.0 documentation</title>
+    <title>Installation &#8212; RoboSynChallenge 0.1.0 documentation</title>
   
   
   
@@ -145,7 +145,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Installtion</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_structure.html">Code Structures</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
@@ -154,7 +154,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/domain_randomization.html">Domain Randomization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/collect_data.html">Collect Data</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/policy/index.html">Policy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/policy/your_own_policy.html">Deploy Your Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/policy/pi0.html">PI0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/policy/pi05.html">PI0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/policy/motus.html">Motus</a></li>
 </ul>
 </details></li>
 </ul>
@@ -307,7 +310,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Installtion</h1>
+    <h1>Installation</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -317,7 +320,25 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-recommended">Docker (Recommended)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-your-setup">Choose your setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-recommended">Docker (Recommended)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#construct-docker-container">1. Construct docker container</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-embodichain">2. Install EmbodiChain</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-robosynchallenge">3. Install RoboSynChallenge</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#local-installation">Local installation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-virtual-environment">1. Create a virtual environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">2. Install EmbodiChain</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">3. Install RoboSynChallenge</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-installation">Verify installation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-embodichain">1. Verify-Embodichain</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-robosynchallenge">2 Verify-RoboSynChallenge</a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -329,36 +350,157 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="installtion">
-<h1>Installtion<a class="headerlink" href="#installtion" title="Link to this heading">#</a></h1>
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
+<p>Our simulation environment depends on and is built on top of <a class="reference external" href="https://dexforce.github.io/EmbodiChain/"><strong>EmbodiChain</strong></a>, so we need to install <code class="docutils literal notranslate"><span class="pre">EmbodiChain</span></code> first, and then install the <code class="docutils literal notranslate"><span class="pre">RobosynChallenge</span></code> extension.</p>
+<section id="choose-your-setup">
+<h2>Choose your setup<a class="headerlink" href="#choose-your-setup" title="Link to this heading">#</a></h2>
+<p>Based on the <a class="reference external" href="https://dexforce.github.io/EmbodiChain/main/quick_start/install.html"><strong>EmbodiChain installation guide</strong></a>, we offer two installation methods:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Path</th>
+<th>Best for</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Docker</strong></td>
+<td>First run, reproducible GPU sim</td>
+<td>Pre-built image with CUDA 12.8, Vulkan, and Python 3.11</td>
+</tr>
+<tr>
+<td><strong>Local + <a href="https://github.com/astral-sh/uv">uv</a></strong></td>
+<td>Day-to-day development</td>
+<td>Fast installs; recommended with a virtual environment</td>
+</tr>
+</tbody>
+</table></section>
 <section id="docker-recommended">
 <h2>Docker (Recommended)<a class="headerlink" href="#docker-recommended" title="Link to this heading">#</a></h2>
-<p>First, please install <a class="reference external" href="https://dexforce.github.io/EmbodiChain/main/quick_start/install.html"><strong>EmbodiChain</strong></a>, which is the underlying simulation environment we use. We provide the Docker installation method; for other installation methods, please refer to <a class="reference external" href="https://dexforce.github.io/EmbodiChain/main/quick_start/install.html">EmbodiChain Install</a>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">pull</span> <span class="n">dexforce</span><span class="o">/</span><span class="n">embodichain</span><span class="p">:</span><span class="n">ubuntu22</span><span class="mf">.04</span><span class="o">-</span><span class="n">cuda12</span><span class="mf">.8</span>
-
-<span class="n">mkdir</span> <span class="n">RoboSynChallenge_ws</span> <span class="o">&amp;&amp;</span> <span class="n">cd</span> <span class="n">RoboSynChallenge_ws</span>
-<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">DexForce</span><span class="o">/</span><span class="n">EmbodiChain</span><span class="o">.</span><span class="n">git</span>
-<span class="n">cd</span> <span class="n">EmbodiChain</span>
-<span class="o">./</span><span class="n">docker</span><span class="o">/</span><span class="n">docker_run</span><span class="o">.</span><span class="n">sh</span> <span class="o">&lt;</span><span class="n">container_name</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">data_path</span><span class="o">&gt;</span>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.docker.com/engine/install/">Docker</a> with <a class="reference external" href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html">NVIDIA Container Toolkit</a></p></li>
+<li><p>NVIDIA driver ≥ 535 on the host</p></li>
+<li><p>For <strong>GUI</strong> runs: working X11 forwarding (<code class="docutils literal notranslate"><span class="pre">DISPLAY</span></code>, <code class="docutils literal notranslate"><span class="pre">~/.Xauthority</span></code>, <code class="docutils literal notranslate"><span class="pre">/tmp/.X11-unix</span></code>)</p></li>
+<li><p>For <strong>headless</strong> servers: no display required; use <code class="docutils literal notranslate"><span class="pre">--headless</span></code> in scripts</p></li>
+</ul>
+</section>
+<section id="construct-docker-container">
+<h3>1. Construct docker container<a class="headerlink" href="#construct-docker-container" title="Link to this heading">#</a></h3>
+<p>First, please install <a class="reference external" href="https://dexforce.github.io/EmbodiChain/main/quick_start/install.html"><strong>EmbodiChain</strong></a>, which is the underlying simulation environment we use.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>pull<span class="w"> </span>dexforce/embodichain:ubuntu22.04-cuda12.8
+<span class="c1"># The pre-configured image includes CUDA 12.8, Vulkan-related mounts, and dependencies needed for GPU simulation and rendering.</span>
+</pre></div>
+</div>
+<p>Then, open the container using the image and mount the local workspace.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>RoboSynChallenge_ws<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>RoboSynChallenge_ws
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/DexForce/EmbodiChain.git
+<span class="nb">cd</span><span class="w"> </span>EmbodiChain
+./docker/docker_run.sh<span class="w"> </span>&lt;container_name&gt;<span class="w"> </span>&lt;data_path&gt;
 <span class="c1"># This will mount &lt;data_path&gt; to the /root/workspace directory in &lt;container_name&gt; container.</span>
 <span class="c1"># We recommend setting &lt;data_path&gt; to the RoboSynChallenge_ws/ directory and placing EmbodiChain and RoboSynChallenge there.</span>
 </pre></div>
 </div>
+</section>
+<section id="install-embodichain">
+<h3>2. Install EmbodiChain<a class="headerlink" href="#install-embodichain" title="Link to this heading">#</a></h3>
 <p>After enter the docker container, install the <code class="docutils literal notranslate"><span class="pre">EmbodiChain</span></code> package:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">py310</span>
-<span class="n">cd</span> <span class="o">/</span><span class="n">root</span><span class="o">/</span><span class="n">workspace</span><span class="o">/</span><span class="n">EmbodiChain</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span> <span class="o">--</span><span class="n">extra</span><span class="o">-</span><span class="n">index</span><span class="o">-</span><span class="n">url</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">pyp</span><span class="o">.</span><span class="n">open3dv</span><span class="o">.</span><span class="n">site</span><span class="p">:</span><span class="mi">2345</span><span class="o">/</span><span class="n">simple</span><span class="o">/</span> <span class="o">--</span><span class="n">trusted</span><span class="o">-</span><span class="n">host</span> <span class="n">pyp</span><span class="o">.</span><span class="n">open3dv</span><span class="o">.</span><span class="n">site</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;numpy&lt;2.0&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>robosyn<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11
+conda<span class="w"> </span>activate<span class="w"> </span>robosyn
+<span class="nb">cd</span><span class="w"> </span>/root/workspace/EmbodiChain
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--extra-index-url<span class="w"> </span>http://pyp.open3dv.site:2345/simple/<span class="w"> </span>--trusted-host<span class="w"> </span>pyp.open3dv.site
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;numpy&lt;2.0&quot;</span>
 </pre></div>
 </div>
+</section>
+<section id="install-robosynchallenge">
+<h3>3. Install RoboSynChallenge<a class="headerlink" href="#install-robosynchallenge" title="Link to this heading">#</a></h3>
 <p>Then install the <code class="docutils literal notranslate"><span class="pre">RoboSynChallenge</span></code> package:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">root</span><span class="o">/</span><span class="n">worspace</span>
-<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">EDEM</span><span class="o">-</span><span class="n">AI</span><span class="o">/</span><span class="n">RoboSynChallenge</span><span class="o">.</span><span class="n">git</span>
-<span class="n">cd</span> <span class="n">RoboSynChallenge</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/root/worspace
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/EDEM-AI/RoboSynChallenge.git
+<span class="nb">cd</span><span class="w"> </span>RoboSynChallenge
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
 </pre></div>
 </div>
-<p>Now you can start your data collection!</p>
+</section>
+</section>
+<section id="local-installation">
+<h2>Local installation<a class="headerlink" href="#local-installation" title="Link to this heading">#</a></h2>
+<p>Use a dedicated virtual environment to avoid conflicts with system Python packages.</p>
+<section id="create-a-virtual-environment">
+<h3>1. Create a virtual environment<a class="headerlink" href="#create-a-virtual-environment" title="Link to this heading">#</a></h3>
+<p><strong>With uv (recommended):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+uv<span class="w"> </span>venv<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.11<span class="w"> </span>.venv
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</pre></div>
+</div>
+</section>
+<section id="id1">
+<h3>2. Install EmbodiChain<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p><strong>editable install from source with uv:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>RoboSynChallenge_ws<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>RoboSynChallenge_ws
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/DexForce/EmbodiChain.git
+<span class="nb">cd</span><span class="w"> </span>EmbodiChain
+uv<span class="w"> </span>venv<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.11<span class="w"> </span>.venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>http://pyp.open3dv.site:2345/simple/<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--trusted-host<span class="w"> </span>pyp.open3dv.site
+</pre></div>
+</div>
+<p>This pulls in <code class="docutils literal notranslate"><span class="pre">dexsim_engine</span></code> (Python package <code class="docutils literal notranslate"><span class="pre">dexsim</span></code>) and the rest of the core dependencies declared in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>.</p>
+</section>
+<section id="id2">
+<h3>3. Install RoboSynChallenge<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>Then install the <code class="docutils literal notranslate"><span class="pre">RoboSynChallenge</span></code> package:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/path/to/RoboSynChallenge_ws
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/EDEM-AI/RoboSynChallenge.git
+<span class="nb">cd</span><span class="w"> </span>RoboSynChallenge
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<!-- todo: embodichain debug --></section>
+</section>
+<section id="verify-installation">
+<h2>Verify installation<a class="headerlink" href="#verify-installation" title="Link to this heading">#</a></h2>
+<section id="verify-embodichain">
+<h3>1. Verify-Embodichain<a class="headerlink" href="#verify-embodichain" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import embodichain, dexsim; print(&#39;embodichain&#39;, embodichain.__version__); print(&#39;dexsim&#39;, dexsim.__version__)&quot;</span>
+</pre></div>
+</div>
+<p>You should see version strings for both packages with no import errors.</p>
+<p>The tutorial script <code class="docutils literal notranslate"><span class="pre">scripts/tutorials/sim/create_scene.py</span></code> ships with the repository. Run it from the <strong>repository root</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/path/to/EmbodiChain
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+python<span class="w"> </span>scripts/tutorials/sim/create_scene.py
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>With a display:</strong> omit <code class="docutils literal notranslate"><span class="pre">--headless</span></code> to open the DexSim viewer after the scene is built.</p></li>
+<li><p><strong>Headless / SSH:</strong> use <code class="docutils literal notranslate"><span class="pre">--headless</span></code> to run without a window (FPS logs in the terminal):</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts/tutorials/sim/create_scene.py<span class="w"> </span>--headless
+</pre></div>
+</div>
+<p>Press <code class="docutils literal notranslate"><span class="pre">Ctrl+C</span></code> to stop; the script cleans up the simulation on exit.</p>
+</section>
+<section id="verify-robosynchallenge">
+<h3>2 Verify-RoboSynChallenge<a class="headerlink" href="#verify-robosynchallenge" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import robosynchallenge; print(&#39;robosynchallenge&#39;, robosynchallenge.__version__)&quot;</span>
+</pre></div>
+</div>
+<p>You should see version strings for this package with no import errors.</p>
+<p>You can also execute the following script to verify that the data acquisition function is working properly:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/path/to/RoboSynChallenge_ws/RoboSynChallenge
+bash<span class="w"> </span>launch/run_task.sh<span class="w"> </span>click_bell<span class="w"> </span>random<span class="w"> </span>2_1<span class="w"> </span>--max_episodes<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p>If the installation is successful, the script will start the simulation environment and display the UI of the click_bell environment. Simultaneously, it will collect one episode of data in lerobot format (version 2.1) and save it to <code class="docutils literal notranslate"><span class="pre">/path/to/RoboSynChallenge/lerobot_dataset/click_bell/</span></code>.</p>
+<p>The data storage directory can be modified under the corresponding task and the corresponding gym_config settings. For example, the path to the gym_config file for the click_bell task and adding domain randomization is: <code class="docutils literal notranslate"><span class="pre">/path/to/RoboSynChallenge/configs/click_bell/random/gym_config.json</span></code></p>
+</section>
 </section>
 </section>
 
@@ -409,7 +551,25 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-recommended">Docker (Recommended)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-your-setup">Choose your setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-recommended">Docker (Recommended)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#construct-docker-container">1. Construct docker container</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-embodichain">2. Install EmbodiChain</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-robosynchallenge">3. Install RoboSynChallenge</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#local-installation">Local installation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-virtual-environment">1. Create a virtual environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">2. Install EmbodiChain</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">3. Install RoboSynChallenge</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-installation">Verify installation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-embodichain">1. Verify-Embodichain</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-robosynchallenge">2 Verify-RoboSynChallenge</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

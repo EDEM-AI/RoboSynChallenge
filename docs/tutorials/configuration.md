@@ -15,6 +15,7 @@ All configuration files are stored in the `configs` folder and follow the standa
     "max_episode_steps": 500
 }
 ```
+
 | Field          | Type | Required | Description                                                                                                                                               |
 |----------------|------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `id`  | string  | ✅        | The ID here must be exactly the same as the registered environment name, for example `@register_env("BeakerMixer-v0")` in the `RoboSynChallenge/robsynchallenge/tasks/beaker_mixer/beaker_mixer.py`                                                                                                           |
@@ -278,4 +279,166 @@ Dataset configuration can be found in detail in: 👉 [EmbodiChain Data Recorder
 }
 ```
 ## 🔧 Action Configuration
-Action Configuration can be found in detail in: 👉 [EmbodiChain Action Config Docs](https://dexforce.github.io/EmbodiChain/main/tutorial/data_generation.html#step-2-prepare-the-action-configuration)
+
+All action logic is stored in `action_config.json`. This file adopts Directed Graph (DiGraph) to describe the complete dual-arm robot task workflow, covering action space definition, key pose generation, trajectory planning, multi-component timing constraints and debug switches.
+
+There are 5 top-level core fields in the config file:
+- `scope`: Define control modules, action dimensions and initialization rules for arms and grippers
+- `node`: Graph nodes, generate critical poses including initial joint status, pre-grasp pose, target grasp pose and IK solved joint angles
+- `edge`: Directed edges, plan smooth motion trajectories between two nodes with adjustable motion steps
+- `sync`: Synchronization dependency rules to control execution order between robot arms and grippers
+- `misc`: Auxiliary switches for visualization and trajectory smoothing
+
+---
+
+## 1. Scope Definition
+Four independent control modules are declared: right arm, left arm, left end-effector, right end-effector. Each module defines action dimension and initialization strategy.
+
+```json
+{
+    "scope": {
+        "right_arm": {
+            "type": "DiGraph",
+            "dim": [6],
+            "init": {
+                "method": "current_qpos",
+                "init_node_name": "right_arm_init_qpos"
+            },
+            "dtype": "float32"
+        },
+        "left_arm": {},
+        "left_eef": {},
+        "right_eef": {}
+    }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `type` | string | Fixed as `DiGraph`, all motion modules use directed graph structure |
+| `dim` | list[int] | Action dimension: 6 DoF for each robotic arm, 1 dimension for gripper open/close control |
+| `init.method` | string | `current_qpos`: read real-time joint angles as initial state; `given_qpos`: use fixed preset value |
+| `dtype` | string | Uniformly set to `float32` for all pose and joint calculations |
+
+ The left arm follows the same structure as the right arm. For grippers, set `dim: [1]` and use `given_qpos: [1]` to keep gripper open by default. Other modules can be configured by analogy.
+
+## 2. Graph Node Definition
+Each node stands for a key task pose, such as home pose, pre-grasp pose, grasp target pose and placement pose. The most commonly used node converts Cartesian pose to joint angles via inverse kinematics.
+
+```json
+{
+    "node": {
+        "right_arm": [
+            {
+                "bottle_grasp_qpos": {
+                    "name": "generate_affordances_from_src",
+                    "kwargs": {
+                        "affordance_infos": [
+                            {
+                                "src_key": "bottle_grasp_pose",
+                                "dst_key": "bottle_grasp_qpos",
+                                "valid_funcs_name_kwargs_proc": [
+                                    {
+                                        "name": "get_ik_ret",
+                                        "kwargs": {
+                                            "ik_func": "env.robot.compute_ik",
+                                            "qpos_seed": "env.affordance_datas['bottle_pre1_qpos']",
+                                            "control_part": "right_arm"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `src_key` | Input parameter: Cartesian pose of target object |
+| `dst_key` | Output parameter: solved joint angles of robotic arm |
+| `get_ik_ret` | Core inverse kinematics solver, convert 6D Cartesian pose to joint qpos |
+
+Pre-grasp waypoints, placement waypoints and return home waypoints reuse this node template. Only modify input `src_key` and offset parameters for different tasks.
+
+## 3. Directed Edge for Motion Trajectory
+
+Edges represent continuous robot movement between two nodes, including start node, end node and total simulation steps to adjust motion speed.
+
+```json
+{
+    "edge": {
+        "right_arm": [
+            {
+                "pre1_to_grasp": {
+                    "src": "bottle_pre1_qpos",
+                    "sink": "bottle_grasp_qpos",
+                    "duration": 24,
+                    "name": "plan_trajectory",
+                    "kwargs": {
+                        "agent_uid": "right_arm",
+                        "keypose_names": ["bottle_pre1_qpos", "bottle_grasp_qpos"]
+                    }
+                }
+            }
+        ]
+    }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `src` / `sink` | Source start node and target sink node |
+| `duration` | Total simulation steps of this motion; larger value leads to slower movement |
+| `plan_trajectory` | Fixed interpolation function to generate smooth joint trajectories |
+
+All arm movements including lifting, pouring, placing and homing share this edge structure, just replace node names and adjust `duration`.
+
+## 4. Synchronization Timing Rules
+
+The `sync` field defines execution dependencies to avoid disordered parallel motions. A typical scenario: the gripper closes only after the robotic arm reaches the grasp pose.
+
+``` json
+{
+    "sync": {
+        "rclose0": {
+            "depend_tasks": ["pre1_to_grasp"]
+        },
+        "grasp_to_up": {
+            "depend_tasks": ["rclose0"]
+        }
+    }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `depend_tasks` | List of motion edges that must complete before running current edge |
+
+Add similar synchronization constraints for gripper release after placement and arm homing after object release by following the same logic.
+
+## 5. Misc Auxiliary Configurations
+
+Global switches for debugging visualization and trajectory processing. Turn off all visualization options during dataset collection to reduce computation overhead.
+
+```json
+{
+    "misc": {
+        "vis_graph": false,
+        "vis_gantt": false,
+        "warpping": true
+    }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `vis_graph` | Switch to render directed action graph for debugging |
+| `vis_gantt` | Switch to generate Gantt chart to inspect action timeline |
+| `warpping` | Trajectory smoothing module, must remain enabled |
+
+More details can be found in: 👉 [EmbodiChain Action Config Docs](https://dexforce.github.io/EmbodiChain/main/tutorial/data_generation.html#step-2-prepare-the-action-configuration)

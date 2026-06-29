@@ -1,0 +1,25 @@
+# π₀ Policy Evaluation Configuration
+# python scripts/eval_policy.py --config policy/pi0/deploy_policy.yml
+
+# ------------------------------------------------------------------
+# Basic experiment configuration (Each policy must be retained.)
+# ------------------------------------------------------------------
+policy_name: pi05
+task_name: null
+setting: null
+model_name: null
+seed: 0
+max_episodes: 20
+max_steps: 1000 # Maximum environment steps per episode. Effective limit is max(deploy_config.max_steps, gym_config.max_episode_steps).
+headless: false
+pytorch_device: cpu
+filter_dataset_saving: true
+eval_video_log: true
+eval_video_obs_key: cam_high
+
+# ------------------------------------------------------------------
+# Add policy-related parameters you needing, used for get_model()
+# ------------------------------------------------------------------
+train_config_name: null
+checkpoint_id: 30000
+pi0_step: 10 # It only represents the number of execution steps. not the horizon of reasoning, it's the horizon of execution.

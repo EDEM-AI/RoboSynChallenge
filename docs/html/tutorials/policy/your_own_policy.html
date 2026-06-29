@@ -1,0 +1,677 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Deploy Your Policy &#8212; RoboSynChallenge 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=b8779154" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/policy/your_own_policy';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="PI0" href="pi0.html" />
+    <link rel="prev" title="Policy" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">RoboSynChallenge 0.1.0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/code_structure.html">Code Structures</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../domain_randomization.html">Domain Randomization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collect_data.html">Collect Data</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Policy</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Deploy Your Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pi0.html">PI0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pi05.html">PI0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="motus.html">Motus</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/EDEM-AI/RoboSynChallenge" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/tutorials/policy/your_own_policy.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Deploy Your Policy</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deploy-policy-yml">🔧 <code class="docutils literal notranslate"><span class="pre">deploy_policy.yml</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eval-sh">🖥️ <code class="docutils literal notranslate"><span class="pre">eval.sh</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deploy-policy-py">🧠  <code class="docutils literal notranslate"><span class="pre">deploy_policy.py</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#encode-action-obs-dict-dict"><code class="docutils literal notranslate"><span class="pre">encode_action(obs:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#encode-obs-obs-dict-dict"><code class="docutils literal notranslate"><span class="pre">encode_obs(obs:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#get-model-usr-args-dict-any"><code class="docutils literal notranslate"><span class="pre">get_model(usr_args:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">Any</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#eval-env-model-observation-any"><code class="docutils literal notranslate"><span class="pre">eval(env,</span> <span class="pre">model,</span> <span class="pre">observation)</span> <span class="pre">-&gt;</span> <span class="pre">Any</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#update-obs-obs-dict-none"><code class="docutils literal notranslate"><span class="pre">update_obs(obs:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reset-model-none"><code class="docutils literal notranslate"><span class="pre">reset_model()</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-eval-sh">✔️ Run <code class="docutils literal notranslate"><span class="pre">eval.sh</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notes">📌 Notes</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="deploy-your-policy">
+<h1>Deploy Your Policy<a class="headerlink" href="#deploy-your-policy" title="Link to this heading">#</a></h1>
+<p>To deploy and evaluate your policy, you need to <strong>modify the following three files</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eval.sh</span></code>: <a class="reference external" href="https://github.com/EDEM-AI/RoboSynChallenge/tree/main/policy/Your_Policy/eval.sh">eval.sh demo</a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deploy_policy.yml</span></code>: <a class="reference external" href="https://github.com/EDEM-AI/RoboSynChallenge/tree/main/policy/Your_Policy/deploy_policy.yml">deploy_policy.yml demo</a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deploy_policy.py</span></code>: <a class="reference external" href="https://github.com/EDEM-AI/RoboSynChallenge/tree/main/policy/Your_Policy/deploy_policy.py">deploy_policy.py demo</a></p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">deploy_policy.py</span></code>, the following components are defined: <code class="docutils literal notranslate"><span class="pre">get_model</span></code> for loading the policy model, <code class="docutils literal notranslate"><span class="pre">encode_obs</span></code> for observation processing, <code class="docutils literal notranslate"><span class="pre">encode_action</span></code> for action processing, <code class="docutils literal notranslate"><span class="pre">eval</span></code> for runing one inference cycle and execute actions in the environment,and <code class="docutils literal notranslate"><span class="pre">reset_model</span></code> for cleaning the model cache at the beginning of every evaluation episode. Additionally, you need to wrap your policy model class to further encapsulate functions such as <code class="docutils literal notranslate"><span class="pre">set_language</span></code>, <code class="docutils literal notranslate"><span class="pre">update_observation_window</span></code>, <code class="docutils literal notranslate"><span class="pre">get_action</span></code>. For details, please refer to <a class="reference external" href="https://github.com/EDEM-AI/RoboSynChallenge/tree/main/policy/pi0/pi0_model.py">pi0_model</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">get_action</span></code> along with the control loop that handles observation acquisition and action execution.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">deploy_policy.yml</span></code> file specifies the input parameters. Some of these parameters are model-related and will ultimately be passed as <code class="docutils literal notranslate"><span class="pre">usr_args</span></code> to the <code class="docutils literal notranslate"><span class="pre">get_model</span></code> function to help locate, define, and load your model. The other part is the basic experimental setup.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">eval.sh</span></code>, the parameters specified after <code class="docutils literal notranslate"><span class="pre">overrides</span></code> can be used to overwrite those in <code class="docutils literal notranslate"><span class="pre">deploy_policy.yml</span></code>, allowing you to specify different settings without manually modifying the YAML file each time.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># policy/Your_Policy/deploy_policy.py</span>
+
+<span class="c1"># import packages and module here</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">encode_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert Your-Own-Policy output into the torch action format EmbodiChain accepts.</span>
+<span class="sd">    Refer to https://github.com/EDEM-AI/RoboSynChallenge/tree/main/policy/pi0/deploy_policy.py for an example implementation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="n">action</span>
+    <span class="n">env_action_dim</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">single_action_space</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+
+    <span class="c1"># ...</span>
+    <span class="k">return</span> <span class="n">actions</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">encode_obs</span><span class="p">(</span><span class="n">observation</span><span class="p">):</span>  <span class="c1"># Post-Process Observation</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert gym Gymnasium Dict observation to Your-Own-Policy input format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">observation</span>
+    <span class="c1"># ...</span>
+    <span class="k">return</span> <span class="n">obs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_model</span><span class="p">(</span><span class="n">usr_args</span><span class="p">):</span>  <span class="c1"># from deploy_policy.yml and eval.sh (overrides)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create and return a policy model instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Your_Model</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># ...</span>
+    <span class="k">return</span> <span class="n">Your_Model</span>  <span class="c1"># return your policy model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">obs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run one inference cycle and execute actions in the environment.</span>
+
+<span class="sd">    This function:</span>
+<span class="sd">    1. Sets the language instruction (on first call when observation_window is None)</span>
+<span class="sd">    2. Encodes observation and updates the model&#39;s observation window</span>
+<span class="sd">    3. Calls model.get_action() to get multi-step actions</span>
+<span class="sd">    4. Steps through each action in the environment</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set language instruction if first call (Try to keep it unchanged)</span>
+    <span class="c1"># implement the `set_language` function in your own policy object.</span>
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">observation_window</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">instruction</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s2">&quot;_current_instruction&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">set_language</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
+
+    <span class="c1"># Encode and update observation window</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">encode_obs</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">update_observation_window</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+    <span class="c1"># implement the `update_observation_window` function in your own policy object.</span>
+
+
+    <span class="c1"># Get multi-step actions from Your-Own-Policy</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_action</span><span class="p">()</span>
+    <span class="c1"># implement the `get_action` function in your own policy object.</span>
+
+    <span class="c1"># Execute actions one by one in the environment</span>
+    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
+        <span class="n">action_tensor</span> <span class="o">=</span> <span class="n">encode_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span> <span class="c1"># Map the actions output by your model to the format required by EmbodiChain.</span>
+        <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action_tensor</span><span class="p">)</span>
+        <span class="c1"># joint control: [left_arm_joints + left_gripper + right_arm_joints + right_gripper]</span>
+        <span class="c1"># Absolute joint control is the default;</span>
+        <span class="c1"># if other control modes—such as relative endpose control are required, you must add an `actions` field to the `gym_config` for the specific task to utilize the action manager.</span>
+        <span class="c1"># Please refer to https://dexforce.github.io/EmbodiChain/main/overview/gym/action_functors.html for details.</span>
+
+        <span class="k">if</span> <span class="n">truncated</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">break</span>
+
+        <span class="c1"># Update observation window after each step</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">encode_obs</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">update_observation_window</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">observation</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">truncated</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">reset_model</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="c1"># Clean the model cache at the beginning of every evaluation episode, such as the observation window</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<section id="deploy-policy-yml">
+<h2>🔧 <code class="docutils literal notranslate"><span class="pre">deploy_policy.yml</span></code><a class="headerlink" href="#deploy-policy-yml" title="Link to this heading">#</a></h2>
+<p>You are free to <strong>add any parameters</strong> needed in <code class="docutils literal notranslate"><span class="pre">deploy_policy.yml</span></code> to specify your model setup (e.g., checkpoint path, model type, architecture details). The entire YAML content will be passed to <code class="docutils literal notranslate"><span class="pre">deploy_policy.py</span></code> as <code class="docutils literal notranslate"><span class="pre">usr_args</span></code>, which will be available in the <code class="docutils literal notranslate"><span class="pre">get_model()</span></code> function.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your-Own-Policy Evaluation Configuration</span>
+
+<span class="c1"># ------------------------------------------------------------------</span>
+<span class="c1"># Basic experiment configuration (Each policy must be retained.)</span>
+<span class="c1"># ------------------------------------------------------------------</span>
+<span class="nt">policy_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"> </span><span class="c1"># must be modified to your policy name</span>
+<span class="nt">task_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="nt">setting</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="nt">model_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="nt">seed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">max_episodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="nt">max_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span><span class="w"> </span><span class="c1"># Maximum environment steps per episode. Effective limit is max(deploy_config.max_steps, gym_config.max_episode_steps).</span>
+<span class="nt">headless</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">pytorch_device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cuda</span>
+<span class="nt">filter_dataset_saving</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">eval_video_log</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">eval_video_obs_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cam_high</span>
+
+<span class="c1"># ------------------------------------------------------------------</span>
+<span class="c1"># Add policy-related parameters you needing, used for get_model()</span>
+<span class="c1"># ------------------------------------------------------------------</span>
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="eval-sh">
+<h2>🖥️ <code class="docutils literal notranslate"><span class="pre">eval.sh</span></code><a class="headerlink" href="#eval-sh" title="Link to this heading">#</a></h2>
+<p>Update the script to pass additional arguments to override default values in <code class="docutils literal notranslate"><span class="pre">deploy_policy.yml</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="nv">SCRIPT_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BASH_SOURCE</span><span class="p">[0]</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">pwd</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="nv">REPO_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SCRIPT_DIR</span><span class="s2">/../..&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">pwd</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="nv">WORKSPACE_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REPO_ROOT</span><span class="s2">/..&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">pwd</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="nv">EMBODICHAIN_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">EMBODICHAIN_ROOT</span><span class="k">:-</span><span class="nv">$WORKSPACE_ROOT</span><span class="p">/EmbodiChain</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">VENV_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SCRIPT_DIR</span><span class="s2">/.venv&quot;</span>
+<span class="nv">PYTHON_BIN</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PYTHON_BIN</span><span class="k">:-</span><span class="nv">python</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="nv">POLICY_NAME</span><span class="o">=</span>Your_Policy<span class="w"> </span><span class="c1"># [TODO]</span>
+
+<span class="nv">TASK_NAME</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">1</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">SETTING</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">2</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">TRAIN_CONFIG</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">3</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">MODEL_NAME</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">4</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">GPU_ID</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">5</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="c1"># [TODO] add parameters here</span>
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$GPU_ID</span><span class="s2">&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">XLA_PYTHON_CLIENT_MEM_FRACTION</span><span class="o">=</span><span class="m">0</span>.4
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=========================================&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  Your-Own-Policy Evaluation&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  Task:       </span><span class="nv">$TASK_NAME</span><span class="s2"> (</span><span class="nv">$SETTING</span><span class="s2">)&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  GPU:        </span><span class="nv">$GPU_ID</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=========================================&quot;</span>
+
+<span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REPO_ROOT</span><span class="s2">&quot;</span><span class="w"> </span><span class="c1"># move to RoboSynChallenge root</span>
+
+<span class="nv">PYTHONWARNINGS</span><span class="o">=</span>ignore::UserWarning<span class="w"> </span><span class="se">\</span>
+<span class="s2">&quot;</span><span class="nv">$PYTHON_BIN</span><span class="s2">&quot;</span><span class="w"> </span>scripts/eval_policy.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--config<span class="w"> </span>policy/<span class="nv">$POLICY_NAME</span>/deploy_policy.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--overrides<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--task_name<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TASK_NAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--setting<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SETTING</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$MODEL_NAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="c1"># [TODO] add parameters here</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="deploy-policy-py">
+<h2>🧠  <code class="docutils literal notranslate"><span class="pre">deploy_policy.py</span></code><a class="headerlink" href="#deploy-policy-py" title="Link to this heading">#</a></h2>
+<p>You need to implement the following methods in <code class="docutils literal notranslate"><span class="pre">deploy_policy.py</span></code>:</p>
+<section id="encode-action-obs-dict-dict">
+<h3><code class="docutils literal notranslate"><span class="pre">encode_action(obs:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code><a class="headerlink" href="#encode-action-obs-dict-dict" title="Link to this heading">#</a></h3>
+<p>Optional. This function is used to preprocess the raw policy output (e.g., data format change, etc.)</p>
+</section>
+<hr class="docutils" />
+<section id="encode-obs-obs-dict-dict">
+<h3><code class="docutils literal notranslate"><span class="pre">encode_obs(obs:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code><a class="headerlink" href="#encode-obs-obs-dict-dict" title="Link to this heading">#</a></h3>
+<p>Optional. This function is used to preprocess the raw environment observation (e.g., color channel normalization, reshaping, etc.).</p>
+</section>
+<hr class="docutils" />
+<section id="get-model-usr-args-dict-any">
+<h3><code class="docutils literal notranslate"><span class="pre">get_model(usr_args:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">Any</span></code><a class="headerlink" href="#get-model-usr-args-dict-any" title="Link to this heading">#</a></h3>
+<p>Required. This function receives the full configuration from <code class="docutils literal notranslate"><span class="pre">deploy_policy.yml</span></code> via <code class="docutils literal notranslate"><span class="pre">usr_args</span></code> and must return the initialized model. You can define your own loading logic here, including parsing checkpoints and network parameters.</p>
+</section>
+<hr class="docutils" />
+<section id="eval-env-model-observation-any">
+<h3><code class="docutils literal notranslate"><span class="pre">eval(env,</span> <span class="pre">model,</span> <span class="pre">observation)</span> <span class="pre">-&gt;</span> <span class="pre">Any</span></code><a class="headerlink" href="#eval-env-model-observation-any" title="Link to this heading">#</a></h3>
+<p>Required. The main evaluation loop. Given the current environment instance, model, and observation (as a dictionary), this function must compute the next action and execute it in the environment.</p>
+</section>
+<hr class="docutils" />
+<section id="update-obs-obs-dict-none">
+<h3><code class="docutils literal notranslate"><span class="pre">update_obs(obs:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code><a class="headerlink" href="#update-obs-obs-dict-none" title="Link to this heading">#</a></h3>
+<p>Optional. Used to update any internal state of the model or observation buffer. Useful if your model requires a history of frames or a memory-based context.</p>
+</section>
+<hr class="docutils" />
+<section id="reset-model-none">
+<h3><code class="docutils literal notranslate"><span class="pre">reset_model()</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code><a class="headerlink" href="#reset-model-none" title="Link to this heading">#</a></h3>
+<p>Optional but <strong>recommended</strong>. This function is called before the evaluation of <strong>each episode</strong>, allowing you to reset model states such as recurrent memory, history buffers, or context encodings.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="run-eval-sh">
+<h2>✔️ Run <code class="docutils literal notranslate"><span class="pre">eval.sh</span></code><a class="headerlink" href="#run-eval-sh" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="nb">eval</span><span class="o">.</span><span class="n">sh</span> <span class="o">...</span><span class="p">(</span><span class="nb">input</span> <span class="n">parameters</span> <span class="n">you</span> <span class="n">define</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="notes">
+<h2>📌 Notes<a class="headerlink" href="#notes" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Your policy should be compatible with the input/output format expected by the simulator.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Policy</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pi0.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">PI0</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deploy-policy-yml">🔧 <code class="docutils literal notranslate"><span class="pre">deploy_policy.yml</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eval-sh">🖥️ <code class="docutils literal notranslate"><span class="pre">eval.sh</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deploy-policy-py">🧠  <code class="docutils literal notranslate"><span class="pre">deploy_policy.py</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#encode-action-obs-dict-dict"><code class="docutils literal notranslate"><span class="pre">encode_action(obs:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#encode-obs-obs-dict-dict"><code class="docutils literal notranslate"><span class="pre">encode_obs(obs:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#get-model-usr-args-dict-any"><code class="docutils literal notranslate"><span class="pre">get_model(usr_args:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">Any</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#eval-env-model-observation-any"><code class="docutils literal notranslate"><span class="pre">eval(env,</span> <span class="pre">model,</span> <span class="pre">observation)</span> <span class="pre">-&gt;</span> <span class="pre">Any</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#update-obs-obs-dict-none"><code class="docutils literal notranslate"><span class="pre">update_obs(obs:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reset-model-none"><code class="docutils literal notranslate"><span class="pre">reset_model()</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-eval-sh">✔️ Run <code class="docutils literal notranslate"><span class="pre">eval.sh</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notes">📌 Notes</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Ruixin Wu
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Ruixin Wu.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

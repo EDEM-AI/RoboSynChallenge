@@ -826,7 +826,7 @@ _CONFIGS = [
         name="pi0_base_robosynchallenge_full",
         model=pi0_config.Pi0Config(action_horizon=50),
         data=LeRobotEmbodiChainDataConfig(
-            repo_id="random/cobotmagic_Sim_open_pan",
+            repo_id="your_repo_id",
             # Replace with your repo-id
             base_config=DataConfig(prompt_from_task=True),
             # EmbodiChain datasets are usually absolute-action targets.
@@ -842,10 +842,27 @@ _CONFIGS = [
         # optimizer=_optimizer.AdamW(clip_gradient_norm=1.0),
         # ema_decay=0.999,
         batch_size=32,
-        pytorch_weight_path="/root/.cache/openpi/openpi-assets/checkpoints/pi0_base_torch",
+        # pytorch_weight_path="/root/.cache/openpi/openpi-assets/checkpoints/pi0_base_torch",
         weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi0_base/params"),
         num_train_steps=30_000,
         wandb_enabled=True,
+    ),
+    TrainConfig(
+        name="pi05_base_robosynchallenge_full",
+        model=pi0_config.Pi0Config(pi05=True,action_horizon=50),
+        data=LeRobotEmbodiChainDataConfig(
+            repo_id="your_repo_id",
+            # Replace with your repo-id
+            base_config=DataConfig(prompt_from_task=True),
+            # EmbodiChain datasets are usually absolute-action targets.
+            # Keep this False unless your checkpoint expects extra delta conversion.
+            extra_delta_transform=True,
+        ),
+        # pytorch_weight_path="/root/.cache/openpi/openpi-assets/checkpoints/pi05_base_torch",
+        weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi05_base/params"),
+        num_train_steps=20_000,
+        batch_size=64,
+        fsdp_devices=1,
     ),
     TrainConfig(
         name="pi05_libero",

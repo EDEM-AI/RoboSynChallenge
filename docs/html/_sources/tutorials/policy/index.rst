@@ -10,4 +10,7 @@ Policy
    :maxdepth: 1
    :caption: Policy(Train & Eval)
 
+   your_own_policy
    pi0
+   pi05
+   motus
