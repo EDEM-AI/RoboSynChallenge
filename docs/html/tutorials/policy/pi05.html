@@ -153,6 +153,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../domain_randomization.html">Domain Randomization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../collect_data.html">Collect Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../download_data.html">Download Data</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Policy</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="your_own_policy.html">Deploy Your Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pi0.html">PI0</a></li>
@@ -322,7 +323,10 @@
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-setup">Environment Setup</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generate-robosynchallenge-data">Generate RoboSynChallenge Data</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prepare-openpi0-data-for-training">Prepare openpi0 Data for Training</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prepare-openpi0-data-for-training">Prepare openpi0 Data for Training</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#train-with-downloaded-data">Train with Downloaded Data</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#write-the-corresponding-train-config">Write the Corresponding <code class="docutils literal notranslate"><span class="pre">train_config</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#finetune-model">Finetune model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eval-on-robosynchallenge">Eval on RoboSynChallenge</a></li>
@@ -366,38 +370,35 @@ cp<span class="w"> </span>-r<span class="w"> </span>./src/openpi/models_pytorch/
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">scripts</span><span class="o">/</span><span class="n">convert_lerobot3</span><span class="mf">.0</span><span class="n">_to_2</span><span class="mf">.1</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">repo</span><span class="o">-</span><span class="nb">id</span> <span class="p">{</span><span class="n">repo_id</span><span class="p">}</span> <span class="o">--</span><span class="n">root</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">datasets</span>
 </pre></div>
 </div>
-<p>If you want to train on multiple datasets together (e.g., multi-task, mixed training with simulated and real data), you can also use the <a class="reference external" href="https://huggingface.co/docs/lerobot/using_dataset_tools">lerobot-edit-dataset tool</a> to merge datasets. Here, we provide an example of using lerobot-edit-datase to merge datasets:</p>
-<p>Assume the two dataset directories are <code class="docutils literal notranslate"><span class="pre">/root/workspace/RoboSynChallenge/lerobot_dataset/beaker_mixer_dual/cobotmagic_Sim_beaker_mixer_dual</span></code> and <code class="docutils literal notranslate"><span class="pre">/root/workspace/RoboSynChallenge/lerobot_dataset/beaker_mixer_dual/cobotmagic_Real_beaker_mixer_dual</span></code>, you can use the following script and configuration file to merge it into <code class="docutils literal notranslate"><span class="pre">cobotmagic_merge_beaker_mixer_dual</span></code> in the same dir.
-First, you can create a merge_config.json</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;repo_id&quot;</span><span class="p">:</span> <span class="s2">&quot;lerobot_dataset/cobotmagic_merge_beaker_mixer_dual&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;push_to_hub&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-  <span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;merge&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;repo_ids&quot;</span><span class="p">:</span> <span class="p">[</span>
-      <span class="s2">&quot;lerobot_dataset/cobotmagic_Sim_beaker_mixer_dual&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;lerobot_dataset/cobotmagic_Real_beaker_mixer_dual&quot;</span>
-    <span class="p">]</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Then, use the following code:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">HF_LEROBOT_HOME</span><span class="o">=</span>/root/workspace/RoboSynChallenge/
-lerobot-edit-dataset<span class="w"> </span>--config_path<span class="w"> </span>/root/workspace/RoboSynChallenge/merge_config.json
-</pre></div>
-</div>
+<p>If you want to train on multiple datasets together (e.g., multi-task, mixed training with simulated and real data), merge them with the <a class="reference external" href="https://huggingface.co/docs/lerobot/using_dataset_tools">lerobot-edit-dataset tool</a> or <a class="reference external" href="https://github.com/EDEM-AI/RoboSynChallenge/blob/main/launch/collect_combined_dataset.sh"><code class="docutils literal notranslate"><span class="pre">launch/collect_combined_dataset.sh</span></code></a> before placing the result in this policy’s training data folder.</p>
 <p>After preparing the data in lerobot2.1 format, create the <code class="docutils literal notranslate"><span class="pre">training_data</span></code> folders in the <code class="docutils literal notranslate"><span class="pre">policy/pi05</span></code> directory:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">training_data</span>
 </pre></div>
 </div>
 <p>Then copy all the data you wish to use for training into <code class="docutils literal notranslate"><span class="pre">training_data/</span></code>.</p>
+<section id="train-with-downloaded-data">
+<h3>Train with Downloaded Data<a class="headerlink" href="#train-with-downloaded-data" title="Link to this heading">#</a></h3>
+<p>Download instructions are in <a href="../download_data.html">Download Data</a>. <code class="docutils literal notranslate"><span class="pre">policy/pi05/finetune.sh</span></code> sets <code class="docutils literal notranslate"><span class="pre">HF_LEROBOT_HOME</span></code> to <code class="docutils literal notranslate"><span class="pre">policy/pi05/training_data</span></code>, so downloaded datasets used by this policy should be placed under that folder.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">click_bell</span></code> real dataset:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/root/workspace/RoboSynChallenge/policy/pi05
+huggingface-cli<span class="w"> </span>download<span class="w"> </span>RoboSynChallenge/cobotmagic_Real_click_bell<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--repo-type<span class="w"> </span>dataset<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--local-dir<span class="w"> </span>training_data/RoboSynChallenge/cobotmagic_Real_click_bell
+</pre></div>
+</div>
+<p>Set <code class="docutils literal notranslate"><span class="pre">repo_id=&quot;RoboSynChallenge/cobotmagic_Real_click_bell&quot;</span></code> in <code class="docutils literal notranslate"><span class="pre">src/openpi/training/config.py</span></code> for <code class="docutils literal notranslate"><span class="pre">pi05_base_robosynchallenge_full</span></code>, then run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>scripts/compute_norm_stats.py<span class="w"> </span>--config-name<span class="w"> </span>pi05_base_robosynchallenge_full
+bash<span class="w"> </span>finetune.sh<span class="w"> </span>pi05_base_robosynchallenge_full<span class="w"> </span>click_bell_real<span class="w"> </span><span class="m">0</span>
+bash<span class="w"> </span>eval.sh<span class="w"> </span>click_bell<span class="w"> </span>clear<span class="w"> </span>pi05_base_robosynchallenge_full<span class="w"> </span>click_bell_real<span class="w"> </span><span class="m">0</span><span class="w"> </span>--max_episodes<span class="w"> </span><span class="m">50</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="write-the-corresponding-train-config">
 <h2>Write the Corresponding <code class="docutils literal notranslate"><span class="pre">train_config</span></code><a class="headerlink" href="#write-the-corresponding-train-config" title="Link to this heading">#</a></h2>
 <p>In <code class="docutils literal notranslate"><span class="pre">src/openpi/training/config.py</span></code>, there is a dictionary called <code class="docutils literal notranslate"><span class="pre">_CONFIGS</span></code>. You can modify a pre-configured PI0.5 configurations I’ve written:
 <code class="docutils literal notranslate"><span class="pre">pi05_base_robosynchallenge_full</span></code>.</p>
-<p>You only need to write <code class="docutils literal notranslate"><span class="pre">repo_id</span></code> on your datasets.(e.g., <code class="docutils literal notranslate"><span class="pre">repo_id=cobotmagic_Sim_beaker_mixer_dual</span></code>).</p>
+<p>Set <code class="docutils literal notranslate"><span class="pre">repo_id</span></code> to the dataset you want to train on, e.g., <code class="docutils literal notranslate"><span class="pre">RoboSynChallenge/cobotmagic_Sim_click_bell</span></code> or <code class="docutils literal notranslate"><span class="pre">RoboSynChallenge/cobotmagic_Real_click_bell</span></code>.</p>
 </section>
 <section id="finetune-model">
 <h2>Finetune model<a class="headerlink" href="#finetune-model" title="Link to this heading">#</a></h2>
@@ -525,7 +526,10 @@ bash eval.sh ${task_name} [random | clear] ${train_config_name} ${model_name} ${
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-setup">Environment Setup</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generate-robosynchallenge-data">Generate RoboSynChallenge Data</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prepare-openpi0-data-for-training">Prepare openpi0 Data for Training</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prepare-openpi0-data-for-training">Prepare openpi0 Data for Training</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#train-with-downloaded-data">Train with Downloaded Data</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#write-the-corresponding-train-config">Write the Corresponding <code class="docutils literal notranslate"><span class="pre">train_config</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#finetune-model">Finetune model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eval-on-robosynchallenge">Eval on RoboSynChallenge</a></li>

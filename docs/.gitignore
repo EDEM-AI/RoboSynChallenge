@@ -13,6 +13,10 @@ build/
 doctrees/
 .doctrees/
 .ipynb_checkpoints/
+html/.buildinfo.bak
+html/_images/
+html/_static/base-stemmer.js
+html/_static/english-stemmer.js
 
 # local
 .DS_Store
