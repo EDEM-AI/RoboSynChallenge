@@ -15,28 +15,7 @@ Usage examples:
 
 ```
 
-If you want to train on multiple datasets together (e.g., multi-task, mixed training with simulated and real data), you can also use the [lerobot-edit-dataset tool](https://huggingface.co/docs/lerobot/using_dataset_tools) to merge datasets. Here, we provide an example of using lerobot-edit-datase to merge datasets:
-
-Assume the two dataset directories are `/root/workspace/RoboSynChallenge/lerobot_dataset/beaker_mixer_dual/cobotmagic_Sim_beaker_mixer_dual` and `/root/workspace/RoboSynChallenge/lerobot_dataset/beaker_mixer_dual/cobotmagic_Real_beaker_mixer_dual`, you can use the following script and configuration file to merge it into `cobotmagic_merge_beaker_mixer_dual` in the same dir.
-First, you can create a merge_config.json
-```
-{
-  "repo_id": "lerobot_dataset/cobotmagic_merge_beaker_mixer_dual",
-  "push_to_hub": false,
-  "operation": {
-    "type": "merge",
-    "repo_ids": [
-      "lerobot_dataset/cobotmagic_Sim_beaker_mixer_dual",
-      "lerobot_dataset/cobotmagic_Real_beaker_mixer_dual"
-    ]
-  }
-}
-```
-Then, use the following code:
-```shell
-export HF_LEROBOT_HOME=/root/workspace/RoboSynChallenge/
-lerobot-edit-dataset --config_path /root/workspace/RoboSynChallenge/merge_config.json
-```
+If you want to train on multiple datasets together (e.g., multi-task, mixed training with simulated and real data), merge them with the [lerobot-edit-dataset tool](https://huggingface.co/docs/lerobot/using_dataset_tools) or [`launch/collect_combined_dataset.sh`](https://github.com/EDEM-AI/RoboSynChallenge/blob/main/launch/collect_combined_dataset.sh) before placing the result in this policy's training data folder.
 
 After preparing the data in motus format, create the `training_data` folders in the `policy/motus` directory:
 

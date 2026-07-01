@@ -51,7 +51,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/collect_data';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Policy" href="policy/index.html" />
+    <link rel="next" title="Download Data" href="download_data.html" />
     <link rel="prev" title="Domain Randomization" href="domain_randomization.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -153,6 +153,7 @@
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="domain_randomization.html">Domain Randomization</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Collect Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download_data.html">Download Data</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="policy/index.html">Policy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="policy/your_own_policy.html">Deploy Your Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/pi0.html">PI0</a></li>
@@ -339,8 +340,8 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">scripts</span><span class="o">/</span><span class="n">convert_lerobot3</span><span class="mf">.0</span><span class="n">_to_2</span><span class="mf">.1</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">repo</span><span class="o">-</span><span class="nb">id</span> <span class="p">{</span><span class="n">repo_id</span><span class="p">}</span> <span class="o">--</span><span class="n">root</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">datasets</span>
 </pre></div>
 </div>
-<p>If you want to train on multiple datasets together (e.g., multi-task, mixed training with simulated and real data), you can also use the <a class="reference external" href="https://huggingface.co/docs/lerobot/using_dataset_tools">lerobot-edit-dataset tool</a> to merge datasets.</p>
-<p>Assume the two dataset directories are <code class="docutils literal notranslate"><span class="pre">/root/workspace/RoboSynChallenge/lerobot_dataset/beaker_mixer_dual/cobotmagic_Sim_beaker_mixer_dual</span></code> and <code class="docutils literal notranslate"><span class="pre">/root/workspace/RoboSynChallenge/lerobot_dataset/beaker_mixer_dual/cobotmagic_Real_beaker_mixer_dual</span></code>, you can use the following script and configuration file to merge it into <code class="docutils literal notranslate"><span class="pre">cobotmagic_merge_beaker_mixer_dual</span></code> in the same dir.</p>
+<p>For pre-collected simulated and real datasets, see <a href="download_data.html">Download Data</a>.</p>
+<p>If you want to train on multiple datasets together (e.g., multi-task, mixed training with simulated and real data), use the <a class="reference external" href="https://huggingface.co/docs/lerobot/using_dataset_tools">lerobot-edit-dataset tool</a> or the helper script <a class="reference external" href="https://github.com/EDEM-AI/RoboSynChallenge/blob/main/launch/collect_combined_dataset.sh"><code class="docutils literal notranslate"><span class="pre">launch/collect_combined_dataset.sh</span></code></a>.</p>
 </section>
 
 
@@ -364,11 +365,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="policy/index.html"
+       href="download_data.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Policy</p>
+        <p class="prev-next-title">Download Data</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

@@ -21,6 +21,7 @@ Documentation for RoboSynChallenge
    tutorials/configuration
    tutorials/domain_randomization
    tutorials/collect_data
+   tutorials/download_data
    tutorials/policy/index
 
 .. Indices and tables
