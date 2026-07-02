@@ -32,4 +32,6 @@ Then copy all the data you wish to use for training into `training_data/`.
 
 ## Eval on RoboSynChallenge
 [TODO]
+Use one of these task names for `{task_name}`: `click_bell`, `handle_basket`, `water_pouring`, `table_rearrangement`, `items_handover`, `drawer_open_place`, `mixer_operating`, `item_assembly`, `manipulate_pipette`, `sample_loading`, or `open_pan`.
+
 The evaluation results, including videos, will be saved in the `eval_result/{task_name}/motus/{setting}/{train_config_name}/{model_name}/{checkpoint_id}/` directory under the project root.
