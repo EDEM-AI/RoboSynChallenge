@@ -129,6 +129,8 @@ eval_video_obs_key: cam_high
 
 ```
 
+Set `task_name` to one of: `click_bell`, `handle_basket`, `water_pouring`, `table_rearrangement`, `items_handover`, `drawer_open_place`, `mixer_operating`, `item_assembly`, `manipulate_pipette`, `sample_loading`, or `open_pan`.
+
 ---
 
 ## 🖥️ `eval.sh`

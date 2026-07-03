@@ -2,6 +2,8 @@
 
 Pre-collected RoboSynChallenge datasets are hosted on Hugging Face. Store each downloaded dataset under the standard local LeRobot id `RoboSynChallenge/cobotmagic_Real_{task_name}` or `RoboSynChallenge/cobotmagic_Sim_{task_name}`.
 
+The dataset task names are: `click_bell`, `handle_basket`, `water_pouring`, `table_rearrangement`, `items_handover`, `drawer_open_place`, `mixer_operating`, `item_assembly`, `manipulate_pipette`, `sample_loading`, and `open_pan`.
+
 ## Real Data
 
 For example, download the Hugging Face source dataset `RoboSynChallenge/cobotmagic_Real_click_bell` into the `click_bell` real-data id:
