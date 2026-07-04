@@ -1,0 +1,41 @@
+[project]
+name = "robosynchallenge-dp"
+version = "0.1.0"
+description = "LeRobot Diffusion Policy integration for RoboSynChallenge"
+requires-python = ">=3.10,<3.12"
+dependencies = [
+    "lerobot",
+    "embodichain",
+    "robosynchallenge",
+    "numpy>=1.22.4,<2.0.0",
+    "pyyaml>=6.0",
+    "torch>=2.2.1,<2.8.0",
+    "torchvision>=0.21.0,<0.23.0",
+    "av>=14.2.0",
+    "dexsim-engine==0.4.1",
+]
+
+[tool.uv]
+allow-insecure-host = ["pyp.open3dv.site:2345"]
+override-dependencies = [
+    "lerobot",
+    "dexsim-engine==0.4.1",
+]
+
+[tool.uv.sources]
+lerobot = { git = "https://github.com/huggingface/lerobot", rev = "b883328e6c95681ca90a18b102e4ae5e1f91e2bf" }
+embodichain = { path = "../../../EmbodiChain", editable = true }
+robosynchallenge = { path = "../..", editable = true }
+dexsim-engine = { index = "open3dv" }
+
+[[tool.uv.index]]
+name = "open3dv"
+url = "http://pyp.open3dv.site:2345/simple/"
+explicit = true
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = []

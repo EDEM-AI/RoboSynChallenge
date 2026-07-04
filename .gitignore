@@ -209,7 +209,8 @@ __marimo__/
 *.vscode/
 
 *.mp4
-
+lerobot_dataset/
+checkpoints/
 
 **/results/
 .codex

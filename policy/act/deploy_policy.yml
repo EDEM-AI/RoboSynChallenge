@@ -1,0 +1,30 @@
+# ACT Policy Evaluation Configuration
+# python scripts/eval_policy.py --config policy/act/deploy_policy.yml
+
+# ------------------------------------------------------------------
+# Basic experiment configuration (Each policy must be retained.)
+# ------------------------------------------------------------------
+policy_name: act
+task_name: null
+setting: null
+model_name: null
+seed: 0
+max_episodes: 20
+max_steps: 1000
+headless: false
+device: cuda
+filter_dataset_saving: true
+eval_video_log: true
+eval_video_obs_key: cam_high
+
+# ------------------------------------------------------------------
+# ACT Policy parameters used by get_model()
+# ------------------------------------------------------------------
+checkpoint_path: null
+act_step: 8
+state_obs_path: robot/qpos
+strict_action_dim: true
+image_key_map:
+  observation.images.cam_high: cam_high
+  observation.images.cam_right_wrist: cam_right_wrist
+  observation.images.cam_left_wrist: cam_left_wrist
