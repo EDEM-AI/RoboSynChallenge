@@ -195,12 +195,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     add_env_launcher_args_to_parser(parser)
-    parser.add_argument(
-        "--max_episodes",
-        help="Override the maximum number of episodes to run.",
-        default=None,
-        type=int,
-    )
 
     args = parser.parse_args()
 
@@ -212,5 +206,6 @@ if __name__ == "__main__":
 
     try:
         run_env_main(args, env, gym_config=gym_config)
-    finally:
+    except Exception as e:
+        log_warning(f"An error occurred during environment execution: {e}")
         env.close()

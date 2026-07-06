@@ -77,7 +77,6 @@ RUN_CMD=(
     --gym_config "$GYM_CONFIG"
     --action_config "$ACTION_CONFIG"
     --num_envs 1
-    --renderer fast-rt
 )
 
 RUN_CMD+=("${EXTRA_ARGS[@]}")
