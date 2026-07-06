@@ -22,6 +22,7 @@ Documentation for RoboSynChallenge
    tutorials/domain_randomization
    tutorials/collect_data
    tutorials/download_data
+   tutorials/task_trajectory
    tutorials/policy/index
 
 .. Indices and tables

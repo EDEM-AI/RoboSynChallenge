@@ -1,0 +1,773 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Task Trajectory Implementation &#8212; RoboSynChallenge 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=b8779154" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/task_trajectory';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Policy" href="policy/index.html" />
+    <link rel="prev" title="Download Data" href="download_data.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">RoboSynChallenge 0.1.0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/code_structure.html">Code Structures</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="domain_randomization.html">Domain Randomization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collect_data.html">Collect Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download_data.html">Download Data</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Task Trajectory Implementation</a></li>
+
+
+
+
+
+
+<li class="toctree-l1 has-children"><a class="reference internal" href="policy/index.html">Policy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="policy/your_own_policy.html">Deploy Your Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy/pi0.html">PI0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy/pi05.html">PI0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy/motus.html">Motus</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/EDEM-AI/RoboSynChallenge" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/tutorials/task_trajectory.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Task Trajectory Implementation</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Task Trajectory Implementation</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#core-files">📃 Core Files</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-data-flow-pipeline">Full Data Flow Pipeline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-dependency-relationship">Core Dependency Relationship</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#functions-in-action-bank-py">🏦 Functions in action_bank.py</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-decorator-principles">2.1 Core Decorator Principles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-generate-left-arm-aim-qpos">2.2🌰 Example: generate_left_arm_aim_qpos</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gripper-execution">2.3 Gripper Execution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-trajectory-planning">2.4 Core Trajectory Planning</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attach-rigid-objects-now">2.5 attach_rigid_objects_now</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#principles-of-action-config-json">🎯 Principles of action_config.json</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scope">3.1 scope</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#node">3.2 node</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example">🌰 Example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#two-categories-of-nodes">Two Categories of Nodes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#edge">3.3 edge</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#core-principle">Core Principle</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sync">3.4 sync</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Core Principle</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#misc">3.5 misc</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#standard-step-by-step-guide">🧠 Standard Step-by-Step Guide</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#debug-reference">🔧 Debug Reference</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="task-trajectory-implementation">
+<h1>Task Trajectory Implementation<a class="headerlink" href="#task-trajectory-implementation" title="Link to this heading">#</a></h1>
+<blockquote>
+<div><p>Basic concepts have been covered in prior documents. This manual focuses on underlying implementation principles, standard field writing rules, and function linkage data flow, and disassembles the full trajectory generation logic based on the dual-arm fixture assembly task.</p>
+</div></blockquote>
+</section>
+<section id="core-files">
+<h1>📃 Core Files<a class="headerlink" href="#core-files" title="Link to this heading">#</a></h1>
+<ol class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">action_bank.py</span></code>: General underlying operator library</p>
+<ul class="simple">
+<li><p>Responsibilities: Encapsulate static functions for pose calculation, IK/FK solving, trajectory generation, gripper control, and rigid body binding. Decorators classify node and trajectory functions to expose callable capabilities for cross-task reuse.</p></li>
+<li><p>Loading order: Load and register all functions upon environment startup, serving as the underlying dependency of the configuration file.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">action_config.json</span></code>: Task-specific workflow graph</p>
+<ul class="simple">
+<li><p>Responsibilities: Contains no computational logic. It invokes methods inside the bank via string function names, defines control domains, pose generation pipelines, motion trajectories, and multi-arm timing dependencies. Task adjustments only require edits to this file.</p></li>
+<li><p>Loading order: Parsed during environment reset, which drives calls to bank functions to generate all key poses and action sequences.</p></li>
+</ul>
+</li>
+</ol>
+<section id="full-data-flow-pipeline">
+<h2>Full Data Flow Pipeline<a class="headerlink" href="#full-data-flow-pipeline" title="Link to this heading">#</a></h2>
+<p>Env initialization → Load JSON configuration → Call bank node functions to generate all poses/qpos and store them in the shared cache <code class="docutils literal notranslate"><span class="pre">env.affordance_datas</span></code> → Edges read key points from cache and call trajectory functions to generate time-series actions → Sync rules constrain execution order of multiple actuators → Actions are sent to the simulator for execution.</p>
+</section>
+<section id="core-dependency-relationship">
+<h2>Core Dependency Relationship<a class="headerlink" href="#core-dependency-relationship" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">action_config.json</span></code> acts as the orchestration and caller layer, while <code class="docutils literal notranslate"><span class="pre">action_bank.py</span></code> serves as the underlying computation implementation layer. The two files exchange data exclusively through the global cache <code class="docutils literal notranslate"><span class="pre">env.affordance_datas</span></code>, and neither can work independently.</p>
+</section>
+</section>
+<section id="functions-in-action-bank-py">
+<h1>🏦 Functions in action_bank.py<a class="headerlink" href="#functions-in-action-bank-py" title="Link to this heading">#</a></h1>
+<p>All capabilities are implemented via static methods decorated with specific tags, which split functions into pose generation nodes and trajectory execution functions.</p>
+<section id="core-decorator-principles">
+<h2>2.1 Core Decorator Principles<a class="headerlink" href="#core-decorator-principles" title="Link to this heading">#</a></h2>
+<ol class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&#64;tag_node</span></code>
+Marks functions that generate target poses or joint angles. These functions can only be invoked under the <code class="docutils literal notranslate"><span class="pre">node</span></code> field in JSON, and they write new poses/qpos into <code class="docutils literal notranslate"><span class="pre">affordance_datas</span></code> after execution.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&#64;tag_edge</span></code>
+Marks functions that generate time-series trajectories or gripper commands. These functions can only be invoked under the <code class="docutils literal notranslate"><span class="pre">edge</span></code> field in JSON and output continuous action arrays.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&#64;resolve_env_params</span></code>
+Automatically injects the <code class="docutils literal notranslate"><span class="pre">env</span></code> instance into function parameters, allowing direct read and write access to the shared cache without manual parameter passing.</p></li>
+</ol>
+</section>
+<section id="example-generate-left-arm-aim-qpos">
+<h2>2.2🌰 Example: generate_left_arm_aim_qpos<a class="headerlink" href="#example-generate-left-arm-aim-qpos" title="Link to this heading">#</a></h2>
+<p>Underlying logic:</p>
+<ol class="simple">
+<li><p>Read two 4x4 homogeneous transformation matrices: <code class="docutils literal notranslate"><span class="pre">guijiao2_pose</span></code> and <code class="docutils literal notranslate"><span class="pre">left_arm_base_pose</span></code>.</p></li>
+<li><p>Extract XY translational components and calculate the target horizontal rotation angle of the first joint via <code class="docutils literal notranslate"><span class="pre">np.arctan2</span></code>.</p></li>
+<li><p>Deep copy the initial left arm qpos and overwrite its 0th joint value with the calculated horizontal angle.</p></li>
+<li><p>Store the updated joint angles into the cache entry <code class="docutils literal notranslate"><span class="pre">left_arm_aim_qpos</span></code> for subsequent nodes and trajectories to reference.</p></li>
+</ol>
+<p>Corresponding JSON invocation syntax:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;left_arm_aim_qpos&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;generate_left_arm_aim_qpos&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="gripper-execution">
+<h2>2.3 Gripper Execution<a class="headerlink" href="#gripper-execution" title="Link to this heading">#</a></h2>
+<p>Two separate execution branches are defined based on the flag <code class="docutils literal notranslate"><span class="pre">return_action</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">return_action=false</span></code>: Only marks environment state without outputting action sequences.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">return_action=true</span></code>: Outputs a 1-dimensional time-series gripper control sequence.</p>
+<ul>
+<li><p>When <code class="docutils literal notranslate"><span class="pre">expand=true</span></code>, <code class="docutils literal notranslate"><span class="pre">mul_linear_expand</span></code> performs linear interpolation to produce smooth opening/closing motion.</p></li>
+<li><p>When <code class="docutils literal notranslate"><span class="pre">expand=false</span></code>, outputs a constant array filled with 0 or 1.
+The <code class="docutils literal notranslate"><span class="pre">duration</span></code> parameter controls the total number of simulation steps for the gripper movement.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="core-trajectory-planning">
+<h2>2.4 Core Trajectory Planning<a class="headerlink" href="#core-trajectory-planning" title="Link to this heading">#</a></h2>
+<ol class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">plan_trajectory</span></code>
+Accepts multiple groups of key joint qpos values and generates smooth joint trajectories via the TOPPRA planner. If the distance between two consecutive key poses is extremely small, the function automatically falls back to <code class="docutils literal notranslate"><span class="pre">stand_still</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stand_still</span></code>
+Generates stationary trajectories by filling all time steps with identical joint angles. If inconsistent key poses are passed, the function retains only the first qpos and prints a warning log.</p></li>
+</ol>
+</section>
+<section id="attach-rigid-objects-now">
+<h2>2.5 attach_rigid_objects_now<a class="headerlink" href="#attach-rigid-objects-now" title="Link to this heading">#</a></h2>
+<p>Creates parent-child binding between two rigid bodies and optionally locks object kinematics to KINEMATIC mode, ensuring synchronized movement of assembled components after connection.</p>
+</section>
+</section>
+<section id="principles-of-action-config-json">
+<h1>🎯 Principles of action_config.json<a class="headerlink" href="#principles-of-action-config-json" title="Link to this heading">#</a></h1>
+<p>The configuration file contains five fixed top-level fields: <code class="docutils literal notranslate"><span class="pre">scope</span></code>, <code class="docutils literal notranslate"><span class="pre">node</span></code>, <code class="docutils literal notranslate"><span class="pre">edge</span></code>, <code class="docutils literal notranslate"><span class="pre">sync</span></code>, and <code class="docutils literal notranslate"><span class="pre">misc</span></code>.</p>
+<section id="scope">
+<h2>3.1 scope<a class="headerlink" href="#scope" title="Link to this heading">#</a></h2>
+<p>Declare all independent actuators (6DoF left/right arms, 1DoF left/right grippers) and define action dimensions, initialization strategies, and data types.</p>
+<p>Key field explanations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>: Fixed value <code class="docutils literal notranslate"><span class="pre">DiGraph</span></code>, all actuators adopt directed graph workflow logic.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dim</span></code>: Action dimension, set to <code class="docutils literal notranslate"><span class="pre">[6]</span></code> for robotic arms and <code class="docutils literal notranslate"><span class="pre">[1]</span></code> for grippers.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">init.method</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">current_qpos</span></code>: Initialize using real-time joint angles from the simulator.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">given_qpos</span></code>: Initialize with fixed preset joint values.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dtype</span></code>: Uniformly set to <code class="docutils literal notranslate"><span class="pre">float32</span></code> for all pose and joint calculations.</p></li>
+</ul>
+</section>
+<section id="node">
+<h2>3.2 node<a class="headerlink" href="#node" title="Link to this heading">#</a></h2>
+<p>All pose generation nodes use the unified generator <code class="docutils literal notranslate"><span class="pre">generate_affordances_from_src</span></code>, which relies on three core components: <code class="docutils literal notranslate"><span class="pre">src_key</span></code>, <code class="docutils literal notranslate"><span class="pre">dst_key</span></code>, and <code class="docutils literal notranslate"><span class="pre">pass_processes</span></code>.</p>
+<ol class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src_key</span></code>: Input cache identifier, referencing the original 4x4 pose matrix or joint angles stored in <code class="docutils literal notranslate"><span class="pre">affordance_datas</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dst_key</span></code>: Output cache identifier, storing transformed poses or IK-solved joint angles for later nodes and edges to reference.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">valid_funcs_name_kwargs_proc</span></code>: A pipeline combining validation logic and transformation operators, split into validation functions and sequential <code class="docutils literal notranslate"><span class="pre">pass_processes</span></code> transform operators.</p></li>
+</ol>
+<hr class="docutils" />
+<p>🔧 Coordinate system definition
+- <code class="docutils literal notranslate"><span class="pre">extrinsic</span></code>: Global world coordinate system, all translations and rotations are calculated relative to the world origin.
+- <code class="docutils literal notranslate"><span class="pre">intrinsic</span></code>: Local object coordinate system, all transformations are calculated relative to the object’s current self-pose.</p>
+<p>🎯 Core operator functions
+- <code class="docutils literal notranslate"><span class="pre">get_rotation_replaced_pose</span></code>: Overwrite the object’s Z-axis rotation with a specified angle.
+- <code class="docutils literal notranslate"><span class="pre">get_rotated_pose</span></code>: Rotate the object around a designated axis by a fixed angle in degrees.
+- <code class="docutils literal notranslate"><span class="pre">get_offset_pose</span></code>: Translate the object along target axes with specified offset values, supporting both intrinsic and extrinsic coordinate modes.
+- <code class="docutils literal notranslate"><span class="pre">get_offset_qpos</span></code>: Directly offset joint values in joint space without Cartesian space conversion.
+- <code class="docutils literal notranslate"><span class="pre">get_fk_xpos</span></code>: Forward kinematics solver, mapping joint qpos to end-effector Cartesian pose.</p>
+<section id="example">
+<h3>🌰 Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h3>
+<p>Complete data flow: Raw object pose → sequential rotation and translation transformations → Cartesian grasp pose <code class="docutils literal notranslate"><span class="pre">guijiao1_grasp_pose</span></code> → IK inverse solving → grasp joint angles <code class="docutils literal notranslate"><span class="pre">guijiao1_grasp_qpos</span></code>.</p>
+<ol class="simple">
+<li><p>Step 1: Generate grasp pose</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;src_key&quot;</span><span class="p">:</span> <span class="s2">&quot;guijiao1_pose&quot;</span><span class="p">,</span>
+<span class="s2">&quot;dst_key&quot;</span><span class="p">:</span> <span class="s2">&quot;guijiao1_grasp_pose&quot;</span><span class="p">,</span>
+<span class="s2">&quot;pass_processes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">rotation</span> <span class="n">replacement</span><span class="p">,</span> <span class="mi">180</span><span class="o">-</span><span class="n">degree</span> <span class="n">X</span><span class="o">-</span><span class="n">axis</span> <span class="n">rotation</span><span class="p">,</span> <span class="n">local</span> <span class="n">X</span><span class="o">-</span><span class="n">axis</span> <span class="n">offset</span><span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Step 2: IK solving to convert pose to qpos</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;src_key&quot;</span><span class="p">:</span> <span class="s2">&quot;guijiao1_grasp_pose&quot;</span><span class="p">,</span>
+<span class="s2">&quot;dst_key&quot;</span><span class="p">:</span> <span class="s2">&quot;guijiao1_grasp_qpos&quot;</span><span class="p">,</span>
+<span class="s2">&quot;valid_funcs_name_kwargs_proc&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;get_ik_ret&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;ik_func&quot;</span><span class="p">:</span> <span class="s2">&quot;env.robot.compute_ik&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qpos_seed&quot;</span><span class="p">:</span> <span class="s2">&quot;env.affordance_datas[&#39;guijiao1_pre1_qpos&#39;]&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;control_part&quot;</span><span class="p">:</span> <span class="s2">&quot;right_arm&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;pass_processes&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;get_ik_qpos&quot;</span><span class="p">}]</span>
+    <span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;is_qpos_flip&quot;</span><span class="p">,</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_ik_ret</span></code> and <code class="docutils literal notranslate"><span class="pre">get_ik_qpos</span></code>: Core inverse kinematics solvers. <code class="docutils literal notranslate"><span class="pre">qpos_seed</span></code> provides initial joint guesses to improve solving success rate, and <code class="docutils literal notranslate"><span class="pre">control_part</span></code> specifies the target robotic arm for calculation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_qpos_flip</span></code>: Validates joint flip status to avoid singular joint configurations.</p></li>
+</ul>
+</section>
+<section id="two-categories-of-nodes">
+<h3>Two Categories of Nodes<a class="headerlink" href="#two-categories-of-nodes" title="Link to this heading">#</a></h3>
+<ol class="simple">
+<li><p>Pose generation nodes: Only apply coordinate transformations without IK solving, output 4x4 homogeneous pose matrices.</p></li>
+<li><p>Qpos generation nodes: Accept pose inputs and output robotic arm joint angles via inverse kinematics solving.</p></li>
+</ol>
+</section>
+</section>
+<section id="edge">
+<h2>3.3 edge<a class="headerlink" href="#edge" title="Link to this heading">#</a></h2>
+<section id="core-principle">
+<h3>Core Principle<a class="headerlink" href="#core-principle" title="Link to this heading">#</a></h3>
+<p>Directed edges connect two node entries (starting point <code class="docutils literal notranslate"><span class="pre">src</span></code>, target point <code class="docutils literal notranslate"><span class="pre">sink</span></code>). The <code class="docutils literal notranslate"><span class="pre">name</span></code> field binds tag-edge marked functions inside the action bank to generate continuous time-series trajectories.</p>
+<p>Key field explanations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src</span></code> / <code class="docutils literal notranslate"><span class="pre">sink</span></code>: Cache names of the start and end key nodes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">duration</span></code>: Total simulation steps allocated for this motion segment; larger values result in slower movement.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: Bind trajectory functions inside the bank such as <code class="docutils literal notranslate"><span class="pre">plan_trajectory</span></code> or <code class="docutils literal notranslate"><span class="pre">execute_open</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keypose_names</span></code>: Pass start and end node identifiers as key waypoints for trajectory planning.</p></li>
+</ul>
+<p>Two typical edge types:</p>
+<ol class="simple">
+<li><p>Robotic arm motion edges: Bind <code class="docutils literal notranslate"><span class="pre">plan_trajectory</span></code> to generate smooth interpolated joint trajectories across multiple waypoints.</p></li>
+<li><p>Gripper control edges: Bind <code class="docutils literal notranslate"><span class="pre">execute_open</span></code> or <code class="docutils literal notranslate"><span class="pre">execute_close</span></code> to output 1-dimensional gripper opening/closing action sequences.</p></li>
+</ol>
+</section>
+</section>
+<section id="sync">
+<h2>3.4 sync<a class="headerlink" href="#sync" title="Link to this heading">#</a></h2>
+<section id="id1">
+<h3>Core Principle<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>Lock execution order via task dependencies to resolve timing conflicts, such as closing the gripper only after the arm reaches the grasp pose and lifting the object only after full gripper closure.</p>
+<p>Key field: <code class="docutils literal notranslate"><span class="pre">depend_tasks</span></code>. The current edge will only start execution after all motion edges listed in this array complete fully.</p>
+<p>Sample sequential logic:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;rclose0&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;depend_tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;pre1_to_grasp&quot;</span><span class="p">]},</span>
+<span class="nt">&quot;grasp_to_up&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;depend_tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;rclose0&quot;</span><span class="p">]}</span>
+</pre></div>
+</div>
+<p>Logical flow: The right gripper closes only after the right arm reaches the pre-grasp pose; the lifting motion starts only after gripper closure finishes.</p>
+</section>
+</section>
+<section id="misc">
+<h2>3.5 misc<a class="headerlink" href="#misc" title="Link to this heading">#</a></h2>
+<p>Global debug switches. Disable all visualization options during dataset collection to reduce computational overhead:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">vis_graph</span></code>: Toggle rendering of the directed action graph.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vis_gantt</span></code>: Toggle generation of timeline Gantt charts.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">warpping</span></code>: Trajectory smoothing switch, must remain enabled at all times.</p></li>
+</ul>
+</section>
+</section>
+<section id="standard-step-by-step-guide">
+<h1>🧠 Standard Step-by-Step Guide<a class="headerlink" href="#standard-step-by-step-guide" title="Link to this heading">#</a></h1>
+<ol class="simple">
+<li><p>Reuse or extend <code class="docutils literal notranslate"><span class="pre">action_bank.py</span></code> to implement required node and edge underlying functions.</p></li>
+<li><p>Fill out the <code class="docutils literal notranslate"><span class="pre">scope</span></code> section to define dimension and initialization rules for all robotic arms and grippers.</p></li>
+<li><p>Layer the <code class="docutils literal notranslate"><span class="pre">node</span></code> section: write raw object pose transformation nodes first, then IK solving nodes for pre-grasp, grasp, placement and home return qpos.</p></li>
+<li><p>Write all <code class="docutils literal notranslate"><span class="pre">edge</span></code> entries to connect sequential nodes and adjust <code class="docutils literal notranslate"><span class="pre">duration</span></code> values to control movement speed.</p></li>
+<li><p>Configure <code class="docutils literal notranslate"><span class="pre">sync</span></code> dependencies to constrain execution timing between grippers and dual arms.</p></li>
+<li><p>Turn off visualization switches in misc to complete the configuration.</p></li>
+</ol>
+</section>
+<section id="debug-reference">
+<h1>🔧 Debug Reference<a class="headerlink" href="#debug-reference" title="Link to this heading">#</a></h1>
+<ol class="simple">
+<li><p>Confusion between intrinsic and extrinsic coordinate systems: Incorrect reference frame for offsets and rotations leads to severe grasp position drift.</p></li>
+<li><p>Improper selection of IK <code class="docutils literal notranslate"><span class="pre">qpos_seed</span></code>: Failed inverse kinematics solving or singular joint configurations.</p></li>
+<li><p>Missing sync dependencies: Chaotic execution order of gripper actions and dual-arm movements.</p></li>
+<li><p>Unreasonable <code class="docutils literal notranslate"><span class="pre">duration</span></code> values: Excessively fast motion causes object penetration; overly slow motion reduces dataset sampling efficiency.</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="summary">
+<h1>Summary<a class="headerlink" href="#summary" title="Link to this heading">#</a></h1>
+<ol class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">action_bank.py</span></code>: Underlying computation foundation, providing general functions for pose transformation, trajectory planning and simulator interaction, decoupled from specific assembly tasks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">action_config.json</span></code>: Task workflow orchestration layer. It only organizes function calls and timing rules, allowing rapid adaptation to new assembly tasks without modifying underlying code.</p></li>
+<li><p>Core full task generation pipeline: Coordinate transformation operators in nodes generate target Cartesian poses → IK solving nodes convert poses to joint qpos → Edges interpolate continuous motion trajectories → Sync rules enforce multi-actuator timing constraints, finally outputting complete dual-arm assembly action sequences.</p></li>
+</ol>
+<p>For more details, please refer to 👉 [EmbodiChain tutorial Docs]https://dexforce.github.io/EmbodiChain/main/tutorial/index.html</p>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="download_data.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Download Data</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="policy/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Policy</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Task Trajectory Implementation</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#core-files">📃 Core Files</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-data-flow-pipeline">Full Data Flow Pipeline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-dependency-relationship">Core Dependency Relationship</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#functions-in-action-bank-py">🏦 Functions in action_bank.py</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-decorator-principles">2.1 Core Decorator Principles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-generate-left-arm-aim-qpos">2.2🌰 Example: generate_left_arm_aim_qpos</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gripper-execution">2.3 Gripper Execution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-trajectory-planning">2.4 Core Trajectory Planning</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attach-rigid-objects-now">2.5 attach_rigid_objects_now</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#principles-of-action-config-json">🎯 Principles of action_config.json</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scope">3.1 scope</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#node">3.2 node</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example">🌰 Example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#two-categories-of-nodes">Two Categories of Nodes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#edge">3.3 edge</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#core-principle">Core Principle</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sync">3.4 sync</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Core Principle</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#misc">3.5 misc</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#standard-step-by-step-guide">🧠 Standard Step-by-Step Guide</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#debug-reference">🔧 Debug Reference</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Ruixin Wu
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Ruixin Wu.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
