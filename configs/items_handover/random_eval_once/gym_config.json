@@ -1,18 +1,26 @@
 {
-    "id": "ManipulatePipette",
+    "id": "ItemsHandover",
     "max_episodes": 100,
-    "max_episode_steps": 1000,
+    "max_episode_steps": 300,
     "env": {
         "events": {
             "random_light": {
                 "func": "randomize_light",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "light_0"},
                     "position_range": [[-0.5, -0.5, 2], [0.5, 0.5, 2]],
                     "color_range": [[0.6, 0.6, 0.6], [1, 1, 1]],
                     "intensity_range": [10.0, 30.0]
+                }
+            },
+            "random_table_height": {
+                "func": "randomize_rigid_object_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "table"},
+                    "position_range": [[0.0, 0.0, -0.05], [0.0, 0.0, 0.05]],
+                    "relative_position": true
                 }
             },
             "random_camera_high_intrinsics": {
@@ -56,8 +64,7 @@
             },
             "random_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "table"},
                     "random_texture_prob": 0.5,
@@ -67,8 +74,7 @@
             },
             "random_robot_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "CobotMagic", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
@@ -78,8 +84,7 @@
             },
             "random_plane_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "default_plane"},
                     "random_texture_prob": 0.5,
@@ -87,49 +92,41 @@
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            "random_pipette_material": {
+            "random_pen_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
-                    "entity_cfg": {"uid": "pipette", "link_names": [".*"]},
+                    "entity_cfg": {"uid": "pen"},
                     "random_texture_prob": 0.5,
                     "texture_path": "assets/background_texture/100",
                     "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            "set_beaker1_material": {
-                "func": "set_rigid_object_visual_material",
-                "mode": "startup",
+            "random_holder_material": {
+                "func": "randomize_visual_material",
+                "mode": "reset",
                 "params": {
-                    "entity_cfg": {"uid": "beaker1"},
-                    "mat_cfg": {
-                        "uid": "cube_mat",
-                        "base_color": [1.0, 1.0, 0.999, 1.0],
-                        "ior": 1.47,
-                        "roughness": 0.005,
-                        "metallic": 0.0,
-                        "material_type": "BSDF"
-                    }
+                    "entity_cfg": {"uid": "holder"},
+                    "random_texture_prob": 0.5,
+                    "texture_path": "assets/background_texture/100",
+                    "base_color_range": [[0.2, 0.2, 0.2], [1.0, 1.0, 1.0]]
                 }
             },
-            "random_beaker1_pose": {
+            "random_holder_pose": {
                 "func": "randomize_rigid_object_pose",
                 "mode": "reset",
                 "params": {
-                    "entity_cfg": {"uid": "beaker1"},
-                    "position_range": [[0.48, -0.05, 0.83], [0.65, 0.18, 0.83]],
-                    "rotation_range": [[0, 0, -180], [0, 0, 180]],
-                    "relative_position": false,
-                    "relative_rotation": true
+                    "entity_cfg": {"uid": "holder"},
+                    "position_range": [[0.5, 0.0, 0.884], [0.7, 0.25, 0.884]],
+                    "relative_position": false
                 }
             },
-            "random_pipette_pose": {
-                "func": "randomize_articulation_root_pose",
+            "random_pen_pose": {
+                "func": "randomize_rigid_object_pose",
                 "mode": "reset",
                 "params": {
-                    "entity_cfg": {"uid": "pipette"},
-                    "position_range": [[0.45, -0.28, 0.86], [0.72, -0.1, 0.86]],
+                    "entity_cfg": {"uid": "pen"},
+                    "position_range": [[0.52, -0.3, 0.884], [0.675, 0.0, 0.884]],
                     "rotation_range": [[0, 0, -30], [0, 0, 30]],
                     "relative_position": false,
                     "relative_rotation": true
@@ -146,8 +143,8 @@
                     "library_index_path": "robosynchallenge/Distractor/ASSET_INDEX.json",
                     "categories": ["PaperCup", "fork", "spoon"],
                     "position_ranges": [
-                        [[0.4, -0.45, 0.89], [1.0, -0.30, 0.92]],
-                        [[0.4, 0.25, 0.89], [1.0, 0.45, 0.92]]
+                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]],
+                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]]
                     ],
                     "appear_probs": [1.0, 1.0],
                     "z_rotation_ranges": [
@@ -155,8 +152,8 @@
                         [-180.0, 180.0]
                     ],
                     "hide_position": [0.0, 0.0, -10.0],
-                    "avoid_uids": ["beaker1", "pipette"],
-                    "min_distance_to_avoid": 0.2,
+                    "avoid_uids": ["pen", "holder"],
+                    "min_distance_to_avoid": 0.1,
                     "max_resample_attempts": 100,
                     "physics_update_step": 1
                 }
@@ -167,28 +164,17 @@
                 "params": {
                     "attrs": [
                         {
-                            "name": "button_pose",
-                            "mode": "callable",
+                            "name": "grasp_pose_object",
+                            "mode": "static",
                             "entity_cfg": {
-                                "uid": "pipette"
+                                "uid": "pen"
                             },
-                            "func_name": "get_link_pose",
-                            "func_kwargs": {
-                                "link_name": "pipette_button_link",
-                                "to_matrix": true
-                            }
-                        },
-                        {
-                            "name": "base_pose",
-                            "mode": "callable",
-                            "entity_cfg": {
-                                "uid": "pipette"
-                            },
-                            "func_name": "get_link_pose",
-                            "func_kwargs": {
-                                "link_name": "root",
-                                "to_matrix": true
-                            }
+                            "value": [[
+                                    [1.0, 0.0, 0.0, 0.03],
+                                    [0.0, 1.0, 0.0, 0.0],
+                                    [0.0, 0.0, 1.0, 0.01],
+                                    [0.0, 0.0, 0.0, 1.0]
+                            ]]
                         },
                         {
                             "name": "left_arm_base_pose",
@@ -215,28 +201,20 @@
                             }
                         },
                         {
-                            "name": "grasp_offset",
+                            "name": "left_arm_takeover_grasp_offset",
                             "mode": "static",
                             "entity_cfg": {
-                                "uid": "pipette"
+                                "uid": "pen"
                             },
                             "value": 0.02
                         },
                         {
-                            "name": "button_offset",
+                            "name": "opposite_pen_grasp_offset",
                             "mode": "static",
                             "entity_cfg": {
-                                "uid": "pipette"
+                                "uid": "pen"
                             },
-                            "value": 0.12
-                        },
-                        {
-                            "name": "left_arm_press_offset",
-                            "mode": "static",
-                            "entity_cfg": {
-                                "uid": "pipette"
-                            },
-                            "value": -0.032
+                            "value": -0.08
                         }
 
                     ]
@@ -249,20 +227,25 @@
                     "registry": [
                         {
                             "entity_cfg": {
-                                "uid": "beaker1"
+                                "uid": "pen"
                             },
+                            "attrs": ["left_arm_takeover_grasp_offset",
+                                       "opposite_pen_grasp_offset"],
                             "pose_register_params": {
                                 "compute_relative": false,
-                                "compute_pose_object_to_arena": false,
+                                "compute_pose_object_to_arena": true,
                                 "to_matrix": true
                             }
                         },
                         {
                             "entity_cfg": {
-                                "uid": "pipette"
+                                "uid": "holder"
                             },
-                            "attrs": ["base_pose","button_pose", "button_offset", "left_arm_press_offset", "grasp_offset"],
-                            "prefix": true
+                            "pose_register_params": {
+                                "compute_relative": false,
+                                "compute_pose_object_to_arena": true,
+                                "to_matrix": true
+                            }
                         },
                         {
                             "entity_cfg": {
@@ -271,7 +254,7 @@
                             },
                             "attrs": ["left_arm_base_pose"],
                             "pose_register_params": {
-                                "compute_relative": false,
+                                "compute_relative": "pen",
                                 "compute_pose_object_to_arena": false,
                                 "to_matrix": true
                             },
@@ -284,7 +267,7 @@
                             },
                             "attrs": ["right_arm_base_pose"],
                             "pose_register_params": {
-                                "compute_relative": false,
+                                "compute_relative": "pen",
                                 "compute_pose_object_to_arena": false,
                                 "to_matrix": true
                             },
@@ -305,40 +288,40 @@
                     "joint_ids": [6, 13]
                 }
             },
-            "beaker_1_pose": {
+            "pen_pose": {
                 "func": "get_rigid_object_pose",
                 "mode": "add",
-                "name": "beaker1_pose",
+                "name": "pen_pose",
                 "params": {
-                    "entity_cfg": {"uid": "beaker1"}
+                    "entity_cfg": {"uid": "pen"}
                 }
             },
-            "pipette_pose": {
+            "holder_pose": {
                 "func": "get_rigid_object_pose",
                 "mode": "add",
-                "name": "pipette_pose",
+                "name": "holder_pose",
                 "params": {
-                    "entity_cfg": {"uid": "pipette"}
+                    "entity_cfg": {"uid": "holder"}
                 }
             }
         },
-       "dataset": {
+        "dataset": {
             "lerobot": {
                 "func": "LeRobotRecorder",
                 "mode": "save",
                 "params": {
-                    "save_path": "lerobot_dataset/manipulate_pipette/",
+                    "save_path": "lerobot_dataset/items_handover/",
                     "robot_meta": {
                         "robot_type": "CobotMagic",
                         "control_freq": 25,
                         "control_parts": ["left_arm", "left_eef", "right_arm", "right_eef"]
                     },
                     "instruction": {
-                        "lang": "Use the pipette on the table to transfer liquid from one beaker to another"
+                        "lang": "Pick up the pen, hand it over to the other arm and then place it in to the pen holder"
                     },
                     "extra": {
                         "scene_type": "Sim",
-                        "task_description": "manipulate_pipette",
+                        "task_description": "items_handover",
                         "data_type": "sim"
                     },
                     "use_videos": true
@@ -352,18 +335,13 @@
         "robot_type": "CobotMagic",
         "init_pos": [0.0, 0.0, 0.835],
         "init_qpos": [-0.05918411, 0.08932595, 0.00076794, 0.00970403, -0.12870058, -0.21027726, -0.13548991, -0.08838347, 0.29586821,0.39285615,0.13372713,0.08686504,0.0,0.0,0.0,0.0],
+        "attrs": {
+            "contact_offset": 0.0,
+            "rest_offset": 0.0
+        },
         "drive_pros": {
             "stiffness": {
-                "left_joint[7-8]": 600.0,
-                "right_joint[7-8]": 600.0
-            },
-            "damping": {
-                "left_joint[7-8]": 60.0,
-                "right_joint[7-8]": 60.0
-            },
-            "max_effort": {
-                "left_joint[7-8]": 6000.0,
-                "right_joint[7-8]": 6000.0
+                "RIGHT_JOINT[1-6]": 10000.0
             }
         }
     },
@@ -453,9 +431,11 @@
             },
             "attrs" : {
                 "mass": 10.0,
-                "static_friction": 0.95,
-                "dynamic_friction": 0.9,
-                "restitution": 0.01
+                "static_friction": 0.0,
+                "dynamic_friction": 0.0,
+                "restitution": 0.01,
+                "contact_offset": 0.0,
+                "rest_offset": 0.0
             },
             "body_scale": [1, 1, 1],
             "body_type": "kinematic",
@@ -534,76 +514,67 @@
     ],
     "rigid_object": [
         {
-            "uid":"beaker1",
+            "uid":"holder",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "assets/Beaker/beaker.ply"
+                "fpath": "assets/PenHolder/pen_holder.obj",
+                "compute_uv": true
             },
             "attrs" : {
-                "mass": 0.05,
-                "contact_offset": 0.001,
-                "static_friction": 0.5,
-                "dynamic_friction": 0.3,
-                "rest_offset": 0.00025,
-                "restitution": 0.00,
-                "max_depenetration_velocity": 1.0,
+                "mass": 0.005,
+                "contact_offset": 0.003,
+                "rest_offset": 0.001,
+                "restitution": 0.1,
+                "max_depenetration_velocity": 1e1,
                 "min_position_iters": 32,
-                "min_velocity_iters":8,
-                "enable_ccd": true
+                "min_velocity_iters":8
             },
-            "body_scale":[1.4, 1.4, 1.5],
-            "max_convex_hull_num": 24,
-            "init_pos": [0.5, 0.0, 0.83],
-            "init_rot": [0, 0, 0]
+            "init_pos": [0.5, 0.1, 0.884],
+            "init_rot": [90, 0, 0],
+            "body_scale":[0.56, 0.45, 0.56],
+            "max_convex_hull_num": 8
+        },
+        {
+            "uid":"pen",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "assets/Pen/the_pen.obj",
+                "compute_uv": true,
+                "visual_material": {
+                    "uid": "black_pen_mat",
+                    "base_color": [0.0, 0.0, 0.0, 1.0],
+                    "metallic": 0.0,
+                    "roughness": 0.8
+                }
+            },
+            "attrs" : {
+                "mass": 0.005,
+                "contact_offset": 0.003,
+                "rest_offset": 0.001,
+                "restitution": 0.01,
+                "max_depenetration_velocity": 1e1,
+                "min_position_iters": 32,
+                "min_velocity_iters":8
+            },
+            "init_pos": [0.6, -0.1, 0.884],
+            "init_rot": [0, 0, 0],
+            "body_scale":[1, 1.6, 1.6],
+            "max_convex_hull_num": 8
         },
         {
             "uid": "distractor_0",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "assets/Beaker/beaker.ply"
+                "fpath": "assets/Beaker/beaker.ply",
+                "compute_uv": true
             }
         },
         {
             "uid": "distractor_1",
             "shape": {
                 "shape_type": "Mesh",
-                "fpath": "assets/Beaker/beaker.ply"
-            }
-        }
-    ],
-    "articulation": [
-        {
-            "uid": "pipette",
-            "fpath": "assets/pipette_good/pipette_good.urdf",
-            "build_pk_chain": false,
-            "init_pos": [0.6, -0.25, 0.86],
-            "init_rot": [0, -7, 0],
-            "init_qpos": [0.01401],
-            "fix_base": false,
-            "body_scale": [3, 3, 3],
-            "compute_uv": true,
-            "attrs": {
-                "mass": 0.4,
-                "static_friction": 1.8,
-                "dynamic_friction": 1.5,
-                "restitution": 0.0,
-                "enable_ccd": true,
-                "linear_damping": 2.0,
-                "angular_damping": 2.0,
-                "max_linear_velocity": 2.0,
-                "max_angular_velocity": 2.0,
-                "max_depenetration_velocity": 2.0,
-                "min_position_iters": 32,
-                "min_velocity_iters": 16,
-                "contact_offset": 0.0001,
-                "rest_offset": 0.000025
-            },
-            "drive_pros": {
-                "drive_type": "force",
-                "stiffness": 100.0,
-                "damping": 30.0,
-                "max_effort": 200.0,
-                "max_velocity": 2.0
+                "fpath": "assets/Beaker/beaker.ply",
+                "compute_uv": true
             }
         }
     ]

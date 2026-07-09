@@ -1,13 +1,12 @@
 {
-    "id": "ManipulatePipette",
+    "id": "ManipulatePipetteTwoBeaker",
     "max_episodes": 100,
     "max_episode_steps": 1000,
     "env": {
         "events": {
             "random_light": {
                 "func": "randomize_light",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "light_0"},
                     "position_range": [[-0.5, -0.5, 2], [0.5, 0.5, 2]],
@@ -56,8 +55,7 @@
             },
             "random_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "table"},
                     "random_texture_prob": 0.5,
@@ -67,8 +65,7 @@
             },
             "random_robot_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "CobotMagic", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
@@ -78,8 +75,7 @@
             },
             "random_plane_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "default_plane"},
                     "random_texture_prob": 0.5,
@@ -89,8 +85,7 @@
             },
             "random_pipette_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "pipette", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
@@ -113,12 +108,38 @@
                     }
                 }
             },
+            "set_beaker2_material": {
+                "func": "set_rigid_object_visual_material",
+                "mode": "startup",
+                "params": {
+                    "entity_cfg": {"uid": "beaker2"},
+                    "mat_cfg": {
+                        "uid": "cube_mat",
+                        "base_color": [1.0, 1.0, 0.999, 1.0],
+                        "ior": 1.47,
+                        "roughness": 0.005,
+                        "metallic": 0.0,
+                        "material_type": "BSDF"
+                    }
+                }
+            },
             "random_beaker1_pose": {
                 "func": "randomize_rigid_object_pose",
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "beaker1"},
-                    "position_range": [[0.48, -0.05, 0.83], [0.65, 0.18, 0.83]],
+                    "position_range": [[0.48, -0.05, 0.83], [0.54, 0.18, 0.83]],
+                    "rotation_range": [[0, 0, -180], [0, 0, 180]],
+                    "relative_position": false,
+                    "relative_rotation": true
+                }
+            },
+            "random_beaker2_pose": {
+                "func": "randomize_rigid_object_pose",
+                "mode": "reset",
+                "params": {
+                    "entity_cfg": {"uid": "beaker2"},
+                    "position_range": [[0.6, -0.05, 0.83], [0.66, 0.18, 0.83]],
                     "rotation_range": [[0, 0, -180], [0, 0, 180]],
                     "relative_position": false,
                     "relative_rotation": true
@@ -146,8 +167,8 @@
                     "library_index_path": "robosynchallenge/Distractor/ASSET_INDEX.json",
                     "categories": ["PaperCup", "fork", "spoon"],
                     "position_ranges": [
-                        [[0.4, -0.45, 0.89], [1.0, -0.30, 0.92]],
-                        [[0.4, 0.25, 0.89], [1.0, 0.45, 0.92]]
+                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]],
+                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]]
                     ],
                     "appear_probs": [1.0, 1.0],
                     "z_rotation_ranges": [
@@ -155,8 +176,8 @@
                         [-180.0, 180.0]
                     ],
                     "hide_position": [0.0, 0.0, -10.0],
-                    "avoid_uids": ["beaker1", "pipette"],
-                    "min_distance_to_avoid": 0.2,
+                    "avoid_uids": ["beaker1", "beaker2", "pipette"],
+                    "min_distance_to_avoid": 0.15,
                     "max_resample_attempts": 100,
                     "physics_update_step": 1
                 }
@@ -236,7 +257,7 @@
                             "entity_cfg": {
                                 "uid": "pipette"
                             },
-                            "value": -0.032
+                            "value": -0.04
                         }
 
                     ]
@@ -250,6 +271,16 @@
                         {
                             "entity_cfg": {
                                 "uid": "beaker1"
+                            },
+                            "pose_register_params": {
+                                "compute_relative": false,
+                                "compute_pose_object_to_arena": false,
+                                "to_matrix": true
+                            }
+                        },
+                        {
+                            "entity_cfg": {
+                                "uid": "beaker2"
                             },
                             "pose_register_params": {
                                 "compute_relative": false,
@@ -313,6 +344,14 @@
                     "entity_cfg": {"uid": "beaker1"}
                 }
             },
+            "beaker_2_pose": {
+                "func": "get_rigid_object_pose",
+                "mode": "add",
+                "name": "beaker2_pose",
+                "params": {
+                    "entity_cfg": {"uid": "beaker2"}
+                }
+            },
             "pipette_pose": {
                 "func": "get_rigid_object_pose",
                 "mode": "add",
@@ -354,16 +393,16 @@
         "init_qpos": [-0.05918411, 0.08932595, 0.00076794, 0.00970403, -0.12870058, -0.21027726, -0.13548991, -0.08838347, 0.29586821,0.39285615,0.13372713,0.08686504,0.0,0.0,0.0,0.0],
         "drive_pros": {
             "stiffness": {
-                "left_joint[7-8]": 600.0,
-                "right_joint[7-8]": 600.0
+                "LEFT_JOINT[7-8]": 600.0,
+                "RIGHT_JOINT[7-8]": 600.0
             },
             "damping": {
-                "left_joint[7-8]": 60.0,
-                "right_joint[7-8]": 60.0
+                "LEFT_JOINT[7-8]": 60.0,
+                "RIGHT_JOINT[7-8]": 60.0
             },
             "max_effort": {
-                "left_joint[7-8]": 6000.0,
-                "right_joint[7-8]": 6000.0
+                "LEFT_JOINT[7-8]": 6000.0,
+                "RIGHT_JOINT[7-8]": 6000.0
             }
         }
     },
@@ -557,6 +596,29 @@
             "init_rot": [0, 0, 0]
         },
         {
+            "uid":"beaker2",
+            "shape": {
+                "shape_type": "Mesh",
+                "fpath": "assets/Beaker/beaker.ply"
+            },
+            "attrs" : {
+                "mass": 0.05,
+                "contact_offset": 0.001,
+                "static_friction": 0.5,
+                "dynamic_friction": 0.3,
+                "rest_offset": 0.00025,
+                "restitution": 0.00,
+                "max_depenetration_velocity": 1.0,
+                "min_position_iters": 32,
+                "min_velocity_iters":8,
+                "enable_ccd": true
+            },
+            "body_scale":[1.4, 1.4, 1.5],
+            "max_convex_hull_num": 24,
+            "init_pos": [0.65, 0.0, 0.83],
+            "init_rot": [0, 0, 0]
+        },
+        {
             "uid": "distractor_0",
             "shape": {
                 "shape_type": "Mesh",
@@ -578,7 +640,7 @@
             "build_pk_chain": false,
             "init_pos": [0.6, -0.25, 0.86],
             "init_rot": [0, -7, 0],
-            "init_qpos": [0.01401],
+            "init_qpos": [1.0],
             "fix_base": false,
             "body_scale": [3, 3, 3],
             "compute_uv": true,

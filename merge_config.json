@@ -1,11 +1,11 @@
 {
-  "repo_id": "lerobot_dataset/cobotmagic_Sim_drawer_open_and_place_merged",
+  "repo_id": "lerobot_dataset/drawer_open_place/cobotmagic_Sim_drawer_open_place_001_002",
   "push_to_hub": false,
   "operation": {
     "type": "merge",
     "repo_ids": [
-      "lerobot_dataset/cobotmagic_Sim_drawer_open_and_place",
-      "lerobot_dataset/cobotmagic_Sim_drawer_open_and_place2_pruned"
+      "lerobot_dataset/drawer_open_place/cobotmagic_Sim_drawer_open_place_001",
+      "lerobot_dataset/drawer_open_place/cobotmagic_Sim_drawer_open_place_002"
     ]
   }
 }

@@ -134,6 +134,39 @@ def _patch_lerobot_dataset_factory():
     train_module.make_dataset = make_dataset_with_legacy_aliases
     return train_module.train
 
+
+def _patch_diffusion_image_encoder(img_micro_bs):
+    if not img_micro_bs:
+        return
+    if img_micro_bs <= 0:
+        raise ValueError("--img-micro-bs must be positive.")
+
+    from lerobot.policies.diffusion import modeling_diffusion
+    from torch.utils.checkpoint import checkpoint
+
+    original_forward = modeling_diffusion.DiffusionRgbEncoder.forward
+
+    def forward_with_micro_batches(self, images):
+        if images.shape[0] <= img_micro_bs:
+            return original_forward(self, images)
+
+        outputs = []
+
+        def run_encoder(image_chunk):
+            return original_forward(self, image_chunk)
+
+        for image_chunk in images.split(img_micro_bs, dim=0):
+            if torch.is_grad_enabled():
+                outputs.append(checkpoint(run_encoder, image_chunk, use_reentrant=False))
+            else:
+                outputs.append(run_encoder(image_chunk))
+
+        return torch.cat(outputs, dim=0)
+
+    modeling_diffusion.DiffusionRgbEncoder.forward = forward_with_micro_batches
+    print(f"[DP train] Using image encoder micro-batches: img_micro_bs={img_micro_bs}")
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dataset-root", required=True)
@@ -153,12 +186,20 @@ def parse_args():
     parser.add_argument("--horizon", type=int, default=16)
     parser.add_argument("--n-action-steps", type=int, default=8)
     parser.add_argument("--num-inference-steps", type=int, default=None)
+    parser.add_argument(
+        "--crop-shape", type=int, nargs=2, metavar=("HEIGHT", "WIDTH"), default=None,
+        help="Image crop size before the DP RGB encoder. Default disables cropping.",
+    )
     parser.add_argument("--use-amp", action="store_true")
     parser.add_argument("--wandb", action="store_true")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--no-imagenet-stats", action="store_true")
     parser.add_argument("--no-save-checkpoint", action="store_true")
+    parser.add_argument(
+        "--img-micro-bs", type=int, nargs="?", const=64, default=64, metavar="N",
+        help="Split and checkpoint DP RGB encoder inputs into micro-batches. Default is 64; set 0 to disable.",
+    )
     return parser.parse_args()
 
 
@@ -176,6 +217,7 @@ def main():
     from lerobot.configs.train import TrainPipelineConfig
     from lerobot.policies.diffusion.configuration_diffusion import DiffusionConfig
     lerobot_train = _patch_lerobot_dataset_factory()
+    _patch_diffusion_image_encoder(args.img_micro_bs)
 
     policy_kwargs = {
         "device": args.device,
@@ -185,9 +227,10 @@ def main():
         "horizon": args.horizon,
         "n_action_steps": args.n_action_steps,
         "num_inference_steps": args.num_inference_steps,
+        "crop_shape": args.crop_shape,
     }
     policy_kwargs = {
-        key: value for key, value in policy_kwargs.items() if value is not None
+        key: value for key, value in policy_kwargs.items() if value is not None or key == "crop_shape"
     }
 
     cfg = TrainPipelineConfig(

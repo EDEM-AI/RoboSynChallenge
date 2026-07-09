@@ -12,10 +12,14 @@ seed: 0
 max_episodes: 20
 max_steps: 1000
 headless: false
-device: cuda
+pytorch_device: cuda
 filter_dataset_saving: true
 eval_video_log: true
-eval_video_obs_key: cam_high
+eval_video_obs_keys:
+  - cam_high
+  - cam_right_wrist
+  - cam_left_wrist
+eval_reset_sync_steps: 1
 
 # ------------------------------------------------------------------
 # Diffusion Policy parameters used by get_model()

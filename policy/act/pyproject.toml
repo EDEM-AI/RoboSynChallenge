@@ -12,14 +12,14 @@ dependencies = [
     "torch>=2.2.1,<2.8.0",
     "torchvision>=0.21.0,<0.23.0",
     "av>=14.2.0",
-    "dexsim-engine==0.4.1",
+    "dexsim-engine==0.4.2",
 ]
 
 [tool.uv]
 allow-insecure-host = ["pyp.open3dv.site:2345"]
 override-dependencies = [
     "lerobot",
-    "dexsim-engine==0.4.1",
+    "dexsim-engine==0.4.2",
 ]
 
 [tool.uv.sources]

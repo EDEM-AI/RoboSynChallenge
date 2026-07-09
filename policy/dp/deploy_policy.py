@@ -89,7 +89,7 @@ def eval(env, model, obs):
             image_tensor = image_tensor[..., :3].permute(0, 3, 1, 2).contiguous()
             if torch.max(image_tensor) > 1.5:
                 image_tensor = image_tensor / 255.0
-            batch[image_key] = image_tensor.clamp(0.0, 1.0)
+            batch[image_key] = image_tensor
 
         action = model.select_action(batch)
         if action.ndim == 1:

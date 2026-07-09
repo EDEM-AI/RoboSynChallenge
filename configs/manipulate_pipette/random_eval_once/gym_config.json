@@ -6,8 +6,7 @@
         "events": {
             "random_light": {
                 "func": "randomize_light",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "light_0"},
                     "position_range": [[-0.5, -0.5, 2], [0.5, 0.5, 2]],
@@ -56,8 +55,7 @@
             },
             "random_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "table"},
                     "random_texture_prob": 0.5,
@@ -67,8 +65,7 @@
             },
             "random_robot_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "CobotMagic", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
@@ -78,8 +75,7 @@
             },
             "random_plane_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "default_plane"},
                     "random_texture_prob": 0.5,
@@ -89,8 +85,7 @@
             },
             "random_pipette_material": {
                 "func": "randomize_visual_material",
-                "mode": "interval",
-                "interval_step": 10,
+                "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "pipette", "link_names": [".*"]},
                     "random_texture_prob": 0.5,
@@ -146,8 +141,8 @@
                     "library_index_path": "robosynchallenge/Distractor/ASSET_INDEX.json",
                     "categories": ["PaperCup", "fork", "spoon"],
                     "position_ranges": [
-                        [[0.4, -0.45, 0.89], [1.0, -0.30, 0.92]],
-                        [[0.4, 0.25, 0.89], [1.0, 0.45, 0.92]]
+                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]],
+                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]]
                     ],
                     "appear_probs": [1.0, 1.0],
                     "z_rotation_ranges": [
@@ -156,7 +151,7 @@
                     ],
                     "hide_position": [0.0, 0.0, -10.0],
                     "avoid_uids": ["beaker1", "pipette"],
-                    "min_distance_to_avoid": 0.2,
+                    "min_distance_to_avoid": 0.15,
                     "max_resample_attempts": 100,
                     "physics_update_step": 1
                 }
@@ -354,16 +349,16 @@
         "init_qpos": [-0.05918411, 0.08932595, 0.00076794, 0.00970403, -0.12870058, -0.21027726, -0.13548991, -0.08838347, 0.29586821,0.39285615,0.13372713,0.08686504,0.0,0.0,0.0,0.0],
         "drive_pros": {
             "stiffness": {
-                "left_joint[7-8]": 600.0,
-                "right_joint[7-8]": 600.0
+                "LEFT_JOINT[7-8]": 600.0,
+                "RIGHT_JOINT[7-8]": 600.0
             },
             "damping": {
-                "left_joint[7-8]": 60.0,
-                "right_joint[7-8]": 60.0
+                "LEFT_JOINT[7-8]": 60.0,
+                "RIGHT_JOINT[7-8]": 60.0
             },
             "max_effort": {
-                "left_joint[7-8]": 6000.0,
-                "right_joint[7-8]": 6000.0
+                "LEFT_JOINT[7-8]": 6000.0,
+                "RIGHT_JOINT[7-8]": 6000.0
             }
         }
     },

@@ -211,6 +211,7 @@ __marimo__/
 *.mp4
 lerobot_dataset/
 checkpoints/
+eval_result/
 
 **/results/
 .codex
