@@ -279,7 +279,7 @@ class HandleBasketEnv(EmbodiedEnv):
         milk_xy = milk_pose[:, :2, 3]
         dist = torch.linalg.norm(milk_xy - basket_xy, dim=-1)
         up = milk_pose[:, 2, 3] > basket_pose[:, 2, 3]
-        return dist < 0.12 and up
+        return dist < 0.08 and up
 
 @register_env("HandleBasketTest", max_episode_steps=600)
 class HandleBasketTestEnv(HandleBasketEnv):

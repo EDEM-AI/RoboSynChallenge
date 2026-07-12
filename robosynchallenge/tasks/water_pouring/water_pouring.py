@@ -130,13 +130,33 @@ class WaterPouringEnv(EmbodiedEnv):
         bottle_final_xpos = bottle.get_local_pose(to_matrix=True)
         cup_final_xpos = cup.get_local_pose(to_matrix=True)
 
-        bottle_ret = self._is_fall_y(bottle_final_xpos)
-        cup_ret = self._is_fall_z(cup_final_xpos)
+        # 原有的“翻倒”判定（保留以防完全打翻）
+        bottle_fall = self._is_fall_y(bottle_final_xpos)
+        cup_fall = self._is_fall_z(cup_final_xpos)
 
-        success = ~(bottle_ret | cup_ret)
-        fail = cup_ret
+        bottle_up = bottle_final_xpos[:, :3, 2]
+        world_z = torch.tensor([0.0, 0.0, 1.0], dtype=bottle_up.dtype, device=bottle_up.device)
+        dot = torch.sum(bottle_up * world_z, dim=-1)
+        dot = torch.clamp(dot, -1.0, 1.0)
+        bottle_angle = torch.acos(dot)  
+        bottle_angle_deg = bottle_angle * 180.0 / torch.pi
 
-        return success, fail, {}
+        # 倾斜角下限/上限：必须 >15° 且 <150°（15° 表示足够倾斜可出水，150° 以上视为翻倒）
+        bottle_in_pour_range = (bottle_angle_deg > 30.0) & (bottle_angle_deg < 150.0)
+
+        # 成功：瓶子处于倒水角度区间，且未发生翻倒，同时杯子未翻倒
+        success = bottle_in_pour_range & (~bottle_fall) & (~cup_fall)
+        fail = cup_fall
+
+        # 返回诊断信息，便于调试和日志记录
+        info = {
+            "bottle_angle_deg": bottle_angle_deg,
+            "bottle_in_pour_range": bottle_in_pour_range,
+            "bottle_fall": bottle_fall,
+            "cup_fall": cup_fall,
+        }
+
+        return success, fail, info
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
         success, _, _ = self._evaluate_task_state()

@@ -146,8 +146,8 @@
                     "library_index_path": "robosynchallenge/Distractor/ASSET_INDEX.json",
                     "categories": ["PaperCup", "fork", "spoon"],
                     "position_ranges": [
-                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]],
-                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]]
+                        [[0.30, -0.45, 0.89], [0.44, -0.15, 0.92]],
+                        [[0.86, 0.20, 0.89], [1.02, 0.40, 0.92]]
                     ],
                     "appear_probs": [1.0, 1.0],
                     "z_rotation_ranges": [
@@ -156,7 +156,7 @@
                     ],
                     "hide_position": [0.0, 0.0, -10.0],
                     "avoid_uids": ["beaker", "beaker_mixer"],
-                    "min_distance_to_avoid": 0.4,
+                    "min_distance_to_avoid": 1.5,
                     "max_resample_attempts": 100,
                     "physics_update_step": 1
                 }
