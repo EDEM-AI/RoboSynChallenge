@@ -156,7 +156,7 @@
                     ],
                     "hide_position": [0.0, 0.0, -10.0],
                     "avoid_uids": ["beaker1", "pipette"],
-                    "min_distance_to_avoid": 0.15,
+                    "min_distance_to_avoid": 0.2,
                     "max_resample_attempts": 100,
                     "physics_update_step": 1
                 }

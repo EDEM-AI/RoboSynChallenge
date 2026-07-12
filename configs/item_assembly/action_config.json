@@ -1069,7 +1069,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": -0.26,
+                                                    "offset_value": -0.24,
                                                     "direction": "x",
                                                     "mode": "intrinsic"
                                                 }
@@ -1140,7 +1140,7 @@
                                             {
                                                 "name": "get_offset_pose",
                                                 "kwargs": {
-                                                    "offset_value": 0.056,
+                                                    "offset_value": 0.06,
                                                     "direction": "x",
                                                     "mode": "intrinsic"
                                                 }
@@ -1348,16 +1348,16 @@
                 }
             },
             {
-                "adjust_to_init": {
+                "stand": {
                     "src": "R_adjust_qpos",
-                    "sink": "right_arm_init_qpos",
-                    "duration": 24,
-                    "name": "plan_trajectory",
+                    "sink": "R_adjust_qpos",
+                    "duration": 10,
+                    "name": "stand_still",
                     "kwargs": {
                         "agent_uid": "right_arm",
                         "keypose_names": [
                             "R_adjust_qpos",
-                            "right_arm_init_qpos"
+                            "R_adjust_qpos"
                         ]
                     }
                 }
@@ -1500,16 +1500,16 @@
                 }
             },
             {
-                "L_get_to_init": {
+                "L_stand": {
                     "src": "L_get_qpos",
-                    "sink": "left_arm_init_qpos",
-                    "duration": 24,
-                    "name": "plan_trajectory",
+                    "sink": "L_get_qpos",
+                    "duration": 10,
+                    "name": "stand_still",
                     "kwargs": {
                         "agent_uid": "left_arm",
                         "keypose_names": [
                             "L_get_qpos",
-                            "left_arm_init_qpos"
+                            "L_get_qpos"
                         ]
                     }
                 }
@@ -1635,13 +1635,13 @@
         ]
         },
 
-        "L_get_to_init": {
+        "L_stand": {
         "depend_tasks": [
             "L_align_to_get"
         ]
         },
 
-        "adjust_to_init": {
+        "stand": {
         "depend_tasks": [
             "L_align_to_get"
         ]

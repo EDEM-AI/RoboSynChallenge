@@ -164,17 +164,31 @@ class TableRearrangementEnv(EmbodiedEnv):
 
         spoon_pose = spoon.get_local_pose(to_matrix=True)
         spoon_y = spoon_pose[:, 1, 3]
+        spoon_z = spoon_pose[:, 2, 3]
 
         fork_pose = fork.get_local_pose(to_matrix=True)
         fork_y = fork_pose[:, 1, 3]
+        fork_z = fork_pose[:, 2, 3]
+
+        plate_z = plate_pose[:, 2, 3]
 
         tolerance = self.metadata.get("success_params", {}).get("tolerance", 0.02)
+        height_tolerance = self.metadata.get("success_params", {}).get(
+            "height_tolerance", 0.05
+        )
 
-        # spoon and fork should with the y range of tolerance related to plate.
-        return (
+        # spoon and fork should be placed near the target y position and not be floating too high above the plate.
+        y_ok = (
             (torch.abs(spoon_y - spoon_place_target_y) <= tolerance)
             & (torch.abs(fork_y - fork_place_target_y) <= tolerance)
         )
+        z_ok = (
+            ((spoon_z - plate_z) <= height_tolerance)
+            & ((fork_z - plate_z) <= height_tolerance)
+        )
+
+        return y_ok & z_ok
+
 
 @register_env("TableRearrangementTest", max_episode_steps=600)
 class TableRearrangementTestEnv(TableRearrangementEnv):
