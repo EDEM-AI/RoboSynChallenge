@@ -14,7 +14,7 @@ resolution-markers = [
 
 [manifest]
 overrides = [
-    { name = "dexsim-engine", specifier = "==0.4.2", index = "http://pyp.open3dv.site:2345/simple/" },
+    { name = "dexsim-engine", specifier = "==0.4.3", index = "http://pyp.open3dv.site:2345/simple/" },
     { name = "lerobot", git = "https://github.com/huggingface/lerobot?rev=b883328e6c95681ca90a18b102e4ae5e1f91e2bf" },
 ]
 
@@ -842,7 +842,7 @@ wheels = [
 
 [[package]]
 name = "dexsim-engine"
-version = "0.4.2"
+version = "0.4.3"
 source = { registry = "http://pyp.open3dv.site:2345/simple/" }
 dependencies = [
     { name = "coacd" },
@@ -877,8 +877,8 @@ dependencies = [
     { name = "warp-lang" },
 ]
 wheels = [
-    { url = "http://pyp.open3dv.site:2345/packages/dexsim_engine-0.4.2-cp310-cp310-manylinux_2_31_x86_64.whl", hash = "sha256:14d7130fae120875ce7c7db2f9cec8042e66167b9db94844e33ac319862390f9" },
-    { url = "http://pyp.open3dv.site:2345/packages/dexsim_engine-0.4.2-cp311-cp311-manylinux_2_31_x86_64.whl", hash = "sha256:f4163027c8354363968d5f6a84387939960457b7645d16e5d517464d831de022" },
+    { url = "http://pyp.open3dv.site:2345/packages/dexsim_engine-0.4.3-cp310-cp310-manylinux_2_31_x86_64.whl", hash = "sha256:a46719f3293ce87b35001024072d2c94a304ddb47b903ac8c11d495204d00536" },
+    { url = "http://pyp.open3dv.site:2345/packages/dexsim_engine-0.4.3-cp311-cp311-manylinux_2_31_x86_64.whl", hash = "sha256:cd4896c3ca33fd634f973e8f04fb2b47fcee0665bbd3b16446f8605fb1ceb822" },
 ]
 
 [[package]]
@@ -1000,7 +1000,7 @@ requires-dist = [
     { name = "black", specifier = "==26.3.1" },
     { name = "bpy", marker = "extra == 'gensim'", index = "https://download.blender.org/pypi/" },
     { name = "casadi" },
-    { name = "dexsim-engine", specifier = "==0.4.2" },
+    { name = "dexsim-engine", specifier = "==0.4.3" },
     { name = "fvcore" },
     { name = "gymnasium", specifier = ">=0.29.1" },
     { name = "h5py" },
@@ -4071,7 +4071,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "av", specifier = ">=14.2.0" },
-    { name = "dexsim-engine", specifier = "==0.4.2", index = "http://pyp.open3dv.site:2345/simple/" },
+    { name = "dexsim-engine", specifier = "==0.4.3", index = "http://pyp.open3dv.site:2345/simple/" },
     { name = "embodichain", editable = "../../../EmbodiChain" },
     { name = "lerobot", git = "https://github.com/huggingface/lerobot?rev=b883328e6c95681ca90a18b102e4ae5e1f91e2bf" },
     { name = "numpy", specifier = ">=1.22.4,<2.0.0" },

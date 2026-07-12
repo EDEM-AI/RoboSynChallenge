@@ -11,6 +11,8 @@ Policy
    :caption: Policy(Train & Eval)
 
    your_own_policy
+   act
+   dp
    pi0
    pi05
    motus

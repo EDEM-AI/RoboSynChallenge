@@ -3,6 +3,7 @@
 
 import argparse
 import copy
+import os
 import shutil
 from pathlib import Path
 
@@ -116,7 +117,7 @@ def _legacy_aliases_for_dataset(dataset):
     return aliases
 
 
-def _patch_lerobot_dataset_factory():
+def _patch_lerobot_dataset_factory(distributed_context=None):
     import lerobot.scripts.train as train_module
 
     original_make_dataset = train_module.make_dataset
@@ -132,6 +133,33 @@ def _patch_lerobot_dataset_factory():
         return dataset
 
     train_module.make_dataset = make_dataset_with_legacy_aliases
+    if distributed_context is not None:
+        original_make_policy = train_module.make_policy
+        rank, world_size, local_rank = distributed_context
+        original_dataloader = torch.utils.data.DataLoader
+        def make_dataloader(dataset, *args, **kwargs):
+            sampler = kwargs.get("sampler")
+            if sampler is not None:
+                kwargs["sampler"] = list(sampler)[rank::world_size]
+            elif kwargs.get("shuffle"):
+                kwargs["sampler"] = torch.utils.data.distributed.DistributedSampler(
+                    dataset, world_size, rank
+                )
+                kwargs["shuffle"] = False
+            return original_dataloader(dataset, *args, **kwargs)
+        torch.utils.data.DataLoader = make_dataloader
+        def make_patched_policy(*args, **kwargs):
+            policy = original_make_policy(*args, **kwargs)
+            ddp_policy = torch.nn.parallel.DistributedDataParallel(
+                policy,
+                device_ids=[local_rank],
+                output_device=local_rank,
+            )
+            for name in ("config", "get_optim_params", "save_pretrained", "update"):
+                if hasattr(policy, name):
+                    setattr(ddp_policy, name, getattr(policy, name))
+            return ddp_policy
+        train_module.make_policy = make_patched_policy
     return train_module.train
 
 
@@ -192,6 +220,8 @@ def parse_args():
     )
     parser.add_argument("--use-amp", action="store_true")
     parser.add_argument("--wandb", action="store_true")
+    parser.add_argument("--wandb-project", default="robosynchallenge")
+    parser.add_argument("--wandb-name", default=None)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--no-imagenet-stats", action="store_true")
@@ -200,14 +230,25 @@ def parse_args():
         "--img-micro-bs", type=int, nargs="?", const=64, default=64, metavar="N",
         help="Split and checkpoint DP RGB encoder inputs into micro-batches. Default is 64; set 0 to disable.",
     )
+    parser.add_argument("--distributed", action="store_true")
+    parser.add_argument("--local-rank", "--local_rank", type=int, default=None)
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
+    distributed_context = None
+    if args.distributed:
+        import torch.distributed as dist
+        local_rank = args.local_rank if args.local_rank is not None else int(os.environ["LOCAL_RANK"])
+        torch.cuda.set_device(local_rank)
+        dist.init_process_group(backend="nccl")
+        distributed_context = (int(os.environ["RANK"]), int(os.environ["WORLD_SIZE"]), local_rank)
     dataset_root = Path(args.dataset_root).expanduser().resolve()
     repo_id = args.repo_id or dataset_root.name
     output_dir = Path(args.output_dir).expanduser().resolve()
+    if distributed_context is not None:
+        output_dir = output_dir / f"rank_{distributed_context[0]}"
 
     if args.overwrite and output_dir.exists() and not args.resume:
         shutil.rmtree(output_dir)
@@ -216,7 +257,7 @@ def main():
     from lerobot.configs.default import WandBConfig
     from lerobot.configs.train import TrainPipelineConfig
     from lerobot.policies.diffusion.configuration_diffusion import DiffusionConfig
-    lerobot_train = _patch_lerobot_dataset_factory()
+    lerobot_train = _patch_lerobot_dataset_factory(distributed_context)
     _patch_diffusion_image_encoder(args.img_micro_bs)
 
     policy_kwargs = {
@@ -242,7 +283,7 @@ def main():
         ),
         policy=DiffusionConfig(**policy_kwargs),
         output_dir=output_dir,
-        job_name=args.job_name,
+        job_name=args.wandb_name or args.job_name,
         resume=args.resume,
         seed=args.seed,
         num_workers=args.num_workers,
@@ -252,9 +293,11 @@ def main():
         log_freq=args.log_freq,
         save_checkpoint=not args.no_save_checkpoint,
         save_freq=args.save_freq,
-        wandb=WandBConfig(enable=args.wandb),
+        wandb=WandBConfig(enable=args.wandb and (distributed_context is None or distributed_context[0] == 0), project=args.wandb_project),
     )
     lerobot_train(cfg)
+    if distributed_context is not None:
+        dist.destroy_process_group()
 
 
 if __name__ == "__main__":
