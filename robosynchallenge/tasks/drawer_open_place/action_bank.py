@@ -261,7 +261,9 @@ class DrawerOpenPlaceActionBank(ActionBank):
             cfg=MotionGenCfg(planner_cfg=ToppraPlannerCfg(robot_uid=env.robot.uid))
         )
         plan_state = [
-            PlanState(qpos=torch.as_tensor(qpos), move_type=MoveType.JOINT_MOVE)
+            PlanState.single(
+                qpos=torch.as_tensor(qpos), move_type=MoveType.JOINT_MOVE
+            )
             for qpos in keyposes
         ]
 

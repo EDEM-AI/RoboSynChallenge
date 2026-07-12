@@ -260,7 +260,9 @@ class ManipulatePipetteActionBank(ActionBank):
             )
 
             plan_state = [
-                PlanState(qpos=torch.as_tensor(qpos), move_type=MoveType.JOINT_MOVE)
+                PlanState.single(
+                    qpos=torch.as_tensor(qpos), move_type=MoveType.JOINT_MOVE
+                )
                 for qpos in keyposes
             ]
 
@@ -274,7 +276,7 @@ class ManipulatePipetteActionBank(ActionBank):
                 ),
             )
 
-            return ret.positions.numpy().T
+            return ret.positions[0].numpy().T
 
     @staticmethod
     @tag_edge
