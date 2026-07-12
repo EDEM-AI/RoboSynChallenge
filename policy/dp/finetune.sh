@@ -13,7 +13,10 @@ OUTPUT_DIR="${2}"
 shift 3 2>/dev/null || true
 EXTRA_ARGS=("$@")
 
+# CUDA_VISIBLE_DEVICES controls which GPU(s) this single-process launcher sees.
+# For DDP/multi-GPU training, prefer the torchrun command in the DP docs.
 export CUDA_VISIBLE_DEVICES="$GPU_ID"
+# HF_LEROBOT_HOME is where LeRobot resolves local datasets and metadata.
 export HF_LEROBOT_HOME="${HF_LEROBOT_HOME:-$SCRIPT_DIR/training_data}"
 
 echo "========================================="

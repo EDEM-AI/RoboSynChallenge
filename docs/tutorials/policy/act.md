@@ -56,15 +56,36 @@ After preparing the data, keep the dataset directory available and pass it to `f
 ## Write the Corresponding `train_config`
 ACT uses the LeRobot `ACTConfig` assembled by `policy/act/scripts/train.py`. You usually do not need to edit source code for a new task. Instead, pass the dataset path, output path, and training arguments from the command line.
 
-Common task-specific arguments are:
-```
---batch-size ${batch_size}
---chunk-size ${chunk_size}
---n-action-steps ${n_action_steps}
---steps ${steps}
---log-freq ${log_freq}
---save-freq ${save_freq}
-```
+Training arguments are configured from the command line:
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--dataset-root` | Required | Path to the RoboSynChallenge LeRobot dataset directory. |
+| `--repo-id` | Dataset directory name | LeRobot repo id used for metadata; normally leave unset for local training. |
+| `--output-dir` | Required | Directory where checkpoints, logs, and config snapshots are saved. |
+| `--job-name` | `None` | Optional local job name when `--wandb-name` is not set. |
+| `--video-backend` | `pyav` | Video decoding backend passed to LeRobot. |
+| `--device` | `cuda` | Torch device used by the ACT policy. |
+| `--batch-size` | `8` | Per-process batch size. In DDP, global batch size is `batch-size * number_of_processes`. |
+| `--num-workers` | `4` | DataLoader worker count per process. |
+| `--steps` | `100000` | Total optimization steps. |
+| `--log-freq` | `200` | Console and tracker logging interval in steps. |
+| `--save-freq` | `20000` | Checkpoint save interval in steps. |
+| `--eval-freq` | `0` | LeRobot training-time eval interval. `0` disables it. |
+| `--seed` | `1000` | Random seed. |
+| `--n-obs-steps` | `1` | Number of observation steps consumed by ACT. |
+| `--chunk-size` | `16` | Number of actions predicted per policy chunk. |
+| `--n-action-steps` | `8` | Number of predicted actions executed before the next policy query. |
+| `--use-amp` | Off | Enable automatic mixed precision. |
+| `--wandb` | Off | Enable Weights & Biases logging. |
+| `--wandb-project` | `robosynchallenge` | Weights & Biases project name. |
+| `--wandb-name` | `None` | Weights & Biases run name; also used as `job_name` if set. |
+| `--resume` | Off | Resume from the existing output directory. |
+| `--overwrite` | Off | Delete the output directory before training when not resuming. |
+| `--no-imagenet-stats` | Off | Disable ImageNet normalization stats in the LeRobot dataset config. |
+| `--no-save-checkpoint` | Off | Disable checkpoint writing. |
+| `--distributed` | Off | Enable DDP wrapping. Use with `torchrun`. |
+| `--local-rank`, `--local_rank` | From `LOCAL_RANK` | Local GPU rank supplied by `torchrun`; usually do not set manually. |
 
 For multi-GPU training, launch `scripts/train.py` with `torchrun`, pass `--distributed`, and set the per-process `--batch-size`. For example, global batch size 64 on 2 GPUs uses `--batch-size 32`.
 
@@ -87,10 +108,16 @@ bash policy/act/finetune.sh ${dataset_root} ${output_dir} ${gpu_use} \
 For 2-GPU training with global batch size 64:
 ```bash
 cd policy/act
+# Select the physical GPUs visible to this training job.
 export CUDA_VISIBLE_DEVICES=0,1
+# These NCCL settings are useful on workstations or containers where peer-to-peer
+# or shared-memory transport is unstable. Remove them if your cluster requires
+# the default NCCL transport.
 export NCCL_P2P_DISABLE=1
 export NCCL_SHM_DISABLE=1
+# Surface distributed failures promptly instead of hanging silently.
 export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
+# torchrun sets RANK, WORLD_SIZE, and LOCAL_RANK for scripts/train.py.
 torchrun --standalone --nproc_per_node=2 scripts/train.py \
   --distributed \
   --dataset-root ${dataset_root} \
@@ -128,10 +155,10 @@ Checkpoints will be saved in `${output_dir}/checkpoints/${checkpoint_id}/pretrai
 
 ```
 # checkpoint_path like: checkpoints/act_click_bell_c50_a50_b64_ddp2/rank_0/checkpoints/080000/pretrained_model
-PYTHON_BIN=policy/act/.venv/bin/python bash policy/act/eval.sh ${task_name} [random | clear | random_eval_once] ${checkpoint_path} ${gpu_id} \
+bash policy/act/eval.sh ${task_name} [random | clear | random_eval_once] ${checkpoint_path} ${gpu_id} \
   --pytorch_device cuda \
   --headless True
-# PYTHON_BIN=policy/act/.venv/bin/python bash policy/act/eval.sh click_bell random_eval_once checkpoints/act_click_bell_c50_a50_b64_ddp2/rank_0/checkpoints/080000/pretrained_model 0 --pytorch_device cuda --headless True
+# bash policy/act/eval.sh click_bell random_eval_once checkpoints/act_click_bell_c50_a50_b64_ddp2/rank_0/checkpoints/080000/pretrained_model 0 --pytorch_device cuda --headless True
 # This command evaluates the ACT policy trained for the `click_bell` task using the selected evaluation setting.
 ```
 

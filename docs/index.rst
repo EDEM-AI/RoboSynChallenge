@@ -15,7 +15,7 @@ Documentation for RoboSynChallenge
    getting_started/code_structure
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Tutorials
 
    tutorials/configuration
