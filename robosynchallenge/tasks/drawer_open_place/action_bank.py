@@ -281,7 +281,10 @@ class DrawerOpenPlaceActionBank(ActionBank):
             return DrawerOpenPlaceActionBank.stand_still(
                 env, agent_uid, keypose_names, duration
             )
-        positions = ret.positions
+        # MotionGenerator returns trajectories batched by environment. The action
+        # graph expects joint-major 2-D data, so remove the single-environment
+        # batch dimension before transposing.
+        positions = ret.positions[0]
         if isinstance(positions, torch.Tensor):
             positions = positions.detach().cpu().numpy()
         return positions.T.astype(np.float32)
