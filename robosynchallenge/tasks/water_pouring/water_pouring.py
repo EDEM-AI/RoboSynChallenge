@@ -101,7 +101,7 @@ class WaterPouringEnv(EmbodiedEnv):
             (total_traj_num, self.num_envs, num_active_joints), dtype=torch.float32
         )
 
-        # 建立一个从全局 joint_id 到 active_joint_id 在 action 数组中正确存放位置的映射
+        
         global_to_active_idx = {
             joint_id: active_idx for active_idx, joint_id in enumerate(self.active_joint_ids)
         }
@@ -116,7 +116,7 @@ class WaterPouringEnv(EmbodiedEnv):
                 # TODO: only 1 env supported now
                 local_action_data = torch.as_tensor(ret[key].T, dtype=torch.float32)
 
-                # 【修改重点2】：使用映射精准定位它在 action tensor 中的正确位置存放
+                
                 for i, joint_id in enumerate(joints):
                     if joint_id in global_to_active_idx:
                         active_idx = global_to_active_idx[joint_id]
@@ -130,7 +130,6 @@ class WaterPouringEnv(EmbodiedEnv):
         bottle_final_xpos = bottle.get_local_pose(to_matrix=True)
         cup_final_xpos = cup.get_local_pose(to_matrix=True)
 
-        # 原有的“翻倒”判定（保留以防完全打翻）
         bottle_fall = self._is_fall_y(bottle_final_xpos)
         cup_fall = self._is_fall_z(cup_final_xpos)
 
@@ -141,38 +140,48 @@ class WaterPouringEnv(EmbodiedEnv):
         bottle_angle = torch.acos(dot)
         bottle_angle_deg = bottle_angle * 180.0 / torch.pi
 
-        # 不再判断瓶口是否在杯子上方/靠近，保留角度约束即可
         bottle_over_cup = torch.ones(self.num_envs, dtype=torch.bool, device=bottle_final_xpos.device)
 
-        # 倾斜角下限/上限：保留角度约束（可出水的角度区间）
         bottle_in_pour_range = (bottle_angle_deg > 70.0) & (bottle_angle_deg < 100.0)
 
-        # 成功：瓶子处于倒水角度区间，瓶口在杯子上方并靠近杯子，且未发生翻倒，同时杯子未翻倒
-        success = bottle_in_pour_range & bottle_over_cup & (~bottle_fall) & (~cup_fall)
+        self._pouring_started = self._pouring_started | bottle_in_pour_range
+        self._pouring_completed = self._pouring_started
+
+        if self._expected_success_step is not None:
+            task_sequence_completed = self._elapsed_steps >= self._expected_success_step
+        else:
+            task_sequence_completed = torch.ones(
+                self.num_envs, dtype=torch.bool, device=bottle_final_xpos.device
+            )
+
+        success = (
+            self._pouring_completed
+            & task_sequence_completed
+            & (~bottle_fall)
+            & (~cup_fall)
+        )
         fail = cup_fall
 
-        # 起始帧保护：前 N 步不判成功，防止重置瞬间被误判
         try:
             N_PROTECT_STEPS = 150
             if hasattr(self, "_elapsed_steps"):
                 elapsed = self._elapsed_steps
-                # 保证布尔掩码形状匹配
                 early_mask = elapsed < N_PROTECT_STEPS
                 success = success & (~early_mask)
         except Exception:
-            # 如果访问 elapsed 失败，忽略保护以免影响流程
             pass
 
-        # 返回诊断信息，便于调试和日志记录
         info = {
             "bottle_angle_deg": bottle_angle_deg,
             "bottle_in_pour_range": bottle_in_pour_range,
+            "pouring_started": self._pouring_started,
+            "pouring_completed": self._pouring_completed,
             "bottle_fall": bottle_fall,
             "cup_fall": cup_fall,
         }
 
         return success, fail, info
-
+    
     def is_task_success(self, **kwargs) -> torch.Tensor:
         success, _, _ = self._evaluate_task_state()
         return success
