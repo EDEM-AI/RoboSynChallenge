@@ -149,8 +149,8 @@
                     "library_index_path": "robosynchallenge/Distractor/ASSET_INDEX.json",
                     "categories": ["PaperCup", "fork", "spoon"],
                     "position_ranges": [
-                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]],
-                        [[0.4, -0.35, 0.89], [1.0, 0.35, 0.92]]
+                        [[0.4, -0.45, 0.89], [1.0, -0.30, 0.92]],
+                        [[0.4, 0.25, 0.89], [1.0, 0.45, 0.92]]
                     ],
                     "appear_probs": [1.0, 1.0],
                     "z_rotation_ranges": [
