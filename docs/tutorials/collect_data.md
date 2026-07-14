@@ -11,9 +11,7 @@ bash launch/run_task.sh {task_name} [random|clear] [3_0/2_1] [Other Extra Argume
 # Collect data for the mixer_operating task involving domain randomization and convert the data to the LeRobot 2.1 format.
 ```
 
-The dataset task names are: `click_bell`, `handle_basket`, `water_pouring`, `table_rearrangement`, `items_handover`, `drawer_open_place`, `mixer_operating`, `item_assembly`, `manipulate_pipette`, `sample_loading`, and `open_pan`. For local collection, use `bash launch/run_task.sh -h` to view the tasks currently supported by the collection script.
-
-After data collection is completed, the collected data will be stored under `lerobot_dataset/{task_name}/`.
+After data collection is completed, the collected data will be stored under `lerobot_dataset/{task_name}/`. The dataset task names are: `click_bell`, `handle_basket`, `water_pouring`, `table_rearrangement`, `items_handover`, `drawer_open_place`, `mixer_operating`, `item_assembly`, `manipulate_pipette`, `sample_loading`, and `open_pan`. For local collection, use `bash launch/run_task.sh -h` to view the tasks currently supported by the collection script.
 
 If you want to convert `lerobot 3.0` to the `lerobot 2.1` format manually, we have also provide ready-made conversion scripts:
 ```python

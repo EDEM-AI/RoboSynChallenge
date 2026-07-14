@@ -250,7 +250,6 @@ def build_fk_env(gym_config_path: Path, action_config_path: Path | None, args: a
     env_cfg.sim_cfg = SimulationManagerCfg(
         headless=True,
         sim_device=gym_config["device"],
-        enable_rt=False,
         gpu_id=gym_config["gpu_id"],
         arena_space=gym_config["arena_space"],
     )

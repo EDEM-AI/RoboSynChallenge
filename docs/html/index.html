@@ -16,34 +16,37 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=b8779154" />
   
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="_static/documentation_options.js?v=a1637f0b"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -51,6 +54,7 @@
     <link rel="next" title="Overview" href="getting_started/overview.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
   </head>
   
   
@@ -66,19 +70,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="search.html"
       method="get">
@@ -86,7 +79,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search..."
          aria-label="Search..."
          autocomplete="off"
@@ -94,8 +86,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -113,7 +105,8 @@
       
         
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -143,15 +136,11 @@
 </a></div>
         <div class="sidebar-primary-item">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script></div>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
@@ -175,6 +164,8 @@
 
 <li class="toctree-l1 has-children"><a class="reference internal" href="tutorials/policy/index.html">Policy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/policy/your_own_policy.html">Deploy Your Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/policy/act.html">ACT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/policy/dp.html">DP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/policy/pi0.html">PI0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/policy/pi05.html">PI0.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/policy/motus.html">Motus</a></li>
@@ -188,9 +179,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -288,7 +284,7 @@
 
 
 <button onclick="toggleFullScreen()"
-  class="btn btn-sm btn-fullscreen-button"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
   title="Fullscreen mode"
   data-bs-placement="bottom" data-bs-toggle="tooltip"
 >
@@ -302,24 +298,16 @@
 
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-  </button>
-`);
-</script>
+</button>
 
 </div></div>
       
@@ -358,18 +346,58 @@ document.write(`
 <div class="toctree-wrapper compound">
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/configuration.html">Configuration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/configuration.html">Configuration Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/configuration.html#gym-configuration">🔧 Gym Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/configuration.html#action-configuration">🔧 Action Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/configuration.html#scope-definition">1. Scope Definition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/configuration.html#graph-node-definition">2. Graph Node Definition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/configuration.html#directed-edge-for-motion-trajectory">3. Directed Edge for Motion Trajectory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/configuration.html#synchronization-timing-rules">4. Synchronization Timing Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/configuration.html#misc-auxiliary-configurations">5. Misc Auxiliary Configurations</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/domain_randomization.html">Domain Randomization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/collect_data.html">Collect Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/download_data.html">Download Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/download_data.html">Download Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/download_data.html#real-data">Real Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/download_data.html#sim-data">Sim Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/download_data.html#training">Training</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/task_trajectory.html">Task Trajectory Implementation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/task_trajectory.html#core-files">📃 Core Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/task_trajectory.html#functions-in-action-bank-py">🏦 Functions in action_bank.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/task_trajectory.html#principles-of-action-config-json">🎯 Principles of action_config.json</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/task_trajectory.html#core-files">📃 Core Files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#full-data-flow-pipeline">Full Data Flow Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#core-dependency-relationship">Core Dependency Relationship</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/task_trajectory.html#functions-in-action-bank-py">🏦 Functions in action_bank.py</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#core-decorator-principles">2.1 Core Decorator Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#example-generate-left-arm-aim-qpos">2.2🌰 Example: generate_left_arm_aim_qpos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#gripper-execution">2.3 Gripper Execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#core-trajectory-planning">2.4 Core Trajectory Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#attach-rigid-objects-now">2.5 attach_rigid_objects_now</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/task_trajectory.html#principles-of-action-config-json">🎯 Principles of action_config.json</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#scope">3.1 scope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#node">3.2 node</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#edge">3.3 edge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#sync">3.4 sync</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/task_trajectory.html#misc">3.5 misc</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/task_trajectory.html#standard-step-by-step-guide">🧠 Standard Step-by-Step Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/task_trajectory.html#debug-reference">🔧 Debug Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/task_trajectory.html#summary">Summary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/policy/index.html">Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/policy/index.html">Policy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/policy/your_own_policy.html">Deploy Your Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/policy/act.html">ACT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/policy/dp.html">DP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/policy/pi0.html">PI0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/policy/pi05.html">PI0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/policy/motus.html">Motus</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
@@ -444,8 +472,8 @@ By Ruixin Wu
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
   </footer>

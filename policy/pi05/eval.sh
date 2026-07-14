@@ -9,7 +9,11 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 WORKSPACE_ROOT="$(cd "$REPO_ROOT/.." && pwd)"
 EMBODICHAIN_ROOT="${EMBODICHAIN_ROOT:-$WORKSPACE_ROOT/EmbodiChain}"
 VENV_DIR="$SCRIPT_DIR/.venv"
-PYTHON_BIN="${PYTHON_BIN:-python}"
+if [[ -z "${PYTHON_BIN:-}" && -x "$VENV_DIR/bin/python" ]]; then
+    PYTHON_BIN="$VENV_DIR/bin/python"
+else
+    PYTHON_BIN="${PYTHON_BIN:-python}"
+fi
 
 POLICY_NAME=pi05
 

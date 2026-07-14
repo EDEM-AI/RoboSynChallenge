@@ -70,6 +70,8 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/doctrees/
+*.bak
 
 # PyBuilder
 .pybuilder/
@@ -209,7 +211,9 @@ __marimo__/
 *.vscode/
 
 *.mp4
-
+lerobot_dataset/
+checkpoints/
+eval_result/
 
 **/results/
 .codex

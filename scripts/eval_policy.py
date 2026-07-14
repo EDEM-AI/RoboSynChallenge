@@ -117,9 +117,13 @@ def resolve_episode_max_steps(config, gym_config):
 class EpisodeVideoRecorder:
     """Record one RGB observation stream per episode through an ffmpeg pipe."""
 
-    def __init__(self, save_dir, obs_key="cam_high", fps=10, crf=23):
+    def __init__(self, save_dir, obs_keys="cam_high", fps=10, crf=23):
         self.save_dir = Path(save_dir)
-        self.obs_key = obs_key
+        if isinstance(obs_keys, str):
+            obs_keys = [key.strip() for key in obs_keys.split(",") if key.strip()]
+        self.obs_keys = list(obs_keys)
+        if not self.obs_keys:
+            raise ValueError("At least one eval video observation key is required.")
         self.fps = int(fps)
         self.crf = int(crf)
         self.save_dir.mkdir(parents=True, exist_ok=True)
@@ -144,14 +148,8 @@ class EpisodeVideoRecorder:
         if self._episode_idx is None:
             return
 
-        frame = obs["sensor"][self.obs_key]["color"]
-        if frame is None:
-            raise KeyError(
-                f"EmbodiChain camera color observation 'sensor/{self.obs_key}/color' "
-                "not found for video recording."
-            )
-
-        frame = np.ascontiguousarray(frame[0, ..., :3])
+        frames = [self._extract_frame(obs, obs_key) for obs_key in self.obs_keys]
+        frame = np.ascontiguousarray(np.concatenate(frames, axis=1))
         height, width = frame.shape[:2]
         if self._process is None:
             self._start_writer(width, height)
@@ -162,6 +160,22 @@ class EpisodeVideoRecorder:
 
         self._process.stdin.write(frame.tobytes())
         self._frame_count += 1
+
+    def _extract_frame(self, obs, obs_key):
+        frame = obs["sensor"][obs_key]["color"]
+        if frame is None:
+            raise KeyError(
+                f"EmbodiChain camera color observation 'sensor/{obs_key}/color' "
+                "not found for video recording."
+            )
+
+        frame = np.asarray(frame[0, ..., :3])
+        if frame.dtype != np.uint8:
+            max_value = float(np.nanmax(frame)) if frame.size else 0.0
+            if max_value <= 1.5:
+                frame = frame * 255.0
+            frame = np.clip(frame, 0, 255).astype(np.uint8)
+        return np.ascontiguousarray(frame)
 
     def close_episode(self, success=None):
         if self._process is None:
@@ -227,22 +241,54 @@ class EpisodeVideoRecorder:
 class RecordingEnvProxy:
     """Proxy env.step/reset so policy adapters do not need video-specific code."""
 
-    def __init__(self, env, recorder):
+    def __init__(self, env, recorder=None, reset_sync_steps=0):
         self._env = env
         self._recorder = recorder
+        self._reset_sync_steps = int(reset_sync_steps)
 
     def __getattr__(self, name):
         return getattr(self._env, name)
 
     def reset(self, *args, **kwargs):
         obs, info = self._env.reset(*args, **kwargs)
-        self._recorder.record(obs)
+        obs, info = self._sync_reset_obs(obs, info)
+        if self._recorder:
+            self._recorder.record(obs)
         return obs, info
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self._env.step(action)
-        self._recorder.record(obs)
+        if self._recorder and not (
+            self._as_done(terminated) or self._as_done(truncated)
+        ):
+            self._recorder.record(obs)
         return obs, reward, terminated, truncated, info
+
+    def _sync_reset_obs(self, obs, info):
+        if self._reset_sync_steps <= 0:
+            return obs, info
+
+        env = getattr(self._env, "unwrapped", self._env)
+        sim = getattr(env, "sim", None)
+        if sim is None:
+            return obs, info
+
+        physics_dt = getattr(getattr(env, "sim_cfg", None), "physics_dt", None)
+        sim.update(physics_dt, self._reset_sync_steps)
+
+        if hasattr(env, "get_obs"):
+            obs = env.get_obs()
+        if hasattr(env, "get_info"):
+            info = env.get_info()
+        return obs, info
+
+    @staticmethod
+    def _as_done(value):
+        if isinstance(value, torch.Tensor):
+            return bool(value.any().item())
+        if isinstance(value, np.ndarray):
+            return bool(value.any())
+        return bool(value)
 
 
 def create_video_recorder(config):
@@ -261,9 +307,10 @@ def create_video_recorder(config):
         / timestamp
         / "videos"
     )
+    obs_keys = config.get("eval_video_obs_keys", config.get("eval_video_obs_key", "cam_high"))
     return EpisodeVideoRecorder(
         save_dir=save_dir,
-        obs_key=config.get("eval_video_obs_key", "cam_high"),
+        obs_keys=obs_keys,
         fps=10,
         crf=23,
     )
@@ -446,7 +493,12 @@ def main():
         env._current_instruction = instruction
         print(f"Using instruction from gym_config: {instruction}")
     video_recorder = create_video_recorder(config)
-    eval_env = RecordingEnvProxy(env, video_recorder) if video_recorder else env
+    reset_sync_steps = int(config.get("eval_reset_sync_steps", 0))
+    eval_env = (
+        RecordingEnvProxy(env, video_recorder, reset_sync_steps=reset_sync_steps)
+        if video_recorder or reset_sync_steps > 0
+        else env
+    )
     if video_recorder:
         print(f"Recording eval videos to: {video_recorder.save_dir}")
 
