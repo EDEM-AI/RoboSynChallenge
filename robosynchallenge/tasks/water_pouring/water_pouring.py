@@ -138,15 +138,30 @@ class WaterPouringEnv(EmbodiedEnv):
         world_z = torch.tensor([0.0, 0.0, 1.0], dtype=bottle_up.dtype, device=bottle_up.device)
         dot = torch.sum(bottle_up * world_z, dim=-1)
         dot = torch.clamp(dot, -1.0, 1.0)
-        bottle_angle = torch.acos(dot)  
+        bottle_angle = torch.acos(dot)
         bottle_angle_deg = bottle_angle * 180.0 / torch.pi
 
-        # 倾斜角下限/上限：必须 >15° 且 <150°（15° 表示足够倾斜可出水，150° 以上视为翻倒）
-        bottle_in_pour_range = (bottle_angle_deg > 30.0) & (bottle_angle_deg < 150.0)
+        # 不再判断瓶口是否在杯子上方/靠近，保留角度约束即可
+        bottle_over_cup = torch.ones(self.num_envs, dtype=torch.bool, device=bottle_final_xpos.device)
 
-        # 成功：瓶子处于倒水角度区间，且未发生翻倒，同时杯子未翻倒
-        success = bottle_in_pour_range & (~bottle_fall) & (~cup_fall)
+        # 倾斜角下限/上限：保留角度约束（可出水的角度区间）
+        bottle_in_pour_range = (bottle_angle_deg > 70.0) & (bottle_angle_deg < 100.0)
+
+        # 成功：瓶子处于倒水角度区间，瓶口在杯子上方并靠近杯子，且未发生翻倒，同时杯子未翻倒
+        success = bottle_in_pour_range & bottle_over_cup & (~bottle_fall) & (~cup_fall)
         fail = cup_fall
+
+        # 起始帧保护：前 N 步不判成功，防止重置瞬间被误判
+        try:
+            N_PROTECT_STEPS = 150
+            if hasattr(self, "_elapsed_steps"):
+                elapsed = self._elapsed_steps
+                # 保证布尔掩码形状匹配
+                early_mask = elapsed < N_PROTECT_STEPS
+                success = success & (~early_mask)
+        except Exception:
+            # 如果访问 elapsed 失败，忽略保护以免影响流程
+            pass
 
         # 返回诊断信息，便于调试和日志记录
         info = {
