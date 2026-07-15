@@ -26,7 +26,7 @@ All capabilities are implemented via static methods decorated with specific tags
 3. `@resolve_env_params`
     Automatically injects the `env` instance into function parameters, allowing direct read and write access to the shared cache without manual parameter passing.
 
-### 2.2🌰 Example: generate_left_arm_aim_qpos
+### 2.2 Example: generate_left_arm_aim_qpos
 Underlying logic:
 1. Read two 4x4 homogeneous transformation matrices: `guijiao2_pose` and `left_arm_base_pose`.
 2. Extract XY translational components and calculate the target horizontal rotation angle of the first joint via `np.arctan2`.
