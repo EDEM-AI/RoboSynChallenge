@@ -17,7 +17,16 @@ If you want to convert `lerobot 3.0` to the `lerobot 2.1` format manually, we ha
 ```python
 python scripts/convert_lerobot3.0_to_2.1.py --repo-id {repo_id} --root /path/to/datasets
 ```
+## 🔧 Data Collection Hardware
+For GPUs equivalent to the RTX 5060 Ti, limit each collection task to approximately 500 episodes. Setting a much larger batch size per task may cause unexpected program interruptions and compromise collection stability. High-end GPUs at the RTX 4090 tier are not affected by this issue, allowing you to adjust the batch size per task as needed.
 
+If you need to collect large amounts of data using a device like the 5060Ti, please follow this recommended procedure:
+
+① Collect raw data in the LeRobot 3.0 format first;
+
+② Run the merge script to combine data from multiple separate collection batches;
+
+③ Convert the merged full dataset to LeRobot 2.1 format if required for your use case.
 
 For pre-collected simulated and real datasets, see <a href="download_data.html">Download Data</a>.
 
