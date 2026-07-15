@@ -364,7 +364,7 @@
         },
         "drive_pros": {
             "stiffness": {
-                "RIGHT_JOINT[1-6]": 10000.0
+                "right_joint[1-6]": 10000.0
             }
         }
     },

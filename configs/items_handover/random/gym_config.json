@@ -1,7 +1,7 @@
 {
     "id": "ItemsHandover",
     "max_episodes": 100,
-    "max_episode_steps": 300,
+    "max_episode_steps": 350,
     "env": {
         "events": {
             "random_light": {
@@ -347,7 +347,7 @@
         },
         "drive_pros": {
             "stiffness": {
-                "RIGHT_JOINT[1-6]": 10000.0
+                "right_joint[1-6]": 10000.0
             }
         }
     },
