@@ -756,6 +756,7 @@
                 "dynamic_friction": 4.8
             },
             "drive_pros": {
+                "drive_type": "none",
                 "stiffness": 10.0,
                 "damping": 3.0
             }
