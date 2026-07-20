@@ -311,18 +311,12 @@
         }
     ],
     "light": {
-        "indirect": {
-            "emission_light":{
-                "color": [1.0, 1.0, 1.0],
-                "intensity": 180
-            }
-        },
         "direct": [
             {
                 "uid": "light_0",
                 "light_type": "point",
                 "color": [1.0, 1.0, 1.0],
-                "intensity": 15.0,
+                "intensity": 5.0,
                 "init_pos": [0.8, 0.0, 2.0],
                 "radius": 20.0
             }
