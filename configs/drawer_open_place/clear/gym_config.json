@@ -393,13 +393,13 @@
                 "left_joint[1-6]": 5000.0,
                 "right_joint[1-6]": 5000.0,
                 "left_joint[7-8]": 150.0,
-                "right_joint[7-8]": 150.0
+                "right_joint[7-8]": 450.0
             },
             "damping": {
                 "left_joint[1-6]": 800.0,
                 "right_joint[1-6]": 800.0,
                 "left_joint[7-8]": 20.0,
-                "right_joint[7-8]": 20.0
+                "right_joint[7-8]": 34.64101615137755
             },
             "max_effort": {
                 "left_joint[1-6]": 150.0,
@@ -471,12 +471,18 @@
         }
     ],
     "light": {
+        "indirect": {
+            "emission_light":{
+                "color": [1.0, 1.0, 1.0],
+                "intensity": 180
+            }
+        },
         "direct": [
             {
                 "uid": "light_0",
                 "light_type": "point",
                 "color": [1.0, 1.0, 1.0],
-                "intensity": 5.0,
+                "intensity": 15.0,
                 "init_pos": [0.8, 0.0, 2.0],
                 "radius": 20.0
             }
@@ -641,8 +647,8 @@
             },
             "drive_pros": {
                 "drive_type": "none",
-                "stiffness": 10.0,
-                "damping": 3.0
+                "stiffness": 5.0,
+                "damping": 1.5
             }
         },
         {

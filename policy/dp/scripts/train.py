@@ -5,6 +5,7 @@ import argparse
 import copy
 import os
 import shutil
+import sys
 from pathlib import Path
 
 import torch
@@ -295,6 +296,26 @@ def main():
         save_freq=args.save_freq,
         wandb=WandBConfig(enable=args.wandb and (distributed_context is None or distributed_context[0] == 0), project=args.wandb_project),
     )
+    if args.resume:
+        config_path = output_dir / "checkpoints" / "last" / "pretrained_model" / "train_config.json"
+        if not config_path.is_file():
+            raise FileNotFoundError(f"Resume config not found: {config_path}")
+        sys.argv.append(f"--config_path={config_path}")
+        cfg = TrainPipelineConfig.from_pretrained(config_path)
+        cfg.output_dir = output_dir
+        cfg.job_name = args.wandb_name or args.job_name
+        cfg.resume = True
+        cfg.num_workers = args.num_workers
+        cfg.batch_size = args.batch_size
+        cfg.steps = args.steps
+        cfg.eval_freq = args.eval_freq
+        cfg.log_freq = args.log_freq
+        cfg.save_checkpoint = not args.no_save_checkpoint
+        cfg.save_freq = args.save_freq
+        cfg.wandb = WandBConfig(
+            enable=args.wandb and (distributed_context is None or distributed_context[0] == 0),
+            project=args.wandb_project,
+        )
     lerobot_train(cfg)
     if distributed_context is not None:
         dist.destroy_process_group()

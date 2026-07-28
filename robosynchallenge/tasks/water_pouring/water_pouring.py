@@ -33,18 +33,7 @@ __all__ = ["WaterPouringEnv", "WaterPouringTestEnv", "WaterPouringAgentEnv"]
 class WaterPouringEnv(EmbodiedEnv):
     def __init__(self, cfg: EmbodiedEnvCfg = None, **kwargs):
         super().__init__(cfg, **kwargs)
-        # initialize pouring state flags for all envs
-        try:
-            self._pouring_started = torch.zeros(
-                self.num_envs, dtype=torch.bool, device=self.device
-            )
-            self._pouring_completed = torch.zeros(
-                self.num_envs, dtype=torch.bool, device=self.device
-            )
-        except Exception:
-            # Fallback: initialize on CPU if device not ready yet
-            self._pouring_started = torch.zeros(self.num_envs, dtype=torch.bool)
-            self._pouring_completed = torch.zeros(self.num_envs, dtype=torch.bool)
+        self._reset_pouring_state()
 
         action_config = kwargs.get("action_config", None)
         if action_config is not None:
@@ -53,14 +42,17 @@ class WaterPouringEnv(EmbodiedEnv):
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
         """Reset environment and pouring state flags."""
         obs, info = super().reset(seed=seed, options=options)
-        # ensure flags are reset on environment reset
-        self._pouring_started = torch.zeros(
-            self.num_envs, dtype=torch.bool, device=self.device
-        )
-        self._pouring_completed = torch.zeros(
-            self.num_envs, dtype=torch.bool, device=self.device
-        )
+        self._reset_pouring_state()
         return obs, info
+
+    def _reset_pouring_state(self) -> None:
+        bottle_pose = self.sim.get_rigid_object("bottle").get_local_pose(to_matrix=True)
+        self._initial_bottle_z = bottle_pose[:, 2, 3].clone()
+        self._grasp_started = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
+        self._grasp_lost = torch.zeros_like(self._grasp_started)
+        self._pouring_started = torch.zeros_like(self._grasp_started)
 
     def create_demo_action_list(self, *args, **kwargs):
         """
@@ -149,85 +141,48 @@ class WaterPouringEnv(EmbodiedEnv):
 
  
     def _evaluate_task_state(self) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
-        bottle = self.sim.get_rigid_object("bottle")
-        cup = self.sim.get_rigid_object("cup")
+        bottle_pose = self.sim.get_rigid_object("bottle").get_local_pose(to_matrix=True)
+        cup_pose = self.sim.get_rigid_object("cup").get_local_pose(to_matrix=True)
+        right_eef_pose = self.robot.get_link_pose("right_link6", to_matrix=True)
 
-        bottle_final_xpos = bottle.get_local_pose(to_matrix=True)
-        cup_final_xpos = cup.get_local_pose(to_matrix=True)
+        bottle_axis = bottle_pose[:, :3, 1]
+        bottle_position = bottle_pose[:, :3, 3]
+        cup_position = cup_pose[:, :3, 3]
+        bottle_angle = torch.acos(bottle_axis[:, 2].clamp(-1.0, 1.0))
+        bottle_mouth = bottle_position + 0.236 * bottle_axis
+        mouth_to_cup = cup_position - bottle_mouth
 
-        bottle_fall = self._is_fall_y(bottle_final_xpos)
-        cup_fall = self._is_fall_z(cup_final_xpos)
-
-        bottle_up = bottle_final_xpos[:, :3, 2]
-        world_z = torch.tensor([0.0, 0.0, 1.0], dtype=bottle_up.dtype, device=bottle_up.device)
-        dot = torch.sum(bottle_up * world_z, dim=-1)
-        dot = torch.clamp(dot, -1.0, 1.0)
-        bottle_angle = torch.acos(dot)
-        bottle_angle_deg = bottle_angle * 180.0 / torch.pi
-
-        bottle_over_cup = torch.ones(self.num_envs, dtype=torch.bool, device=bottle_final_xpos.device)
-
-        bottle_in_pour_range = (bottle_angle_deg > 70.0) & (bottle_angle_deg < 100.0)
-
-        # update pouring state: once started stays started
-        try:
-            self._pouring_started = self._pouring_started | bottle_in_pour_range
-            self._pouring_completed = self._pouring_started
-        except Exception:
-            # if flags are not present for some reason, initialize them
-            self._pouring_started = torch.zeros(
-                self.num_envs, dtype=torch.bool, device=bottle_final_xpos.device
-            ) | bottle_in_pour_range
-            self._pouring_completed = self._pouring_started
-
-        success = (
-            self._pouring_completed
-            & (~bottle_fall)
+        near_gripper = (
+            torch.linalg.norm(bottle_position - right_eef_pose[:, :3, 3], dim=-1) < 0.30
+        )
+        held = near_gripper & (
+            (bottle_position[:, 2] > self._initial_bottle_z + 0.03) | self._grasp_started
+        )
+        relative_pose_valid = (
+            (torch.linalg.norm(mouth_to_cup[:, :2], dim=-1) < 0.08)
+            & (bottle_mouth[:, 2] > cup_position[:, 2] + 0.04)
+            & (bottle_mouth[:, 2] < cup_position[:, 2] + 0.30)
+            & (torch.sum(bottle_axis[:, :2] * mouth_to_cup[:, :2], dim=-1) > -0.02)
+        )
+        cup_fall = self._is_fall_z(cup_pose)
+        pouring_now = (
+            held
+            & (bottle_angle > torch.pi / 4)
+            & (bottle_angle < 2 * torch.pi / 3)
+            & relative_pose_valid
             & (~cup_fall)
         )
-
-        # Require the action graph to have reached the 'stand' skill for right_arm
-        try:
-            stand_required = True
-            # find the scheduled end time for the 'stand' edge for right_arm
-            stand_end = None
-            if hasattr(self, "packages") and self.packages is not None:
-                for p in self.packages.get("packages", []):
-                    if p.get("label") == "stand" and p.get("legend") == "right_arm":
-                        stand_end = p.get("end")
-                        break
-
-            if stand_end is not None and hasattr(self, "_elapsed_steps"):
-                stand_reached = self._elapsed_steps >= int(stand_end)
-            else:
-                # if we don't have schedule or elapsed info, be conservative and do not allow success
-                stand_reached = False
-
-            success = success & stand_reached
-        except Exception:
-            # on any error, conservatively disable success until stand is reached
-            success = success & torch.zeros_like(success)
-        fail = cup_fall
-
-        try:
-            N_PROTECT_STEPS = 150
-            if hasattr(self, "_elapsed_steps"):
-                elapsed = self._elapsed_steps
-                early_mask = elapsed < N_PROTECT_STEPS
-                success = success & (~early_mask)
-        except Exception:
-            pass
-
-        info = {
-            "bottle_angle_deg": bottle_angle_deg,
-            "bottle_in_pour_range": bottle_in_pour_range,
-            "pouring_started": self._pouring_started,
-            "pouring_completed": self._pouring_completed,
-            "bottle_fall": bottle_fall,
-            "cup_fall": cup_fall,
-        }
-
-        return success, fail, info
+        self._grasp_started |= held
+        self._grasp_lost |= self._grasp_started & (~held)
+        self._pouring_started |= pouring_now
+        returned_upright = held & (bottle_angle < torch.pi / 4)
+        success = (
+            self._pouring_started
+            & returned_upright
+            & (~self._grasp_lost)
+            & (~cup_fall)
+        )
+        return success, cup_fall, {}
     
     
     def is_task_success(self, **kwargs) -> torch.Tensor:

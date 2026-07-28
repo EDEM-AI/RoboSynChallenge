@@ -658,12 +658,19 @@ torchrun<span class="w"> </span>--standalone<span class="w"> </span>--nproc_per_
 <section id="eval-on-robosynchallenge">
 <h2>Eval on RoboSynChallenge<a class="headerlink" href="#eval-on-robosynchallenge" title="Link to this heading">#</a></h2>
 <p>Checkpoints will be saved in <code class="docutils literal notranslate"><span class="pre">${output_dir}/checkpoints/${checkpoint_id}/pretrained_model</span></code> for single-GPU training. In distributed training, every rank writes a full checkpoint under <code class="docutils literal notranslate"><span class="pre">${output_dir}/rank_${rank}/checkpoints/${checkpoint_id}/pretrained_model</span></code>; use <code class="docutils literal notranslate"><span class="pre">rank_0</span></code> for evaluation and release.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># checkpoint_path like: checkpoints/act_click_bell_c50_a50_b64_ddp2/rank_0/checkpoints/080000/pretrained_model
-bash policy/act/eval.sh ${task_name} [random | clear | random_eval_once] ${checkpoint_path} ${gpu_id} \
+<p>Use one of these task names for <code class="docutils literal notranslate"><span class="pre">{task_name}</span></code>: <code class="docutils literal notranslate"><span class="pre">click_bell</span></code>, <code class="docutils literal notranslate"><span class="pre">handle_basket</span></code>, <code class="docutils literal notranslate"><span class="pre">water_pouring</span></code>, <code class="docutils literal notranslate"><span class="pre">table_rearrangement</span></code>, <code class="docutils literal notranslate"><span class="pre">items_handover</span></code>, <code class="docutils literal notranslate"><span class="pre">drawer_open_place</span></code>, <code class="docutils literal notranslate"><span class="pre">mixer_operating</span></code>, <code class="docutils literal notranslate"><span class="pre">item_assembly</span></code>, <code class="docutils literal notranslate"><span class="pre">manipulate_pipette</span></code>, <code class="docutils literal notranslate"><span class="pre">sample_loading</span></code>, or <code class="docutils literal notranslate"><span class="pre">open_pan</span></code>.</p>
+<p>Download a released ACT checkpoint into a task-specific local directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hf download RoboSynChallenge/ACT_sim_{task_name} \
+  --repo-type model \
+  --local-dir checkpoints/ACT_sim_{task_name}/
+</pre></div>
+</div>
+<p>The released repository contains the complete <code class="docutils literal notranslate"><span class="pre">pretrained_model</span></code> directory, so pass the downloaded directory directly as <code class="docutils literal notranslate"><span class="pre">${checkpoint_path}</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>checkpoint_path=checkpoints/ACT_sim_{task_name}
+bash policy/act/eval.sh ${task_name} [random | clear] ${checkpoint_path} ${gpu_id} \
   --pytorch_device cuda \
   --headless True
-# bash policy/act/eval.sh click_bell random_eval_once checkpoints/act_click_bell_c50_a50_b64_ddp2/rank_0/checkpoints/080000/pretrained_model 0 --pytorch_device cuda --headless True
-# This command evaluates the ACT policy trained for the `click_bell` task using the selected evaluation setting.
+# bash policy/act/eval.sh click_bell random checkpoints/ACT_sim_click_bell 0 --pytorch_device cuda --headless True
 </pre></div>
 </div>
 <p>The evaluation results, including videos, will be saved in the <code class="docutils literal notranslate"><span class="pre">eval_result/{task_name}/act/{setting}/{train_config_name}/{model_name}/{timestamp}/videos</span></code> directory under the project root. For ACT, <code class="docutils literal notranslate"><span class="pre">train_config_name</span></code> is usually <code class="docutils literal notranslate"><span class="pre">None</span></code> unless you pass it explicitly through the evaluation config.</p>
