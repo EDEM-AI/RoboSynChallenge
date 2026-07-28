@@ -4,7 +4,7 @@ from typing import Dict, Optional, Tuple
 from embodichain.lab.gym.envs import EmbodiedEnv, EmbodiedEnvCfg
 from embodichain.lab.gym.utils.registration import register_env
 
-from embodichain.lab.gym.envs.tasks.tableware.base_agent_env import BaseAgentEnv
+from embodichain_tasks.tableware.base_agent_env import BaseAgentEnv
 from embodichain.utils import logger
 
 from .action_bank import DrawerOpenPlaceActionBank

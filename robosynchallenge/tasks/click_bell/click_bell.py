@@ -22,7 +22,7 @@ from embodichain.lab.gym.utils.registration import register_env
 from embodichain.utils import logger
 from embodichain.lab.sim.cfg import MarkerCfg
 
-from embodichain.lab.gym.envs.tasks.tableware.base_agent_env import BaseAgentEnv
+from embodichain_tasks.tableware.base_agent_env import BaseAgentEnv
 from .action_bank import (
     ClickBellActionBank,
 )

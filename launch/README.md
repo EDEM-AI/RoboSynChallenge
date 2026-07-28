@@ -8,6 +8,7 @@
 |---|---|
 | `check_all_envs.sh` | 依次运行全部任务环境，检测是否有 bug |
 | `run_task.sh` | 运行单个任务环境，收集专家演示数据 |
+| `replay_task.sh` | 以 kinematic、dynamic 或 control 模式回放轨迹 |
 | `collect_combined_dataset.sh` | 收集 clear + random 数据集并自动合并 |
 | `run_visualize.sh` | 可视化单个任务的域随机化效果 |
 | `batch_run_visualize.sh` | 批量可视化所有任务的域随机化效果 |
@@ -50,6 +51,29 @@
 ```
 
 数据保存路径为 `lerobot_dataset/<task_name>/`。
+
+---
+
+## replay_task.sh
+
+回放 EmbodiChain 原生轨迹，或旧版 `state/action/reward` 格式的单环境轨迹。
+
+```
+用法:
+  ./launch/replay_task.sh <task_name> <setting> <trajectory.pt> [extra_args...]
+```
+
+**示例：**
+
+```bash
+# 通过物理仿真回放 drawer_open_place 动作
+./launch/replay_task.sh drawer_open_place random /path/to/state_action.pt --replay_mode dynamic
+
+# 仅恢复机器人运动学状态
+./launch/replay_task.sh drawer_open_place clear /path/to/state_action.pt --replay_mode kinematic
+```
+
+`dynamic` 模式会将记录的 action 重新送入环境，由物理引擎重新计算机器人和场景物体的交互。旧版轨迹不包含抽屉等场景物体的状态，因此要复现物体交互时应使用该模式。
 
 ---
 

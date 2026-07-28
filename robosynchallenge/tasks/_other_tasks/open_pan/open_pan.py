@@ -22,7 +22,7 @@ import numpy as np
 import torch
 from robosynchallenge.managers.events import visualize_rigid_body_pose
 from embodichain.lab.gym.envs import EmbodiedEnv, EmbodiedEnvCfg
-from embodichain.lab.gym.envs.tasks.tableware.base_agent_env import BaseAgentEnv
+from embodichain_tasks.tableware.base_agent_env import BaseAgentEnv
 from embodichain.lab.gym.utils.registration import register_env
 from embodichain.utils import logger
 

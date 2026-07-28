@@ -23,10 +23,11 @@ import tqdm
 
 import gymnasium as gym
 import robosynchallenge
+from robosynchallenge.replay import replay_trajectory
 
 from embodichain.lab.gym.utils.gym_utils import (
     add_env_launcher_args_to_parser,
-    build_env_cfg_from_args
+    build_env_cfg_from_args,
 )
 import embodichain.lab.gym.utils.gym_utils as gym_utils
 from embodichain.lab.scripts.run_env import generate_and_execute_action_list, preview
@@ -159,6 +160,14 @@ def _generate_until_saved_episode_target(args, env, gym_config, num_traj: int) -
 
 
 def run_env_main(args, env, gym_config):
+    if getattr(args, "replay", False):
+        replay_trajectory(
+            env,
+            args.replay_trajectory,
+            mode=getattr(args, "replay_mode", "kinematic"),
+        )
+        return
+
     if getattr(args, "preview", False):
         log_info(
             "Preview mode enabled. Launching environment preview...", color="green"
@@ -196,9 +205,43 @@ if __name__ == "__main__":
 
     add_env_launcher_args_to_parser(parser)
 
+    parser.add_argument(
+        "--replay",
+        action="store_true",
+        help="Replay a native EmbodiChain or legacy state/action trajectory.",
+    )
+    parser.add_argument(
+        "--replay_trajectory",
+        type=str,
+        default=None,
+        help="Path to the .pt trajectory file to replay.",
+    )
+    parser.add_argument(
+        "--replay_mode",
+        choices=["kinematic", "dynamic", "control"],
+        default="kinematic",
+        help="Replay mode (default: kinematic).",
+    )
+
     args = parser.parse_args()
 
+    if args.replay and not args.replay_trajectory:
+        parser.error("--replay requires --replay_trajectory <path>.")
+    if args.replay and args.preview:
+        parser.error("--replay and --preview are mutually exclusive.")
+    if args.replay:
+        args.filter_dataset_saving = True
+
     env_cfg, gym_config, action_config = build_env_cfg_from_args(args)
+    physics_config = gym_config.get("physics", {})
+    if "enable_ccd" in physics_config:
+        env_cfg.sim_cfg.physics_config.enable_ccd = bool(
+            physics_config["enable_ccd"]
+        )
+        if env_cfg.sim_cfg.physics_config.enable_ccd:
+            log_info(
+                "Scene-level continuous collision detection enabled.", color="green"
+            )
     if args.max_episodes is not None:
         gym_config["max_episodes"] = args.max_episodes
 
