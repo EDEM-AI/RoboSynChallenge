@@ -3,7 +3,6 @@
 
 We use [uv](https://docs.astral.sh/uv/) to manage Python dependencies.
 ```bash
-conda activate robosyn
 # Install uv
 pip install uv
 ```
@@ -157,13 +156,24 @@ The default `batch_size` in `scripts/train.py` is 8, but the recommended RoboSyn
 
 Checkpoints will be saved in `${output_dir}/checkpoints/${checkpoint_id}/pretrained_model` for single-GPU training. In distributed training, every rank writes a full checkpoint under `${output_dir}/rank_${rank}/checkpoints/${checkpoint_id}/pretrained_model`; use `rank_0` for evaluation and release.
 
+Use one of these task names for `{task_name}`: `click_bell`, `handle_basket`, `water_pouring`, `table_rearrangement`, `items_handover`, `drawer_open_place`, `mixer_operating`, `item_assembly`, `manipulate_pipette`, `sample_loading`, or `open_pan`.
+
+Download a released DP checkpoint into a task-specific local directory:
+
+```bash
+hf download RoboSynChallenge/DP_sim_{task_name} \
+  --repo-type model \
+  --local-dir checkpoints/DP_sim_{task_name}/
 ```
-# checkpoint_path like: checkpoints/dp_click_bell_h32_a32_b64_ddp2/rank_0/checkpoints/100000/pretrained_model
-bash policy/dp/eval.sh ${task_name} [random | clear | random_eval_once] ${checkpoint_path} ${gpu_id} \
+
+The released repository contains the complete `pretrained_model` directory, so pass the downloaded directory directly as `${checkpoint_path}`:
+
+```bash
+checkpoint_path=checkpoints/DP_sim_{task_name}
+bash policy/dp/eval.sh ${task_name} [random | clear] ${checkpoint_path} ${gpu_id} \
   --pytorch_device cuda \
   --headless True
-# bash policy/dp/eval.sh click_bell random_eval_once checkpoints/dp_click_bell_h32_a32_b64_ddp2/rank_0/checkpoints/100000/pretrained_model 0 --pytorch_device cuda --headless True
-# This command evaluates the DP policy trained for the `click_bell` task using the selected evaluation setting.
+# bash policy/dp/eval.sh click_bell random checkpoints/DP_sim_click_bell 0 --pytorch_device cuda --headless True
 ```
 
 The evaluation results, including videos, will be saved in the `eval_result/{task_name}/dp/{setting}/{train_config_name}/{model_name}/{timestamp}/videos` directory under the project root. For DP, `train_config_name` is usually `None` unless you pass it explicitly through the evaluation config.

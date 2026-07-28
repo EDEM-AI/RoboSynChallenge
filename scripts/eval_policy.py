@@ -348,6 +348,11 @@ def make_env_from_configs(config, gym_config_dict, action_config_dict):
         gpu_id=gym_config["gpu_id"],
         arena_space=gym_config["arena_space"],
     )
+    physics_config = gym_config.get("physics", {})
+    if "enable_ccd" in physics_config:
+        env_cfg.sim_cfg.physics_config.enable_ccd = bool(
+            physics_config["enable_ccd"]
+        )
 
     action_kwargs = {}
     if action_config_dict:
@@ -471,6 +476,7 @@ def main():
     task_name = config.get("task_name")
     max_episodes = config.get("max_episodes")
     seed = config.get("seed")
+    fixed_episode_seed = config.get("eval_fixed_episode_seed")
     headless = config.get("headless")
 
     # Load policy adapter
@@ -522,7 +528,11 @@ def main():
 
     try:
         for episode in range(max_episodes):
-            ep_seed = int(rng.randint(0, 2**31 - 1))
+            ep_seed = (
+                int(fixed_episode_seed)
+                if fixed_episode_seed is not None
+                else int(rng.randint(0, 2**31 - 1))
+            )
             if video_recorder:
                 video_recorder.start_episode(episode, ep_seed)
 
