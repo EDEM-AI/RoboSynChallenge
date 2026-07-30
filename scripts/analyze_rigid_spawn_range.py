@@ -131,7 +131,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num_envs", default=1, type=int)
     parser.add_argument("--device", default="cpu", type=str)
     parser.add_argument("--arena_space", default=5.0, type=float)
-    parser.add_argument("--enable_rt", default=False, action="store_true")
+    parser.add_argument(
+        "--renderer",
+        choices=("auto", "hybrid", "fast-rt", "rt"),
+        default=None,
+    )
+    parser.add_argument(
+        "--enable_rt",
+        action="store_true",
+        help="Deprecated alias for --renderer fast-rt.",
+    )
+    parser.add_argument("--max_episodes", default=None, type=int)
     parser.add_argument("--gpu_id", default=0, type=int)
     parser.add_argument("--preview", default=False, action="store_true")
     parser.add_argument("--headless", dest="headless", default=True, action="store_true")
@@ -158,6 +168,9 @@ def parse_args() -> argparse.Namespace:
         dest="filter_dataset_saving",
         action="store_false",
     )
+    from embodichain.lab.visualization import add_viser_args_to_parser
+
+    add_viser_args_to_parser(parser)
     parser.add_argument(
         "--filter_distractor_events",
         dest="filter_distractor_events",
@@ -285,7 +298,10 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Write a copy of gym_config with the recommended range patched in.",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.enable_rt and args.renderer is None:
+        args.renderer = "fast-rt"
+    return args
 
 
 def load_json(path: str | Path) -> dict[str, Any]:
@@ -620,7 +636,6 @@ def make_env(args: argparse.Namespace):
         config_to_cfg,
         merge_args_with_gym_config,
     )
-    from embodichain.lab.sim import SimulationManagerCfg
 
     raw_gym_config = load_json(args.gym_config)
     filtered_gym_config, removed_events = filter_gym_config_for_analysis(
@@ -643,14 +658,6 @@ def make_env(args: argparse.Namespace):
     if args.action_config is not None:
         action_config = load_json(args.action_config)
         action_config["action_config"] = action_config
-
-    env_cfg.sim_cfg = SimulationManagerCfg(
-        headless=gym_config["headless"],
-        sim_device=gym_config["device"],
-        enable_rt=gym_config["enable_rt"],
-        gpu_id=gym_config["gpu_id"],
-        arena_space=gym_config["arena_space"],
-    )
 
     env = gym.make(id=gym_config["id"], cfg=env_cfg, **action_config)
     return env

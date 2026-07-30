@@ -41,6 +41,34 @@ gym_utils.DEFAULT_MANAGER_MODULES = gym_utils.DEFAULT_MANAGER_MODULES + [
 ]
 
 
+def _create_parser() -> argparse.ArgumentParser:
+    """Create the RoboSynChallenge environment launcher parser."""
+    parser = argparse.ArgumentParser()
+    add_env_launcher_args_to_parser(parser, require_gym_config=True)
+    # Match EmbodiChain's run-env behavior: publish camera images after each
+    # environment step unless the caller supplies --viser-image-fps.
+    parser.set_defaults(viser_image_fps=None)
+
+    parser.add_argument(
+        "--replay",
+        action="store_true",
+        help="Replay a native EmbodiChain or legacy state/action trajectory.",
+    )
+    parser.add_argument(
+        "--replay_trajectory",
+        type=str,
+        default=None,
+        help="Path to the .pt trajectory file to replay.",
+    )
+    parser.add_argument(
+        "--replay_mode",
+        choices=["kinematic", "dynamic", "control"],
+        default="kinematic",
+        help="Replay mode (default: kinematic).",
+    )
+    return parser
+
+
 def _generate_function(
     env,
     num_traj,
@@ -201,28 +229,7 @@ if __name__ == "__main__":
     np.set_printoptions(precision=5, suppress=True)
     torch.set_printoptions(precision=5, sci_mode=False)
 
-    parser = argparse.ArgumentParser()
-
-    add_env_launcher_args_to_parser(parser)
-
-    parser.add_argument(
-        "--replay",
-        action="store_true",
-        help="Replay a native EmbodiChain or legacy state/action trajectory.",
-    )
-    parser.add_argument(
-        "--replay_trajectory",
-        type=str,
-        default=None,
-        help="Path to the .pt trajectory file to replay.",
-    )
-    parser.add_argument(
-        "--replay_mode",
-        choices=["kinematic", "dynamic", "control"],
-        default="kinematic",
-        help="Replay mode (default: kinematic).",
-    )
-
+    parser = _create_parser()
     args = parser.parse_args()
 
     if args.replay and not args.replay_trajectory:

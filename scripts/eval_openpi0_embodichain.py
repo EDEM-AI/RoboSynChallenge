@@ -238,17 +238,17 @@ class _EvalWebsocketClientPolicy:
 
 
 def _add_env_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--num_envs", default=1, type=int)
-    parser.add_argument("--device", default="cpu", type=str)
-    parser.add_argument("--headless", default=False, action="store_true")
-    parser.add_argument("--arena_space", default=5.0, type=float)
-    parser.add_argument("--enable_rt", default=False, action="store_true")
-    parser.add_argument("--gpu_id", default=0, type=int)
-    parser.add_argument("--gym_config", required=True, type=str)
-    parser.add_argument("--action_config", default=None, type=str)
-    parser.add_argument("--preview", default=False, action="store_true")
-    parser.add_argument("--filter_visual_rand", default=False, action="store_true")
-    parser.add_argument("--filter_dataset_saving", default=False, action="store_true")
+    from embodichain.lab.gym.utils.gym_utils import (
+        add_env_launcher_args_to_parser,
+    )
+
+    add_env_launcher_args_to_parser(parser, require_gym_config=True)
+    parser.set_defaults(viser_image_fps=None)
+    parser.add_argument(
+        "--enable_rt",
+        action="store_true",
+        help="Deprecated alias for --renderer fast-rt.",
+    )
 
 
 def parse_args() -> argparse.Namespace:
@@ -306,7 +306,10 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Store every policy action and executed env action in the output JSON.",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.enable_rt and args.renderer is None:
+        args.renderer = "fast-rt"
+    return args
 
 
 def _import_embodichain_runtime() -> None:
