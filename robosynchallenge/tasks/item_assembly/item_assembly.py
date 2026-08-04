@@ -106,7 +106,6 @@ class ItemAssemblyEnv(EmbodiedEnv):
             (total_traj_num, self.num_envs, num_active_joints), dtype=torch.float32
         )
 
-        # 建立一个从全局 joint_id 到 active_joint_id 在 action 数组中正确存放位置的映射
         global_to_active_idx = {
             joint_id: active_idx for active_idx, joint_id in enumerate(self.active_joint_ids)
         }
@@ -121,7 +120,6 @@ class ItemAssemblyEnv(EmbodiedEnv):
                 # TODO: only 1 env supported now
                 local_action_data = torch.as_tensor(ret[key].T, dtype=torch.float32)
 
-                # 【修改重点2】：使用映射精准定位它在 action tensor 中的正确位置存放
                 for i, joint_id in enumerate(joints):
                     if joint_id in global_to_active_idx:
                         active_idx = global_to_active_idx[joint_id]
@@ -178,9 +176,10 @@ class ItemAssemblyEnv(EmbodiedEnv):
     #     self._run_guijiao_attach_if_ready()
     #     return super().step(action, **kwargs)
 
-    ##################################################################################################################
+    
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        """Determine if the task is successfully completed. This is mainly used in the data generation process
+        """
+        Determine if the task is successfully completed. This is mainly used in the data generation process
         of the imitation learning.
 
         Task success condition: Two silicone tubes (guijiao1 and guijiao2) are parallel within 15 degrees.
@@ -191,29 +190,132 @@ class ItemAssemblyEnv(EmbodiedEnv):
         Returns:
             torch.Tensor: A boolean tensor indicating success for each environment in the batch.
         """
-        guijiao1 = self.sim.get_rigid_object("guijiao1")
-        guijiao2 = self.sim.get_rigid_object("guijiao2")
+        # Safeguards and improved checks to avoid false positives recorded at timestep 0
+        try:
+            guijiao1 = self.sim.get_rigid_object("guijiao1")
+            guijiao2 = self.sim.get_rigid_object("guijiao2")
+        except Exception:
+            # If objects cannot be retrieved, no env is successful.
+            num_envs = getattr(self, "num_envs", 1)
+            device = getattr(self, "device", torch.device("cpu"))
+            return torch.zeros(num_envs, dtype=torch.bool, device=device)
 
         guijiao1_pose = guijiao1.get_local_pose(to_matrix=True)
         guijiao2_pose = guijiao2.get_local_pose(to_matrix=True)
 
-        # Extract Z-axis direction from rotation matrix (3rd column of 3x3 rotation part)
-        guijiao1_direction = guijiao1_pose[:, :3, 2]  # Shape: (num_envs, 3)
-        guijiao2_direction = guijiao2_pose[:, :3, 2]  # Shape: (num_envs, 3)
+        # Basic validity checks: poses must be finite and have correct shape
+        if guijiao1_pose is None or guijiao2_pose is None:
+            num_envs = getattr(self, "num_envs", 1)
+            device = getattr(self, "device", torch.device("cpu"))
+            return torch.zeros(num_envs, dtype=torch.bool, device=device)
 
-        # Compute dot product between direction vectors
-        dot_product = torch.sum(guijiao1_direction * guijiao2_direction, dim=-1)  # Shape: (num_envs,)
+        device = guijiao1_pose.device
+        num_envs = guijiao1_pose.shape[0]
 
-        # Clamp to avoid numerical issues with arccos
+        valid_pose_mask = torch.isfinite(guijiao1_pose).all(dim=(1, 2)) & torch.isfinite(guijiao2_pose).all(dim=(1, 2))
+
+        # Extract X-axis direction from rotation matrix (1st column of 3x3 rotation part)
+        # The guijiao mesh's longest geometric axis is aligned with local X, use that for success check.
+        guijiao1_direction = guijiao1_pose[:, :3, 0]
+        guijiao2_direction = guijiao2_pose[:, :3, 0]
+
+        # Compute dot product between direction vectors and clamp
+        dot_product = torch.sum(guijiao1_direction * guijiao2_direction, dim=-1)
         dot_product = torch.clamp(dot_product, -1.0, 1.0)
 
-        # Compute angle between the two directions
-        angle = torch.arccos(torch.abs(dot_product))  # abs() to handle antiparallel case
+        # Compute angle between the two directions; use abs to treat antiparallel as parallel
+        angle = torch.acos(torch.abs(dot_product))
 
         # Check if angle is within 15 degrees (convert 15 degrees to radians)
-        threshold_angle = torch.tensor(15.0 * torch.pi / 180.0, dtype=angle.dtype, device=angle.device)
-        return angle <= threshold_angle
-##################################################################################################
+        threshold_angle = torch.tensor(15.0 * torch.pi / 180.0, dtype=angle.dtype, device=device)
+        angle_ok = angle <= threshold_angle
+
+        # Avoid counting successes immediately at timestep 0 (or before minimal interaction)
+        min_steps = int(getattr(self, "success_min_steps", 5))
+        elapsed = getattr(self, "_elapsed_steps", None)
+        if elapsed is None:
+            # If no per-env elapsed info, require at least global min_steps by default
+            step_mask = torch.ones(num_envs, dtype=torch.bool, device=device)
+        else:
+            # _elapsed_steps is expected to be a tensor of shape (num_envs,)
+            step_mask = elapsed >= min_steps
+
+        # Contact-sensor based proximity check (prefer contact data when available)
+        # Only contacts between guijiao1 and guijiao2 are considered valid for docking
+        contact_ok = torch.ones(num_envs, dtype=torch.bool, device=device)
+        try:
+            sensor = self.sim.get_sensor("guijiao_contact")
+        except Exception:
+            sensor = None
+
+        if sensor is not None:
+            data = sensor.get_data()
+            if data is not None:
+                distances = data["distance"]  # (num_envs, max_contacts)
+                is_valid = data["is_valid"]
+                user_ids = data["user_ids"]  # (num_envs, max_contacts, 2)
+
+                # get user ids of guijiao objects
+                guijiao1_obj = self.sim.get_rigid_object("guijiao1")
+                guijiao2_obj = self.sim.get_rigid_object("guijiao2")
+                if guijiao1_obj is not None and guijiao2_obj is not None:
+                    guijiao1_uids = guijiao1_obj.get_user_ids().reshape(-1)
+                    guijiao2_uids = guijiao2_obj.get_user_ids().reshape(-1)
+
+                    # build mask for contacts where one side is guijiao1 and other is guijiao2
+                    # shape: (num_envs, max_contacts)
+                    mask_g1_g2 = torch.zeros_like(is_valid, dtype=torch.bool)
+                    # check both permutations
+                    left_in_g1 = torch.isin(user_ids[:, :, 0], guijiao1_uids)
+                    right_in_g2 = torch.isin(user_ids[:, :, 1], guijiao2_uids)
+                    left_in_g2 = torch.isin(user_ids[:, :, 0], guijiao2_uids)
+                    right_in_g1 = torch.isin(user_ids[:, :, 1], guijiao1_uids)
+                    mask_g1_g2 = (left_in_g1 & right_in_g2) | (left_in_g2 & right_in_g1)
+
+                    # only consider contacts that are valid and between the two objects
+                    effective_mask = is_valid & mask_g1_g2
+                    # default to +inf distances
+                    masked = torch.full_like(distances, float("inf"))
+                    masked[effective_mask] = distances[effective_mask]
+                    # min distance per env
+                    min_dist_per_env = masked.min(dim=1)[0]
+                    contact_ok = min_dist_per_env <= 0.003
+                else:
+                    # cannot find guijiao objects; fallback to previous permissive behavior
+                    contact_ok = torch.ones(num_envs, dtype=torch.bool, device=device)
+
+        # Radial (lateral) offset check: ensure the two axes are near the same line
+        # lateral_offset = || (c2-c1) - ((c2-c1)·a1) * a1 ||
+        # require lateral_offset <= lateral_tol to be considered success
+        lateral_tol_val = kwargs.get("lateral_tol", None)
+        if lateral_tol_val is None:
+            lateral_tol_val = getattr(self, "success_lateral_tol", 0.02)
+
+        try:
+            lateral_tol = torch.as_tensor(float(lateral_tol_val), dtype=guijiao1_pose.dtype, device=device)
+        except Exception:
+            lateral_tol = torch.tensor(0.01, dtype=guijiao1_pose.dtype, device=device)
+
+        # world centers
+        c1 = guijiao1_pose[:, :3, 3]
+        c2 = guijiao2_pose[:, :3, 3]
+
+        # ensure axis unit vectors
+        a1 = guijiao1_direction
+        a1_norm = a1.norm(dim=-1, keepdim=True).clamp_min(1e-8)
+        a1_unit = a1 / a1_norm
+
+        diff = c2 - c1
+        proj_len = (diff * a1_unit).sum(dim=-1, keepdim=True)
+        proj = a1_unit * proj_len
+        lateral_vec = diff - proj
+        lateral_offset = lateral_vec.norm(dim=-1)
+
+        lateral_ok = lateral_offset <= lateral_tol
+
+        success_mask = angle_ok & valid_pose_mask & step_mask & contact_ok & lateral_ok
+        return success_mask
+
 
 @register_env("ItemAssemblyAgent", max_episode_steps=600)
 class ItemAssemblyAgentEnv(BaseAgentEnv, ItemAssemblyEnv):
