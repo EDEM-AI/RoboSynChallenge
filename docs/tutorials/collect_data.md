@@ -28,6 +28,32 @@ If you need to collect large amounts of data using a device like the 5060Ti, ple
 
 ③ Convert the merged full dataset to LeRobot 2.1 format if required for your use case.
 
+## Collect simulation data with depth information
+
+To collect simulation data with depth information, you need to add the following to the camera definition section in the "sensor" field of the gym_config.json file for the corresponding task:
+
+"enable_depth": true,
+
+For example：
+
+```json
+{
+    
+    "sensor": [
+        {
+            "sensor_type": "Camera",
+            "uid": "cam_high",
+            "width": 640,
+            "height": 480,
+            "enable_mask": false,
+            "enable_depth": true, # Add this line
+            "intrinsics": [606.315186, 606.100952, 320.549316, 245.877106],
+
+}
+```
+For details, please visit: [here](https://dexforce.github.io/EmbodiChain/main/tutorial/sensor.html)
+
+
 For pre-collected simulated and real datasets, see <a href="download_data.html">Download Data</a>.
 
 If you want to train on multiple datasets together (e.g., multi-task, mixed training with simulated and real data), use the [lerobot-edit-dataset tool](https://huggingface.co/docs/lerobot/using_dataset_tools) or the helper script [`launch/collect_combined_dataset.sh`](https://github.com/EDEM-AI/RoboSynChallenge/blob/main/launch/collect_combined_dataset.sh).
