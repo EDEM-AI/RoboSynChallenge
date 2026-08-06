@@ -20,12 +20,12 @@
 
 ```
 用法:
-  ./launch/run_task.sh <task_name> <setting> <format> [extra_args...]
+  ./launch/run_task.sh <task_name> <setting> [format] [extra_args...]
 
 参数:
   task_name    任务名称（见下方任务列表）
   setting      random 或 clear（是否启用域随机化）
-  format       3_0（LeRobot 3.0）或 2_1（LeRobot 2.1，自动转换）
+  format       可选；3_0（默认，LeRobot 3.0）或 2_1（LeRobot 2.1，自动转换）
 ```
 
 **extra_args 常用选项：**
@@ -51,8 +51,11 @@
 # 仅测试环境能否正常运行（不存盘）
 ./launch/run_task.sh mixer_operating random 3_0 --filter_dataset_saving --max_episodes 1 --headless
 
+# format 可省略；以下命令默认使用 3_0
+./launch/run_task.sh item_assembly clear --filter_visual_rand --filter_dataset_saving
+
 # 不保存 LeRobot 数据集，只记录可回放轨迹到指定目录
-./launch/run_task.sh drawer_open_place clear 3_0 --filter_dataset_saving \
+./launch/run_task.sh drawer_open_place clear --filter_dataset_saving \
   --record_trajectory --trajectory_save_dir outputs/trajectories/drawer_open_place
 ```
 

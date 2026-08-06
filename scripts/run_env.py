@@ -277,4 +277,6 @@ if __name__ == "__main__":
         run_env_main(args, env, gym_config=gym_config)
     except Exception as e:
         log_warning(f"An error occurred during environment execution: {e}")
+        raise
+    finally:
         env.close()
