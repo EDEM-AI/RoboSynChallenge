@@ -345,6 +345,7 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-collection-hardware">🔧 Data Collection Hardware</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#collect-simulation-data-with-depth-information">Collect simulation data with depth information</a></li>
 </ul>
             </nav>
         </div>
@@ -380,6 +381,28 @@ document.write(`
 <p>① Collect raw data in the LeRobot 3.0 format first;</p>
 <p>② Run the merge script to combine data from multiple separate collection batches;</p>
 <p>③ Convert the merged full dataset to LeRobot 2.1 format if required for your use case.</p>
+</section>
+<section id="collect-simulation-data-with-depth-information">
+<h2>Collect simulation data with depth information<a class="headerlink" href="#collect-simulation-data-with-depth-information" title="Link to this heading">#</a></h2>
+<p>To collect simulation data with depth information, you need to add the following to the camera definition section in the “sensor” field of the gym_config.json file for the corresponding task:</p>
+<p>“enable_depth”: true,</p>
+<p>For example：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="nt">&quot;sensor&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;sensor_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Camera&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;uid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cam_high&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;width&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">640</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;height&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">480</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;enable_mask&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;enable_depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="err">Add</span><span class="w"> </span><span class="kc">t</span><span class="err">his</span><span class="w"> </span><span class="err">li</span><span class="kc">ne</span>
+<span class="w">            </span><span class="nt">&quot;intrinsics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">606.315186</span><span class="p">,</span><span class="w"> </span><span class="mf">606.100952</span><span class="p">,</span><span class="w"> </span><span class="mf">320.549316</span><span class="p">,</span><span class="w"> </span><span class="mf">245.877106</span><span class="p">],</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For details, please visit: <a class="reference external" href="https://dexforce.github.io/EmbodiChain/main/tutorial/sensor.html">here</a></p>
 <p>For pre-collected simulated and real datasets, see <a href="download_data.html">Download Data</a>.</p>
 <p>If you want to train on multiple datasets together (e.g., multi-task, mixed training with simulated and real data), use the <a class="reference external" href="https://huggingface.co/docs/lerobot/using_dataset_tools">lerobot-edit-dataset tool</a> or the helper script <a class="reference external" href="https://github.com/EDEM-AI/RoboSynChallenge/blob/main/launch/collect_combined_dataset.sh"><code class="docutils literal notranslate"><span class="pre">launch/collect_combined_dataset.sh</span></code></a>.</p>
 </section>
@@ -431,6 +454,7 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-collection-hardware">🔧 Data Collection Hardware</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#collect-simulation-data-with-depth-information">Collect simulation data with depth information</a></li>
 </ul>
   </nav></div>
 
