@@ -414,7 +414,7 @@ document.write(`
 </section>
 <section id="construct-docker-container">
 <h3>1. Construct docker container<a class="headerlink" href="#construct-docker-container" title="Link to this heading">#</a></h3>
-<p>First, please install <a class="reference external" href="https://dexforce.github.io/EmbodiChain/main/quick_start/install.html"><strong>EmbodiChain</strong></a> v0.2.3, which is the underlying simulation environment we use.</p>
+<p>First, please install <a class="reference external" href="https://dexforce.github.io/EmbodiChain/main/quick_start/install.html"><strong>EmbodiChain</strong></a> v0.2.4, which is the underlying simulation environment we use.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>pull<span class="w"> </span>dexforce/embodichain:ubuntu22.04-cuda12.8
 <span class="c1"># The pre-configured image includes CUDA 12.8, Vulkan-related mounts, and dependencies needed for GPU simulation and rendering.</span>
 </pre></div>
@@ -423,7 +423,7 @@ document.write(`
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>RoboSynChallenge_ws<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>RoboSynChallenge_ws
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/DexForce/EmbodiChain.git
 <span class="nb">cd</span><span class="w"> </span>EmbodiChain
-git<span class="w"> </span>checkout<span class="w"> </span>tags/v0.2.3
+git<span class="w"> </span>checkout<span class="w"> </span>tags/v0.2.4
 ./docker/docker_run.sh<span class="w"> </span>&lt;container_name&gt;<span class="w"> </span>&lt;data_path&gt;
 <span class="c1"># This will mount &lt;data_path&gt; to the /root/workspace directory in &lt;container_name&gt; container.</span>
 <span class="c1"># We recommend setting &lt;data_path&gt; to the RoboSynChallenge_ws/ directory and placing EmbodiChain and RoboSynChallenge there.</span>
@@ -470,7 +470,7 @@ uv<span class="w"> </span>venv<span class="w"> </span>--python<span class="w"> <
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>RoboSynChallenge_ws<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>RoboSynChallenge_ws
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/DexForce/EmbodiChain.git
 <span class="nb">cd</span><span class="w"> </span>EmbodiChain
-git<span class="w"> </span>checkout<span class="w"> </span>tags/v0.2.3
+git<span class="w"> </span>checkout<span class="w"> </span>tags/v0.2.4
 uv<span class="w"> </span>venv<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.11<span class="w"> </span>.venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
 uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--extra-index-url<span class="w"> </span>http://pyp.open3dv.site:2345/simple/<span class="w"> </span><span class="se">\</span>
