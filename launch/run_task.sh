@@ -8,6 +8,8 @@
 # you can also input the following additional parameters supported by embodichain:
 # --filter_visual_rand: to disable visual randomization
 # --filter_dataset_saving: to disable dataset saving
+# --record_trajectory: to record replayable trajectories
+# --trajectory_save_dir <dir>: to choose where trajectories are saved
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
@@ -21,7 +23,9 @@ if [[ "$#" -eq 1 && ("$1" == "-h" || "$1" == "--help") ]]; then
     echo -e "  \033[1;35m--filter_visual_rand\033[0m     : Disable visual randomization"
     echo -e "  \033[1;35m--filter_dataset_saving\033[0m  : Disable dataset saving"
     echo -e "  \033[1;35m--max_episodes <num>\033[0m  : Specify the maximum number of episodes to generate"
-    echo -e "  \033[1;35m--headless\033[0m  : Run in headless mode\n"
+    echo -e "  \033[1;35m--headless\033[0m  : Run in headless mode"
+    echo -e "  \033[1;35m--record_trajectory\033[0m  : Record replayable EmbodiChain trajectories"
+    echo -e "  \033[1;35m--trajectory_save_dir <dir>\033[0m  : Directory for recorded trajectories\n"
 
     source "$SCRIPT_DIR/_print_available_tasks.sh"
 
