@@ -105,7 +105,6 @@ class SampleLoadingEnv(EmbodiedEnv):
             (total_traj_num, self.num_envs, num_active_joints), dtype=torch.float32
         )
 
-        # 建立一个从全局 joint_id 到 active_joint_id 在 action 数组中正确存放位置的映射
         global_to_active_idx = {
             joint_id: active_idx for active_idx, joint_id in enumerate(self.active_joint_ids)
         }
@@ -119,8 +118,6 @@ class SampleLoadingEnv(EmbodiedEnv):
             if key in ret:
                 # TODO: only 1 env supported now
                 local_action_data = torch.as_tensor(ret[key].T, dtype=torch.float32)
-
-                # 使用映射精准定位它在 action tensor 中的正确位置存放
                 for i, joint_id in enumerate(joints):
                     if joint_id in global_to_active_idx:
                         active_idx = global_to_active_idx[joint_id]
@@ -128,6 +125,13 @@ class SampleLoadingEnv(EmbodiedEnv):
         return actions
 
     def _evaluate_task_state(self) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
+        # Robust placement success evaluator
+        # Principles:
+        # - Require spatial alignment (xy + z) and not fallen
+        # - Require low linear velocity (to avoid transient early-stop)
+        # - Best-effort require object not held by either EEF (via FK distances) if available
+        # - Require placement condition to hold for `success_stable_steps` consecutive steps
+
         cube = self.sim.get_rigid_object("cube")
         rack = self.sim.get_rigid_object("rack")
 
@@ -136,12 +140,174 @@ class SampleLoadingEnv(EmbodiedEnv):
 
         cube_ret = self._is_fall(cube_final_xpos)
         rack_ret = self._is_fall(rack_final_xpos)
-        cube_pos_xy = cube_final_xpos[:, :2, 3]
-        rack_pos_xy = rack_final_xpos[:, :2, 3]
+        # get full object positions (x,y,z)
+        cube_pos = cube_final_xpos[:, :3, 3]
+        rack_pos = rack_final_xpos[:, :3, 3]
 
-        success = ~(cube_ret | rack_ret)
+        # thresholds (configurable via env attributes)
+        POS_THRESH = getattr(self, "success_pos_thresh", 0.035)
+        Z_ABOVE_RACK_THRESH = getattr(self, "success_z_thresh", 0.07)
+        VEL_THRESH = getattr(self, "success_vel_thresh", 0.05)
+        EEF_RELEASE_DIST = getattr(self, "success_eef_release_dist", 0.04)
+        STABLE_STEPS = int(getattr(self, "success_stable_steps", 8))
+        VERTICAL_ANGLE_THRESH = float(getattr(self, "success_vertical_angle_thresh", 0.087266))  # ~5 degrees
 
-        return success, {}, {}
+        # basic spatial checks
+        dist_xy = torch.norm(cube_pos[:, :2] - rack_pos[:, :2], dim=-1)
+        pos_ok = dist_xy < POS_THRESH
+        z_ok = cube_pos[:, 2] <= (rack_pos[:, 2] + Z_ABOVE_RACK_THRESH)
+        not_fallen = ~(cube_ret | rack_ret)
+
+        # best-effort linear velocity
+        cube_vel_norm = None
+        try:
+            cube_vel = cube.get_linear_velocity()
+            cube_vel_norm = torch.norm(cube_vel, dim=-1)
+        except Exception:
+            cube_vel_norm = None
+
+        vel_ok = True if cube_vel_norm is None else (cube_vel_norm < VEL_THRESH)
+
+        # best-effort EEF distances & gripper q (to detect holding)
+        cube_to_left = None
+        cube_to_right = None
+        left_gripper_q_mean = None
+        right_gripper_q_mean = None
+        try:
+            qpos = self.robot.get_qpos().squeeze(0)
+            left_j = self.robot.get_joint_ids(name="left_eef", remove_mimic=True)
+            right_j = self.robot.get_joint_ids(name="right_eef", remove_mimic=True)
+
+            if len(left_j) > 0:
+                left_q = qpos[left_j]
+                left_gripper_q_mean = left_q.mean(dim=-1)
+            if len(right_j) > 0:
+                right_q = qpos[right_j]
+                right_gripper_q_mean = right_q.mean(dim=-1)
+
+            try:
+                if left_gripper_q_mean is not None:
+                    left_eef_x = self.robot.compute_fk(left_q, name="left_eef", to_matrix=True)
+                    left_eef_pos = left_eef_x.squeeze(0)[:, 3]
+                    cube_to_left = torch.norm(cube_pos - left_eef_pos, dim=-1)
+                if right_gripper_q_mean is not None:
+                    right_eef_x = self.robot.compute_fk(right_q, name="right_eef", to_matrix=True)
+                    right_eef_pos = right_eef_x.squeeze(0)[:, 3]
+                    cube_to_right = torch.norm(cube_pos - right_eef_pos, dim=-1)
+            except Exception:
+                # best-effort: skip FK failures
+                cube_to_left = None if cube_to_left is None else cube_to_left
+                cube_to_right = None if cube_to_right is None else cube_to_right
+        except Exception:
+            # robot qpos / joint introspection failed; continue with velocity-only proxy
+            pass
+
+        # non-hold check (best-effort)
+        if (cube_to_left is not None) and (cube_to_right is not None):
+            not_held = (cube_to_left > EEF_RELEASE_DIST) & (cube_to_right > EEF_RELEASE_DIST)
+        else:
+            # if we can't compute eef distances, rely on low velocity as proxy
+            if cube_vel_norm is None:
+                not_held = torch.ones_like(dist_xy, dtype=torch.bool)
+            else:
+                not_held = cube_vel_norm < VEL_THRESH
+
+        # placement condition (single-frame)
+        placement_ok = not_fallen & pos_ok & z_ok & vel_ok & not_held
+
+        try:
+            # compute cube z-axis alignment angle to world z
+            cube_rz = cube_final_xpos[:, :3, 2]
+            world_z_axis = torch.tensor([0, 0, 1], dtype=cube_rz.dtype, device=cube_rz.device)
+            dot_prod = torch.sum(cube_rz * world_z_axis, dim=-1)
+            dot_prod = torch.clamp(dot_prod, -1.0, 1.0)
+            cube_angle = torch.arccos(dot_prod)
+            vertical_ok = cube_angle < VERTICAL_ANGLE_THRESH
+        except Exception:
+            vertical_ok = torch.zeros_like(dist_xy, dtype=torch.bool)
+            cube_angle = None
+
+        BOTTOM_ALIGN_THRESH = float(getattr(self, "success_bottom_align_thresh", 0.005))
+        cube_bottom_z = None
+        rack_bottom_z = None
+        bottom_ok = torch.zeros_like(dist_xy, dtype=torch.bool)
+        try:
+            cube_verts = cube.get_vertices()  # (N, V, 3)
+            rack_verts = rack.get_vertices()
+
+            R_cube = cube_final_xpos[:, :3, :3]
+            t_cube = cube_final_xpos[:, :3, 3]
+            cube_world = torch.einsum('nij,nvj->nvi', R_cube, cube_verts) + t_cube.unsqueeze(1)
+            cube_bottom_z = cube_world[:, :, 2].min(dim=1).values
+
+            R_rack = rack_final_xpos[:, :3, :3]
+            t_rack = rack_final_xpos[:, :3, 3]
+            rack_world = torch.einsum('nij,nvj->nvi', R_rack, rack_verts) + t_rack.unsqueeze(1)
+            rack_bottom_z = rack_world[:, :, 2].min(dim=1).values
+
+            bottom_diff = torch.abs(cube_bottom_z - rack_bottom_z)
+            bottom_ok = bottom_diff < BOTTOM_ALIGN_THRESH
+        except Exception:
+            cube_bottom_z = None
+            rack_bottom_z = None
+            bottom_ok = torch.zeros_like(dist_xy, dtype=torch.bool)
+
+        # only allow the alternate (vertical) condition to count if the
+        # object is also near the rack in Z or bottom-aligned; this avoids
+        # early success when the cube is upright and horizontally aligned
+        # but still well above the rack.
+        alt_condition = vertical_ok & pos_ok & vel_ok & (z_ok | bottom_ok)
+
+        # Merge alternate condition into placement_ok
+        placement_ok = placement_ok | alt_condition
+
+        # If bottom aligned (best-effort) and other spatial/velocity/hold checks passed, also accept
+        bottom_condition = not_fallen & pos_ok & vel_ok & not_held & bottom_ok
+        placement_ok = placement_ok | bottom_condition
+
+        # persistent stable counter per-env
+        if not hasattr(self, "_place_stable_count"):
+            self._place_stable_count = torch.zeros(self.num_envs, dtype=torch.long, device=dist_xy.device)
+
+        placement_mask = placement_ok.bool()
+        self._place_stable_count = torch.where(placement_mask, self._place_stable_count + 1, torch.zeros_like(self._place_stable_count))
+
+        # success only when stable count reaches threshold
+        success = self._place_stable_count >= STABLE_STEPS
+
+        # metrics for debugging
+        metrics = {
+            "cube_xy_dist": dist_xy,
+            "cube_z": cube_pos[:, 2],
+            "rack_z": rack_pos[:, 2],
+            "placement_ok_single_frame": placement_ok,
+            "place_stable_count": self._place_stable_count,
+        }
+        if cube_vel_norm is not None:
+            metrics["cube_lin_vel_norm"] = cube_vel_norm
+        if cube_angle is not None:
+            metrics["cube_vertical_angle"] = cube_angle
+            metrics["cube_vertical_ok"] = vertical_ok
+        if cube_bottom_z is not None:
+            metrics["cube_bottom_z"] = cube_bottom_z
+        if rack_bottom_z is not None:
+            metrics["rack_bottom_z"] = rack_bottom_z
+        try:
+            if (cube_bottom_z is not None) and (rack_bottom_z is not None):
+                metrics["bottom_z_diff"] = torch.abs(cube_bottom_z - rack_bottom_z)
+                metrics["bottom_aligned"] = bottom_ok
+        except Exception:
+            pass
+        if cube_to_left is not None:
+            metrics["cube_to_left_eef_dist"] = cube_to_left
+        if cube_to_right is not None:
+            metrics["cube_to_right_eef_dist"] = cube_to_right
+        if left_gripper_q_mean is not None:
+            metrics["left_gripper_q_mean"] = left_gripper_q_mean
+        if right_gripper_q_mean is not None:
+            metrics["right_gripper_q_mean"] = right_gripper_q_mean
+
+        return success, {}, metrics
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
         success, _, _ = self._evaluate_task_state()
@@ -160,7 +326,7 @@ class SampleLoadingEnv(EmbodiedEnv):
 
         # Compute angle and check if fallen
         angle = torch.arccos(dot_product)
-        return angle >= 0.1745 #10度
+        return angle >= 0.1745
 
 
 @register_env("SampleLoadingTest", max_episode_steps=600)

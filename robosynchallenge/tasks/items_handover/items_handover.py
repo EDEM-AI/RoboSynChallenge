@@ -104,7 +104,6 @@ class ItemsHandoverEnv(EmbodiedEnv):
             (total_traj_num, self.num_envs, num_active_joints), dtype=torch.float32
         )
 
-        # 建立一个从全局 joint_id 到 active_joint_id 在 action 数组中正确存放位置的映射
         global_to_active_idx = {
             joint_id: active_idx for active_idx, joint_id in enumerate(self.active_joint_ids)
         }
@@ -118,8 +117,6 @@ class ItemsHandoverEnv(EmbodiedEnv):
             if key in ret:
                 # TODO: only 1 env supported now
                 local_action_data = torch.as_tensor(ret[key].T, dtype=torch.float32)
-
-                # 使用映射精准定位它在 action tensor 中的正确位置存放
                 for i, joint_id in enumerate(joints):
                     if joint_id in global_to_active_idx:
                         active_idx = global_to_active_idx[joint_id]
@@ -151,8 +148,54 @@ class ItemsHandoverEnv(EmbodiedEnv):
         return success, holder_ret, metrics
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        success, _, _ = self._evaluate_task_state()
-        return success
+        # First get the original proximity/fall-based success per-env
+        prev_success, _, _ = self._evaluate_task_state()
+
+        pen = self.sim.get_rigid_object("pen")
+        holder = self.sim.get_rigid_object("holder")
+
+        # Try common ways to get AABB; if unavailable, fall back to previous success
+        pen_aabb = None
+        holder_aabb = None
+        try:
+            pen_aabb = pen._entities[0].get_aabb_attr()
+        except Exception:
+            try:
+                pen_aabb = pen.get_aabb_attr()
+            except Exception:
+                pen_aabb = None
+
+        try:
+            holder_aabb = holder._entities[0].get_aabb_attr()
+        except Exception:
+            try:
+                holder_aabb = holder.get_aabb_attr()
+            except Exception:
+                holder_aabb = None
+
+        if pen_aabb is None or holder_aabb is None:
+            return prev_success
+
+        # AABB format: [minx,miny,minz,maxx,maxy,maxz]
+        pen_min_z, pen_max_z = float(pen_aabb[2]), float(pen_aabb[5])
+        holder_min_z, holder_max_z = float(holder_aabb[2]), float(holder_aabb[5])
+
+        overlap = min(pen_max_z, holder_max_z) - max(pen_min_z, holder_min_z)
+
+        # require overlap > 0.08 (user-specified) AND original proximity/fall criteria
+        overlap_flag = overlap > 0.08
+
+        # prev_success is a tensor per-env; combine with scalar overlap_flag
+        if isinstance(prev_success, torch.Tensor):
+            if prev_success.numel() == 0:
+                return prev_success
+            # broadcast scalar overlap_flag to tensor shape
+            overlap_tensor = torch.full_like(prev_success, bool(overlap_flag))
+            return prev_success & overlap_tensor
+        else:
+            # unexpected type, return boolean tensor
+            num_envs = getattr(self, "num_envs", 1)
+            return torch.full((num_envs,), bool(prev_success and overlap_flag), dtype=torch.bool)
 
     def _is_fall_x(self, pose: torch.Tensor) -> torch.Tensor:
         # Extract x-axis from rotation matrix (last column, first 3 elements)
@@ -167,7 +210,7 @@ class ItemsHandoverEnv(EmbodiedEnv):
 
         # Compute angle and check if fallen
         angle = torch.arccos(dot_product)
-        return angle >= 1.309 #75度
+        return angle >= 1.309
 
     def _is_fall_y(self, pose: torch.Tensor) -> torch.Tensor:
         # Extract x-axis from rotation matrix (last column, first 3 elements)
@@ -182,7 +225,7 @@ class ItemsHandoverEnv(EmbodiedEnv):
 
         # Compute angle and check if fallen
         angle = torch.arccos(dot_product)
-        return angle >= 1.309 #75度
+        return angle >= 1.309
 
 @register_env("ItemsHandoverTest", max_episode_steps=600)
 class ItemsHandoverTestEnv(ItemsHandoverEnv):
