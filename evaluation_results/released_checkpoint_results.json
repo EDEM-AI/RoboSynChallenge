@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "published_at": "2026-08-17",
+  "benchmark": "RoboSynChallenge released checkpoint evaluation",
+  "environment": "simulation",
+  "setting": "random_eval_once",
+  "metric": "success_rate",
+  "episodes_per_checkpoint": 100,
+  "protocol_repository": "https://github.com/EDEM-AI/RoboSynChallenge",
+  "protocol_revision": "bd6bf77a63300f4b9a9d32337b519194dc7311a4",
+  "results": [
+    {
+      "task_id": "click_bell",
+      "task_name": "Click bell",
+      "max_episode_steps": 361,
+      "protocol_path": "configs/click_bell/random_eval_once/gym_config.json",
+      "policies": {
+        "ACT": { "success_count": 37, "success_rate": 37.0, "checkpoint_repo": "RoboSynChallenge/ACT_sim_click_bell", "checkpoint_revision": "677e65fbb15974024ff840893496197ef7db26d4" },
+        "DP": { "success_count": 44, "success_rate": 44.0, "checkpoint_repo": "RoboSynChallenge/DP_sim_click_bell", "checkpoint_revision": "fb8c9551e0fade7c4888a926ab577b85f0684da1" }
+      }
+    },
+    {
+      "task_id": "drawer_open_place",
+      "task_name": "Drawer open and place",
+      "max_episode_steps": 900,
+      "protocol_path": "configs/drawer_open_place/random_eval_once/gym_config.json",
+      "policies": {
+        "ACT": { "success_count": 30, "success_rate": 30.0, "checkpoint_repo": "RoboSynChallenge/ACT_sim_drawer_open_place", "checkpoint_revision": "592e30434aad83cf7bd8f1ee105d7c401488743d" },
+        "DP": { "success_count": 0, "success_rate": 0.0, "checkpoint_repo": "RoboSynChallenge/DP_sim_drawer_open_place", "checkpoint_revision": "c5600daa96623adb4f8cd0c156b70836c30b1288" }
+      }
+    },
+    {
+      "task_id": "mixer_operating",
+      "task_name": "Mixer operating",
+      "max_episode_steps": 500,
+      "protocol_path": "configs/mixer_operating/random_eval_once/gym_config.json",
+      "policies": {
+        "ACT": { "success_count": 77, "success_rate": 77.0, "checkpoint_repo": "RoboSynChallenge/ACT_sim_mixer_operating", "checkpoint_revision": "0f12c53a2a6e093ae5e1e28f20480296b45fdf2b" },
+        "DP": { "success_count": 69, "success_rate": 69.0, "checkpoint_repo": "RoboSynChallenge/DP_sim_mixer_operating", "checkpoint_revision": "c05afece66ead46b47f6532c86d95cb3dd0f628e" }
+      }
+    },
+    {
+      "task_id": "table_rearrangement",
+      "task_name": "Table rearrangement",
+      "max_episode_steps": 361,
+      "protocol_path": "configs/table_rearrangement/random_eval_once/gym_config.json",
+      "policies": {
+        "ACT": { "success_count": 70, "success_rate": 70.0, "checkpoint_repo": "RoboSynChallenge/ACT_sim_table_rearrangement", "checkpoint_revision": "3a46b36fade1772176b791dd87349f479d0a98c8" },
+        "DP": { "success_count": 16, "success_rate": 16.0, "checkpoint_repo": "RoboSynChallenge/DP_sim_table_rearrangement", "checkpoint_revision": "99c73475a13ec2583b5105dc3773f88bbdeba9f5" }
+      }
+    },
+    {
+      "task_id": "water_pouring",
+      "task_name": "Water pouring",
+      "max_episode_steps": 500,
+      "protocol_path": "configs/water_pouring/random_eval_once/gym_config.json",
+      "policies": {
+        "ACT": { "success_count": 72, "success_rate": 72.0, "checkpoint_repo": "RoboSynChallenge/ACT_sim_water_pouring", "checkpoint_revision": "0bf0fcfc931a69c52871385f28068fcf873cf07a" },
+        "DP": { "success_count": 33, "success_rate": 33.0, "checkpoint_repo": "RoboSynChallenge/DP_sim_water_pouring", "checkpoint_revision": "b67e1ce7444dfa2940970088ebbe04a8b01013cc" }
+      }
+    }
+  ],
+  "aggregate": {
+    "ACT": { "success_count": 286, "episode_count": 500, "macro_success_rate": 57.2 },
+    "DP": { "success_count": 162, "episode_count": 500, "macro_success_rate": 32.4 }
+  }
+}
