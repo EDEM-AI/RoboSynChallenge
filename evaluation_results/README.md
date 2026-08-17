@@ -2,7 +2,7 @@
 
 This directory records the organizer evaluation of the released ACT and Diffusion Policy (DP) simulation checkpoints.
 
-Each checkpoint was evaluated with the task's `random_eval_once` configuration for 100 episodes. The success rate is therefore also the number of successful episodes out of 100. The protocol configuration is pinned to commit [`bd6bf77`](https://github.com/EDEM-AI/RoboSynChallenge/commit/bd6bf77a63300f4b9a9d32337b519194dc7311a4), and every checkpoint link below is pinned to the evaluated Hugging Face revision.
+Each checkpoint was evaluated with the task's `random` configuration for 100 episodes. The success rate is therefore also the number of successful episodes out of 100. The protocol configuration is pinned to commit [`bd6bf77`](https://github.com/EDEM-AI/RoboSynChallenge/commit/bd6bf77a63300f4b9a9d32337b519194dc7311a4), and every checkpoint link below is pinned to the evaluated Hugging Face revision.
 
 | Task | ACT | DP |
 | --- | ---: | ---: |
@@ -17,11 +17,11 @@ The machine-readable source is [`released_checkpoint_results.json`](released_che
 
 ## Reproduce an Evaluation
 
-Use the policy-specific evaluation wrapper with the released checkpoint and the `random_eval_once` setting:
+Use the policy-specific evaluation wrapper with the released checkpoint and the `random` setting:
 
 ```bash
-bash policy/act/eval.sh <task_name> random_eval_once <act_checkpoint_path> 0 --headless True
-bash policy/dp/eval.sh <task_name> random_eval_once <dp_checkpoint_path> 0 --headless True
+bash policy/act/eval.sh <task_name> random <act_checkpoint_path> 0 --headless True
+bash policy/dp/eval.sh <task_name> random <dp_checkpoint_path> 0 --headless True
 ```
 
-The result artifacts are written under `eval_result/<task_name>/<policy>/random_eval_once/`.
+The result artifacts are written under `eval_result/<task_name>/<policy>/random/`.

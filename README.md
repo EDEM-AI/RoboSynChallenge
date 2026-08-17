@@ -33,7 +33,7 @@ In addition, you can easily extend your own policys for training and evaluation 
 
 # Released Checkpoint Results
 
-Official 100-episode simulation evaluations for the released ACT and Diffusion Policy checkpoints are published in [`evaluation_results`](evaluation_results/README.md). The machine-readable result file pins every score to its Hugging Face checkpoint revision and `random_eval_once` protocol configuration.
+100-episode simulation evaluations for the released ACT and Diffusion Policy checkpoints are published in [`evaluation_results`](evaluation_results/README.md). The machine-readable result file pins every score to its Hugging Face checkpoint revision and `random` protocol configuration.
 
 # LeaderBoard
 The full leaderboard and setting can be found in: https://edem-ai.github.io/robosynchallenge.github.io/#/leaderboard.
