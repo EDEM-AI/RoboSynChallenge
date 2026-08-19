@@ -17,6 +17,16 @@ parent_directory = os.path.dirname(current_file_path)
 sys.path.insert(0, parent_directory)
 
 from pi_model import PI0
+from policy.inference_timing import timed_inference
+
+
+def _as_done(value):
+    if isinstance(value, torch.Tensor):
+        return bool(value.any().item())
+    if isinstance(value, np.ndarray):
+        return bool(value.any())
+    return bool(value)
+
 
 def encode_action(action, env):
     """Convert pi0 output into the torch action format EmbodiChain accepts."""
@@ -32,6 +42,7 @@ def encode_action(action, env):
         action_array, dtype=torch.float32, device=env.unwrapped.device
     )
     return action_tensor.unsqueeze(0)
+
 
 def encode_obs(obs):
     """Convert gym Gymnasium Dict observation to π₀ input format.
@@ -89,6 +100,16 @@ def get_model(usr_args):
         pytorch_device=pytorch_device,
     )
     return model
+
+
+def _observation_to_env_actions(env, model, obs):
+    """Convert one raw observation into an executable action chunk."""
+    img_arr, state = encode_obs(obs)
+    model.update_observation_window(img_arr, state)
+    actions = model.get_action()[: model.pi0_step]
+    return [encode_action(action, env) for action in actions]
+
+
 def eval(env, model, obs):
     """Run one inference cycle and execute actions in the environment.
 
@@ -103,27 +124,37 @@ def eval(env, model, obs):
         instruction = getattr(env, "_current_instruction", None)
         model.set_language(instruction)
 
-    # Encode and update observation window
-    img_arr, state = encode_obs(obs)
-    model.update_observation_window(img_arr, state)
-
-    # Get multi-step actions from π₀
-    actions = model.get_action()[: model.pi0_step]
+    # Time raw observation processing, policy inference, and action formatting.
+    action_tensors, inference_time_s = timed_inference(
+        _observation_to_env_actions,
+        env,
+        model,
+        obs,
+        device=model.pytorch_device,
+    )
 
     # Execute actions one by one in the environment
     final_obs = obs
-    for action in actions:
-        action_tensor = encode_action(action, env)
+    info = None
+    truncated = False
+    for action_tensor in action_tensors:
         final_obs, reward, terminated, truncated, info = env.step(action_tensor)
         # The `gym_config` setting configures the `actionmanager` to support delta action input;
         # the default action must be absolute `qpos`.
-        if truncated.any():
+        if env.get_wrapper_attr("is_task_success")():
+            break
+        if _as_done(truncated):
             break
         # Update observation window after each step
         img_arr, state = encode_obs(final_obs)
         model.update_observation_window(img_arr, state)
 
-    return final_obs, info, truncated
+    return final_obs, info, truncated, {
+        "inference_times_s": [inference_time_s],
+        "inference_timing_scope": "raw_observation_to_env_actions",
+    }
+
+
 def reset_model(model):
     """Reset π₀ internal state (observation window and instruction)."""
     model.reset_obsrvationwindows()

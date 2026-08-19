@@ -12,6 +12,7 @@ import torch
 
 from lerobot.configs.policies import PreTrainedConfig
 from lerobot.policies.diffusion.modeling_diffusion import DiffusionPolicy
+from policy.inference_timing import timed_inference
 
 
 def get_model(usr_args):
@@ -62,60 +63,92 @@ def get_model(usr_args):
     return policy
 
 
+def _observation_to_env_action(env, model, obs):
+    """Convert a raw environment observation into one executable action."""
+    state = obs
+    for key in str(model.state_obs_path).split("/"):
+        if key:
+            state = state[key]
+    state_tensor = (
+        state.detach().to(device=model.dp_device, dtype=torch.float32)
+        if isinstance(state, torch.Tensor)
+        else torch.as_tensor(state, dtype=torch.float32, device=model.dp_device)
+    )
+    if state_tensor.ndim == 1:
+        state_tensor = state_tensor.unsqueeze(0)
+
+    batch = {"observation.state": state_tensor}
+    for image_key in model.dp_image_keys:
+        camera_name = model.image_key_map.get(
+            image_key,
+            image_key.removeprefix("observation.images."),
+        )
+        image = obs["sensor"][camera_name]["color"]
+        image_tensor = (
+            image.detach().to(device=model.dp_device, dtype=torch.float32)
+            if isinstance(image, torch.Tensor)
+            else torch.as_tensor(
+                image, dtype=torch.float32, device=model.dp_device
+            )
+        )
+        if image_tensor.ndim == 3:
+            image_tensor = image_tensor.unsqueeze(0)
+        image_tensor = image_tensor[..., :3].permute(0, 3, 1, 2).contiguous()
+        if torch.max(image_tensor) > 1.5:
+            image_tensor = image_tensor / 255.0
+        batch[image_key] = image_tensor
+
+    action = model.select_action(batch)
+    if action.ndim == 1:
+        action = action.unsqueeze(0)
+    if action.ndim != 2:
+        raise ValueError(
+            f"Expected policy action shape [B, D], but got {tuple(action.shape)}."
+        )
+
+    env_action_dim = int(np.prod(env.unwrapped.single_action_space.shape))
+    policy_action_dim = int(action.shape[-1])
+    if policy_action_dim != env_action_dim:
+        message = (
+            f"Policy action has dim {policy_action_dim}, but env expects {env_action_dim}. "
+            "RoboSynChallenge CobotMagic simulation tasks typically expect 14D actions; "
+            "HF RoboSynChallenge/Piper_real_* checkpoints are Piper/Aloha real-robot "
+            "policies and commonly output 32D actions, so they cannot be evaluated "
+            "directly in CobotMagic simulation without an explicit action mapping."
+        )
+        if model.strict_action_dim or policy_action_dim < env_action_dim:
+            raise ValueError(message)
+        action = action[:, :env_action_dim]
+
+    return action.detach().to(
+        device=env.unwrapped.device,
+        dtype=torch.float32,
+    )
+
+
 def eval(env, model, obs):
     final_obs = obs
     info = None
     truncated = False
+    inference_times_s = []
 
     for _ in range(model.dp_step):
-        state = final_obs
-        for key in str(model.state_obs_path).split("/"):
-            if key:
-                state = state[key]
-        state_tensor = state.detach().to(device=model.dp_device, dtype=torch.float32) if isinstance(state, torch.Tensor) else torch.as_tensor(state, dtype=torch.float32, device=model.dp_device)
-        if state_tensor.ndim == 1:
-            state_tensor = state_tensor.unsqueeze(0)
-
-        batch = {"observation.state": state_tensor}
-        for image_key in model.dp_image_keys:
-            camera_name = model.image_key_map.get(
-                image_key,
-                image_key.removeprefix("observation.images."),
+        action_queue = getattr(model, "_queues", {}).get("action")
+        runs_model_inference = action_queue is None or len(action_queue) == 0
+        if runs_model_inference:
+            action_tensor, inference_time_s = timed_inference(
+                _observation_to_env_action,
+                env,
+                model,
+                final_obs,
+                device=model.dp_device,
             )
-            image = final_obs["sensor"][camera_name]["color"]
-            image_tensor = image.detach().to(device=model.dp_device, dtype=torch.float32) if isinstance(image, torch.Tensor) else torch.as_tensor(image, dtype=torch.float32, device=model.dp_device)
-            if image_tensor.ndim == 3:
-                image_tensor = image_tensor.unsqueeze(0)
-            image_tensor = image_tensor[..., :3].permute(0, 3, 1, 2).contiguous()
-            if torch.max(image_tensor) > 1.5:
-                image_tensor = image_tensor / 255.0
-            batch[image_key] = image_tensor
-
-        action = model.select_action(batch)
-        if action.ndim == 1:
-            action = action.unsqueeze(0)
-        if action.ndim != 2:
-            raise ValueError(f"Expected policy action shape [B, D], but got {tuple(action.shape)}.")
-
-        env_action_dim = int(np.prod(env.unwrapped.single_action_space.shape))
-        policy_action_dim = int(action.shape[-1])
-        if policy_action_dim != env_action_dim:
-            message = (
-                f"Policy action has dim {policy_action_dim}, but env expects {env_action_dim}. "
-                "RoboSynChallenge CobotMagic simulation tasks typically expect 14D actions; "
-                "HF RoboSynChallenge/Piper_real_* checkpoints are Piper/Aloha real-robot "
-                "policies and commonly output 32D actions, so they cannot be evaluated "
-                "directly in CobotMagic simulation without an explicit action mapping."
-            )
-            if model.strict_action_dim or policy_action_dim < env_action_dim:
-                raise ValueError(message)
-            action = action[:, :env_action_dim]
-
-        action_tensor = action.detach().to(
-            device=env.unwrapped.device,
-            dtype=torch.float32,
-        )
+            inference_times_s.append(inference_time_s)
+        else:
+            action_tensor = _observation_to_env_action(env, model, final_obs)
         final_obs, reward, terminated, truncated, info = env.step(action_tensor)
+        if env.get_wrapper_attr("is_task_success")():
+            break
         if isinstance(truncated, torch.Tensor):
             is_truncated = truncated.any().item()
         elif isinstance(truncated, np.ndarray):
@@ -125,7 +158,10 @@ def eval(env, model, obs):
         if is_truncated:
             break
 
-    return final_obs, info, truncated
+    return final_obs, info, truncated, {
+        "inference_times_s": inference_times_s,
+        "inference_timing_scope": "raw_observation_to_env_action",
+    }
 
 
 def reset_model(model):

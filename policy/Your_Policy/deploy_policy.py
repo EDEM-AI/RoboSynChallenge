@@ -1,5 +1,18 @@
 # import packages and module here
 import numpy as np
+import torch
+
+from policy.inference_timing import timed_inference
+
+
+def _as_done(value):
+    if isinstance(value, torch.Tensor):
+        return bool(value.any().item())
+    if isinstance(value, np.ndarray):
+        return bool(value.any())
+    return bool(value)
+
+
 def encode_action(action, env):
     """
     Convert Your-Own-Policy output into the torch action format EmbodiChain accepts.
@@ -10,6 +23,7 @@ def encode_action(action, env):
 
     # ...
     return actions
+
 
 def encode_obs(observation):  # Post-Process Observation
     """
@@ -29,6 +43,14 @@ def get_model(usr_args):  # from deploy_policy.yml and eval.sh (overrides)
     return Your_Model  # return your policy model
 
 
+def _observation_to_env_actions(env, model, obs):
+    """Convert one raw observation into an executable action chunk."""
+    policy_obs = encode_obs(obs)
+    model.update_observation_window(policy_obs)
+    actions = model.get_action()
+    return [encode_action(action, env) for action in actions]
+
+
 def eval(env, model, obs):
     """Run one inference cycle and execute actions in the environment.
 
@@ -44,33 +66,42 @@ def eval(env, model, obs):
         instruction = getattr(env, "_current_instruction", None)
         model.set_language(instruction)
 
-    # Encode and update observation window
-    obs = encode_obs(obs)
-    model.update_observation_window(obs)
-    # implement the `update_observation_window` function in your own policy object.
-
-
-    # Get multi-step actions from Your-Own-Policy
-    actions = model.get_action()
-    # implement the `get_action` function in your own policy object.
+    # Time observation preprocessing, policy inference, and action formatting.
+    # Set model.inference_device (for example, "cuda") when synchronization is
+    # required for an asynchronous accelerator backend.
+    action_tensors, inference_time_s = timed_inference(
+        _observation_to_env_actions,
+        env,
+        model,
+        obs,
+        device=getattr(model, "inference_device", None),
+    )
 
     # Execute actions one by one in the environment
-    for action in actions:
-        action_tensor = encode_action(action, env) # Map the actions output by your model to the format required by EmbodiChain.
-        observation, reward, terminated, truncated, info = env.step(action_tensor)
+    final_obs = obs
+    info = None
+    truncated = False
+    for action_tensor in action_tensors:
+        final_obs, reward, terminated, truncated, info = env.step(action_tensor)
         # joint control: [left_arm_joints + left_gripper + right_arm_joints + right_gripper]
         # Absolute joint control is the default;
         # if other control modes—such as relative endpose control are required, you must add an `actions` field to the `gym_config` for the specific task to utilize the action manager.
         # Please refer to https://dexforce.github.io/EmbodiChain/main/overview/gym/action_functors.html for details.
 
-        if truncated.any():
+        if env.get_wrapper_attr("is_task_success")():
+            break
+        if _as_done(truncated):
             break
 
         # Update observation window after each step
-        obs = encode_obs(observation)
-        model.update_observation_window(obs)
+        policy_obs = encode_obs(final_obs)
+        model.update_observation_window(policy_obs)
 
-    return observation, info, truncated
+    return final_obs, info, truncated, {
+        "inference_times_s": [inference_time_s],
+        "inference_timing_scope": "raw_observation_to_env_actions",
+    }
+
 
 def reset_model(model):
     # Clean the model cache at the beginning of every evaluation episode, such as the observation window
