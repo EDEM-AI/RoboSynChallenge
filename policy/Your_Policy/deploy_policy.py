@@ -1,16 +1,7 @@
 # import packages and module here
 import numpy as np
-import torch
 
-from policy.inference_timing import timed_inference
-
-
-def _as_done(value):
-    if isinstance(value, torch.Tensor):
-        return bool(value.any().item())
-    if isinstance(value, np.ndarray):
-        return bool(value.any())
-    return bool(value)
+from policy.inference_timing import finish_inference, start_inference
 
 
 def encode_action(action, env):
@@ -43,14 +34,6 @@ def get_model(usr_args):  # from deploy_policy.yml and eval.sh (overrides)
     return Your_Model  # return your policy model
 
 
-def _observation_to_env_actions(env, model, obs):
-    """Convert one raw observation into an executable action chunk."""
-    policy_obs = encode_obs(obs)
-    model.update_observation_window(policy_obs)
-    actions = model.get_action()
-    return [encode_action(action, env) for action in actions]
-
-
 def eval(env, model, obs):
     """Run one inference cycle and execute actions in the environment.
 
@@ -66,16 +49,14 @@ def eval(env, model, obs):
         instruction = getattr(env, "_current_instruction", None)
         model.set_language(instruction)
 
-    # Time observation preprocessing, policy inference, and action formatting.
-    # Set model.inference_device (for example, "cuda") when synchronization is
-    # required for an asynchronous accelerator backend.
-    action_tensors, inference_time_s = timed_inference(
-        _observation_to_env_actions,
-        env,
-        model,
-        obs,
-        device=getattr(model, "inference_device", None),
-    )
+    inference_times_s = []
+    device = getattr(model, "inference_device", None)
+    started_at = start_inference(device)
+    policy_obs = encode_obs(obs)
+    model.update_observation_window(policy_obs)
+    actions = model.get_action()
+    action_tensors = [encode_action(action, env) for action in actions]
+    finish_inference(started_at, inference_times_s, device)
 
     # Execute actions one by one in the environment
     final_obs = obs
@@ -90,17 +71,14 @@ def eval(env, model, obs):
 
         if env.get_wrapper_attr("is_task_success")():
             break
-        if _as_done(truncated):
+        if truncated.any():
             break
 
         # Update observation window after each step
         policy_obs = encode_obs(final_obs)
         model.update_observation_window(policy_obs)
 
-    return final_obs, info, truncated, {
-        "inference_times_s": [inference_time_s],
-        "inference_timing_scope": "raw_observation_to_env_actions",
-    }
+    return final_obs, info, truncated, inference_times_s
 
 
 def reset_model(model):

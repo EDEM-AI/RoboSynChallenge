@@ -17,15 +17,7 @@ parent_directory = os.path.dirname(current_file_path)
 sys.path.insert(0, parent_directory)
 
 from pi_model import PI0
-from policy.inference_timing import timed_inference
-
-
-def _as_done(value):
-    if isinstance(value, torch.Tensor):
-        return bool(value.any().item())
-    if isinstance(value, np.ndarray):
-        return bool(value.any())
-    return bool(value)
+from policy.inference_timing import finish_inference, start_inference
 
 
 def _format_env_action(action, env):
@@ -102,14 +94,6 @@ def get_model(usr_args):
     return model
 
 
-def _observation_to_env_actions(env, model, obs):
-    """Convert one raw observation into an executable action chunk."""
-    img_arr, state = encode_obs(obs)
-    model.update_observation_window(img_arr, state)
-    actions = model.get_action()[: model.pi0_step]
-    return [_format_env_action(action, env) for action in actions]
-
-
 def eval(env, model, obs):
     """Run one inference cycle and execute actions in the environment.
 
@@ -124,14 +108,13 @@ def eval(env, model, obs):
         instruction = getattr(env, "_current_instruction", None)
         model.set_language(instruction)
 
-    # Time raw observation processing, policy inference, and action formatting.
-    action_tensors, inference_time_s = timed_inference(
-        _observation_to_env_actions,
-        env,
-        model,
-        obs,
-        device=model.pytorch_device,
-    )
+    inference_times_s = []
+    started_at = start_inference(model.pytorch_device)
+    img_arr, state = encode_obs(obs)
+    model.update_observation_window(img_arr, state)
+    actions = model.get_action()[: model.pi0_step]
+    action_tensors = [_format_env_action(action, env) for action in actions]
+    finish_inference(started_at, inference_times_s, model.pytorch_device)
 
     # Execute actions one by one in the environment
     final_obs = obs
@@ -144,17 +127,14 @@ def eval(env, model, obs):
 
         if env.get_wrapper_attr("is_task_success")():
             break
-        if _as_done(truncated):
+        if truncated.any():
             break
 
         # Update observation window after each step
         img_arr, state = encode_obs(final_obs)
         model.update_observation_window(img_arr, state)
 
-    return final_obs, info, truncated, {
-        "inference_times_s": [inference_time_s],
-        "inference_timing_scope": "raw_observation_to_env_actions",
-    }
+    return final_obs, info, truncated, inference_times_s
 
 
 def reset_model(model):

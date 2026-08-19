@@ -277,7 +277,7 @@ ACT、Diffusion Policy、π₀、π₀.₅ 及其他通过 `scripts/eval_policy.
 - average action steps：成功 episode 使用完成任务时的 environment step，失败 episode 统一按本次评估的 timeout step 上限计算；
 - average inference latency：按实际 policy inference call 加权平均；计时从 raw environment observation 开始，包含 observation preprocessing、device transfer、policy inference 和 action formatting，到获得可执行 action 为止，但不包含 `env.step()`；同时打印每个 episode 的平均累计 inference time，以及 GPU、CPU、OS、PyTorch/CUDA 平台信息。
 
-同样的汇总、逐 episode 明细、指标定义和平台信息会持续写入：
+同样的汇总和平台信息会在评估结束时写入：
 
 ```text
 eval_result/<task>/<policy>/<setting>/<train_config>/<model>/<timestamp>/evaluation_metrics.json
@@ -285,4 +285,4 @@ eval_result/<task>/<policy>/<setting>/<train_config>/<model>/<timestamp>/evaluat
 
 可通过 `--eval_result_dir /path/to/results` 覆盖最外层的 `eval_result` 目录。
 
-评估期间文件状态为 `running`，正常结束后为 `completed`；若评估抛出异常，则已有 episode 会以 `failed` 状态保留。ACT、DP、π₀ 和 π₀.₅ adapter 记录同步后的 raw-observation-to-action latency；`policy/Your_Policy` 也提供了同口径接入模板。没有提供 timing diagnostics 的旧 adapter 会回退到整个 `policy.eval()` 调用的 wall time，并在 `inference_timing_scope` 中明确标注。
+ACT、DP、π₀ 和 π₀.₅ adapter 记录同步后的 raw-observation-to-action latency；`policy/Your_Policy` 也提供了同口径接入模板。
