@@ -9,8 +9,8 @@ import sys
 import argparse
 import importlib
 import json
+import platform
 import subprocess
-import time
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
@@ -74,9 +74,7 @@ def load_policy_adapter(policy_name):
     functions from its top-level namespace (via __init__.py):
 
         get_model(usr_args: dict) -> model
-        eval(env: gym.Env, model, obs) -> obs
-            Optionally return (obs, diagnostics: dict). Diagnostics can include
-            "state" and "actions"; timing is measured by this evaluator.
+        eval(env: gym.Env, model, obs) -> (obs, info, truncated, inference_times)
         reset_model(model) -> None
     """
     add_policy_dependency_paths(policy_name)
@@ -105,12 +103,18 @@ def _as_int_or_none(value):
     return int(value)
 
 
+def select_cuda_device(config):
+    """Align an unqualified policy CUDA device with the simulator GPU."""
+    pytorch_device = str(config.get("pytorch_device", ""))
+    if pytorch_device.startswith("cuda") and torch.cuda.is_available():
+        torch.cuda.set_device(int(config.get("gpu_id", 0)))
+
+
 def resolve_episode_max_steps(config, gym_config):
-    """Use the larger env-step limit from deploy config and gym config."""
+    """Use the task env limit, with the deploy limit only as a fallback."""
     deploy_max_steps = _as_int_or_none(config.get("max_steps"))
     gym_max_steps = _as_int_or_none(gym_config.get("max_episode_steps"))
-    candidates = [value for value in (deploy_max_steps, gym_max_steps) if value is not None]
-    max_env_steps = max(candidates) if candidates else 300
+    max_env_steps = gym_max_steps or deploy_max_steps or 300
     return max_env_steps, deploy_max_steps, gym_max_steps
 
 
@@ -291,25 +295,35 @@ class RecordingEnvProxy:
         return bool(value)
 
 
-def create_video_recorder(config):
-    if not config.get("eval_video_log", False):
-        return None
-
+def create_eval_run_dir(config):
+    """Create the shared directory for metrics and optional videos."""
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    save_root = Path("eval_result")
+    save_root = Path(config.get("eval_result_dir") or "eval_result")
+    checkpoint_path = config.get("checkpoint_path")
+    model_name = config.get("model_name")
+    if not model_name and checkpoint_path:
+        model_name = Path(checkpoint_path).name
     save_dir = (
         save_root
         / str(config.get("task_name"))
         / str(config.get("policy_name"))
         / str(config.get("setting"))
         / str(config.get("train_config_name"))
-        / str(config.get("model_name"))
+        / str(model_name)
         / timestamp
-        / "videos"
     )
+    save_dir.mkdir(parents=True, exist_ok=True)
+    return save_dir
+
+
+def create_video_recorder(config, run_dir=None):
+    if not config.get("eval_video_log", False):
+        return None
+
+    run_dir = Path(run_dir) if run_dir else create_eval_run_dir(config)
     obs_keys = config.get("eval_video_obs_keys", config.get("eval_video_obs_key", "cam_high"))
     return EpisodeVideoRecorder(
-        save_dir=save_dir,
+        save_dir=run_dir / "videos",
         obs_keys=obs_keys,
         fps=10,
         crf=23,
@@ -362,7 +376,12 @@ def make_env_from_configs(config, gym_config_dict, action_config_dict):
             else {"action_config": action_config_dict}
         )
 
-    env = gym.make(id=gym_config["id"], cfg=env_cfg, **action_kwargs)
+    env = gym.make(
+        id=gym_config["id"],
+        max_episode_steps=max_env_steps,
+        cfg=env_cfg,
+        **action_kwargs,
+    )
     return env, gym_config
 
 def find_gym_config(config):
@@ -434,6 +453,48 @@ def extract_instruction_from_gym_config(gym_config):
     return _find_instruction_recursive(gym_config)
 
 
+def _read_cpu_model():
+    try:
+        with open("/proc/cpuinfo", "r", encoding="utf-8") as cpuinfo:
+            for line in cpuinfo:
+                if line.lower().startswith("model name"):
+                    return line.split(":", 1)[1].strip()
+    except OSError:
+        pass
+    return platform.processor() or "unknown"
+
+
+def collect_platform_metadata():
+    """Describe the hardware/software platform that gives timing its context."""
+    accelerators = []
+    if torch.cuda.is_available():
+        accelerators = [
+            torch.cuda.get_device_name(device_index)
+            for device_index in range(torch.cuda.device_count())
+        ]
+    return {
+        "operating_system": platform.platform(),
+        "machine": platform.machine(),
+        "cpu": _read_cpu_model(),
+        "accelerators": accelerators,
+        "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES"),
+        "python_version": platform.python_version(),
+        "torch_version": torch.__version__,
+        "torch_cuda_version": torch.version.cuda,
+    }
+
+
+def format_platform(platform_metadata):
+    accelerators = platform_metadata["accelerators"]
+    accelerator_text = ", ".join(accelerators) if accelerators else "none detected"
+    return (
+        f"GPU={accelerator_text}; CPU={platform_metadata['cpu']}; "
+        f"OS={platform_metadata['operating_system']}; "
+        f"PyTorch={platform_metadata['torch_version']}; "
+        f"CUDA={platform_metadata['torch_cuda_version']}"
+    )
+
+
 def parse_args_and_config():
     parser = argparse.ArgumentParser(description="RoboSynChallenge Unified Policy Evaluator")
 
@@ -467,6 +528,7 @@ def parse_args_and_config():
 
 def main():
     config = parse_args_and_config()
+    select_cuda_device(config)
 
     policy_name = config.get("policy_name")
     if not policy_name:
@@ -498,7 +560,9 @@ def main():
     if instruction:
         env._current_instruction = instruction
         print(f"Using instruction from gym_config: {instruction}")
-    video_recorder = create_video_recorder(config)
+    run_dir = create_eval_run_dir(config)
+    result_path = run_dir / "evaluation_metrics.json"
+    video_recorder = create_video_recorder(config, run_dir=run_dir)
     reset_sync_steps = int(config.get("eval_reset_sync_steps", 0))
     eval_env = (
         RecordingEnvProxy(env, video_recorder, reset_sync_steps=reset_sync_steps)
@@ -514,8 +578,12 @@ def main():
     print("Model created successfully.")
 
     # Evaluation loop
+    platform_metadata = collect_platform_metadata()
     rng = np.random.RandomState(seed)
     success_count = 0
+    action_steps = []
+    all_inference_times = []
+    episode_inference_totals = []
     print(f"\n{'='*25} Starting Evaluation {'='*25}\n")
     print(f"  Policy: {policy_name}  |  Task: {task_name}")
     print(f"  Episodes: {max_episodes}  |  Seed: {seed}")
@@ -524,6 +592,8 @@ def main():
         f"(deploy_config.max_steps={deploy_max_steps}, "
         f"gym_config.max_episode_steps={gym_max_steps})"
     )
+    print(f"  Timing platform: {format_platform(platform_metadata)}")
+    print(f"  Metrics file: {result_path}")
     print(f"{'='*70}\n")
 
     try:
@@ -537,9 +607,8 @@ def main():
                 video_recorder.start_episode(episode, ep_seed)
 
             episode_success = False
-            episode_policy_eval_times = []
+            inference_times = []
             env_steps = 0
-            inference_count = 0
             progress_bar = None
             try:
                 obs, info = eval_env.reset(seed=ep_seed)
@@ -553,25 +622,26 @@ def main():
                 )
 
                 while env_steps < max_env_steps:
-                    inference_count += 1
-                    policy_eval_start = time.perf_counter()
-                    obs, info, truncated = policy_pkg.eval(eval_env, model, obs)
-                    policy_eval_time_s = time.perf_counter() - policy_eval_start
-                    episode_policy_eval_times.append(policy_eval_time_s)
-
+                    obs, info, truncated, new_times = policy_pkg.eval(
+                        eval_env, model, obs
+                    )
+                    inference_times.extend(new_times)
                     env_steps = int(info["elapsed_steps"].item())
 
-                    progress_bar.update(max(0, min(env_steps, max_env_steps) - progress_bar.n))
+                    progress_bar.update(
+                        max(0, min(env_steps, max_env_steps) - progress_bar.n)
+                    )
                     progress_bar.set_postfix(
-                        infer=inference_count,
-                        infer_time=f"{policy_eval_time_s:.3f}s",
+                        inference=len(inference_times),
+                        infer_time=f"{new_times[-1]:.3f}s" if new_times else "cached",
                     )
 
-                    if not truncated and env.get_wrapper_attr("is_task_success")():
+                    is_truncated = RecordingEnvProxy._as_done(truncated)
+                    if not is_truncated and env.get_wrapper_attr("is_task_success")():
                         episode_success = True
                         progress_bar.write("Task success!")
                         break
-                    if truncated:
+                    if is_truncated:
                         progress_bar.write("Task timeout!")
                         break
             finally:
@@ -580,29 +650,93 @@ def main():
                 if video_recorder:
                     video_recorder.close_episode(success=episode_success)
 
-            avg_policy_eval_time = float(np.mean(episode_policy_eval_times))
-
-            if episode_success:
-                success_count += 1
-                status = "\033[92mSUCCESS\033[0m"
-            else:
-                status = "\033[91mFAIL\033[0m"
-
+            success_count += int(episode_success)
+            effective_steps = env_steps if episode_success else max_env_steps
+            action_steps.append(effective_steps)
+            all_inference_times.extend(inference_times)
+            episode_inference_totals.append(sum(inference_times))
+            episode_average = float(np.mean(inference_times)) if inference_times else 0
+            status = "\033[92mSUCCESS\033[0m" if episode_success else "\033[91mFAIL\033[0m"
             print(
-                f"  Episode {episode+1} policy eval timing: "
-                f"avg={avg_policy_eval_time:.6f}s over "
-                f"{len(episode_policy_eval_times)} inference calls, "
-                f"env_steps={env_steps}/{max_env_steps}"
+                f"  Episode {episode+1}: {status}; action_steps="
+                f"{effective_steps}/{max_env_steps}; inference="
+                f"{episode_average:.6f}s "
+                f"over {len(inference_times)} calls"
             )
-            print(f"  [{episode+1:3d}/{max_episodes}] {status}  "
-                  f"(success rate: {success_count}/{episode+1} = {100*success_count/(episode+1):.1f}%)")
+            print(f"  [{episode+1:3d}/{max_episodes}] success rate: "
+                  f"{success_count}/{episode+1} = {100*success_count/(episode+1):.1f}%")
     finally:
         if video_recorder:
             video_recorder.close_episode(success=False)
         env.close()
 
+    inference_call_count = len(all_inference_times)
+    average_action_steps = float(np.mean(action_steps))
+    summary = {
+        "episode_count": len(action_steps),
+        "success_count": success_count,
+        "success_rate": success_count / len(action_steps),
+        "average_action_steps": average_action_steps,
+        "average_action_steps_ratio": average_action_steps / max_env_steps,
+        "inference_call_count": inference_call_count,
+        "average_inference_calls_per_episode": inference_call_count / len(action_steps),
+        "average_inference_time_seconds": (
+            float(np.mean(all_inference_times)) if all_inference_times else None
+        ),
+        "average_inference_time_per_episode_seconds": float(
+            np.mean(episode_inference_totals)
+        ),
+    }
+    result_payload = {
+        "schema_version": 1,
+        "created_at": datetime.now().astimezone().isoformat(),
+        "config": {
+            "policy": policy_name,
+            "task": task_name,
+            "setting": config.get("setting"),
+            "checkpoint_path": config.get("checkpoint_path"),
+            "dp_num_inference_steps": config.get("dp_num_inference_steps"),
+            "episode_count": max_episodes,
+            "timeout_action_steps": max_env_steps,
+            "seed": seed,
+        },
+        "inference_timing_scope": (
+            "raw observation preprocessing and transfer through executable action; "
+            "env.step excluded"
+        ),
+        "platform": platform_metadata,
+        "summary": summary,
+    }
+    with result_path.open("w", encoding="utf-8") as result_file:
+        json.dump(result_payload, result_file, indent=2, ensure_ascii=False)
+        result_file.write("\n")
+
+    average_inference_time = summary["average_inference_time_seconds"]
     print(f"\n{'='*50}")
-    print(f"  Evaluation Results Summary: {success_count}/{max_episodes} ({100*success_count/max_episodes:.1f}%)")
+    print(
+        f"  Evaluation Results Summary: {success_count}/{max_episodes} "
+        f"({100*success_count/max_episodes:.1f}%)"
+    )
+    print(
+        f"  Average action steps: {summary['average_action_steps']:.2f}/"
+        f"{max_env_steps} ({100*summary['average_action_steps_ratio']:.2f}%; "
+        f"failed episodes count as {max_env_steps} steps)"
+    )
+    if average_inference_time is None:
+        print("  Average inference time: n/a (no inference calls recorded)")
+    else:
+        print(
+            f"  Average inference latency: {average_inference_time:.6f}s "
+            f"({1000*average_inference_time:.3f}ms) over "
+            f"{summary['inference_call_count']} model calls"
+        )
+        print(
+            "  Average total inference time per episode: "
+            f"{summary['average_inference_time_per_episode_seconds']:.6f}s "
+            f"over {summary['average_inference_calls_per_episode']:.2f} model calls"
+        )
+    print(f"  Timing platform: {format_platform(platform_metadata)}")
+    print(f"  Metrics saved to: {result_path}")
     print(f"{'='*50}")
 
 

@@ -1,5 +1,9 @@
 # import packages and module here
 import numpy as np
+
+from policy.inference_timing import finish_inference, start_inference
+
+
 def encode_action(action, env):
     """
     Convert Your-Own-Policy output into the torch action format EmbodiChain accepts.
@@ -10,6 +14,7 @@ def encode_action(action, env):
 
     # ...
     return actions
+
 
 def encode_obs(observation):  # Post-Process Observation
     """
@@ -44,33 +49,37 @@ def eval(env, model, obs):
         instruction = getattr(env, "_current_instruction", None)
         model.set_language(instruction)
 
-    # Encode and update observation window
-    obs = encode_obs(obs)
-    model.update_observation_window(obs)
-    # implement the `update_observation_window` function in your own policy object.
-
-
-    # Get multi-step actions from Your-Own-Policy
+    inference_times_s = []
+    device = getattr(model, "inference_device", None)
+    started_at = start_inference(device)
+    policy_obs = encode_obs(obs)
+    model.update_observation_window(policy_obs)
     actions = model.get_action()
-    # implement the `get_action` function in your own policy object.
+    action_tensors = [encode_action(action, env) for action in actions]
+    finish_inference(started_at, inference_times_s, device)
 
     # Execute actions one by one in the environment
-    for action in actions:
-        action_tensor = encode_action(action, env) # Map the actions output by your model to the format required by EmbodiChain.
-        observation, reward, terminated, truncated, info = env.step(action_tensor)
+    final_obs = obs
+    info = None
+    truncated = False
+    for action_tensor in action_tensors:
+        final_obs, reward, terminated, truncated, info = env.step(action_tensor)
         # joint control: [left_arm_joints + left_gripper + right_arm_joints + right_gripper]
         # Absolute joint control is the default;
         # if other control modes—such as relative endpose control are required, you must add an `actions` field to the `gym_config` for the specific task to utilize the action manager.
         # Please refer to https://dexforce.github.io/EmbodiChain/main/overview/gym/action_functors.html for details.
 
+        if env.get_wrapper_attr("is_task_success")():
+            break
         if truncated.any():
             break
 
         # Update observation window after each step
-        obs = encode_obs(observation)
-        model.update_observation_window(obs)
+        policy_obs = encode_obs(final_obs)
+        model.update_observation_window(policy_obs)
 
-    return observation, info, truncated
+    return final_obs, info, truncated, inference_times_s
+
 
 def reset_model(model):
     # Clean the model cache at the beginning of every evaluation episode, such as the observation window
