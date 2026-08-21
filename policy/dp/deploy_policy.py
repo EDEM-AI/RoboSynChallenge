@@ -22,6 +22,9 @@ def get_model(usr_args):
 
     device = usr_args.get("device", usr_args.get("pytorch_device", "cuda"))
     cli_overrides = [f"--device={device}"]
+    num_inference_steps = usr_args.get("dp_num_inference_steps")
+    if num_inference_steps is not None:
+        cli_overrides.append(f"--num_inference_steps={int(num_inference_steps)}")
     try:
         policy = DiffusionPolicy.from_pretrained(
             checkpoint_path,
