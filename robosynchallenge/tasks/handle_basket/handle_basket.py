@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Dict, Optional, Tuple
 
 import numpy as np
@@ -182,315 +183,167 @@ class HandleBasketEnv(EmbodiedEnv):
 
         return actions
 
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
+        obs, info = super().reset(seed=seed, options=options)
+        self._hb_diag_step = 0
+        self._hb_orig_basket_x = None
+        self._hb_orig_basket_y = None
+        self._hb_orig_basket_z = None
+        self._hb_stable_steps = 0
+        self._hb_last_success_check_env_step = None
+        self._hb_debug_flags = None
+        self._hb_debug_last_signature = None
+        self._hb_debug_check_count = 0
+        self._hb_diag_path = None
+
+        return obs, info
+
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        """
-        Multi-stage success check to avoid ending the episode immediately when
-        the milk briefly intersects the basket. The stages are:
-        0 - wait for milk to be inside basket (proximity + above check)
-        1 - once inside, require the basket to be lifted and moved left by a
-            small margin for a few consecutive frames
-        2 - require the basket to be placed back down and remain stable for
-            a few consecutive frames -> success
-        """
-        # Initialize persistent state on first call
-        if not hasattr(self, "_hb_stage"):
-            self._hb_stage = 0
-            self._hb_lifted_count = 0
-            self._hb_stable_count = 0
-            # track whether milk was ever observed close to left eef (grasped)
-            self._hb_seen_grasp = False
-            # record original basket xy for movement checks
-            try:
-                orig = getattr(self, "basket_pose_orig", None)
-                if orig is None:
-                    self._hb_orig_basket_z = None
-                    self._hb_orig_basket_x = None
-                else:
-                    self._hb_orig_basket_z = float(orig[0, 2, 3])
-                    self._hb_orig_basket_x = float(orig[0, 0, 3])
-            except Exception:
-                self._hb_orig_basket_z = None
-                self._hb_orig_basket_x = None
+        """Success when the carried basket moves left with milk inside stably."""
+        if not hasattr(self, "_hb_stable_steps"):
+            self._hb_orig_basket_x = None
+            self._hb_orig_basket_y = None
+            self._hb_orig_basket_z = None
+            self._hb_stable_steps = 0
+            self._hb_last_success_check_env_step = None
+        if not hasattr(self, "_hb_diag_step"):
+            self._hb_diag_step = 0
+
+        import numpy as _np
+        import torch as _torch
 
         basket = self.sim.get_rigid_object("basket")
         milk = self.sim.get_rigid_object("milk")
         basket_pose = basket.get_local_pose(to_matrix=True)
         milk_pose = milk.get_local_pose(to_matrix=True)
 
-        # Extract positions (assume shape [N,4,4] or [4,4]) and convert to numpy
+        def extract_xy_z(pose):
+            arr = _np.asarray(pose)
+            if arr.ndim == 3:
+                return arr[:, :2, 3], arr[:, 2, 3]
+            return arr[:2, 3], float(arr[2, 3])
+
         try:
-            basket_xy = basket_pose[:, :2, 3]
-            milk_xy = milk_pose[:, :2, 3]
-            basket_z = basket_pose[:, 2, 3]
-            milk_z = milk_pose[:, 2, 3]
+            basket_xy, basket_z = extract_xy_z(basket_pose)
+            milk_xy, milk_z = extract_xy_z(milk_pose)
         except Exception:
-            # single-environment fallback
-            basket_xy = basket_pose[:2, 3]
-            milk_xy = milk_pose[:2, 3]
-            basket_z = float(basket_pose[2, 3])
-            milk_z = float(milk_pose[2, 3])
+            return _torch.tensor(False, dtype=_torch.bool)
 
-        # make numpy scalars for simple logic
-        import numpy as _np
-
-        dist = _np.linalg.norm(_np.asarray(milk_xy) - _np.asarray(basket_xy), axis=-1)
-        up = (_np.asarray(milk_z) > _np.asarray(basket_z)).astype(bool)
-
-        # thresholds and counters
-        IN_BASKET_DIST = 0.10
-        LIFT_Z_DELTA = 0.05
-        MOVE_X_DELTA = 0.05
-        LIFT_REQUIRED_FRAMES = 3
-        # prefer time-based stability check (seconds). If no timestamp is
-        # available from the caller/sim, we gracefully fall back to the
-        # previous frame-count behavior.
-        STABLE_REQUIRED_SECS = 2.0
-        STABLE_REQUIRED_FRAMES = 5
-
-        success = False
-
-        # obtain current time (prefer kwargs or sim), fall back to pseudo-time
-        now_ts = None
-        if 'ts' in kwargs:
-            now_ts = kwargs.get('ts')
-        elif 'timestamp' in kwargs:
-            now_ts = kwargs.get('timestamp')
+        if isinstance(basket_xy, _np.ndarray) and basket_xy.ndim == 2:
+            cur_basket_xy = basket_xy.mean(axis=0)
+            cur_basket_z = float(_np.asarray(basket_z).mean())
+            cur_milk_xy = (
+                milk_xy.mean(axis=0)
+                if isinstance(milk_xy, _np.ndarray) and milk_xy.ndim == 2
+                else _np.asarray(milk_xy)
+            )
+            cur_milk_z = float(_np.asarray(milk_z).mean())
         else:
-            try:
-                if hasattr(self, 'sim') and hasattr(self.sim, 'get_time'):
-                    now_ts = float(self.sim.get_time())
-            except Exception:
-                now_ts = None
-
-        if now_ts is None:
-            est_dt = getattr(self, '_hb_est_dt', None)
-            if est_dt is None:
-                est_dt = 1.0 / 30.0
-                self._hb_est_dt = est_dt
-            last_t = getattr(self, '_hb_last_time', 0.0)
-            now_ts = last_t + est_dt
-            self._hb_last_time = now_ts
-        else:
-            self._hb_last_time = float(now_ts)
-
-        # Treat arrays and scalars uniformly
-        is_in_basket = (dist < IN_BASKET_DIST) & (up)
-
-        # detect whether milk was grasped by left eef at any point
-        GRASP_DIST = 0.06
-        try:
-            # attempt to query robot qpos and compute left eef FK
-            qpos = self.robot.get_qpos()  # Tensor (num_envs, dof)
-            # compute FK; handle different compute_fk signatures
-            try:
-                left_eef_pose = self.robot.compute_fk(name="left_eef", qpos=qpos, to_matrix=True).squeeze(0)
-            except TypeError:
-                left_eef_pose = self.robot.compute_fk(qpos, None, "left_eef")
-
-            # extract left eef xy
-            try:
-                left_eef_xy = left_eef_pose[:2, 3]
-            except Exception:
-                left_eef_xy = left_eef_pose[0, :2, 3]
-
-            # compute proximity (single-env assumed)
-            try:
-                milk_xy_arr = _np.asarray(milk_xy)
-            except Exception:
-                milk_xy_arr = _np.asarray(milk_xy)
-            d_eef = float(_np.linalg.norm(milk_xy_arr - _np.asarray(left_eef_xy)))
-            if d_eef < GRASP_DIST:
-                self._hb_seen_grasp = True
-        except Exception:
-            # if any of these calls fail, keep previous seen_grasp value
-            pass
-
-        # Single-environment flow (most evaluations run with 1 env)
-        if isinstance(is_in_basket, _np.ndarray):
-            idx = 0
-            in_basket = bool(is_in_basket[idx])
-            cur_basket_x = float(_np.asarray(basket_xy)[idx, 0])
-            cur_basket_z = float(_np.asarray(basket_z)[idx])
-        else:
-            in_basket = bool(is_in_basket)
-            cur_basket_x = float(_np.asarray(basket_xy)[0]) if _np.asarray(basket_xy).ndim > 0 else float(_np.asarray(basket_xy))
+            cur_basket_xy = _np.asarray(basket_xy)
             cur_basket_z = float(basket_z)
+            cur_milk_xy = _np.asarray(milk_xy)
+            cur_milk_z = float(milk_z)
 
-        # Stage machine
-        # Simplified rules:
-        # - Stage 0 -> 1: milk enters basket (as before).
-        # - Stage 1 -> 2: immediately transition when basket is detected lifted
-        #   relative to original z AND has moved left by the required margin.
-        # - Stage 2: success when basket is placed down (near orig_z) AND both
-        #   basket and milk are not noticeably moving (i.e. not shaking).
-        if self._hb_stage == 0:
-            # allow stage progression when milk is in basket for a short time
-            # even if we didn't observe a grasp or a clear lift. This relaxes
-            # the strict requirement that the left eef must have been nearby
-            # (some eval runs capture the scene differently).
-            if in_basket:
-                if getattr(self, '_hb_in_basket_start', None) is None:
-                    self._hb_in_basket_start = float(now_ts)
-                dur_in_basket = float(now_ts) - float(self._hb_in_basket_start)
-            else:
-                self._hb_in_basket_start = None
-                dur_in_basket = 0.0
+        try:
+            cur_x = float(cur_basket_xy[0])
+        except Exception:
+            cur_x = float(cur_basket_xy)
+        try:
+            cur_y = float(cur_basket_xy[1]) if len(cur_basket_xy) > 1 else 0.0
+        except Exception:
+            cur_y = 0.0
 
-            # Progress to stage 1 if we either saw a grasp or milk remained
-            # in the basket for a short duration.
-            if (in_basket and self._hb_seen_grasp) or (dur_in_basket >= float(STABLE_REQUIRED_SECS)):
-                self._hb_stage = 1
-                # reset any transient trackers
-                self._hb_lifted_count = 0
-                self._hb_stable_count = 0
-        elif self._hb_stage == 1:
-            # detect lift relative to original basket z (fallback to current if missing)
-            orig_z = self._hb_orig_basket_z if self._hb_orig_basket_z is not None else cur_basket_z - 0.0
-            lifted = cur_basket_z > (orig_z + LIFT_Z_DELTA)
-            moved_left = False
-            if self._hb_orig_basket_x is not None:
-                moved_left = (self._hb_orig_basket_x - cur_basket_x) > MOVE_X_DELTA
+        if self._hb_orig_basket_x is None and self._hb_diag_step >= 1:
+            self._hb_orig_basket_x = cur_x
+        if self._hb_orig_basket_y is None:
+            self._hb_orig_basket_y = cur_y
+        if self._hb_orig_basket_z is None and self._hb_diag_step >= 1:
+            self._hb_orig_basket_z = cur_basket_z
 
-            # Require the lift+move condition to hold for several consecutive checks
-            if lifted and moved_left:
-                self._hb_lifted_count += 1
-            else:
-                self._hb_lifted_count = 0
+        IN_BASKET_DIST = 0.10
+        MOVE_Y_DELTA = 0.15
+        Z_LIFT_DELTA = 0.01
+        REQUIRED_STABLE_STEPS = 75
 
-            # Transition to stage 2 after sustained lift/move, or if the milk
-            # has been in the basket for a sustained period (no clear lift).
-            if self._hb_lifted_count >= LIFT_REQUIRED_FRAMES:
-                self._hb_stage = 2
-            else:
-                # allow skipping explicit lift when milk has been in basket
-                # for STABLE_REQUIRED_SECS (handles direct-place cases)
-                if getattr(self, '_hb_in_basket_start', None) is not None:
-                    dur_skip = float(now_ts) - float(self._hb_in_basket_start)
-                    if dur_skip >= float(STABLE_REQUIRED_SECS):
-                        self._hb_stage = 2
-                # initialize previous-position trackers for stability check
-                self._hb_prev_basket_x = cur_basket_x
-                self._hb_prev_basket_z = cur_basket_z
-                # reset stability counter on entry
-                self._hb_stable_count = 0
-                try:
-                    self._hb_prev_milk_xy = _np.asarray(milk_xy).copy()
-                except Exception:
-                    self._hb_prev_milk_xy = None
-        elif self._hb_stage == 2:
-            # require basket to be placed down near original z and not shaking
-            orig_z = self._hb_orig_basket_z if self._hb_orig_basket_z is not None else cur_basket_z
-            placed_down = abs(cur_basket_z - orig_z) < (LIFT_Z_DELTA / 2.0)
+        dist = float(_np.linalg.norm(cur_milk_xy - cur_basket_xy))
+        milk_above_basket = cur_milk_z > cur_basket_z
+        in_basket = dist < IN_BASKET_DIST and milk_above_basket
 
-            # compute simple motion magnitude since last check (fallback to 0 if not available)
-            basket_motion = 0.0
-            milk_motion = 0.0
-            prev_bx = getattr(self, '_hb_prev_basket_x', None)
-            prev_bz = getattr(self, '_hb_prev_basket_z', None)
-            prev_milk = getattr(self, '_hb_prev_milk_xy', None)
+        x_disp = None
+        picked = False
+        moved_left = False
+        if getattr(self, '_hb_orig_basket_y', None) is not None:
             try:
-                if prev_bx is not None:
-                    dx = cur_basket_x - prev_bx
-                    dz = cur_basket_z - prev_bz
-                    basket_motion = abs(dx) + abs(dz)
-                if prev_milk is not None:
-                    cur_milk_xy = _np.asarray(milk_xy)
-                    milk_motion = float(_np.linalg.norm(cur_milk_xy - prev_milk))
+                y_disp = float(cur_y) - float(self._hb_orig_basket_y)
             except Exception:
-                basket_motion = 0.0
-                milk_motion = 0.0
-
-            # update previous trackers
-            self._hb_prev_basket_x = cur_basket_x
-            self._hb_prev_basket_z = cur_basket_z
-            try:
-                self._hb_prev_milk_xy = _np.asarray(milk_xy).copy()
-            except Exception:
-                self._hb_prev_milk_xy = None
-
-            # thresholds and time-window params
-            STABLE_MOTION_THR = 0.02
-            STABLE_REQUIRED_SECS = 2.0
-            STABLE_TIMEOUT_SECS = 60.0
-
-            # obtain current time (prefer kwargs or sim), fall back to pseudo-time
-            now_ts = None
-            if 'ts' in kwargs:
-                now_ts = kwargs.get('ts')
-            elif 'timestamp' in kwargs:
-                now_ts = kwargs.get('timestamp')
-            else:
+                y_disp = None
+            if getattr(self, '_hb_orig_basket_x', None) is not None:
                 try:
-                    if hasattr(self, 'sim') and hasattr(self.sim, 'get_time'):
-                        now_ts = float(self.sim.get_time())
+                    x_disp = float(self._hb_orig_basket_x) - cur_x
                 except Exception:
-                    now_ts = None
+                    x_disp = None
+            if self._hb_orig_basket_z is not None:
+                picked = (cur_basket_z - float(self._hb_orig_basket_z)) > Z_LIFT_DELTA
+            moved_left = (y_disp is not None and float(y_disp) > MOVE_Y_DELTA) and (picked or in_basket)
 
-            if now_ts is None:
-                est_dt = getattr(self, '_hb_est_dt', None)
-                if est_dt is None:
-                    est_dt = 1.0 / 30.0
-                    self._hb_est_dt = est_dt
-                last_t = getattr(self, '_hb_last_time', 0.0)
-                now_ts = last_t + est_dt
-                self._hb_last_time = now_ts
+        try:
+            current_env_step = int(_np.asarray(self._elapsed_steps.detach().cpu()).reshape(-1)[0])
+        except Exception:
+            current_env_step = None
+
+        last_env_step = getattr(self, "_hb_last_success_check_env_step", None)
+        if moved_left and in_basket:
+            if current_env_step is None or last_env_step is None:
+                elapsed_env_steps = 1
             else:
-                # update running estimate of frame dt when real timestamps available
-                prev_time = getattr(self, '_hb_last_time', None)
-                if prev_time is not None:
-                    try:
-                        dt = float(now_ts) - float(prev_time)
-                        if dt > 0:
-                            prev_est = getattr(self, '_hb_est_dt', None)
-                            if prev_est is None:
-                                self._hb_est_dt = float(dt)
-                            else:
-                                # exponential moving average
-                                self._hb_est_dt = 0.9 * float(prev_est) + 0.1 * float(dt)
-                    except Exception:
-                        pass
-                self._hb_last_time = float(now_ts)
+                elapsed_env_steps = max(1, int(current_env_step) - int(last_env_step))
+            self._hb_stable_steps += elapsed_env_steps
+        else:
+            self._hb_stable_steps = 0
+        self._hb_last_success_check_env_step = current_env_step
 
-            # adapt allowed gap to observed sampling rate to tolerate low fps
-            est_dt = getattr(self, '_hb_est_dt', 1.0 / 30.0)
-            ALLOWED_GAP_SECS = max(0.5, float(est_dt) * 1.5)
+        success = self._hb_stable_steps >= REQUIRED_STABLE_STEPS
 
-            # record first placed_down time to enforce timeout
-            if placed_down and getattr(self, '_hb_placed_time', None) is None:
-                self._hb_placed_time = float(now_ts)
+        check_count = int(getattr(self, "_hb_debug_check_count", 0)) + 1
+        self._hb_debug_check_count = check_count
 
-            if getattr(self, '_hb_placed_time', None) is not None and (float(now_ts) - float(self._hb_placed_time)) > float(STABLE_TIMEOUT_SECS):
-                # timeout exceeded; give up attempting success in this run
-                pass
+        self._hb_debug_flags = {
+            "success": bool(success),
+            "in_basket": bool(in_basket),
+            "milk_above_basket": bool(milk_above_basket),
+            "milk_basket_dist": float(dist),
+            "moved_left": bool(moved_left),
+            "picked": bool(picked),
+            "stable_steps": int(self._hb_stable_steps),
+            "required_stable_steps": int(REQUIRED_STABLE_STEPS),
+            "x_disp": None if x_disp is None else float(x_disp),
+            "y_disp": None if 'y_disp' not in locals() or y_disp is None else float(y_disp),
+            "move_y_delta": float(MOVE_Y_DELTA),
+            "basket_x": float(cur_x),
+            "basket_y": float(cur_y),
+            "basket_z": float(cur_basket_z),
+            "milk_z": float(cur_milk_z),
+            "orig_basket_x": self._hb_orig_basket_x,
+            "orig_basket_y": self._hb_orig_basket_y,
+            "orig_basket_z": self._hb_orig_basket_z,
+            "current_env_step": current_env_step,
+            "check_count": check_count,
+        }
 
-            # determine whether this frame is 'stable'
-            stable_frame = in_basket and basket_motion < STABLE_MOTION_THR and milk_motion < STABLE_MOTION_THR
+        if str(os.environ.get("ROBOSYN_DEBUG_SUCCESS_FLAGS", "")).lower() in {"1", "true", "yes", "on"}:
+            signature = (
+                self._hb_debug_flags["in_basket"],
+                self._hb_debug_flags["moved_left"],
+                self._hb_debug_flags["picked"],
+                self._hb_debug_flags["stable_steps"],
+                self._hb_debug_flags["success"],
+            )
+            if signature != getattr(self, "_hb_debug_last_signature", None) or check_count % 10 == 0:
+                self._hb_debug_last_signature = signature
+                print(f"[HandleBasket success flags] {self._hb_debug_flags}")
 
-            if stable_frame:
-                # start accumulation if not present
-                if getattr(self, '_hb_stable_accum_start', None) is None:
-                    self._hb_stable_accum_start = float(now_ts)
-                # if there was a recent unstable and gap exceeded allowed, reset start
-                last_unstable = getattr(self, '_hb_last_unstable_ts', None)
-                if last_unstable is not None and (float(self._hb_stable_accum_start) - float(last_unstable)) > float(ALLOWED_GAP_SECS):
-                    # if gap too large before start, ensure start is current
-                    self._hb_stable_accum_start = float(now_ts)
+        self._hb_diag_step += 1
 
-                # check accumulated duration
-                dur = float(now_ts) - float(self._hb_stable_accum_start)
-                if dur >= float(STABLE_REQUIRED_SECS):
-                    success = True
-            else:
-                # mark last unstable time
-                self._hb_last_unstable_ts = float(now_ts)
-                # if accumulated start exists and gap exceeded allowed, reset accumulation
-                if getattr(self, '_hb_stable_accum_start', None) is not None and (float(now_ts) - float(self._hb_stable_accum_start)) > float(ALLOWED_GAP_SECS):
-                    self._hb_stable_accum_start = None
-                # keep legacy counter as fallback
-                self._hb_stable_count = 0
-
-        # Return torch tensor boolean for compatibility
-        import torch as _torch
         return _torch.tensor(success, dtype=_torch.bool)
 
 @register_env("HandleBasketTest", max_episode_steps=600)

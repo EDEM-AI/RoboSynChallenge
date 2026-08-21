@@ -958,7 +958,7 @@
         "compute_uv": true
       },
       "attrs": {
-        "mass": 0.05,
+        "mass": 0.025,
         "contact_offset": 0.003,
         "rest_offset": 0.001,
         "restitution": 0.01,
@@ -1004,7 +1004,7 @@
         }
       },
       "attrs": {
-        "mass": 0.1,
+        "mass": 0.025,
         "contact_offset": 0.003,
         "rest_offset": 0.001,
         "restitution": 0.01,
