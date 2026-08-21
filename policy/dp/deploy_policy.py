@@ -15,6 +15,9 @@ from lerobot.policies.diffusion.modeling_diffusion import DiffusionPolicy
 from policy.inference_timing import finish_inference, start_inference
 
 
+DEFAULT_NUM_INFERENCE_STEPS = 10
+
+
 def get_model(usr_args):
     checkpoint_path = usr_args.get("checkpoint_path")
     if checkpoint_path is None:
@@ -23,8 +26,10 @@ def get_model(usr_args):
     device = usr_args.get("device", usr_args.get("pytorch_device", "cuda"))
     cli_overrides = [f"--device={device}"]
     num_inference_steps = usr_args.get("dp_num_inference_steps")
-    if num_inference_steps is not None:
-        cli_overrides.append(f"--num_inference_steps={int(num_inference_steps)}")
+    if num_inference_steps is None:
+        num_inference_steps = DEFAULT_NUM_INFERENCE_STEPS
+    num_inference_steps = int(num_inference_steps)
+    cli_overrides.append(f"--num_inference_steps={num_inference_steps}")
     try:
         policy = DiffusionPolicy.from_pretrained(
             checkpoint_path,

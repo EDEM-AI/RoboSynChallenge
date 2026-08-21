@@ -25,6 +25,7 @@ eval_reset_sync_steps: 1
 # Diffusion Policy parameters used by get_model()
 # ------------------------------------------------------------------
 checkpoint_path: null
+dp_num_inference_steps: 10
 dp_step: 8
 state_obs_path: robot/qpos
 strict_action_dim: true

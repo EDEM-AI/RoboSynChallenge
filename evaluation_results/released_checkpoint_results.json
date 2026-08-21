@@ -1,23 +1,36 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "published_at": "2026-08-19",
   "recalculated_at": "2026-08-21",
   "benchmark": "RoboSynChallenge released checkpoint evaluation",
   "environment": "simulation",
   "setting": "random",
-  "metrics": ["success_rate", "average_action_steps", "estimated_average_total_inference_time_seconds"],
+  "metrics": ["success_rate", "average_action_steps", "average_inference_time_seconds", "average_inference_time_per_episode_seconds", "estimated_average_total_inference_time_seconds"],
   "episodes_per_checkpoint": 100,
   "evaluation_timeout_action_steps_by_task": "results[].max_episode_steps",
   "action_step_definition": "Successful episodes use their recorded completion environment step; failed episodes count as the task's max_episode_steps from its random gym_config.json.",
-  "recalculation_note": "Historical success counts and successful-episode completion steps are retained. Failure steps and their model-call counts are reweighted from the former 1000-step evaluator timeout to each task's configured max_episode_steps; these are extrapolated metrics, not fresh rollouts under the shorter boundary.",
+  "recalculation_note": "ACT retains the historical success counts and extrapolated task-limit step metrics. DP was freshly evaluated for 100 episodes per task with 10 denoising steps; its action-step and inference metrics come directly from those rollouts.",
   "protocol_repository": "https://github.com/EDEM-AI/RoboSynChallenge",
-  "protocol_revision": "bd6bf77a63300f4b9a9d32337b519194dc7311a4",
+  "protocol_revision": "755af40a00492f43bd4b9ead68b0def456b7c8b1",
   "inference_benchmark": {
-    "method": "Representative released water-pouring checkpoints with synthetic deployment-shaped raw observations. The synchronized boundary covers raw observation lookup/preprocessing, CPU-to-GPU transfer, policy inference, action validation, and GPU-to-environment action transfer; env.step is excluded. Ten warmup calls precede 10 timeout-episode equivalents per policy. Per-task totals are average model calls per episode multiplied by the representative policy latency.",
+    "method": "Representative released water-pouring checkpoints with synthetic deployment-shaped raw observations. The synchronized boundary covers raw observation lookup/preprocessing, CPU-to-GPU transfer, policy inference, action validation, and GPU-to-environment action transfer; env.step is excluded. ACT uses 10 warmup calls and 200 measured calls. DP uses 10 denoising steps, 20 warmup calls, and 1000 measured calls. Fresh per-task DP latency below comes directly from real rollouts rather than this isolated benchmark.",
     "input": { "batch_size": 1, "state_shape": [1, 14], "rgba_camera_count": 3, "rgba_shape_each": [1, 480, 640, 4], "input_device": "cpu" },
     "platform": { "gpu": "NVIDIA GeForce RTX 5090", "gpu_count_per_policy_job": 1, "cpu": "Intel Xeon Gold 6530", "cpu_cores_per_policy_job": 14, "driver": "580.95.05", "pytorch": "2.7.1+cu128", "cuda_runtime": "12.8", "compute_capability": "12.0" },
     "ACT": { "checkpoint_repo": "RoboSynChallenge/ACT_sim_water_pouring", "warmup_calls": 10, "measured_calls": 200, "timeout_episode_equivalents": 10, "action_horizon": 50, "average_inference_time_seconds": 0.011607777797617019, "median_inference_time_seconds": 0.0109938644, "p95_inference_time_seconds": 0.0110668042 },
-    "DP": { "checkpoint_repo": "RoboSynChallenge/DP_sim_water_pouring", "warmup_calls": 10, "measured_calls": 320, "timeout_episode_equivalents": 10, "action_horizon": 32, "denoising_steps": 100, "average_inference_time_seconds": 0.4577598659263458, "median_inference_time_seconds": 0.4577102372, "p95_inference_time_seconds": 0.4591737045 }
+    "DP": { "checkpoint_repo": "RoboSynChallenge/DP_sim_water_pouring", "warmup_calls": 20, "measured_calls": 1000, "action_horizon": 32, "denoising_steps": 10, "average_inference_time_seconds": 0.0543011082848534, "median_inference_time_seconds": 0.05256955907680094, "p95_inference_time_seconds": 0.05511919639538974 }
+  },
+  "dp_rollout_platform": {
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "gpu_count_per_task_job": 4,
+    "cpu": "Intel Xeon Gold 6530",
+    "cpu_cores_per_task_job": 56,
+    "concurrent_shards": 4,
+    "cpu_cores_per_shard": 14,
+    "pytorch": "2.7.1+cu128",
+    "cuda_runtime": "12.8",
+    "denoising_steps": 10,
+    "timing_scope": "Raw observation preprocessing and transfer through executable action; env.step excluded.",
+    "videos_enabled": true
   },
   "results": [
     {
@@ -27,7 +40,7 @@
       "protocol_path": "configs/click_bell/random/gym_config.json",
       "policies": {
         "ACT": { "success_count": 37, "success_rate": 37.0, "average_action_steps": 259.43, "average_action_steps_ratio": 0.7186426592797784, "average_model_inference_calls_per_episode": 5.76, "estimated_average_total_inference_time_seconds": 0.06686080011427403, "checkpoint_repo": "RoboSynChallenge/ACT_sim_click_bell", "checkpoint_revision": "677e65fbb15974024ff840893496197ef7db26d4" },
-        "DP": { "success_count": 44, "success_rate": 44.0, "average_action_steps": 226.8, "average_action_steps_ratio": 0.6282548476454294, "average_model_inference_calls_per_episode": 7.63, "estimated_average_total_inference_time_seconds": 3.492707777018018, "checkpoint_repo": "RoboSynChallenge/DP_sim_click_bell", "checkpoint_revision": "fb8c9551e0fade7c4888a926ab577b85f0684da1" }
+        "DP": { "success_count": 51, "success_rate": 51.0, "average_action_steps": 202.68, "average_action_steps_ratio": 0.5614404432132964, "inference_call_count": 692, "average_model_inference_calls_per_episode": 6.92, "average_inference_time_seconds": 0.1416842920969461, "average_inference_time_per_episode_seconds": 0.9804553013108671, "denoising_steps": 10, "checkpoint_repo": "RoboSynChallenge/DP_sim_click_bell", "checkpoint_revision": "fb8c9551e0fade7c4888a926ab577b85f0684da1" }
       }
     },
     {
@@ -37,7 +50,7 @@
       "protocol_path": "configs/drawer_open_place/random/gym_config.json",
       "policies": {
         "ACT": { "success_count": 29, "success_rate": 29.0, "average_action_steps": 741.7, "average_action_steps_ratio": 0.8241111111111111, "average_model_inference_calls_per_episode": 14.96, "estimated_average_total_inference_time_seconds": 0.1736523558523506, "evaluation_variant": "drawer_drive050_grip20 modified-physics run", "checkpoint_repo": "RoboSynChallenge/ACT_sim_drawer_open_place", "checkpoint_revision": "592e30434aad83cf7bd8f1ee105d7c401488743d" },
-        "DP": { "success_count": 0, "success_rate": 0.0, "average_action_steps": 900.0, "average_action_steps_ratio": 1.0, "average_model_inference_calls_per_episode": 29.0, "estimated_average_total_inference_time_seconds": 13.27503611186403, "evaluation_variant": "dp_drawer_pr31_d50g3 modified-physics run", "checkpoint_repo": "RoboSynChallenge/DP_sim_drawer_open_place", "checkpoint_revision": "c5600daa96623adb4f8cd0c156b70836c30b1288" }
+        "DP": { "success_count": 0, "success_rate": 0.0, "average_action_steps": 900.0, "average_action_steps_ratio": 1.0, "inference_call_count": 3000, "average_model_inference_calls_per_episode": 30.0, "average_inference_time_seconds": 0.0991972977037852, "average_inference_time_per_episode_seconds": 2.975918931113556, "denoising_steps": 10, "evaluation_variant": "current modified-physics random configuration", "checkpoint_repo": "RoboSynChallenge/DP_sim_drawer_open_place", "checkpoint_revision": "c5600daa96623adb4f8cd0c156b70836c30b1288" }
       }
     },
     {
@@ -47,7 +60,7 @@
       "protocol_path": "configs/mixer_operating/random/gym_config.json",
       "policies": {
         "ACT": { "success_count": 77, "success_rate": 77.0, "average_action_steps": 310.49, "average_action_steps_ratio": 0.62098, "average_model_inference_calls_per_episode": 6.43, "estimated_average_total_inference_time_seconds": 0.07463801123867744, "checkpoint_repo": "RoboSynChallenge/ACT_sim_mixer_operating", "checkpoint_revision": "0f12c53a2a6e093ae5e1e28f20480296b45fdf2b" },
-        "DP": { "success_count": 69, "success_rate": 69.0, "average_action_steps": 335.24, "average_action_steps_ratio": 0.67048, "average_model_inference_calls_per_episode": 10.9, "estimated_average_total_inference_time_seconds": 4.989582538597169, "checkpoint_repo": "RoboSynChallenge/DP_sim_mixer_operating", "checkpoint_revision": "c05afece66ead46b47f6532c86d95cb3dd0f628e" }
+        "DP": { "success_count": 66, "success_rate": 66.0, "average_action_steps": 340.93, "average_action_steps_ratio": 0.68186, "inference_call_count": 1163, "average_model_inference_calls_per_episode": 11.63, "average_inference_time_seconds": 0.08863146165874326, "average_inference_time_per_episode_seconds": 1.0307838990911842, "denoising_steps": 10, "checkpoint_repo": "RoboSynChallenge/DP_sim_mixer_operating", "checkpoint_revision": "c05afece66ead46b47f6532c86d95cb3dd0f628e" }
       }
     },
     {
@@ -57,7 +70,7 @@
       "protocol_path": "configs/table_rearrangement/random/gym_config.json",
       "policies": {
         "ACT": { "success_count": 63, "success_rate": 63.0, "average_action_steps": 218.37, "average_action_steps_ratio": 0.6049030470914127, "average_model_inference_calls_per_episode": 4.96, "estimated_average_total_inference_time_seconds": 0.057574577876180415, "checkpoint_step": 10000, "checkpoint_repo": "RoboSynChallenge/ACT_sim_table_rearrangement", "checkpoint_revision": "3a46b36fade1772176b791dd87349f479d0a98c8" },
-        "DP": { "success_count": 16, "success_rate": 16.0, "average_action_steps": 318.84, "average_action_steps_ratio": 0.883213296398892, "average_model_inference_calls_per_episode": 10.66, "estimated_average_total_inference_time_seconds": 4.8797201707748465, "checkpoint_repo": "RoboSynChallenge/DP_sim_table_rearrangement", "checkpoint_revision": "99c73475a13ec2583b5105dc3773f88bbdeba9f5" }
+        "DP": { "success_count": 14, "success_rate": 14.0, "average_action_steps": 330.38, "average_action_steps_ratio": 0.915180055401662, "inference_call_count": 1104, "average_model_inference_calls_per_episode": 11.04, "average_inference_time_seconds": 0.1737319028812319, "average_inference_time_per_episode_seconds": 1.9180002078088, "denoising_steps": 10, "checkpoint_repo": "RoboSynChallenge/DP_sim_table_rearrangement", "checkpoint_revision": "99c73475a13ec2583b5105dc3773f88bbdeba9f5" }
       }
     },
     {
@@ -67,12 +80,12 @@
       "protocol_path": "configs/water_pouring/random/gym_config.json",
       "policies": {
         "ACT": { "success_count": 72, "success_rate": 72.0, "average_action_steps": 276.0, "average_action_steps_ratio": 0.552, "average_model_inference_calls_per_episode": 5.68, "estimated_average_total_inference_time_seconds": 0.06593217789046467, "checkpoint_repo": "RoboSynChallenge/ACT_sim_water_pouring", "checkpoint_revision": "0bf0fcfc931a69c52871385f28068fcf873cf07a" },
-        "DP": { "success_count": 33, "success_rate": 33.0, "average_action_steps": 396.76, "average_action_steps_ratio": 0.79352, "average_model_inference_calls_per_episode": 12.71, "estimated_average_total_inference_time_seconds": 5.818127895923855, "checkpoint_repo": "RoboSynChallenge/DP_sim_water_pouring", "checkpoint_revision": "b67e1ce7444dfa2940970088ebbe04a8b01013cc" }
+        "DP": { "success_count": 36, "success_rate": 36.0, "average_action_steps": 385.54, "average_action_steps_ratio": 0.77108, "inference_call_count": 1310, "average_model_inference_calls_per_episode": 13.1, "average_inference_time_seconds": 0.16037582330590555, "average_inference_time_per_episode_seconds": 2.1009232853073625, "denoising_steps": 10, "checkpoint_repo": "RoboSynChallenge/DP_sim_water_pouring", "checkpoint_revision": "b67e1ce7444dfa2940970088ebbe04a8b01013cc" }
       }
     }
   ],
   "aggregate": {
     "ACT": { "success_count": 278, "episode_count": 500, "macro_success_rate": 55.6, "average_action_steps": 361.198, "average_action_steps_ratio": 0.6641273634964604, "estimated_average_total_inference_time_seconds": 0.08773158459438943 },
-    "DP": { "success_count": 162, "episode_count": 500, "macro_success_rate": 32.4, "average_action_steps": 435.528, "average_action_steps_ratio": 0.7950936288088644, "estimated_average_total_inference_time_seconds": 6.491034898835584 }
+    "DP": { "success_count": 167, "episode_count": 500, "macro_success_rate": 33.4, "average_action_steps": 431.906, "average_action_steps_ratio": 0.7859120997229916, "inference_call_count": 7269, "average_model_inference_calls_per_episode": 14.538, "average_inference_time_seconds": 0.12389711961248824, "average_inference_time_per_episode_seconds": 1.801216324926354, "denoising_steps": 10 }
   }
 }
