@@ -104,11 +104,10 @@ def _as_int_or_none(value):
 
 
 def resolve_episode_max_steps(config, gym_config):
-    """Use the larger env-step limit from deploy config and gym config."""
+    """Use the task env limit, with the deploy limit only as a fallback."""
     deploy_max_steps = _as_int_or_none(config.get("max_steps"))
     gym_max_steps = _as_int_or_none(gym_config.get("max_episode_steps"))
-    candidates = [value for value in (deploy_max_steps, gym_max_steps) if value is not None]
-    max_env_steps = max(candidates) if candidates else 300
+    max_env_steps = gym_max_steps or deploy_max_steps or 300
     return max_env_steps, deploy_max_steps, gym_max_steps
 
 
@@ -370,7 +369,12 @@ def make_env_from_configs(config, gym_config_dict, action_config_dict):
             else {"action_config": action_config_dict}
         )
 
-    env = gym.make(id=gym_config["id"], cfg=env_cfg, **action_kwargs)
+    env = gym.make(
+        id=gym_config["id"],
+        max_episode_steps=max_env_steps,
+        cfg=env_cfg,
+        **action_kwargs,
+    )
     return env, gym_config
 
 def find_gym_config(config):
