@@ -103,6 +103,13 @@ def _as_int_or_none(value):
     return int(value)
 
 
+def select_cuda_device(config):
+    """Align an unqualified policy CUDA device with the simulator GPU."""
+    pytorch_device = str(config.get("pytorch_device", ""))
+    if pytorch_device.startswith("cuda") and torch.cuda.is_available():
+        torch.cuda.set_device(int(config.get("gpu_id", 0)))
+
+
 def resolve_episode_max_steps(config, gym_config):
     """Use the task env limit, with the deploy limit only as a fallback."""
     deploy_max_steps = _as_int_or_none(config.get("max_steps"))
@@ -521,6 +528,7 @@ def parse_args_and_config():
 
 def main():
     config = parse_args_and_config()
+    select_cuda_device(config)
 
     policy_name = config.get("policy_name")
     if not policy_name:
