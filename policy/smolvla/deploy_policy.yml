@@ -1,0 +1,32 @@
+# SmolVLA Policy Evaluation Configuration
+
+policy_name: smolvla
+task_name: click_bell
+setting: clear
+model_name: smolvla
+seed: 0
+max_episodes: 1
+max_steps: 100
+headless: true
+device: cpu
+renderer: auto
+gpu_id: 0
+pytorch_device: cuda
+num_envs: 1
+filter_dataset_saving: true
+eval_video_log: false
+eval_video_obs_key: cam_high
+
+# eval.sh supplies checkpoint_dir from its third argument. A checkpoint step
+# directory containing pretrained_model/ is also accepted.
+checkpoint_dir: ""
+# Optional. If empty, the worker imports the installed lerobot package. You can
+# also set SMOLVLA_LEROBOT_ROOT or pass --lerobot_root policy/smolvla/lerobot.
+lerobot_root: ""
+# Optional. If empty, eval uses SMOLVLA_PYTHON or the current eval Python.
+smolvla_python: ""
+smolvla_cuda_visible_devices: 0
+smolvla_steps: 10
+smolvla_rescale_gripper: auto
+smolvla_gripper_indices: [6, 13]
+smolvla_gripper_source_range: [0.0, 1.0]
