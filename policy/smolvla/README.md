@@ -41,15 +41,14 @@ If you already have a Python environment that can import `lerobot` and run
 SmolVLA, point the adapter to it:
 
 ```bash
-export SMOLVLA_PYTHON=/path/to/smolvla/python
-export SMOLVLA_LEROBOT_ROOT=/path/to/lerobot   # optional if lerobot is installed
+export SMOLVLA_PYTHON=$(which python)
+export SMOLVLA_LEROBOT_ROOT=policy/smolvla/lerobot   # optional if lerobot is installed
 ```
 
-Example:
+If LeRobot lives outside this repository, use its source checkout path:
 
 ```bash
-export SMOLVLA_PYTHON=/home/user/miniconda3/envs/smolvla/bin/python
-export SMOLVLA_LEROBOT_ROOT=/home/user/lerobot
+export SMOLVLA_LEROBOT_ROOT=../lerobot
 ```
 
 ### Install LeRobot from This Policy Folder
@@ -58,7 +57,7 @@ If you only have the RoboSynChallenge repository, clone and install LeRobot
 inside `policy/smolvla`:
 
 ```bash
-cd /path/to/RoboSynChallenge
+cd RoboSynChallenge
 source ../EmbodiChain/.venv/bin/activate
 
 bash policy/smolvla/setup_lerobot.sh
@@ -92,7 +91,7 @@ SmolVLA training reads the RoboSynChallenge LeRobot dataset directly from
 For a single task, pass the task dataset directory directly:
 
 ```bash
-/path/to/datasets/cobotmagic_Sim_click_bell
+datasets/cobotmagic_Sim_click_bell
 ```
 
 The default feature mapping is:
@@ -155,10 +154,10 @@ installed in the active environment, or if `SMOLVLA_LEROBOT_ROOT` points to a
 local LeRobot source checkout.
 
 ```bash
-cd /path/to/RoboSynChallenge
+cd RoboSynChallenge
 
 task_name=click_bell
-dataset_root=/path/to/datasets/cobotmagic_Sim_${task_name}
+dataset_root=datasets/cobotmagic_Sim_${task_name}
 output_dir=outputs/train/cobotmagic_smolvla_${task_name}_run1
 gpu_id=0
 
@@ -212,7 +211,7 @@ sample_loading
 Download a released SmolVLA checkpoint from Hugging Face:
 
 ```bash
-cd /path/to/RoboSynChallenge
+cd RoboSynChallenge
 mkdir -p checkpoints
 
 task_name=click_bell
@@ -286,8 +285,8 @@ If evaluation cannot import `lerobot`, install LeRobot in the worker Python
 environment or set:
 
 ```bash
-export SMOLVLA_PYTHON=/path/to/python/with/lerobot
-export SMOLVLA_LEROBOT_ROOT=/path/to/lerobot
+export SMOLVLA_PYTHON=$(which python)
+export SMOLVLA_LEROBOT_ROOT=policy/smolvla/lerobot
 ```
 
 If `lerobot-train` is not on `PATH`, run:
@@ -300,7 +299,7 @@ export SMOLVLA_LEROBOT_ROOT=$PWD/policy/smolvla/lerobot
 If Hugging Face downloads are slow or rate-limited:
 
 ```bash
-export HF_HOME=/path/to/cache/huggingface
+export HF_HOME=.cache/huggingface
 hf auth login
 ```
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 # ----------------------------------------------------------------------------
 # bash finetune.sh <task_name> <dataset_root> <output_dir> [gpu_id] [extra_opts...]
-# bash finetune.sh click_bell /data1/jinruixing/datasets/cobotmagic_Sim_click_bell \
+# bash finetune.sh click_bell datasets/cobotmagic_Sim_click_bell \
 #   outputs/train/cobotmagic_smolvla_click_bell_run1 3 --steps=50000
 #
 # Set SMOLVLA_NOHUP=1 to launch in the background and write a log under
@@ -21,7 +21,7 @@ GPU_ID="${4:-0}"
 shift 4 2>/dev/null || true
 EXTRA_ARGS=("$@")
 
-CONDA_ROOT="${CONDA_ROOT:-/home/jinruixing/miniconda3}"
+CONDA_ROOT="${CONDA_ROOT:-}"
 SMOLVLA_CONDA_ENV="${SMOLVLA_CONDA_ENV:-smolvla}"
 LEROBOT_ROOT="${LEROBOT_ROOT:-${SMOLVLA_LEROBOT_ROOT:-}}"
 DATASET_REPO_ID="${SMOLVLA_DATASET_REPO_ID:-RoboSynChallenge/cobotmagic_Sim_${TASK_NAME}}"
@@ -33,7 +33,7 @@ if [[ ! -d "$DATASET_ROOT" ]]; then
     exit 1
 fi
 
-if [[ "${SMOLVLA_USE_CONDA:-auto}" != "0" && -f "$CONDA_ROOT/bin/activate" ]]; then
+if [[ "${SMOLVLA_USE_CONDA:-auto}" != "0" && -n "$CONDA_ROOT" && -f "$CONDA_ROOT/bin/activate" ]]; then
     source "$CONDA_ROOT/bin/activate"
     if conda env list | awk '{print $1}' | grep -qx "$SMOLVLA_CONDA_ENV"; then
         conda activate "$SMOLVLA_CONDA_ENV"
@@ -45,14 +45,12 @@ fi
 if [[ -n "${CONDA_PREFIX:-}" ]]; then
     export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:${LD_LIBRARY_PATH:-}"
 fi
-export HF_HOME="${HF_HOME:-/data1/jinruixing/.cache/huggingface}"
-export HF_DATASETS_CACHE="${HF_DATASETS_CACHE:-/data1/jinruixing/.cache/huggingface/datasets}"
+export HF_HOME="${HF_HOME:-$REPO_ROOT/.cache/huggingface}"
+export HF_DATASETS_CACHE="${HF_DATASETS_CACHE:-$HF_HOME/datasets}"
 export CUDA_VISIBLE_DEVICES="$GPU_ID"
 
 if [[ -z "$LEROBOT_ROOT" && -d "$SCRIPT_DIR/lerobot/src/lerobot" ]]; then
     LEROBOT_ROOT="$SCRIPT_DIR/lerobot"
-elif [[ -z "$LEROBOT_ROOT" && -d /data1/jinruixing/lerobot/src/lerobot ]]; then
-    LEROBOT_ROOT=/data1/jinruixing/lerobot
 fi
 
 if [[ -n "$LEROBOT_ROOT" && ! -d "$LEROBOT_ROOT" ]]; then
@@ -66,7 +64,7 @@ if [[ -z "$LEROBOT_ROOT" && ! "$(command -v lerobot-train || true)" ]]; then
         LEROBOT_ROOT="$SCRIPT_DIR/lerobot"
     else
         echo "Error: cannot find lerobot-train and no LeRobot source is configured." >&2
-        echo "Set SMOLVLA_LEROBOT_ROOT=/path/to/lerobot, install lerobot in this env, or run:" >&2
+        echo "Set SMOLVLA_LEROBOT_ROOT=policy/smolvla/lerobot, install lerobot in this env, or run:" >&2
         echo "  bash policy/smolvla/setup_lerobot.sh" >&2
         exit 1
     fi
