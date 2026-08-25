@@ -13,6 +13,7 @@ Policy
    your_own_policy
    act
    dp
+   smolvla
    pi0
    pi05
    motus
