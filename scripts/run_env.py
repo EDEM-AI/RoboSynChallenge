@@ -251,4 +251,22 @@ if __name__ == "__main__":
         run_env_main(args, env, gym_config=gym_config)
     except Exception as e:
         log_warning(f"An error occurred during environment execution: {e}")
-        env.close()
+    finally:
+        # Always close before Python interpreter shutdown. Native dexsim, Warp,
+        # CUDA, and renderer resources have an unsafe destructor order during
+        # normal interpreter finalization and may otherwise exit with SIGSEGV
+        # (status 139) even after an episode was saved successfully.
+        try:
+            env.close()
+        except Exception as e:
+            log_warning(f"Failed to close environment: {e}")
+
+        # env.close() normally exits the process through sim.destroy(). When
+        # EMBODICHAIN_SIM_EXIT_PROCESS is disabled, explicitly run the queued
+        # cleanup at this top-level frame instead.
+        try:
+            from embodichain.lab.sim.sim_manager import SimulationManager
+
+            SimulationManager.flush_cleanup_queue()
+        except Exception as e:
+            log_warning(f"Failed to flush simulation cleanup queue: {e}")

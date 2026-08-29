@@ -33,6 +33,9 @@ __all__ = ["WaterPouringEnv", "WaterPouringTestEnv", "WaterPouringAgentEnv"]
 class WaterPouringEnv(EmbodiedEnv):
     def __init__(self, cfg: EmbodiedEnvCfg = None, **kwargs):
         super().__init__(cfg, **kwargs)
+        self._success_flag = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
         self._reset_pouring_state()
 
         action_config = kwargs.get("action_config", None)
@@ -43,6 +46,15 @@ class WaterPouringEnv(EmbodiedEnv):
         """Reset environment and pouring state flags."""
         obs, info = super().reset(seed=seed, options=options)
         self._reset_pouring_state()
+
+        if options is None:
+            options = {}
+        reset_ids = options.get(
+            "reset_ids",
+            torch.arange(self.num_envs, dtype=torch.int32, device=self.device),
+        )
+        self._success_flag[reset_ids] = False
+
         return obs, info
 
     def _reset_pouring_state(self) -> None:
@@ -117,7 +129,7 @@ class WaterPouringEnv(EmbodiedEnv):
             (total_traj_num, self.num_envs, num_active_joints), dtype=torch.float32
         )
 
-        
+
         global_to_active_idx = {
             joint_id: active_idx for active_idx, joint_id in enumerate(self.active_joint_ids)
         }
@@ -132,14 +144,14 @@ class WaterPouringEnv(EmbodiedEnv):
                 # TODO: only 1 env supported now
                 local_action_data = torch.as_tensor(ret[key].T, dtype=torch.float32)
 
-                
+
                 for i, joint_id in enumerate(joints):
                     if joint_id in global_to_active_idx:
                         active_idx = global_to_active_idx[joint_id]
                         actions[:, 0, active_idx] = local_action_data[:, i]
         return actions
 
- 
+
     def _evaluate_task_state(self) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
         bottle_pose = self.sim.get_rigid_object("bottle").get_local_pose(to_matrix=True)
         cup_pose = self.sim.get_rigid_object("cup").get_local_pose(to_matrix=True)
@@ -182,12 +194,27 @@ class WaterPouringEnv(EmbodiedEnv):
             & (~self._grasp_lost)
             & (~cup_fall)
         )
-        return success, cup_fall, {}
-    
-    
+        metrics = {
+            "bottle_angle": bottle_angle,
+            "pouring_now": pouring_now,
+            "grasp_started": self._grasp_started,
+            "grasp_lost": self._grasp_lost,
+            "returned_upright": returned_upright,
+            "cup_fall": cup_fall,
+        }
+        return success, cup_fall, metrics
+
+    def compute_task_state(self, **kwargs):
+        success, cup_fall, metrics = self._evaluate_task_state()
+
+        self._success_flag |= success
+
+        fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
+        success = torch.zeros_like(fail, dtype=torch.bool)
+        return success, fail, metrics
+
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        success, _, _ = self._evaluate_task_state()
-        return success
+        return self._success_flag
 
     def _is_fall_y(self, pose: torch.Tensor) -> torch.Tensor:
         # Extract z-axis from rotation matrix (last column, first 3 elements)

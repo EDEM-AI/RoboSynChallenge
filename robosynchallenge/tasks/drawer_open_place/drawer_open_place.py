@@ -21,6 +21,10 @@ class DrawerOpenPlaceEnv(EmbodiedEnv):
         if action_config is not None:
             self.action_config = action_config
 
+        self._success_flag = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
+
     def create_demo_action_list(self, *args, **kwargs):
         logger.log_info("Create demo action list for DrawerOpenPlace task.")
 
@@ -138,7 +142,7 @@ class DrawerOpenPlaceEnv(EmbodiedEnv):
             return processed_action
         return action
 
-    def _evaluate_task_state(self) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
+    def compute_task_state(self, **kwargs):
         duck = self.sim.get_rigid_object("duck")
         drawer = self.sim.get_articulation("drawer")
 
@@ -152,17 +156,30 @@ class DrawerOpenPlaceEnv(EmbodiedEnv):
         duck_drawer_dist = torch.linalg.norm(duck_pos_xy - drawer_pos_xy, dim=-1)
         print(f"Duck-Drawer distance: {duck_drawer_dist.item():.4f}")
         dist_threshold = 0.1
-        duck_near_drawer = duck_drawer_dist <= dist_threshold
+        self._success_flag = duck_drawer_dist <= dist_threshold
 
-        success = duck_near_drawer
         metrics = {
             "duck_drawer_dist": duck_drawer_dist,
         }
-        return success, {}, metrics
+        fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
+        success = torch.zeros_like(fail, dtype=torch.bool)
+        return success, fail, metrics
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        success, _, _ = self._evaluate_task_state()
-        return success
+        return self._success_flag
+
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
+        obs, info = super().reset(seed=seed, options=options)
+
+        if options is None:
+            options = {}
+        reset_ids = options.get(
+            "reset_ids",
+            torch.arange(self.num_envs, dtype=torch.int32, device=self.device),
+        )
+        self._success_flag[reset_ids] = False
+
+        return obs, info
 
 
 @register_env("DrawerOpenPlaceTest", max_episode_steps=900)
@@ -170,10 +187,10 @@ class DrawerOpenPlaceTestEnv(DrawerOpenPlaceEnv):
     def compute_task_state(self, **kwargs):
     # It is difficult to determine whether a task has failed or succeeded based on conditions,
     # and manual assessment is required.
-        return torch.zeros(self.num_envs, dtype=torch.bool), torch.zeros(self.num_envs, dtype=torch.bool), None
+        return torch.zeros(self.num_envs, dtype=torch.bool), torch.zeros(self.num_envs, dtype=torch.bool), {}
     def is_task_success(self, **kwargs):
-        success, _, _ = self._evaluate_task_state()
-        return torch.ones_like(success, dtype=torch.bool)
+        # Test 环境为人工评估：恒判成功
+        return torch.ones(self.num_envs, dtype=torch.bool, device=self.device)
 
 
 @register_env("DrawerOpenPlaceAgent", max_episode_steps=900)

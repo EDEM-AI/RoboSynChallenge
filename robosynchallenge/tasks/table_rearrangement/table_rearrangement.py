@@ -39,6 +39,10 @@ class TableRearrangementEnv(EmbodiedEnv):
         if action_config is not None:
             self.action_config = action_config
 
+        self._success_flag = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
+
     def create_demo_action_list(self, *args, **kwargs):
         """
         Create a demonstration action list for the current task.
@@ -152,7 +156,7 @@ class TableRearrangementEnv(EmbodiedEnv):
         )
         return ret.all().item(), qpos.squeeze(0).cpu().numpy()
 
-    def is_task_success(self, *args, **kwargs) -> torch.Tensor:
+    def compute_task_state(self, **kwargs):
         fork = self.sim.get_rigid_object("fork")
         spoon = self.sim.get_rigid_object("spoon")
         plate = self.sim.get_rigid_object("plate")
@@ -187,7 +191,35 @@ class TableRearrangementEnv(EmbodiedEnv):
             & ((fork_z - plate_z) <= height_tolerance)
         )
 
-        return y_ok & z_ok
+        current_success = y_ok & z_ok
+
+        self._success_flag = current_success
+
+        metrics = {
+            "spoon_y_err": torch.abs(spoon_y - spoon_place_target_y),
+            "fork_y_err": torch.abs(fork_y - fork_place_target_y),
+            "spoon_z_above_plate": spoon_z - plate_z,
+            "fork_z_above_plate": fork_z - plate_z,
+        }
+        fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
+        success = torch.zeros_like(fail, dtype=torch.bool)
+        return success, fail, metrics
+
+    def is_task_success(self, *args, **kwargs) -> torch.Tensor:
+        return self._success_flag
+
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
+        obs, info = super().reset(seed=seed, options=options)
+
+        if options is None:
+            options = {}
+        reset_ids = options.get(
+            "reset_ids",
+            torch.arange(self.num_envs, dtype=torch.int32, device=self.device),
+        )
+        self._success_flag[reset_ids] = False
+
+        return obs, info
 
 
 @register_env("TableRearrangementTest", max_episode_steps=600)

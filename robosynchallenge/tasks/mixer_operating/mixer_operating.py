@@ -44,6 +44,9 @@ class MixerOperatingEnv(EmbodiedEnv):
         self._button_contact_happened = torch.zeros(
             self.num_envs, dtype=torch.bool, device=self.device
         )
+        self._success_flag = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
         self._button_region_radius = 0.01
         self._button_impulse_threshold = 0.01
         self._button_contact_sensor = None
@@ -177,11 +180,6 @@ class MixerOperatingEnv(EmbodiedEnv):
         in_button_region = button_dist <= self._button_region_radius
 
         impulse_valid = contact_impulse >= self._button_impulse_threshold
-        print(f"Contact impulses: {contact_impulse}")
-        print(f"Contact positions: {contact_position}")
-        print(f"Button position: {button_position}")
-        print(f"in_button_region: {in_button_region}")
-        print(f"impulse_valid: {impulse_valid}")
         press_mask = mixer_contact & arm_contact & in_button_region & impulse_valid
 
         self._button_contact_happened |= press_mask.any(dim=1)
@@ -266,30 +264,29 @@ class MixerOperatingEnv(EmbodiedEnv):
         # self._visualize_button_axis(mixer_pose)
 
         beaker_fall = self._is_fall(beaker_pose)
-        success = torch.zeros_like(beaker_fall, dtype=torch.bool)
-
-        return success, beaker_fall, {}
-
-    def is_task_success(self, **kwargs) -> torch.Tensor:
-        self._update_button_contact_history()
-
-        beaker = self.sim.get_rigid_object("beaker")
-        beaker_mixer = self.sim.get_rigid_object("beaker_mixer")
-
-        beaker_final_xpos = beaker.get_local_pose(to_matrix=True)
-        beaker_mixer_final_xpos = beaker_mixer.get_local_pose(to_matrix=True)
-
-        beaker_ret = self._is_fall(beaker_final_xpos)
-        beaker_pos_xy = beaker_final_xpos[:, :2, 3]
-        beaker_mixer_pos_xy = beaker_mixer_final_xpos[:, :2, 3]
-
-        # Success requires the beaker to stay near the mixer in XY plane.
-        beaker_mixer_dist = torch.linalg.norm(beaker_pos_xy - beaker_mixer_pos_xy, dim=-1)
-        print(f"Beaker-Mixer distance: {beaker_mixer_dist.item():.4f}")
+        beaker_pos_xy = beaker_pose[:, :2, 3]
+        mixer_pos_xy = mixer_pose[:, :2, 3]
+        beaker_mixer_dist = torch.linalg.norm(beaker_pos_xy - mixer_pos_xy, dim=-1)
         dist_threshold = 0.08
         beaker_near_mixer = beaker_mixer_dist <= dist_threshold
-        print(f"beaker_near_mixer:{beaker_near_mixer}, _button_contact_happened:{self._button_contact_happened}, beaker_ret:{beaker_ret}")
-        return (~beaker_ret) & beaker_near_mixer & self._button_contact_happened
+
+        current_success = (
+            (~beaker_fall) & beaker_near_mixer & self._button_contact_happened
+        )
+
+        self._success_flag = current_success
+
+        metrics = {
+            "beaker_mixer_dist": beaker_mixer_dist,
+            "beaker_fall": beaker_fall,
+            "button_contact_happened": self._button_contact_happened,
+        }
+        fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
+        success = torch.zeros_like(fail, dtype=torch.bool)
+        return success, fail, metrics
+
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        return self._success_flag
 
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
         obs, info = super().reset(seed=seed, options=options)
@@ -301,6 +298,7 @@ class MixerOperatingEnv(EmbodiedEnv):
             torch.arange(self.num_envs, dtype=torch.int32, device=self.device),
         )
         self._button_contact_happened[reset_ids] = False
+        self._success_flag[reset_ids] = False
 
         return obs, info
 
