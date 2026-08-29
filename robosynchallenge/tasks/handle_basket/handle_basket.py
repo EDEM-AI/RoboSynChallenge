@@ -16,7 +16,6 @@
 
 from __future__ import annotations
 
-import os
 from typing import Dict, Optional, Tuple
 
 import numpy as np
@@ -40,6 +39,19 @@ __all__ = [
 class HandleBasketEnv(EmbodiedEnv):
     def __init__(self, cfg: EmbodiedEnvCfg = None, **kwargs):
         super().__init__(cfg, **kwargs)
+
+        self._success_flag = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
+        self._hb_origin_captured = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
+        self._hb_stable_steps = torch.zeros(
+            self.num_envs, dtype=torch.long, device=self.device
+        )
+        self._hb_skip_first_eval = True
+        self._hb_orig_basket_xy = None  # (num_envs, 2)
+        self._hb_orig_basket_z = None  # (num_envs,)
 
 
 
@@ -183,175 +195,98 @@ class HandleBasketEnv(EmbodiedEnv):
 
         return actions
 
-    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
-        obs, info = super().reset(seed=seed, options=options)
-        self._hb_diag_step = 0
-        self._hb_orig_basket_x = None
-        self._hb_orig_basket_y = None
-        self._hb_orig_basket_z = None
-        self._hb_stable_steps = 0
-        self._hb_last_success_check_env_step = None
-        self._hb_debug_flags = None
-        self._hb_debug_last_signature = None
-        self._hb_debug_check_count = 0
-        self._hb_diag_path = None
-
-        return obs, info
-
-    def is_task_success(self, **kwargs) -> torch.Tensor:
-        """Success when the carried basket moves left with milk inside stably."""
-        if not hasattr(self, "_hb_stable_steps"):
-            self._hb_orig_basket_x = None
-            self._hb_orig_basket_y = None
-            self._hb_orig_basket_z = None
-            self._hb_stable_steps = 0
-            self._hb_last_success_check_env_step = None
-        if not hasattr(self, "_hb_diag_step"):
-            self._hb_diag_step = 0
-
-        import numpy as _np
-        import torch as _torch
-
+    def compute_task_state(self, **kwargs):
         basket = self.sim.get_rigid_object("basket")
         milk = self.sim.get_rigid_object("milk")
         basket_pose = basket.get_local_pose(to_matrix=True)
         milk_pose = milk.get_local_pose(to_matrix=True)
 
-        def extract_xy_z(pose):
-            arr = _np.asarray(pose)
-            if arr.ndim == 3:
-                return arr[:, :2, 3], arr[:, 2, 3]
-            return arr[:2, 3], float(arr[2, 3])
+        basket_xy = basket_pose[:, :2, 3]
+        basket_z = basket_pose[:, 2, 3]
+        milk_xy = milk_pose[:, :2, 3]
+        milk_z = milk_pose[:, 2, 3]
 
-        try:
-            basket_xy, basket_z = extract_xy_z(basket_pose)
-            milk_xy, milk_z = extract_xy_z(milk_pose)
-        except Exception:
-            return _torch.tensor(False, dtype=_torch.bool)
+        if self._hb_orig_basket_xy is None:
+            self._hb_orig_basket_xy = torch.full_like(basket_xy, float("nan"))
+            self._hb_orig_basket_z = torch.full_like(basket_z, float("nan"))
 
-        if isinstance(basket_xy, _np.ndarray) and basket_xy.ndim == 2:
-            cur_basket_xy = basket_xy.mean(axis=0)
-            cur_basket_z = float(_np.asarray(basket_z).mean())
-            cur_milk_xy = (
-                milk_xy.mean(axis=0)
-                if isinstance(milk_xy, _np.ndarray) and milk_xy.ndim == 2
-                else _np.asarray(milk_xy)
-            )
-            cur_milk_z = float(_np.asarray(milk_z).mean())
-        else:
-            cur_basket_xy = _np.asarray(basket_xy)
-            cur_basket_z = float(basket_z)
-            cur_milk_xy = _np.asarray(milk_xy)
-            cur_milk_z = float(milk_z)
+        # 首帧（reset 后的第一次评估）仅跳过原点采集，避免把出生帧当原点
+        first_eval = getattr(self, "_hb_skip_first_eval", True)
+        self._hb_skip_first_eval = False
 
-        try:
-            cur_x = float(cur_basket_xy[0])
-        except Exception:
-            cur_x = float(cur_basket_xy)
-        try:
-            cur_y = float(cur_basket_xy[1]) if len(cur_basket_xy) > 1 else 0.0
-        except Exception:
-            cur_y = 0.0
-
-        if self._hb_orig_basket_x is None and self._hb_diag_step >= 1:
-            self._hb_orig_basket_x = cur_x
-        if self._hb_orig_basket_y is None:
-            self._hb_orig_basket_y = cur_y
-        if self._hb_orig_basket_z is None and self._hb_diag_step >= 1:
-            self._hb_orig_basket_z = cur_basket_z
+        capture_mask = ~self._hb_origin_captured
+        if (not first_eval) and capture_mask.any():
+            self._hb_orig_basket_xy[capture_mask] = basket_xy[capture_mask]
+            self._hb_orig_basket_z[capture_mask] = basket_z[capture_mask]
+            self._hb_origin_captured[capture_mask] = True
 
         IN_BASKET_DIST = 0.10
         MOVE_Y_DELTA = 0.15
         Z_LIFT_DELTA = 0.01
         REQUIRED_STABLE_STEPS = 75
 
-        dist = float(_np.linalg.norm(cur_milk_xy - cur_basket_xy))
-        milk_above_basket = cur_milk_z > cur_basket_z
-        in_basket = dist < IN_BASKET_DIST and milk_above_basket
+        dist = torch.linalg.norm(milk_xy - basket_xy, dim=-1)
+        in_basket = (dist < IN_BASKET_DIST) & (milk_z > basket_z)
 
-        x_disp = None
-        picked = False
-        moved_left = False
-        if getattr(self, '_hb_orig_basket_y', None) is not None:
-            try:
-                y_disp = float(cur_y) - float(self._hb_orig_basket_y)
-            except Exception:
-                y_disp = None
-            if getattr(self, '_hb_orig_basket_x', None) is not None:
-                try:
-                    x_disp = float(self._hb_orig_basket_x) - cur_x
-                except Exception:
-                    x_disp = None
-            if self._hb_orig_basket_z is not None:
-                picked = (cur_basket_z - float(self._hb_orig_basket_z)) > Z_LIFT_DELTA
-            moved_left = (y_disp is not None and float(y_disp) > MOVE_Y_DELTA) and (picked or in_basket)
+        y_disp = basket_xy[:, 1] - self._hb_orig_basket_xy[:, 1]
+        x_disp = self._hb_orig_basket_xy[:, 0] - basket_xy[:, 0]
+        z_disp = basket_z - self._hb_orig_basket_z
+        picked = z_disp > Z_LIFT_DELTA
+        moved_left = (y_disp > MOVE_Y_DELTA) & (picked | in_basket)
 
-        try:
-            current_env_step = int(_np.asarray(self._elapsed_steps.detach().cpu()).reshape(-1)[0])
-        except Exception:
-            current_env_step = None
+        goal_hold = moved_left & in_basket
+        self._hb_stable_steps = torch.where(
+            goal_hold,
+            self._hb_stable_steps + 1,
+            torch.zeros_like(self._hb_stable_steps),
+        )
+        current_success = self._hb_stable_steps >= REQUIRED_STABLE_STEPS
 
-        last_env_step = getattr(self, "_hb_last_success_check_env_step", None)
-        if moved_left and in_basket:
-            if current_env_step is None or last_env_step is None:
-                elapsed_env_steps = 1
-            else:
-                elapsed_env_steps = max(1, int(current_env_step) - int(last_env_step))
-            self._hb_stable_steps += elapsed_env_steps
-        else:
-            self._hb_stable_steps = 0
-        self._hb_last_success_check_env_step = current_env_step
+        self._success_flag |= current_success
 
-        success = self._hb_stable_steps >= REQUIRED_STABLE_STEPS
-
-        check_count = int(getattr(self, "_hb_debug_check_count", 0)) + 1
-        self._hb_debug_check_count = check_count
-
-        self._hb_debug_flags = {
-            "success": bool(success),
-            "in_basket": bool(in_basket),
-            "milk_above_basket": bool(milk_above_basket),
-            "milk_basket_dist": float(dist),
-            "moved_left": bool(moved_left),
-            "picked": bool(picked),
-            "stable_steps": int(self._hb_stable_steps),
-            "required_stable_steps": int(REQUIRED_STABLE_STEPS),
-            "x_disp": None if x_disp is None else float(x_disp),
-            "y_disp": None if 'y_disp' not in locals() or y_disp is None else float(y_disp),
-            "move_y_delta": float(MOVE_Y_DELTA),
-            "basket_x": float(cur_x),
-            "basket_y": float(cur_y),
-            "basket_z": float(cur_basket_z),
-            "milk_z": float(cur_milk_z),
-            "orig_basket_x": self._hb_orig_basket_x,
-            "orig_basket_y": self._hb_orig_basket_y,
-            "orig_basket_z": self._hb_orig_basket_z,
-            "current_env_step": current_env_step,
-            "check_count": check_count,
+        metrics = {
+            "milk_basket_dist": dist,
+            "basket_x_disp": x_disp,
+            "basket_y_disp": y_disp,
+            "basket_z_lift": z_disp,
+            "in_basket": in_basket,
+            "picked": picked,
+            "moved_left": moved_left,
+            "stable_steps": self._hb_stable_steps,
         }
+        fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
+        success = torch.zeros_like(fail, dtype=torch.bool)
+        return success, fail, metrics
 
-        if str(os.environ.get("ROBOSYN_DEBUG_SUCCESS_FLAGS", "")).lower() in {"1", "true", "yes", "on"}:
-            signature = (
-                self._hb_debug_flags["in_basket"],
-                self._hb_debug_flags["moved_left"],
-                self._hb_debug_flags["picked"],
-                self._hb_debug_flags["stable_steps"],
-                self._hb_debug_flags["success"],
-            )
-            if signature != getattr(self, "_hb_debug_last_signature", None) or check_count % 10 == 0:
-                self._hb_debug_last_signature = signature
-                print(f"[HandleBasket success flags] {self._hb_debug_flags}")
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        """Success when the carried basket moves left with milk inside stably."""
+        return self._success_flag
 
-        self._hb_diag_step += 1
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
+        obs, info = super().reset(seed=seed, options=options)
 
-        return _torch.tensor(success, dtype=_torch.bool)
+        if options is None:
+            options = {}
+        reset_ids = options.get(
+            "reset_ids",
+            torch.arange(self.num_envs, dtype=torch.int32, device=self.device),
+        )
+        self._success_flag[reset_ids] = False
+        self._hb_origin_captured[reset_ids] = False
+        self._hb_stable_steps[reset_ids] = 0
+        self._hb_skip_first_eval = True
+        if self._hb_orig_basket_xy is not None:
+            self._hb_orig_basket_xy[reset_ids] = float("nan")
+            self._hb_orig_basket_z[reset_ids] = float("nan")
+
+        return obs, info
 
 @register_env("HandleBasketTest", max_episode_steps=600)
 class HandleBasketTestEnv(HandleBasketEnv):
     def compute_task_state(self, **kwargs):
     # It is difficult to determine whether a task has failed or succeeded based on conditions,
     # and manual assessment is required.
-        return torch.zeros(self.num_envs, dtype=torch.bool), torch.zeros(self.num_envs, dtype=torch.bool), None
+        return torch.zeros(self.num_envs, dtype=torch.bool), torch.zeros(self.num_envs, dtype=torch.bool), {}
     def is_task_success(self, **kwargs):
         return torch.ones(self.num_envs, dtype=torch.bool)
 

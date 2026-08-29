@@ -41,6 +41,10 @@ class ItemsHandoverEnv(EmbodiedEnv):
         if action_config is not None:
             self.action_config = action_config
 
+        self._success_flag = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
+
     def create_demo_action_list(self, *args, **kwargs):
         """
         Create a demonstration action list for the current task.
@@ -144,17 +148,14 @@ class ItemsHandoverEnv(EmbodiedEnv):
         metrics = {
             "pen_holder_dist": dist,
             "holder_fall": holder_ret,
+            "pen_fall": pen_ret,
         }
         return success, holder_ret, metrics
 
-    def is_task_success(self, **kwargs) -> torch.Tensor:
-        # First get the original proximity/fall-based success per-env
-        prev_success, _, _ = self._evaluate_task_state()
-
+    def _get_pen_holder_overlap_ok(self):
         pen = self.sim.get_rigid_object("pen")
         holder = self.sim.get_rigid_object("holder")
 
-        # Try common ways to get AABB; if unavailable, fall back to previous success
         pen_aabb = None
         holder_aabb = None
         try:
@@ -174,28 +175,48 @@ class ItemsHandoverEnv(EmbodiedEnv):
                 holder_aabb = None
 
         if pen_aabb is None or holder_aabb is None:
-            return prev_success
+            return None
 
         # AABB format: [minx,miny,minz,maxx,maxy,maxz]
         pen_min_z, pen_max_z = float(pen_aabb[2]), float(pen_aabb[5])
         holder_min_z, holder_max_z = float(holder_aabb[2]), float(holder_aabb[5])
-
         overlap = min(pen_max_z, holder_max_z) - max(pen_min_z, holder_min_z)
+        return torch.full(
+            (self.num_envs,),
+            bool(overlap > 0.08),
+            dtype=torch.bool,
+            device=self.device,
+        )
 
-        # require overlap > 0.08 (user-specified) AND original proximity/fall criteria
-        overlap_flag = overlap > 0.08
+    def compute_task_state(self, **kwargs):
+        success, holder_ret, metrics = self._evaluate_task_state()
 
-        # prev_success is a tensor per-env; combine with scalar overlap_flag
-        if isinstance(prev_success, torch.Tensor):
-            if prev_success.numel() == 0:
-                return prev_success
-            # broadcast scalar overlap_flag to tensor shape
-            overlap_tensor = torch.full_like(prev_success, bool(overlap_flag))
-            return prev_success & overlap_tensor
-        else:
-            # unexpected type, return boolean tensor
-            num_envs = getattr(self, "num_envs", 1)
-            return torch.full((num_envs,), bool(prev_success and overlap_flag), dtype=torch.bool)
+        overlap_ok = self._get_pen_holder_overlap_ok()
+        if overlap_ok is not None:
+            success = success & overlap_ok
+            metrics["pen_holder_z_overlap_ok"] = overlap_ok
+
+        self._success_flag = success
+
+        fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
+        success = torch.zeros_like(fail, dtype=torch.bool)
+        return success, fail, metrics
+
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        return self._success_flag
+
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
+        obs, info = super().reset(seed=seed, options=options)
+
+        if options is None:
+            options = {}
+        reset_ids = options.get(
+            "reset_ids",
+            torch.arange(self.num_envs, dtype=torch.int32, device=self.device),
+        )
+        self._success_flag[reset_ids] = False
+
+        return obs, info
 
     def _is_fall_x(self, pose: torch.Tensor) -> torch.Tensor:
         # Extract x-axis from rotation matrix (last column, first 3 elements)

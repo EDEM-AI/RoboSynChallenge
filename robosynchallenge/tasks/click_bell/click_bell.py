@@ -41,7 +41,7 @@ class ClickBellEnv(EmbodiedEnv):
         if action_config is not None:
             self.action_config = action_config
 
-        self._button_pressed = torch.zeros(
+        self._success_flag = torch.zeros(
             self.num_envs, dtype=torch.bool, device=self.device
         )
     def create_demo_action_list(self, *args, **kwargs):
@@ -136,15 +136,21 @@ class ClickBellEnv(EmbodiedEnv):
         # Treat any detectable displacement as success (with tiny epsilon to avoid numerical noise).
         press_depth = -button_qpos[:, 0]
         movement_threshold = 0.0048
-        success = press_depth >= movement_threshold
-        # print(f"press_depth: {press_depth}, movement_threshold: {movement_threshold}")
-        self._button_pressed |= success
-        fail = torch.zeros_like(success, dtype=torch.bool)
+        current_success = press_depth >= movement_threshold
+
+        # 粘滞锁存：回合内任意一步按到位即记为成功
+        self._success_flag |= current_success
+
+        metrics = {
+            "press_depth": press_depth,
+            "movement_threshold": movement_threshold,
+        }
+        fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
         success = torch.zeros_like(fail, dtype=torch.bool)
-        return success, fail, {}
+        return success, fail, metrics
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        return self._button_pressed
+        return self._success_flag
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
         obs, info = super().reset(seed=seed, options=options)
 
@@ -154,7 +160,7 @@ class ClickBellEnv(EmbodiedEnv):
             "reset_ids",
             torch.arange(self.num_envs, dtype=torch.int32, device=self.device),
         )
-        self._button_pressed[reset_ids] = False
+        self._success_flag[reset_ids] = False
 
         return obs, info
 
@@ -170,12 +176,12 @@ class ClickBellTestEnv(ClickBellEnv):
         movement_threshold = 0.004
         success = press_depth >= movement_threshold
         # print(f"press_depth: {press_depth}, movement_threshold: {movement_threshold}")
-        self._button_pressed |= success
+        self._success_flag |= success
         fail = torch.zeros_like(success, dtype=torch.bool)
 
         return success, fail, {}
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        return torch.ones_like(self._button_pressed, dtype=torch.bool)
+        return torch.ones_like(self._success_flag, dtype=torch.bool)
 
 @register_env("ClickBellAgent", max_episode_steps=600)
 class ClickBellAgentEnv(BaseAgentEnv, ClickBellEnv):

@@ -50,6 +50,10 @@ class ManipulatePipetteEnv(EmbodiedEnv):
         )
         self._pipette_min_tolerance = 1e-4
 
+        self._success_flag = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
+
     def create_demo_action_list(self, *args, **kwargs):
         """
         Create a demonstration action list for the current task.
@@ -134,26 +138,35 @@ class ManipulatePipetteEnv(EmbodiedEnv):
                         actions[:, 0, active_idx] = local_action_data[:, i]
         return actions
 
-    def is_task_success(self, **kwargs) -> torch.Tensor:
-        success, _ = self._evaluate_task_state()
-        return success
-
     def compute_task_state(self, **kwargs):
-        success, fail= self._evaluate_task_state()
-        return super().compute_task_state(**kwargs)
+        success, _ = self._evaluate_task_state()
 
-    def _initialize_episode(self, env_ids=None, **kwargs) -> None:
-        super()._initialize_episode(env_ids=env_ids, **kwargs)
+        self._success_flag = success
 
-        if env_ids is None:
-            reset_ids = torch.arange(self.num_envs, dtype=torch.long, device=self.device)
-        elif isinstance(env_ids, torch.Tensor):
-            reset_ids = env_ids.to(device=self.device, dtype=torch.long)
-        else:
-            reset_ids = torch.as_tensor(env_ids, dtype=torch.long, device=self.device)
+        metrics = {
+            "pipette_min_reach_count": self._pipette_min_reach_count,
+            "pipette_was_at_min": self._pipette_was_at_min,
+        }
+        fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
+        success = torch.zeros_like(fail, dtype=torch.bool)
+        return success, fail, metrics
 
+    def is_task_success(self, **kwargs) -> torch.Tensor:
+        return self._success_flag
+
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
+        obs, info = super().reset(seed=seed, options=options)
+
+        if options is None:
+            options = {}
+        reset_ids = options.get(
+            "reset_ids",
+            torch.arange(self.num_envs, dtype=torch.int32, device=self.device),
+        )
+        self._success_flag[reset_ids] = False
         self._pipette_min_reach_count[reset_ids] = 0
         self._pipette_was_at_min[reset_ids] = False
+        return obs, info
 
     def _evaluate_task_state(self):
         beaker1 = self.sim.get_rigid_object("beaker1")

@@ -42,6 +42,13 @@ class SampleLoadingEnv(EmbodiedEnv):
         if action_config is not None:
             self.action_config = action_config
 
+        self._success_flag = torch.zeros(
+            self.num_envs, dtype=torch.bool, device=self.device
+        )
+        self._place_stable_count = torch.zeros(
+            self.num_envs, dtype=torch.long, device=self.device
+        )
+
     def create_demo_action_list(self, *args, **kwargs):
         """
         Create a demonstration action list for the current task.
@@ -124,7 +131,7 @@ class SampleLoadingEnv(EmbodiedEnv):
                         actions[:, 0, active_idx] = local_action_data[:, i]
         return actions
 
-    def _evaluate_task_state(self) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
+    def _evaluate_task_state(self) -> Tuple[torch.Tensor, Dict]:
         # Robust placement success evaluator
         # Principles:
         # - Require spatial alignment (xy + z) and not fallen
@@ -307,11 +314,33 @@ class SampleLoadingEnv(EmbodiedEnv):
         if right_gripper_q_mean is not None:
             metrics["right_gripper_q_mean"] = right_gripper_q_mean
 
-        return success, {}, metrics
+        return success, metrics
+
+    def compute_task_state(self, **kwargs):
+        success, metrics = self._evaluate_task_state()
+
+        self._success_flag = success
+
+        fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
+        success = torch.zeros_like(fail, dtype=torch.bool)
+        return success, fail, metrics
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
-        success, _, _ = self._evaluate_task_state()
-        return success
+        return self._success_flag
+
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
+        obs, info = super().reset(seed=seed, options=options)
+
+        if options is None:
+            options = {}
+        reset_ids = options.get(
+            "reset_ids",
+            torch.arange(self.num_envs, dtype=torch.int32, device=self.device),
+        )
+        self._success_flag[reset_ids] = False
+        self._place_stable_count[reset_ids] = 0
+
+        return obs, info
 
     def _is_fall(self, pose: torch.Tensor) -> torch.Tensor:
         # Extract z-axis from rotation matrix (last column, first 3 elements)
@@ -332,8 +361,8 @@ class SampleLoadingEnv(EmbodiedEnv):
 @register_env("SampleLoadingTest", max_episode_steps=600)
 class SampleLoadingTestEnv(SampleLoadingEnv):
     def compute_task_state(self, **kwargs):
-        success, _, _ =self._evaluate_task_state()
-        return success, torch.zeros(self.num_envs, dtype=torch.bool), None
+        success, _ =self._evaluate_task_state()
+        return success, torch.zeros(self.num_envs, dtype=torch.bool), {}
 
     def is_task_success(self, **kwargs) -> torch.Tensor:
         return torch.ones(self.num_envs, dtype=torch.bool)
