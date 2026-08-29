@@ -1,13 +1,15 @@
 #!/bin/bash
 
-# Usage: ./run_task.sh <task_name> [random | clear] [extra_args...]
+# Usage: ./run_task.sh <task_name> <random|clear> [3_0|2_1] [extra_args...]
 # Examples:
-#   ./run_task.sh beaker_mixer_duel random
-#   ./run_task.sh pour_water_dual clear
+#   ./run_task.sh item_assembly clear --filter_dataset_saving
+#   ./run_task.sh item_assembly random 2_1
 # In addition to the preset parameters in the script,
 # you can also input the following additional parameters supported by embodichain:
 # --filter_visual_rand: to disable visual randomization
 # --filter_dataset_saving: to disable dataset saving
+# --record_trajectory: to record replayable trajectories
+# --trajectory_save_dir <dir>: to choose where trajectories are saved
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
@@ -15,20 +17,22 @@ cd "$REPO_ROOT"
 
 if [[ "$#" -eq 1 && ("$1" == "-h" || "$1" == "--help") ]]; then
     echo -e "\n\033[1;33mUsage:\033[0m"
-    echo -e "  $0 \033[1;32m<task_name>\033[0m \033[1;34m<setting(random|clear)>\033[0m \033[1;34m<format(3_0|2_1)>\033[0m \033[1;35m[extra_args...]\033[0m\n"
+    echo -e "  $0 \033[1;32m<task_name>\033[0m \033[1;34m<setting(random|clear)>\033[0m \033[1;34m[format(3_0|2_1)]\033[0m \033[1;35m[extra_args...]\033[0m\n"
 
     echo -e "\033[1;33mAvailable Extra Arguments:\033[0m"
     echo -e "  \033[1;35m--filter_visual_rand\033[0m     : Disable visual randomization"
     echo -e "  \033[1;35m--filter_dataset_saving\033[0m  : Disable dataset saving"
     echo -e "  \033[1;35m--max_episodes <num>\033[0m  : Specify the maximum number of episodes to generate"
-    echo -e "  \033[1;35m--headless\033[0m  : Run in headless mode\n"
+    echo -e "  \033[1;35m--headless\033[0m  : Run in headless mode"
+    echo -e "  \033[1;35m--record_trajectory\033[0m  : Record replayable EmbodiChain trajectories"
+    echo -e "  \033[1;35m--trajectory_save_dir <dir>\033[0m  : Directory for recorded trajectories\n"
 
     source "$SCRIPT_DIR/_print_available_tasks.sh"
 
     exit 0
 fi
 
-if [ "$#" -lt 3 ]; then
+if [ "$#" -lt 2 ]; then
     echo -e "\n\033[1;31mError: Missing required arguments.\033[0m"
     echo -e "Run \033[1;35m$0 -h\033[0m or \033[1;35m$0 --help\033[0m for usage details.\n"
     exit 1
@@ -36,8 +40,18 @@ fi
 
 TASK_NAME=$1
 SETTING=$2
-FORMAT=$3
-shift 3
+shift 2
+
+# The output format is optional. Keep the original two-argument invocation
+# working and only consume the next argument when it is an actual format.
+FORMAT="3_0"
+if [[ "${1:-}" == "3_0" || "${1:-}" == "2_1" ]]; then
+    FORMAT=$1
+    shift
+elif [[ -n "${1:-}" && "${1:-}" != --* ]]; then
+    echo "Error: Unsupported dataset format: $1 (expected 3_0 or 2_1)"
+    exit 1
+fi
 
 EXTRA_ARGS=("$@")
 
@@ -85,7 +99,7 @@ echo "Running command:"
 echo "${RUN_CMD[@]}"
 echo "========================================="
 
-"${RUN_CMD[@]}"
+"${RUN_CMD[@]}" || exit $?
 sleep 5;
 
 if [ "$FORMAT" == "2_1" ]; then
@@ -114,4 +128,3 @@ if [ "$FORMAT" == "2_1" ]; then
     fi
 fi
 chmod 777 -R "$REPO_ROOT/lerobot_dataset/"
-

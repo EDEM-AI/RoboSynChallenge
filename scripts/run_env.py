@@ -159,6 +159,29 @@ def _generate_until_saved_episode_target(args, env, gym_config, num_traj: int) -
     return True
 
 
+def _log_trajectory_save_location(args, env):
+    if not getattr(args, "record_trajectory", False):
+        return
+
+    trajectory_save_dir = getattr(args, "trajectory_save_dir", None)
+    if trajectory_save_dir is None:
+        import os
+
+        from embodichain.data.constants import EMBODICHAIN_DEFAULT_DATA_ROOT
+
+        trajectory_save_dir = os.path.join(
+            EMBODICHAIN_DEFAULT_DATA_ROOT,
+            "trajectories",
+            env.unwrapped._traj_run_id,
+        )
+
+    log_info(
+        f"Trajectories recorded to: {trajectory_save_dir} "
+        "(replay with launch/replay_task.sh <task> <setting> <trajectory.pt>)",
+        color="green",
+    )
+
+
 def run_env_main(args, env, gym_config):
     if getattr(args, "replay", False):
         replay_trajectory(
@@ -178,6 +201,8 @@ def run_env_main(args, env, gym_config):
     num_traj = 1
 
     if _generate_until_saved_episode_target(args, env, gym_config, num_traj):
+        # Log before env.close(): simulator teardown may terminate the process.
+        _log_trajectory_save_location(args, env)
         return
 
     log_warning(
@@ -195,6 +220,7 @@ def run_env_main(args, env, gym_config):
         )
 
     _, _ = env.reset()
+    _log_trajectory_save_location(args, env)
 
 
 if __name__ == "__main__":
@@ -251,4 +277,6 @@ if __name__ == "__main__":
         run_env_main(args, env, gym_config=gym_config)
     except Exception as e:
         log_warning(f"An error occurred during environment execution: {e}")
+        raise
+    finally:
         env.close()

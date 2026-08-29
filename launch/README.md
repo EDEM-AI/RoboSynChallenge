@@ -20,12 +20,12 @@
 
 ```
 用法:
-  ./launch/run_task.sh <task_name> <setting> <format> [extra_args...]
+  ./launch/run_task.sh <task_name> <setting> [format] [extra_args...]
 
 参数:
   task_name    任务名称（见下方任务列表）
   setting      random 或 clear（是否启用域随机化）
-  format       3_0（LeRobot 3.0）或 2_1（LeRobot 2.1，自动转换）
+  format       可选；3_0（默认，LeRobot 3.0）或 2_1（LeRobot 2.1，自动转换）
 ```
 
 **extra_args 常用选项：**
@@ -36,6 +36,8 @@
 | `--headless` | 无头模式运行（不显示窗口） |
 | `--filter_visual_rand` | 禁用视觉随机化 |
 | `--filter_dataset_saving` | 禁用数据集保存（仅运行不存盘） |
+| `--record_trajectory` | 记录可供 EmbodiChain 回放的逐步状态与动作轨迹 |
+| `--trajectory_save_dir DIR` | 指定轨迹保存目录 |
 
 **示例：**
 
@@ -48,9 +50,20 @@
 
 # 仅测试环境能否正常运行（不存盘）
 ./launch/run_task.sh mixer_operating random 3_0 --filter_dataset_saving --max_episodes 1 --headless
+
+# format 可省略；以下命令默认使用 3_0
+./launch/run_task.sh item_assembly clear --filter_visual_rand --filter_dataset_saving
+
+# 不保存 LeRobot 数据集，只记录可回放轨迹到指定目录
+./launch/run_task.sh drawer_open_place clear --filter_dataset_saving \
+  --record_trajectory --trajectory_save_dir outputs/trajectories/drawer_open_place
 ```
 
 数据保存路径为 `lerobot_dataset/<task_name>/`。
+
+使用 `--record_trajectory` 时，每个 episode 会另存为
+`traj_env<env_id>_<index>.pt`。若未指定 `--trajectory_save_dir`，默认保存到
+`${EMBODICHAIN_DATA_ROOT:-~/.cache/embodichain_data}/trajectories/<run_id>/`；运行结束时会打印实际目录。
 
 ---
 
