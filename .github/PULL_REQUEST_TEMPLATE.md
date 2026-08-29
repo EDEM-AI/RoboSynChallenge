@@ -39,6 +39,25 @@ Example:
 To upload images to a PR -- simply drag and drop an image while in edit mode and it should upload the image directly. You can then paste that source into the above before/after sections.
 -->
 
+## Required Environment Smoke Test
+
+Every PR must run the complete environment smoke test against the latest PR changes:
+
+```bash
+bash launch/check_all_envs.sh --episode-timeout 3m
+```
+
+- [ ] The final `Smoke Test Verification` block shows the start time and GPU information.
+- [ ] All configured environments passed with `0 failed` and `0 timed out`.
+- [ ] I attached a readable screenshot of the complete verification block below.
+
+**Smoke-test screenshot:**
+
+<!-- Drag and drop the check_all_envs.sh verification screenshot here. -->
+
+> [!IMPORTANT]
+> Rerun the smoke test after changing the PR and replace the screenshot before requesting review. PRs without valid smoke-test evidence will not be reviewed or merged.
+
 ## Checklist
 
 - [ ] I have run the `black .` command to format the code base.
