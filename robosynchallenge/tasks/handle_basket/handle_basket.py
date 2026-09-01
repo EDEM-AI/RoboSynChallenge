@@ -223,7 +223,7 @@ class HandleBasketEnv(EmbodiedEnv):
         IN_BASKET_DIST = 0.10
         MOVE_Y_DELTA = 0.15
         Z_LIFT_DELTA = 0.01
-        REQUIRED_STABLE_STEPS = 75
+        REQUIRED_STABLE_STEPS = 55
 
         dist = torch.linalg.norm(milk_xy - basket_xy, dim=-1)
         in_basket = (dist < IN_BASKET_DIST) & (milk_z > basket_z)

@@ -18,6 +18,7 @@ import torch
 from typing import Dict, Optional
 
 from embodichain.lab.gym.envs import EmbodiedEnv, EmbodiedEnvCfg
+from embodichain.lab.sim.cfg import RigidConstraintCfg
 from embodichain.lab.gym.utils.registration import register_env
 from embodichain.utils import logger
 from robosynchallenge.managers.events import visualize_rigid_body_pose
@@ -37,7 +38,9 @@ class ItemAssemblyEnv(EmbodiedEnv):
         action_config = kwargs.get("action_config", None)
         if action_config is not None:
             self.action_config = action_config
-        self._guijiao_attached = False
+        # per-env attach flag so we don't re-attach already-welded arenas
+        self._guijiao_attached = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
+        # optional global step to wait before allowing attach (scheduled from packages)
         self._guijiao_attach_step = None
         self._guijiao_attach_schedule_checked = False
 
@@ -95,7 +98,7 @@ class ItemAssemblyEnv(EmbodiedEnv):
             logger.log_warning("Failed to generate expert demo action list.")
             return None
 
-        # self._schedule_guijiao_attach_after_edge("L_splice_to_align")
+            self._schedule_guijiao_attach_after_edge("L_splice_to_align")
 
         # TODO: to be removed, need a unified interface in robot class
         left_arm_joints = self.robot.get_joint_ids(name="left_arm", remove_mimic=True)
@@ -131,7 +134,8 @@ class ItemAssemblyEnv(EmbodiedEnv):
         return actions
 
     def _schedule_guijiao_attach_after_edge(self, edge_name: str):
-        self._guijiao_attached = False
+        # reset per-env attach flags when (re)scheduling
+        self._guijiao_attached = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
         self._guijiao_attach_step = None
         self._guijiao_attach_schedule_checked = True
         package_infos = getattr(self, "packages", {}).get("packages", [])
@@ -157,28 +161,142 @@ class ItemAssemblyEnv(EmbodiedEnv):
         self._schedule_guijiao_attach_after_edge("L_splice_to_align")
 
     def _run_guijiao_attach_if_ready(self):
+        """Check contact per-env and attach only those arenas that need it.
+
+        Uses the event functor `attach_guijiao` (defined in gym_config) so the
+        operation creates a proper rigid constraint in the sim layer instead of
+        using low-level node attach (which caused PhysX warnings).
+        """
         self._ensure_guijiao_attach_schedule()
-        if getattr(self, "_guijiao_attached", False):
-            return
-        trigger_step = getattr(self, "_guijiao_attach_step", None)
-        if trigger_step is None:
-            return
 
-        current_step = int(torch.min(self._elapsed_steps).item())
-        if current_step < trigger_step:
+        # compute per-env contact mask
+        try:
+            sensor = self.sim.get_sensor("guijiao_contact")
+        except Exception:
             return
 
-        ItemAssemblyActionBank.attach_rigid_objects_now(
-            self,
-            parent_uid="guijiao1",
-            child_uid="guijiao2",
-            set_kinematic=True,
-        )
-        self._guijiao_attached = True
+        try:
+            data = sensor.get_data()
+        except Exception:
+            return
+        if data is None:
+            return
 
-    # def step(self, action, **kwargs):
-    #     self._run_guijiao_attach_if_ready()
-    #     return super().step(action, **kwargs)
+        distances = data.get("distance")
+        is_valid = data.get("is_valid")
+        user_ids = data.get("user_ids")
+        if distances is None or is_valid is None or user_ids is None:
+            return
+
+        # resolve guijiao user ids
+        gu1 = self.sim.get_rigid_object("guijiao1")
+        gu2 = self.sim.get_rigid_object("guijiao2")
+        if gu1 is None or gu2 is None:
+            return
+        gu1_uids = gu1.get_user_ids().reshape(-1)
+        gu2_uids = gu2.get_user_ids().reshape(-1)
+
+        left_in_g1 = torch.isin(user_ids[:, :, 0], gu1_uids)
+        right_in_g2 = torch.isin(user_ids[:, :, 1], gu2_uids)
+        left_in_g2 = torch.isin(user_ids[:, :, 0], gu2_uids)
+        right_in_g1 = torch.isin(user_ids[:, :, 1], gu1_uids)
+        inter_mask = (left_in_g1 & right_in_g2) | (left_in_g2 & right_in_g1)
+
+        effective = is_valid & inter_mask
+        masked = torch.full_like(distances, float("inf"))
+        masked[effective] = distances[effective]
+        min_dist = masked.min(dim=1)[0]
+        contact_mask = min_dist <= 0.003
+
+        # additional axis-alignment check: require tube axes to be close (<=15deg)
+        try:
+            gu1_pose = gu1.get_local_pose(to_matrix=True)
+            gu2_pose = gu2.get_local_pose(to_matrix=True)
+            # extract local X axis (first column) for each env
+            dir1 = gu1_pose[:, :3, 0]
+            dir2 = gu2_pose[:, :3, 0]
+            dot = torch.sum(dir1 * dir2, dim=-1)
+            dot = torch.clamp(dot, -1.0, 1.0)
+            angle = torch.acos(torch.abs(dot))
+            angle_ok = angle <= (15.0 * torch.pi / 180.0)
+        except Exception:
+            # if pose unavailable, conservatively allow attach only by contact
+            angle_ok = torch.ones_like(contact_mask, dtype=torch.bool)
+
+        # final attach candidates: contact, alignment, and not already attached
+        attach_mask = contact_mask & angle_ok & (~self._guijiao_attached)
+
+        # if scheduled attach_step exists, require step >= schedule
+        if self._guijiao_attach_step is not None and hasattr(self, "_elapsed_steps"):
+            current_steps = self._elapsed_steps
+            attach_mask = attach_mask & (current_steps >= int(self._guijiao_attach_step))
+
+        attach_ids = attach_mask.nonzero(as_tuple=False).squeeze(-1)
+        if attach_ids.numel() == 0:
+            return
+
+        # debug log distances and angles for attach candidates
+        try:
+            dbg_dists = min_dist[attach_ids].cpu().tolist()
+        except Exception:
+            dbg_dists = None
+        try:
+            dbg_angles = None
+            if 'angle' in locals():
+                dbg_angles = (angle[attach_ids].cpu().numpy() * 180.0 / torch.pi).tolist()
+        except Exception:
+            dbg_angles = None
+        logger.log_info(f"Attaching guijiao for envs {attach_ids.tolist()} dists={dbg_dists} angles_deg={dbg_angles}")
+
+        # call event functor to create rigid constraint for selected arenas
+        applied = False
+        if hasattr(self, "event_manager"):
+            # sanity check: ensure mode exists
+            try:
+                if "attach_guijiao" not in self.event_manager.available_modes:
+                    logger.log_warning("event_manager has no mode 'attach_guijiao'; will fallback to sim API.")
+                else:
+                    try:
+                        self.event_manager.apply(mode="attach_guijiao", env_ids=attach_ids)
+                        applied = True
+                    except Exception:
+                        logger.log_warning("attach_guijiao event failed; will fallback to sim API.")
+            except Exception:
+                # unavailable available_modes, attempt apply anyway
+                try:
+                    self.event_manager.apply(mode="attach_guijiao", env_ids=attach_ids)
+                    applied = True
+                except Exception:
+                    logger.log_warning("attach_guijiao event failed; will fallback to sim API.")
+
+        if not applied:
+            # fallback: call sim.create_rigid_constraint directly for these envs
+            try:
+                cfg = RigidConstraintCfg(
+                    name="guijiao_weld",
+                    rigid_object_a_uid="guijiao1",
+                    rigid_object_b_uid="guijiao2",
+                    local_frame_a=None,
+                    local_frame_b=None,
+                )
+                constraint = self.sim.create_rigid_constraint(cfg=cfg, env_ids=attach_ids)
+                if constraint is None:
+                    logger.log_warning(f"sim.create_rigid_constraint returned None for envs {attach_ids.tolist()}")
+                else:
+                    applied = True
+                    logger.log_info(f"Created guijiao_weld constraint for envs {attach_ids.tolist()} via sim API")
+            except Exception as e:
+                logger.log_warning(f"sim.create_rigid_constraint failed: {e}")
+
+        # mark attached envs if any method succeeded
+        if applied:
+            self._guijiao_attached[attach_ids] = True
+
+    def step(self, action, **kwargs):
+        obs, rewards, terminateds, truncateds, info = super().step(action, **kwargs)
+        # attach if contact detected this step
+        self._run_guijiao_attach_if_ready()
+        return obs, rewards, terminateds, truncateds, info
 
 
     def compute_task_state(self, **kwargs):
@@ -319,16 +437,33 @@ class ItemAssemblyEnv(EmbodiedEnv):
         return self._success_flag
 
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
-        obs, info = super().reset(seed=seed, options=options)
-
         if options is None:
             options = {}
         reset_ids = options.get(
             "reset_ids",
             torch.arange(self.num_envs, dtype=torch.int32, device=self.device),
         )
-        self._success_flag[reset_ids] = False
 
+        # Important: the base env reset does not automatically run a custom
+        # "detach_guijiao" event. If we leave the welded constraint in place,
+        # the next episode will still see guijiao1/guijiao2 attached together.
+        try:
+            if hasattr(self, "event_manager"):
+                self.event_manager.apply(mode="detach_guijiao", env_ids=reset_ids)
+        except Exception:
+            pass
+        try:
+            self.sim.remove_rigid_constraint("guijiao_weld", env_ids=reset_ids)
+        except Exception:
+            pass
+
+        self._guijiao_attached[reset_ids] = False
+        self._guijiao_attach_step = None
+        self._guijiao_attach_schedule_checked = False
+
+        obs, info = super().reset(seed=seed, options=options)
+        self._guijiao_attached[reset_ids] = False
+        self._success_flag[reset_ids] = False
         return obs, info
 
 
