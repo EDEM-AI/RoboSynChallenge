@@ -21,7 +21,7 @@ Based on the [**EmbodiChain installation guide**](https://dexforce.github.io/Emb
 
 ### 1. Construct docker container
 
-First, please install [**EmbodiChain**](https://dexforce.github.io/EmbodiChain/main/quick_start/install.html) v0.2.3, which is the underlying simulation environment we use.
+First, please install [**EmbodiChain**](https://dexforce.github.io/EmbodiChain/main/quick_start/install.html) v0.2.4, which is the underlying simulation environment we use.
 
 ```bash
 docker pull dexforce/embodichain:ubuntu22.04-cuda12.8
@@ -83,7 +83,7 @@ source .venv/bin/activate
 mkdir RoboSynChallenge_ws && cd RoboSynChallenge_ws
 git clone https://github.com/DexForce/EmbodiChain.git
 cd EmbodiChain
-git checkout tags/v0.2.3
+git checkout tags/v0.2.4
 uv venv --python 3.11 .venv && source .venv/bin/activate
 uv pip install -e . \
   --extra-index-url http://pyp.open3dv.site:2345/simple/ \
