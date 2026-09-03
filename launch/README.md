@@ -20,12 +20,12 @@
 
 ```
 用法:
-  ./launch/run_task.sh <task_name> <setting> <format> [extra_args...]
+  ./launch/run_task.sh <task_name> <setting> [format] [extra_args...]
 
 参数:
   task_name    任务名称（见下方任务列表）
   setting      random 或 clear（是否启用域随机化）
-  format       3_0（LeRobot 3.0）或 2_1（LeRobot 2.1，自动转换）
+  format       可选：3_0（默认）或 2_1（自动转换为 LeRobot 2.1）
 ```
 
 **extra_args 常用选项：**
@@ -34,6 +34,9 @@
 |---|---|
 | `--max_episodes N` | 最多收集 N 个 episode |
 | `--headless` | 无头模式运行（不显示窗口） |
+| `--viser` | 通过浏览器实时可视化（自动启用无头模式） |
+| `--viser-host HOST` | Viser 监听地址（默认 `127.0.0.1`） |
+| `--viser-port PORT` | Viser 服务端口（默认 `8080`） |
 | `--filter_visual_rand` | 禁用视觉随机化 |
 | `--filter_dataset_saving` | 禁用数据集保存（仅运行不存盘） |
 
@@ -45,6 +48,12 @@
 
 # 收集 drawer_open_place 的 random 数据，无头模式
 ./launch/run_task.sh drawer_open_place random 3_0 --headless
+
+# 在浏览器中查看任务；按终端输出的地址访问
+./launch/run_task.sh drawer_open_place random --viser
+
+# 不保存数据，只通过浏览器检查环境
+./launch/run_task.sh drawer_open_place clear --viser --filter_dataset_saving
 
 # 仅测试环境能否正常运行（不存盘）
 ./launch/run_task.sh mixer_operating random 3_0 --filter_dataset_saving --max_episodes 1 --headless
@@ -71,9 +80,16 @@
 
 # 仅恢复机器人运动学状态
 ./launch/replay_task.sh drawer_open_place clear /path/to/state_action.pt --replay_mode kinematic
+
+# 在浏览器中查看轨迹回放
+./launch/replay_task.sh drawer_open_place clear /path/to/trajectory.pt --viser
 ```
 
 `dynamic` 模式会将记录的 action 重新送入环境，由物理引擎重新计算机器人和场景物体的交互。旧版轨迹不包含抽屉等场景物体的状态，因此要复现物体交互时应使用该模式。
+
+`--viser` 还可搭配 `--viser-host`、`--viser-port`、`--viser-fps`、
+`--viser-image-fps`、`--viser-soft-body-fps` 和 `--viser-env-ids` 使用。
+远程访问时可将监听地址设为 `0.0.0.0`，但应只向可信网络或客户端开放。
 
 ---
 
@@ -126,6 +142,7 @@
 |---|---|
 | `--resets N` | reset 次数（默认 100） |
 | `--headless` | 无头模式（默认已启用） |
+| `--viser` | 同时在 Viser 浏览器中查看实时场景 |
 
 **示例：**
 
@@ -135,6 +152,9 @@
 
 # 可视化 item_assembly 的 clear 配置，reset 50 次
 ./launch/run_visualize.sh item_assembly clear --resets 50
+
+# 生成分布图时，同时在浏览器中查看实时 reset 过程
+./launch/run_visualize.sh item_assembly random --viser
 ```
 
 该脚本调用 `scripts/visualize_distribution.py`，在窗口中循环 reset 环境，方便肉眼检查场景布局和随机化范围。
@@ -237,15 +257,14 @@ action_config: configs/<task_name>/action_config.json          （优先）
 
 ```
 用法:
-  ./policy/pi0/eval.sh <task_name> <setting> <train_config> <model_name> [checkpoint_id] [gpu_id] [extra_opts...]
+  ./policy/pi0/eval.sh <task_name> <setting> <train_config> <model_name> <gpu_id> [extra_opts...]
 
 参数:
   task_name       任务名称
   setting         random 或 clear
   train_config    openpi 训练配置名（对应 checkpoints/ 下的目录）
   model_name      模型名称（对应 checkpoints/<train_config>/ 下的目录）
-  checkpoint_id   checkpoint 步数（默认 30000）
-  gpu_id          GPU 编号（默认 0）
+  gpu_id          GPU 编号
 ```
 
 **extra_opts 示例：**
@@ -255,16 +274,21 @@ action_config: configs/<task_name>/action_config.json          （优先）
 | `--max_episodes N` | 评估 N 个 episode（默认 100） |
 | `--max_steps N` | 每个 episode 最大步数（默认 600） |
 | `--pi0_step N` | π₀ 每次推理输出的动作步数（默认 50） |
+| `--checkpoint_id N` | checkpoint 步数（默认 30000） |
 | `--seed N` | 随机种子 |
+| `--viser` | 通过浏览器实时可视化（自动启用无头模式） |
 
 **示例：**
 
 ```bash
 # 在 click_bell 的 random 配置上评估
-./policy/pi0/eval.sh click_bell random my_config pi0_base 30000 0
+./policy/pi0/eval.sh click_bell random my_config pi0_base 0 --checkpoint_id 30000
 
 # 50 个 episode，使用 clear 配置
-./policy/pi0/eval.sh water_pouring clear wpm2_embodichain pi0_wpm2 10000 1 --max_episodes 50
+./policy/pi0/eval.sh water_pouring clear wpm2_embodichain pi0_wpm2 1 --checkpoint_id 10000 --max_episodes 50
+
+# 在浏览器中查看策略评测
+./policy/pi0/eval.sh water_pouring clear wpm2_embodichain pi0_wpm2 1 --viser
 ```
 
 该脚本调用 `scripts/eval_policy.py`，通过 `policy/pi0/deploy_policy.yml` 配置文件统一管理参数。

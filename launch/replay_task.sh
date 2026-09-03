@@ -14,6 +14,7 @@ if [[ "$#" -eq 1 && ("$1" == "-h" || "$1" == "--help") ]]; then
     echo "Examples:"
     echo "  $0 drawer_open_place random /path/to/state_action.pt --replay_mode dynamic"
     echo "  $0 drawer_open_place clear /path/to/trajectory.pt --replay_mode kinematic"
+    echo "  $0 drawer_open_place clear /path/to/trajectory.pt --viser"
     exit 0
 fi
 

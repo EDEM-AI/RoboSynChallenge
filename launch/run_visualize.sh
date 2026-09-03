@@ -16,7 +16,8 @@ if [[ "$#" -eq 1 && ("$1" == "-h" || "$1" == "--help") ]]; then
 
     echo -e "\033[1;33mAvailable Extra Arguments (Examples):\033[0m"
     echo -e "  \033[1;35m--resets\033[0m       : Number of resets to visualize (default: 100)"
-    echo -e "  \033[1;35m--headless\033[0m     : Run in headless mode (default: true)\n"
+    echo -e "  \033[1;35m--headless\033[0m     : Run in headless mode (default: true)"
+    echo -e "  \033[1;35m--viser\033[0m       : Publish the live scene to the Viser browser\n"
 
     echo -e "\033[1;33mAvailable task name examples:\033[0m"
 

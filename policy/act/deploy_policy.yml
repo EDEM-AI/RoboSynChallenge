@@ -12,6 +12,7 @@ seed: 0
 max_episodes: 20
 max_steps: 1000
 headless: false
+viser: false # Enable the headless Viser browser visualization.
 pytorch_device: cuda
 filter_dataset_saving: true
 eval_video_log: true

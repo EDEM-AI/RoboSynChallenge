@@ -97,6 +97,40 @@ def _set_default(config, key, value):
         config[key] = value
 
 
+def _merge_deploy_config_with_gym_config(config, gym_config):
+    """Apply deploy-time simulation and Viser options to a gym config."""
+    gym_config = deepcopy(gym_config)
+    _set_default(gym_config, "num_envs", int(config.get("num_envs", 1)))
+    _set_default(gym_config, "device", config.get("device", "cpu"))
+    _set_default(gym_config, "headless", bool(config.get("headless", False)))
+    _set_default(gym_config, "renderer", config.get("renderer", "hybrid"))
+    _set_default(gym_config, "gpu_id", int(config.get("gpu_id", 0)))
+    _set_default(gym_config, "arena_space", float(config.get("arena_space", 5.0)))
+
+    launcher_args = argparse.Namespace(
+        num_envs=gym_config["num_envs"],
+        device=gym_config["device"],
+        headless=gym_config["headless"],
+        renderer=gym_config["renderer"],
+        gpu_id=gym_config["gpu_id"],
+        arena_space=gym_config["arena_space"],
+        max_episodes=None,
+        viser=bool(config.get("viser", False)),
+    )
+    for option in (
+        "viser_host",
+        "viser_port",
+        "viser_fps",
+        "viser_image_fps",
+        "viser_soft_body_fps",
+        "viser_env_ids",
+    ):
+        if config.get(option) is not None:
+            setattr(launcher_args, option, config[option])
+
+    return gym_utils.merge_args_with_gym_config(launcher_args, gym_config)
+
+
 def _as_int_or_none(value):
     if value is None:
         return None
@@ -336,16 +370,7 @@ def make_env_from_configs(config, gym_config_dict, action_config_dict):
     This keeps nested robot/sensor/object dictionaries as EmbodiChain config
     objects instead of passing raw dicts into EmbodiedEnvCfg.
     """
-    from embodichain.lab.sim import SimulationManagerCfg
-    from embodichain.lab.sim.cfg import RenderCfg
-
-    gym_config = deepcopy(gym_config_dict)
-    _set_default(gym_config, "num_envs", int(config.get("num_envs", 1)))
-    _set_default(gym_config, "device", config.get("device", "cpu"))
-    _set_default(gym_config, "headless", bool(config.get("headless", False)))
-    _set_default(gym_config, "renderer", config.get("renderer", "hybrid"))
-    _set_default(gym_config, "gpu_id", int(config.get("gpu_id", 0)))
-    _set_default(gym_config, "arena_space", float(config.get("arena_space", 5.0)))
+    gym_config = _merge_deploy_config_with_gym_config(config, gym_config_dict)
 
     max_env_steps, _, _ = resolve_episode_max_steps(config, gym_config)
     gym_config["max_episode_steps"] = max_env_steps
@@ -355,13 +380,6 @@ def make_env_from_configs(config, gym_config_dict, action_config_dict):
         manager_modules=CHALLENGE_MANAGER_MODULES,
     )
     env_cfg.filter_dataset_saving = bool(config.get("filter_dataset_saving", True))
-    env_cfg.sim_cfg = SimulationManagerCfg(
-        headless=gym_config["headless"],
-        sim_device=gym_config["device"],
-        render_cfg=RenderCfg(renderer=gym_config["renderer"]),
-        gpu_id=gym_config["gpu_id"],
-        arena_space=gym_config["arena_space"],
-    )
     physics_config = gym_config.get("physics", {})
     if "enable_ccd" in physics_config:
         env_cfg.sim_cfg.physics_config.enable_ccd = bool(
@@ -514,9 +532,46 @@ def parse_args_and_config():
 
     # Parse overrides
     if args.overrides:
-        for i in range(0, len(args.overrides), 2):
-            key = args.overrides[i].lstrip("-")
-            value = args.overrides[i + 1]
+        index = 0
+        while index < len(args.overrides):
+            option = args.overrides[index]
+            if not option.startswith("--"):
+                parser.error(f"Expected an override option, received: {option}")
+            key = option[2:].replace("-", "_")
+            if key == "viser_env_ids":
+                value_end = index + 1
+                while (
+                    value_end < len(args.overrides)
+                    and not args.overrides[value_end].startswith("--")
+                ):
+                    value_end += 1
+                if value_end == index + 1:
+                    parser.error(f"{option} requires at least one environment ID")
+                values = []
+                for raw_value in args.overrides[index + 1 : value_end]:
+                    if raw_value.lower() != "all":
+                        try:
+                            raw_value = eval(raw_value)
+                        except Exception:
+                            pass
+                    values.append(raw_value)
+                if len(values) == 1 and isinstance(values[0], (list, tuple)):
+                    values = list(values[0])
+                config[key] = values
+                index = value_end
+                continue
+            next_is_option = (
+                index + 1 >= len(args.overrides)
+                or args.overrides[index + 1].startswith("--")
+            )
+            if next_is_option:
+                if not isinstance(config.get(key), bool):
+                    parser.error(f"{option} requires a value")
+                value = True
+                index += 1
+            else:
+                value = args.overrides[index + 1]
+                index += 2
             try:
                 value = eval(value)
             except Exception:
