@@ -16,6 +16,7 @@ num_envs: 1
 filter_dataset_saving: true
 eval_video_log: false
 eval_video_obs_key: cam_high
+eval_expert_check: true
 
 # eval.sh supplies checkpoint_dir from its third argument. A checkpoint step
 # directory containing pretrained_model/ is also accepted.

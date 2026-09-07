@@ -20,6 +20,7 @@ eval_video_obs_keys:
   - cam_right_wrist
   - cam_left_wrist
 eval_reset_sync_steps: 1
+eval_expert_check: true
 
 # ------------------------------------------------------------------
 # Diffusion Policy parameters used by get_model()
