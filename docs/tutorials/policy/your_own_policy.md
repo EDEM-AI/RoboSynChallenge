@@ -227,7 +227,7 @@ Optional but **recommended**. This function is called before the evaluation of *
 ## ✔️ Run `eval.sh`
 
 ```
-bash eval.sh ...(input parameters you define)
+EMBODICHAIN_SIM_EXIT_PROCESS=0 bash eval.sh ...(input parameters you define)
 ```
 
 ## 📌 Notes

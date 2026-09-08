@@ -24,6 +24,7 @@ The machine-readable source is [`released_checkpoint_results.json`](released_che
 Use the policy-specific evaluation wrapper with the released checkpoint and the `random` setting:
 
 ```bash
+EMBODICHAIN_SIM_EXIT_PROCESS=0 # need to set this environmental variable for eval result recording
 bash policy/act/eval.sh <task_name> random <act_checkpoint_path> 0 --headless True
 bash policy/dp/eval.sh <task_name> random <dp_checkpoint_path> 0 --headless True
 ```

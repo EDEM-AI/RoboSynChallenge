@@ -170,10 +170,11 @@ The released repository contains the complete `pretrained_model` directory, so p
 
 ```bash
 checkpoint_path=checkpoints/DP_sim_{task_name}
+EMBODICHAIN_SIM_EXIT_PROCESS=0
 bash policy/dp/eval.sh ${task_name} [random | clear] ${checkpoint_path} ${gpu_id} \
   --pytorch_device cuda \
   --headless True
-# bash policy/dp/eval.sh click_bell random checkpoints/DP_sim_click_bell 0 --pytorch_device cuda --headless True
+# EMBODICHAIN_SIM_EXIT_PROCESS=0 bash policy/dp/eval.sh click_bell random checkpoints/DP_sim_click_bell 0 --pytorch_device cuda --headless True
 ```
 
 The evaluation results, including videos, will be saved in the `eval_result/{task_name}/dp/{setting}/{train_config_name}/{model_name}/{timestamp}/videos` directory under the project root. For DP, `train_config_name` is usually `None` unless you pass it explicitly through the evaluation config.

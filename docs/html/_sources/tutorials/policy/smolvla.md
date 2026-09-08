@@ -196,7 +196,7 @@ contents, so pass the downloaded directory directly as `checkpoint_path`:
 ```bash
 checkpoint_path=checkpoints/SmolVLA_sim_${task_name}
 
-bash policy/smolvla/eval.sh ${task_name} random ${checkpoint_path} ${gpu_id} \
+EMBODICHAIN_SIM_EXIT_PROCESS=0 bash policy/smolvla/eval.sh ${task_name} random ${checkpoint_path} ${gpu_id} \
   --pytorch_device cuda \
   --headless true \
   --renderer auto \
@@ -208,7 +208,7 @@ bash policy/smolvla/eval.sh ${task_name} random ${checkpoint_path} ${gpu_id} \
 Example:
 
 ```bash
-bash policy/smolvla/eval.sh click_bell random checkpoints/SmolVLA_sim_click_bell 0 \
+EMBODICHAIN_SIM_EXIT_PROCESS=0 bash policy/smolvla/eval.sh click_bell random checkpoints/SmolVLA_sim_click_bell 0 \
   --pytorch_device cuda \
   --headless true \
   --renderer auto \
@@ -221,7 +221,7 @@ bash policy/smolvla/eval.sh click_bell random checkpoints/SmolVLA_sim_click_bell
 The evaluation script also accepts a LeRobot checkpoint step directory:
 
 ```bash
-bash policy/smolvla/eval.sh click_bell random \
+EMBODICHAIN_SIM_EXIT_PROCESS=0 bash policy/smolvla/eval.sh click_bell random \
   outputs/train/cobotmagic_smolvla_click_bell_run1/checkpoints/050000 \
   0 \
   --pytorch_device cuda \

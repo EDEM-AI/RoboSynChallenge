@@ -166,10 +166,10 @@ The released repository contains the complete `pretrained_model` directory, so p
 
 ```bash
 checkpoint_path=checkpoints/ACT_sim_{task_name}
-bash policy/act/eval.sh ${task_name} [random | clear] ${checkpoint_path} ${gpu_id} \
+EMBODICHAIN_SIM_EXIT_PROCESS=0 bash policy/act/eval.sh ${task_name} [random | clear] ${checkpoint_path} ${gpu_id} \
   --pytorch_device cuda \
   --headless True
-# bash policy/act/eval.sh click_bell random checkpoints/ACT_sim_click_bell 0 --pytorch_device cuda --headless True
+# EMBODICHAIN_SIM_EXIT_PROCESS=0 bash policy/act/eval.sh click_bell random checkpoints/ACT_sim_click_bell 0 --pytorch_device cuda --headless True
 ```
 
 The evaluation results, including videos, will be saved in the `eval_result/{task_name}/act/{setting}/{train_config_name}/{model_name}/{timestamp}/videos` directory under the project root. For ACT, `train_config_name` is usually `None` unless you pass it explicitly through the evaluation config.
