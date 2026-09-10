@@ -55,9 +55,6 @@ class WaterPouringActionBank(ActionBank):
         valid_funcs_name_kwargs_proc: List | None = None,
     ):
         # FIXME FIXME FIXME FIXME
-        logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_left_arm_aim_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
-        )
         left_aim_horizontal_angle = np.arctan2(
             *(
                 (
@@ -80,9 +77,6 @@ class WaterPouringActionBank(ActionBank):
         valid_funcs_name_kwargs_proc: list | None = None,
     ):
         # FIXME FIXME FIXME FIXME
-        logger.log_warning(
-            f"CAUTION=============================THIS FUNC generate_right_arm_aim_qpos IS WRONG!!!! PLEASE FIX IT!!!!"
-        )
         right_aim_horizontal_angle = np.arctan2(
             *(
                 (
