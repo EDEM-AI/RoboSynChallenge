@@ -433,6 +433,8 @@ def make_env_from_configs(config, gym_config_dict, action_config_dict):
     _set_default(gym_config, "renderer", config.get("renderer", "hybrid"))
     _set_default(gym_config, "gpu_id", int(config.get("gpu_id", 0)))
     _set_default(gym_config, "arena_space", float(config.get("arena_space", 5.0)))
+    if config.get("seed") is not None:
+        gym_config["seed"] = int(config["seed"])
 
     max_env_steps, _, _ = resolve_episode_max_steps(config, gym_config)
     gym_config["max_episode_steps"] = max_env_steps
