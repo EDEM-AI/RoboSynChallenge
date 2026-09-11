@@ -447,15 +447,22 @@ class ItemAssemblyEnv(EmbodiedEnv):
         # Important: the base env reset does not automatically run a custom
         # "detach_guijiao" event. If we leave the welded constraint in place,
         # the next episode will still see guijiao1/guijiao2 attached together.
-        try:
-            if hasattr(self, "event_manager"):
-                self.event_manager.apply(mode="detach_guijiao", env_ids=reset_ids)
-        except Exception:
-            pass
-        try:
-            self.sim.remove_rigid_constraint("guijiao_weld", env_ids=reset_ids)
-        except Exception:
-            pass
+        if "guijiao_weld" in self.sim.get_rigid_constraint_uid_list():
+            detached = False
+            event_manager = getattr(self, "event_manager", None)
+            if (
+                event_manager is not None
+                and "detach_guijiao" in event_manager.available_modes
+            ):
+                try:
+                    event_manager.apply(mode="detach_guijiao", env_ids=reset_ids)
+                    detached = True
+                except Exception as exc:
+                    logger.log_warning(
+                        f"detach_guijiao event failed; falling back to sim API: {exc}"
+                    )
+            if not detached and "guijiao_weld" in self.sim.get_rigid_constraint_uid_list():
+                self.sim.remove_rigid_constraint("guijiao_weld", env_ids=reset_ids)
 
         self._guijiao_attached[reset_ids] = False
         self._guijiao_attach_step = None
