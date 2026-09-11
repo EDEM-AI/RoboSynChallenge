@@ -119,7 +119,7 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "cube"},
-                    "position_range": [[0.45, -0.28, 0.86], [0.68, 0.0, 0.86]],
+                    "position_range": [[0.45, -0.28, 0.86], [0.68, -0.05, 0.86]],
                     "rotation_range": [[-20, 0, 0], [20, 0, 0]],
                     "relative_position": false,
                     "relative_rotation": true
@@ -130,7 +130,7 @@
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "rack"},
-                    "position_range": [[0.63, 0, 0.865], [0.7, 0.15, 0.865]],
+                    "position_range": [[0.63, 0.05, 0.865], [0.7, 0.15, 0.865]],
                     "rotation_range": [[0, 0, 0], [0, 0, 90]],
                     "relative_position": false,
                     "relative_rotation": true
