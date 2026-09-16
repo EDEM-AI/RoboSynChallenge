@@ -1,7 +1,7 @@
 {
     "id": "ItemAssembly",
     "max_episodes": 100,
-    "max_episode_steps": 361,
+    "max_episode_steps": 500,
     "env": {
         "events": {
             "random_light": {
