@@ -86,7 +86,12 @@ echo "${RUN_CMD[@]}"
 echo "========================================="
 
 "${RUN_CMD[@]}"
+RUN_STATUS=$?
 sleep 5;
+if [ $RUN_STATUS -ne 0 ]; then
+    echo -e "\033[1;31mError: data collection failed (exit status $RUN_STATUS).\033[0m"
+    exit $RUN_STATUS
+fi
 
 if [ "$FORMAT" == "2_1" ]; then
     echo "========================================="
@@ -96,6 +101,7 @@ if [ "$FORMAT" == "2_1" ]; then
 
     if [[ "$LATEST_REL_PATH" == *"ERROR"* ]]; then
         echo -e "\033[1;31mError: Could not find generated dataset for conversion.\033[0m"
+        exit 1
     else
         DATASET_ID=$(basename "$LATEST_REL_PATH")
         DATASET_ROOT="$REPO_ROOT/lerobot_dataset/$TASK_NAME"
