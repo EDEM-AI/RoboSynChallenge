@@ -316,6 +316,9 @@ class ItemAssemblyEnv(EmbodiedEnv):
         if guijiao1_pose is None or guijiao2_pose is None:
             metrics = {}
             fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
+            # Intentionally zero: a True success here would make EmbodiChain's BaseEnv.step
+            # terminate and auto-reset the env (clearing _success_flag) before the caller can
+            # check it. Read success through is_task_success() instead.
             success = torch.zeros_like(fail, dtype=torch.bool)
             return success, fail, metrics
 
@@ -430,6 +433,9 @@ class ItemAssemblyEnv(EmbodiedEnv):
             metrics["guijiao_contact_ok"] = contact_ok
 
         fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
+        # Intentionally zero: a True success here would make EmbodiChain's BaseEnv.step
+        # terminate and auto-reset the env (clearing _success_flag) before the caller can
+        # check it. Read success through is_task_success() instead.
         success = torch.zeros_like(fail, dtype=torch.bool)
         return success, fail, metrics
 
