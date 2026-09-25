@@ -50,6 +50,7 @@ fi
 cd "$REPO_ROOT" # move to RoboSynChallenge root
 
 PYTHONWARNINGS=ignore::UserWarning \
+EMBODICHAIN_SIM_EXIT_PROCESS=0 \
 "$PYTHON_BIN" scripts/eval_policy.py \
     --config policy/$POLICY_NAME/deploy_policy.yml \
     --overrides \
