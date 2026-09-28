@@ -464,7 +464,7 @@
                 }
             },
             "drawer_pose": {
-                "func": "get_rigid_object_pose",
+                "func": "get_object_pose",
                 "mode": "add",
                 "name": "drawer_pose",
                 "params": {
