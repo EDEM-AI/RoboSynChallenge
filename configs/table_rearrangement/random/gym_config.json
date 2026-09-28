@@ -25,7 +25,7 @@
                 }
             },
             "random_camera_high_extrinsics": {
-                "func": "randomize_camera_extrinsics",
+                "func": "randomize_camera_extrinsics_isolated_rng",
                 "mode": "reset",
                 "params": {
                     "entity_cfg": {"uid": "cam_high"},
