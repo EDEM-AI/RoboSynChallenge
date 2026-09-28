@@ -38,6 +38,9 @@ from embodichain.lab.sim.cfg import RigidObjectCfg, ArticulationCfg
 from embodichain.lab.sim.shapes import MeshCfg
 from embodichain.lab.gym.envs.managers.cfg import SceneEntityCfg
 from embodichain.lab.gym.envs.managers import Functor, FunctorCfg
+from embodichain.lab.gym.envs.managers.randomization.visual import (
+    randomize_camera_extrinsics as _randomize_camera_extrinsics,
+)
 from embodichain.utils.module_utils import find_function_from_modules
 from embodichain.utils.string import remove_regex_chars, resolve_matching_names
 from embodichain.utils.file import get_all_files_in_directory
@@ -1385,3 +1388,38 @@ def sync_object_xy_position(
     # Set the synchronized pose
     target_obj.set_local_pose(tgt_pose, env_ids=env_ids)
     target_obj.clear_dynamics(env_ids=env_ids)
+
+
+def randomize_camera_extrinsics_isolated_rng(
+    env: EmbodiedEnv,
+    env_ids: torch.Tensor | None,
+    entity_cfg: SceneEntityCfg,
+    pos_range: tuple[list[float], list[float]] | None = None,
+    euler_range: tuple[list[float], list[float]] | None = None,
+    eye_range: tuple[list[float], list[float]] | None = None,
+    target_range: tuple[list[float], list[float]] | None = None,
+    up_range: tuple[list[float], list[float]] | None = None,
+) -> None:
+    """Same as EmbodiChain's ``randomize_camera_extrinsics``, but leaves the global torch RNG untouched.
+
+    In the random configs the camera extrinsics event runs before the robot and object
+    reset events, and ``sample_uniform`` draws from the global CPU generator. Turning on
+    ``eye_range`` there would shift every later draw, so the same seed would give a
+    different object layout. Here the camera draws come from a stream seeded from the
+    current global state inside ``fork_rng``: the camera pose is still fixed by the
+    episode seed, and the global state after the event is exactly what it was before.
+    """
+    with torch.random.fork_rng(devices=[]):
+        # sample_uniform draws on the CPU, so only the CPU generator needs forking.
+        stream_seed = int(torch.randint(0, 2**62, (1,)).item())
+        torch.default_generator.manual_seed(stream_seed)
+        _randomize_camera_extrinsics(
+            env,
+            env_ids,
+            entity_cfg,
+            pos_range=pos_range,
+            euler_range=euler_range,
+            eye_range=eye_range,
+            target_range=target_range,
+            up_range=up_range,
+        )
