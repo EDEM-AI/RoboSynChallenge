@@ -12,6 +12,7 @@ seed: 0
 max_episodes: 20
 max_steps: 1000 # Maximum environment steps per episode. Effective limit is max(deploy_config.max_steps, gym_config.max_episode_steps).
 headless: false
+viser: false # Enable the headless Viser browser visualization.
 pytorch_device: cuda
 filter_dataset_saving: true
 eval_video_log: true

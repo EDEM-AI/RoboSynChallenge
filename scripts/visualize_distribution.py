@@ -18,9 +18,16 @@ def parse_args():
     parser.add_argument("--alpha", type=float, default=0.45); parser.add_argument("--background-mode", choices=("inpaint", "first-frame"), default="inpaint")
     parser.add_argument("--include-first-overlay", action="store_true"); parser.add_argument("--foreground-uids", nargs="*")
     for name, default in (("num_envs", 1), ("arena_space", 5.0), ("gpu_id", 0)): parser.add_argument(f"--{name}", type=type(default), default=default)
-    parser.add_argument("--device", default="cpu"); parser.add_argument("--enable_rt", action="store_true")
+    parser.add_argument("--device", default="cpu")
+    parser.add_argument("--renderer", choices=("auto", "hybrid", "fast-rt", "rt"))
+    parser.add_argument("--enable_rt", action="store_true", help="deprecated alias for --renderer fast-rt")
+    parser.add_argument("--max_episodes", type=int)
     parser.add_argument("--headless", dest="headless", action="store_true", default=True); parser.add_argument("--no-headless", dest="headless", action="store_false")
-    return parser.parse_args()
+    from embodichain.lab.visualization import add_viser_args_to_parser
+    add_viser_args_to_parser(parser)
+    args = parser.parse_args()
+    if args.enable_rt and args.renderer is None: args.renderer = "fast-rt"
+    return args
 
 def repo_path(path):
     path = Path(path)
@@ -42,7 +49,6 @@ def make_env(opt):
     import robosynchallenge, gymnasium as gym  # noqa: F401
     import embodichain.lab.gym.utils.gym_utils as gym_utils
     from embodichain.lab.gym.utils.gym_utils import config_to_cfg, merge_args_with_gym_config
-    from embodichain.lab.sim import SimulationManagerCfg
 
     for suffix in ("actions", "datasets", "events", "observations"):
         module = f"robosynchallenge.managers.{suffix}"
@@ -58,7 +64,6 @@ def make_env(opt):
     merged = merge_args_with_gym_config(opt, config); env_cfg = config_to_cfg(merged)
 
     env_cfg.filter_visual_rand = True; env_cfg.filter_dataset_saving = True
-    env_cfg.sim_cfg = SimulationManagerCfg(headless=merged["headless"], sim_device=merged["device"], enable_rt=merged["enable_rt"], gpu_id=merged["gpu_id"], arena_space=merged["arena_space"])
     return gym.make(id=merged["id"], cfg=env_cfg, action_config=read_json(opt.action_config)), raw
 
 def as_numpy(value):
