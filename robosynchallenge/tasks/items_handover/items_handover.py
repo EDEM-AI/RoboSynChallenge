@@ -156,37 +156,26 @@ class ItemsHandoverEnv(EmbodiedEnv):
         pen = self.sim.get_rigid_object("pen")
         holder = self.sim.get_rigid_object("holder")
 
-        pen_aabb = None
-        holder_aabb = None
+        def z_overlap(pen_aabb, holder_aabb):
+            # AABB format: [minx,miny,minz,maxx,maxy,maxz]
+            pen_min_z, pen_max_z = float(pen_aabb[2]), float(pen_aabb[5])
+            holder_min_z, holder_max_z = float(holder_aabb[2]), float(holder_aabb[5])
+            return min(pen_max_z, holder_max_z) - max(pen_min_z, holder_min_z) > 0.08
+
+        # Evaluate every env with its own entities; the result used to be
+        # computed from env 0 only and broadcast to all envs.
         try:
-            pen_aabb = pen._entities[0].get_aabb_attr()
+            overlaps = [
+                z_overlap(pen._entities[i].get_aabb_attr(), holder._entities[i].get_aabb_attr())
+                for i in range(self.num_envs)
+            ]
         except Exception:
             try:
-                pen_aabb = pen.get_aabb_attr()
+                overlaps = [z_overlap(pen.get_aabb_attr(), holder.get_aabb_attr())] * self.num_envs
             except Exception:
-                pen_aabb = None
+                return None
 
-        try:
-            holder_aabb = holder._entities[0].get_aabb_attr()
-        except Exception:
-            try:
-                holder_aabb = holder.get_aabb_attr()
-            except Exception:
-                holder_aabb = None
-
-        if pen_aabb is None or holder_aabb is None:
-            return None
-
-        # AABB format: [minx,miny,minz,maxx,maxy,maxz]
-        pen_min_z, pen_max_z = float(pen_aabb[2]), float(pen_aabb[5])
-        holder_min_z, holder_max_z = float(holder_aabb[2]), float(holder_aabb[5])
-        overlap = min(pen_max_z, holder_max_z) - max(pen_min_z, holder_min_z)
-        return torch.full(
-            (self.num_envs,),
-            bool(overlap > 0.08),
-            dtype=torch.bool,
-            device=self.device,
-        )
+        return torch.tensor(overlaps, dtype=torch.bool, device=self.device)
 
     def compute_task_state(self, **kwargs):
         success, holder_ret, metrics = self._evaluate_task_state()
