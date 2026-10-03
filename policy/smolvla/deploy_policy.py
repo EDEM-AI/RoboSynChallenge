@@ -159,6 +159,7 @@ class SmolVLAWorkerClient:
         worker_path = policy_root / "smolvla_worker.py"
         worker_env = os.environ.copy()
         worker_env["CUDA_VISIBLE_DEVICES"] = self.cuda_visible_devices
+        worker_env["PYTHONUNBUFFERED"] = "1"
         worker_cmd = [
             self.python_bin,
             str(worker_path),
