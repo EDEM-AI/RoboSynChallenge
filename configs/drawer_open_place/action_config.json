@@ -679,7 +679,7 @@
         "left_eef": [
             {
                 "left_eef_init_qpos": {
-                    "name": "prepare_eef_qpos_limits",
+                    "name": "prepare_eef_commands",
                     "kwargs": {
                         "control_part": "left_eef"
                     }
@@ -1136,7 +1136,7 @@
         "right_eef": [
             {
                 "right_eef_init_qpos": {
-                    "name": "prepare_eef_qpos_limits",
+                    "name": "prepare_eef_commands",
                     "kwargs": {
                         "control_part": "right_eef"
                     }

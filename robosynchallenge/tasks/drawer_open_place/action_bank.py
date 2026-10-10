@@ -58,22 +58,14 @@ class DrawerOpenPlaceActionBank(ActionBank):
         return qpos.T.astype(np.float32)
 
     @staticmethod
-    def _match_control_dim(env, control_part: str, qpos) -> np.ndarray:
-        qpos = DrawerOpenPlaceActionBank._to_numpy(qpos).reshape(-1)
-        target_dim = len(env.robot.get_joint_ids(name=control_part, remove_mimic=True))
-        if target_dim <= 0 or qpos.shape[0] == target_dim:
-            return qpos
-        return qpos[:target_dim]
+    def _get_eef_command_qpos(env, control_part: str, is_open: bool) -> np.ndarray:
+        """Use the same direct 0-1 gripper commands as the other competition tasks.
 
-    @staticmethod
-    def _get_eef_limit_qpos(env, control_part: str, is_open: bool) -> np.ndarray:
-        qpos_limits = DrawerOpenPlaceActionBank._to_numpy(
-            env.robot.get_qpos_limits(name=control_part)
-        )
-        limit_idx = 1 if is_open else 0
-        return DrawerOpenPlaceActionBank._match_control_dim(
-            env, control_part, qpos_limits[0, :, limit_idx]
-        )
+        These are command values sent unchanged to the simulator and recorder,
+        rather than normalized physical joint positions.
+        """
+        joint_count = len(env.robot.get_joint_ids(name=control_part, remove_mimic=True))
+        return np.full(joint_count, 1.0 if is_open else 0.0, dtype=np.float32)
 
     @staticmethod
     @tag_node
@@ -136,11 +128,11 @@ class DrawerOpenPlaceActionBank(ActionBank):
     @staticmethod
     @tag_node
     @resolve_env_params
-    def prepare_eef_qpos_limits(env, control_part: str, **kwargs):
-        open_qpos = DrawerOpenPlaceActionBank._get_eef_limit_qpos(
+    def prepare_eef_commands(env, control_part: str, **kwargs):
+        open_qpos = DrawerOpenPlaceActionBank._get_eef_command_qpos(
             env, control_part, is_open=True
         )
-        close_qpos = DrawerOpenPlaceActionBank._get_eef_limit_qpos(
+        close_qpos = DrawerOpenPlaceActionBank._get_eef_command_qpos(
             env, control_part, is_open=False
         )
         env.affordance_datas[f"{control_part}_init_qpos"] = open_qpos
@@ -166,13 +158,13 @@ class DrawerOpenPlaceActionBank(ActionBank):
 
         open_qpos = env.affordance_datas.get(
             f"{control_part}_open_qpos",
-            DrawerOpenPlaceActionBank._get_eef_limit_qpos(
+            DrawerOpenPlaceActionBank._get_eef_command_qpos(
                 env, control_part, is_open=True
             ),
         )
         close_qpos = env.affordance_datas.get(
             f"{control_part}_close_qpos",
-            DrawerOpenPlaceActionBank._get_eef_limit_qpos(
+            DrawerOpenPlaceActionBank._get_eef_command_qpos(
                 env, control_part, is_open=False
             ),
         )
@@ -206,13 +198,13 @@ class DrawerOpenPlaceActionBank(ActionBank):
 
         open_qpos = env.affordance_datas.get(
             f"{control_part}_open_qpos",
-            DrawerOpenPlaceActionBank._get_eef_limit_qpos(
+            DrawerOpenPlaceActionBank._get_eef_command_qpos(
                 env, control_part, is_open=True
             ),
         )
         close_qpos = env.affordance_datas.get(
             f"{control_part}_close_qpos",
-            DrawerOpenPlaceActionBank._get_eef_limit_qpos(
+            DrawerOpenPlaceActionBank._get_eef_command_qpos(
                 env, control_part, is_open=False
             ),
         )
