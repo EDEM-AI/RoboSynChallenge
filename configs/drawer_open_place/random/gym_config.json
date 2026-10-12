@@ -171,7 +171,8 @@
                     "avoid_uids": ["duck", "drawer"],
                     "min_distance_to_avoid": 0.4,
                     "max_resample_attempts": 100,
-                    "physics_update_step": 1
+                    "physics_update_step": 1,
+                    "fallback_to_farthest": true
                 }
             },
             "prepare_extra_attr": {
