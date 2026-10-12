@@ -156,6 +156,7 @@ class SmolVLAWorkerClient:
             usr_args.get("smolvla_cuda_visible_devices", usr_args.get("gpu_id", 0))
         )
         self.image_keys = self._resolve_image_keys()
+        self.episode_seeded = False
         worker_path = policy_root / "smolvla_worker.py"
         worker_env = os.environ.copy()
         worker_env["CUDA_VISIBLE_DEVICES"] = self.cuda_visible_devices
@@ -273,7 +274,11 @@ class SmolVLAWorkerClient:
 
     def reset(self) -> None:
         self._debug_chunks_printed = 0
+        self.episode_seeded = False
         self._rpc({"cmd": "reset"})
+
+    def seed(self, seed: int) -> None:
+        self._rpc({"cmd": "seed", "seed": int(seed)})
 
     def maybe_print_action_debug(self, actions: list[np.ndarray]) -> None:
         if not self.debug_actions or self._debug_chunks_printed >= self.debug_action_chunks:
@@ -336,7 +341,22 @@ def get_model(usr_args):
     return SmolVLAWorkerClient(usr_args)
 
 
+def _episode_seed(env):
+    """The per-episode seed scripts/eval_policy.py stores before every episode."""
+    seed = getattr(getattr(env, "unwrapped", env), "_robosyn_episode_seed", None)
+    return None if seed is None else int(seed)
+
+
 def eval(env, model, obs):
+    if not getattr(model, "episode_seeded", True):
+        seed = _episode_seed(env)
+        if seed is not None:
+            try:
+                model.seed(seed)
+            except RuntimeError as exc:
+                print(f"[SmolVLA] WARNING: worker not seeded ({exc})", file=sys.stderr, flush=True)
+        model.episode_seeded = True
+
     instruction = getattr(env, "_current_instruction", None) or "click the bell"
     encoded_obs = encode_obs(obs, image_keys=model.image_keys)
     actions = model.infer(encoded_obs, task=instruction)

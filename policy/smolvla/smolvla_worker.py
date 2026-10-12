@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import json
+import random
 import sys
 from pathlib import Path
 
@@ -96,6 +97,14 @@ def main() -> int:
             if cmd == "reset":
                 policy.reset()
                 _send({"ok": True})
+                continue
+
+            if cmd == "seed":
+                seed = int(request["seed"])
+                random.seed(seed)
+                np.random.seed(seed % 2 ** 32)
+                torch.manual_seed(seed)
+                _send({"ok": True, "seed": seed})
                 continue
 
             if cmd != "infer":
