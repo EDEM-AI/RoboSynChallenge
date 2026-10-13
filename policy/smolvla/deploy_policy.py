@@ -51,7 +51,9 @@ def _extract_image(obs, sensor_name: str, env_index: int = 0) -> np.ndarray:
     elif chw.dtype != np.uint8:
         chw = np.clip(chw, 0, 255).astype(np.uint8)
 
-    return np.ascontiguousarray(chw)
+    # SmolVLA is trained on float32 images in [0, 1] (LeRobot decodes video
+    # frames to float32 / 255) and nothing downstream converts uint8.
+    return np.ascontiguousarray(chw.astype(np.float32) / 255.0)
 
 
 def _extract_joint(obs, key: str, fallback: np.ndarray | None = None, env_index: int = 0) -> np.ndarray:
@@ -358,7 +360,9 @@ def eval(env, model, obs):
         if bool(_to_numpy(truncated).reshape(-1)[0]):
             break
 
-    return final_obs, info, truncated
+    # scripts/eval_policy.py unpacks (obs, info, truncated, inference_times).
+    # This adapter does not time inference yet, so report no samples.
+    return final_obs, info, truncated, []
 
 
 def reset_model(model):
