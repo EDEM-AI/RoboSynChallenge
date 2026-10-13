@@ -603,6 +603,32 @@ def _get_asset_initial_root_pose(
     )
 
 
+def set_articulation_joint_positions(
+    env: EmbodiedEnv,
+    env_ids: torch.Tensor | None,
+    entity_cfg: SceneEntityCfg,
+    joint_positions: List[float],
+    joint_ids: List[int] | None = None,
+    physics_update_step_before: int = 0,
+) -> None:
+    """Set articulation joint positions and targets, then clear dynamics."""
+    env_ids = _normalize_event_env_ids(env, env_ids)
+    articulation = env.sim.get_articulation(entity_cfg.uid)
+    if articulation is None:
+        logger.log_error(f"Articulation '{entity_cfg.uid}' not found.")
+        return
+
+    if physics_update_step_before > 0:
+        env.sim.update(step=physics_update_step_before)
+
+    qpos = torch.as_tensor(
+        joint_positions, dtype=torch.float32, device=env.device
+    ).unsqueeze(0).repeat(len(env_ids), 1)
+    articulation.set_qpos(qpos, joint_ids=joint_ids, env_ids=env_ids, target=False)
+    articulation.set_qpos(qpos, joint_ids=joint_ids, env_ids=env_ids, target=True)
+    articulation.clear_dynamics(env_ids=env_ids)
+
+
 def randomize_entity_root_pose_group(
     env: EmbodiedEnv,
     env_ids: torch.Tensor | None,

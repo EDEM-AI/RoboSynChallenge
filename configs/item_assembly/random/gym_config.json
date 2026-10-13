@@ -548,7 +548,8 @@
                 "min_position_iters": 32,
                 "min_velocity_iters":8
             },
-            "init_pos": [0.5, 0.16, 0.8],
+            "init_pos": [0.5, 0.16, 0.84565],
+            "init_rot": [-13.918, -3.18, -0.19],
             "body_scale":[2.1, 2, 2],
             "max_convex_hull_num": 8
         },
