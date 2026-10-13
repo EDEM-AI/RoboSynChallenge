@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -47,23 +48,32 @@ def _load_runtime(args: argparse.Namespace):
         ) from exc
 
     checkpoint_dir = str(Path(args.checkpoint_dir).resolve())
-    policy = SmolVLAPolicy.from_pretrained(checkpoint_dir)
-    policy.to(args.device)
-    policy.eval()
+    # Bug B fix: lerobot resolves relative tokenizer paths against CWD, not
+    # the checkpoint directory. Change to the checkpoint dir so that a
+    # `"tokenizer_name": "tokenizer"` in policy_preprocessor.json resolves
+    # correctly instead of raising RepositoryNotFoundError.
+    _original_cwd = os.getcwd()
+    os.chdir(checkpoint_dir)
+    try:
+        policy = SmolVLAPolicy.from_pretrained(checkpoint_dir)
+        policy.to(args.device)
+        policy.eval()
 
-    preprocessor = PolicyProcessorPipeline.from_pretrained(
-        checkpoint_dir,
-        config_filename="policy_preprocessor.json",
-        overrides={"device_processor": {"device": args.device}},
-        to_transition=batch_to_transition,
-        to_output=transition_to_batch,
-    )
-    postprocessor = PolicyProcessorPipeline.from_pretrained(
-        checkpoint_dir,
-        config_filename="policy_postprocessor.json",
-        to_transition=policy_action_to_transition,
-        to_output=transition_to_policy_action,
-    )
+        preprocessor = PolicyProcessorPipeline.from_pretrained(
+            checkpoint_dir,
+            config_filename="policy_preprocessor.json",
+            overrides={"device_processor": {"device": args.device}},
+            to_transition=batch_to_transition,
+            to_output=transition_to_batch,
+        )
+        postprocessor = PolicyProcessorPipeline.from_pretrained(
+            checkpoint_dir,
+            config_filename="policy_postprocessor.json",
+            to_transition=policy_action_to_transition,
+            to_output=transition_to_policy_action,
+        )
+    finally:
+        os.chdir(_original_cwd)
     return policy, preprocessor, postprocessor
 
 
