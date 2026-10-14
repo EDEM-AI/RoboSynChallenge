@@ -315,7 +315,7 @@
                 }
             },
             "pipette_pose": {
-                "func": "get_rigid_object_pose",
+                "func": "get_object_pose",
                 "mode": "add",
                 "name": "pipette_pose",
                 "params": {
