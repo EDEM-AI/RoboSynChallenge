@@ -68,7 +68,7 @@ class TableRearrangementActionBank(ActionBank):
     @tag_edge
     @tag_node
     # TODO: Got the dimension from the scope
-    def execute_open(env, return_action: bool = False, limit: float = 0.05, **kwargs):
+    def execute_open(env, return_action: bool = False, limit: float = 1.0, **kwargs):
         if return_action:
             duration = kwargs.get("duration", 1)
             expand = kwargs.get("expand", False)
@@ -84,7 +84,7 @@ class TableRearrangementActionBank(ActionBank):
     @staticmethod
     @tag_edge
     @tag_node
-    def execute_close(env, return_action: bool = False, limit: float = 0.05, **kwargs):
+    def execute_close(env, return_action: bool = False, limit: float = 1.0, **kwargs):
 
         if return_action:
             duration = kwargs.get("duration", 1)
