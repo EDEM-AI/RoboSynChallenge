@@ -15,6 +15,8 @@ from pathlib import Path
 import numpy as np
 import torch
 
+from policy.inference_timing import finish_inference, start_inference
+
 
 def _to_numpy(value) -> np.ndarray:
     if isinstance(value, torch.Tensor):
@@ -156,6 +158,8 @@ class SmolVLAWorkerClient:
             usr_args.get("smolvla_cuda_visible_devices", usr_args.get("gpu_id", 0))
         )
         self.image_keys = self._resolve_image_keys()
+        self.last_inference_times_s = []
+        self.last_inference_action_indices = []
         worker_path = policy_root / "smolvla_worker.py"
         worker_env = os.environ.copy()
         worker_env["CUDA_VISIBLE_DEVICES"] = self.cuda_visible_devices
@@ -254,6 +258,8 @@ class SmolVLAWorkerClient:
             return response
 
     def infer(self, obs: dict[str, np.ndarray], task: str) -> list[np.ndarray]:
+        self.last_inference_times_s = []
+        self.last_inference_action_indices = []
         fd, obs_path = tempfile.mkstemp(prefix="smolvla_obs_", suffix=".npz")
         os.close(fd)
         try:
@@ -269,10 +275,24 @@ class SmolVLAWorkerClient:
             if os.path.exists(obs_path):
                 os.remove(obs_path)
 
-        return [np.asarray(action, dtype=np.float32) for action in response["actions"]]
+        actions = [np.asarray(action, dtype=np.float32) for action in response["actions"]]
+        durations = response.get("durations_s")
+        indices = response.get("inference_action_indices")
+        if (not isinstance(durations, list) or not isinstance(indices, list)
+                or len(durations) != len(indices)
+                or any(isinstance(value, bool) or not isinstance(value, (int, float))
+                       or not np.isfinite(value) or value <= 0 for value in durations)
+                or any(type(index) is not int or not 0 <= index < len(actions) for index in indices)
+                or indices != sorted(set(indices))):
+            raise RuntimeError("Invalid SmolVLA inference timing; update both adapter and worker together.")
+        self.last_inference_times_s = [float(value) for value in durations]
+        self.last_inference_action_indices = indices
+        return actions
 
     def reset(self) -> None:
         self._debug_chunks_printed = 0
+        self.last_inference_times_s = []
+        self.last_inference_action_indices = []
         self._rpc({"cmd": "reset"})
 
     def maybe_print_action_debug(self, actions: list[np.ndarray]) -> None:
@@ -338,14 +358,24 @@ def get_model(usr_args):
 
 def eval(env, model, obs):
     instruction = getattr(env, "_current_instruction", None) or "click the bell"
+    observation_times_s = []
+    started_at = start_inference(env.unwrapped.device)
     encoded_obs = encode_obs(obs, image_keys=model.image_keys)
+    finish_inference(started_at, observation_times_s, env.unwrapped.device)
     actions = model.infer(encoded_obs, task=instruction)
+    inference_times_s = list(model.last_inference_times_s)
+    if inference_times_s:
+        inference_times_s[0] += observation_times_s[0]
+    # Associate action conversion with real forwards, never with cached actions.
+    inference_samples = {action_index: sample_index for sample_index, action_index
+                         in enumerate(model.last_inference_action_indices)}
     model.maybe_print_action_debug(actions)
 
     final_obs = obs
     info = {}
     truncated = False
-    for action in actions:
+    for index, action in enumerate(actions):
+        started_at = start_inference(env.unwrapped.device) if index in inference_samples else None
         action_tensor = encode_action(
             action,
             env,
@@ -353,12 +383,16 @@ def eval(env, model, obs):
             gripper_indices=model.gripper_indices,
             gripper_source_range=model.gripper_source_range,
         )
+        if started_at is not None:
+            action_times_s = []
+            finish_inference(started_at, action_times_s, env.unwrapped.device)
+            inference_times_s[inference_samples[index]] += action_times_s[0]
         model.maybe_print_env_action_debug(action_tensor)
         final_obs, reward, terminated, truncated, info = env.step(action_tensor)
         if bool(_to_numpy(truncated).reshape(-1)[0]):
             break
 
-    return final_obs, info, truncated
+    return final_obs, info, truncated, inference_times_s
 
 
 def reset_model(model):

@@ -15,6 +15,31 @@ RoboSynChallenge.
 
 ## Environment Setup
 
+### Evaluation Contract and Timing
+
+The adapter returns `(obs, info, truncated, inference_times_s)`, as required by
+the evaluation loop. Update `deploy_policy.py` and `smolvla_worker.py` together.
+The launch commands and `SmolVLAWorkerClient.infer()` action-list interface are
+unchanged.
+
+Timing samples use synchronized clocks in the policy worker. They include
+observation preprocessing, model inference, postprocessing and action readiness,
+plus parent-side observation encoding and conversion of each newly inferred
+chunk's first action into the simulator action format. File transport, RPC,
+debug logging and simulator stepping are excluded. LeRobot queued actions do
+not count as additional model calls. This compatibility fix does not change
+image normalization, checkpoint selection, action values or queue/reset behavior.
+
+CPU contract tests (NumPy and PyTorch required; no checkpoints or simulator):
+
+```bash
+python -m unittest discover -s policy/smolvla/tests -v
+```
+
+These tests use deterministic mock policies, not a real GPU model evaluation.
+
+### Simulator and Worker Environments
+
 Install RoboSynChallenge and EmbodiChain following the main repository
 installation guide. For local installation, the expected workspace layout is:
 
