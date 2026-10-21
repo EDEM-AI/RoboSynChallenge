@@ -6,6 +6,7 @@ import argparse
 import contextlib
 import json
 import sys
+import time
 from pathlib import Path
 
 import numpy as np
@@ -79,6 +80,41 @@ def _send(payload: dict) -> None:
     sys.stdout.flush()
 
 
+def _clock(device: str) -> float:
+    if str(device).startswith("cuda"):
+        torch.cuda.synchronize(device)
+    return time.perf_counter()
+
+
+def _infer(policy, preprocessor, postprocessor, request: dict, device: str) -> dict:
+    # Disk transport is not model inference; start after loading the request.
+    obs, task = _load_obs(request["obs_path"])
+    started_at = _clock(device)
+    obs = {key: torch.from_numpy(value) for key, value in obs.items()}
+    obs["task"] = task
+    proc_obs = preprocessor(obs)
+    preparation_s = _clock(device) - started_at
+
+    actions, durations_s, inference_action_indices = [], [], []
+    for index in range(int(request.get("n_action_steps", 1))):
+        action_queue = getattr(policy, "_action_queue", None)
+        if action_queue is None:
+            action_queue = getattr(policy, "_queues", {}).get("action")
+        runs_model_inference = action_queue is None or len(action_queue) == 0
+        started_at = _clock(device) if runs_model_inference else None
+        action = policy.select_action(proc_obs)
+        action = postprocessor(action)
+        actions.append(action.squeeze(0).cpu().numpy().astype(np.float32).tolist())
+        if runs_model_inference:
+            elapsed = _clock(device) - started_at
+            # Preprocessing is shared by this request, not repeated per cached action.
+            durations_s.append(elapsed + (preparation_s if not durations_s else 0.0))
+            inference_action_indices.append(index)
+
+    return {"ok": True, "actions": actions, "durations_s": durations_s,
+            "inference_action_indices": inference_action_indices}
+
+
 def main() -> int:
     args = _parse_args()
     with contextlib.redirect_stdout(sys.stderr):
@@ -102,19 +138,9 @@ def main() -> int:
                 raise ValueError(f"Unsupported command: {cmd}")
 
             with contextlib.redirect_stdout(sys.stderr):
-                obs, task = _load_obs(request["obs_path"])
-                obs = {key: torch.from_numpy(value) for key, value in obs.items()}
-                obs["task"] = task
-                proc_obs = preprocessor(obs)
+                response = _infer(policy, preprocessor, postprocessor, request, args.device)
 
-                num_actions = int(request.get("n_action_steps", 1))
-                actions = []
-                for _ in range(num_actions):
-                    action = policy.select_action(proc_obs)
-                    action = postprocessor(action)
-                    actions.append(action.squeeze(0).cpu().numpy().astype(np.float32).tolist())
-
-            _send({"ok": True, "actions": actions})
+            _send(response)
         except Exception as exc:  # noqa: BLE001
             _send({"ok": False, "error": f"{type(exc).__name__}: {exc}"})
 
