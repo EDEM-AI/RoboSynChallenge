@@ -88,8 +88,39 @@ class EvaluationContractTests(unittest.TestCase):
         self.assertEqual(self.policy.calls, 3)
         np.testing.assert_array_equal(result["actions"],
                                       np.array([[0] * 14, [2] * 14, [4] * 14] * 2 + [[0] * 14]))
-        self.assertEqual(self.policy.seen[0]["observation.images.cam_high"].dtype, torch.uint8)
+        self.assertEqual(self.policy.seen[0]["observation.images.cam_high"].dtype, torch.float32)
+        torch.testing.assert_close(self.policy.seen[0]["observation.images.cam_high"], torch.ones(3, 2, 2))
         self.assertEqual(self.policy.seen[0]["task"], "test instruction")
+
+    def test_only_byte_images_are_scaled_to_unit_range(self):
+        image = np.array([0, 64, 128, 255], dtype=np.uint8).reshape(1, 2, 2)
+        self.obs["observation.images.cam_high"] = image
+        self.obs["observation.images.cam_left_wrist"] = np.full((3, 2, 2), 0.25, dtype=np.float32)
+        self.obs["diagnostic_byte"] = np.array([255], dtype=np.uint8)
+        original_state = self.obs["observation.state"].copy()
+        self.infer(1)
+        seen = self.policy.seen[0]
+        torch.testing.assert_close(seen["observation.images.cam_high"], torch.from_numpy(image).float() / 255)
+        torch.testing.assert_close(seen["observation.images.cam_left_wrist"], torch.full((3, 2, 2), 0.25))
+        self.assertEqual(seen["diagnostic_byte"].dtype, torch.uint8)
+        np.testing.assert_array_equal(seen["observation.state"].numpy(), original_state)
+        np.testing.assert_array_equal(self.obs["observation.images.cam_high"], image)
+
+    @unittest.skipUnless(torch.cuda.is_available(), "CUDA is required for the Byte resize regression")
+    def test_byte_image_can_reach_cuda_bilinear_resize(self):
+        class ResizePolicy:
+            def select_action(self, obs):
+                image = obs["observation.images.cam_high"].unsqueeze(0).to("cuda")
+                resized = torch.nn.functional.interpolate(image, size=(4, 4), mode="bilinear", align_corners=False)
+                torch.testing.assert_close(resized, torch.ones_like(resized))
+                return torch.zeros(1, 14, device=image.device)
+
+        with patch.object(worker, "_load_obs", return_value=(self.obs, "test instruction")):
+            result = worker._infer(ResizePolicy(), lambda obs: obs, lambda action: action,
+                                   {"obs_path": "unused", "n_action_steps": 1}, "cuda")
+        self.assertEqual(len(result["actions"]), 1)
+        self.assertEqual(len(result["durations_s"]), 1)
+        self.assertGreater(result["durations_s"][0], 0)
 
     def test_queue_survives_requests_and_reset(self):
         self.infer(1)
