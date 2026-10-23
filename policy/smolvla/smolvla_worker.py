@@ -91,6 +91,9 @@ def _infer(policy, preprocessor, postprocessor, request: dict, device: str) -> d
     obs, task = _load_obs(request["obs_path"])
     started_at = _clock(device)
     obs = {key: torch.from_numpy(value) for key, value in obs.items()}
+    for key, value in obs.items():
+        if key.startswith("observation.images.") and value.dtype == torch.uint8:
+            obs[key] = value.to(torch.float32).div_(255.0)
     obs["task"] = task
     proc_obs = preprocessor(obs)
     preparation_s = _clock(device) - started_at
