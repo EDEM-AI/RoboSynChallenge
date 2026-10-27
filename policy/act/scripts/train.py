@@ -232,7 +232,8 @@ def main():
         steps=args.steps,
         eval_freq=args.eval_freq,
         log_freq=args.log_freq,
-        save_checkpoint=not args.no_save_checkpoint,
+        # Only rank 0 saves: DDP keeps the ranks identical, so other ranks would write byte-identical copies.
+        save_checkpoint=not args.no_save_checkpoint and (distributed_context is None or distributed_context[0] == 0),
         save_freq=args.save_freq,
         wandb=WandBConfig(enable=args.wandb and (distributed_context is None or distributed_context[0] == 0), project=args.wandb_project),
     )
