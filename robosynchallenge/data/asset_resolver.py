@@ -31,7 +31,17 @@ _ORIGINAL_GET_DATA_PATH: Callable[[str], str] = embodichain_dataset.get_data_pat
 
 
 def resolve_local_asset_path(data_path_in_config: str) -> Optional[str]:
-    """Resolve a RoboSynChallenge-relative asset path without triggering downloads."""
+    """Resolve a RoboSynChallenge-relative asset path without triggering downloads.
+
+    Resolution order for relative paths:
+        1. ``<repo_root>/<path>``            -- e.g. ``assets/tomato/...``
+        2. ``<repo_root>/assets/<path>``     -- e.g. ``CobotMagicArm/...``
+
+    The second rule lets a bundled robot asset tree (``assets/CobotMagicArm``)
+    transparently shadow the copy EmbodiChain would otherwise download into
+    ``~/.cache/embodichain_data``. This keeps joint-limit fixes versioned with
+    the repository instead of requiring a manual edit inside the cache.
+    """
     if not data_path_in_config:
         return None
 
@@ -39,9 +49,10 @@ def resolve_local_asset_path(data_path_in_config: str) -> Optional[str]:
     if path.is_absolute():
         return str(path) if path.exists() else None
 
-    candidate = ROBOSYNCHALLENGE_ROOT / path
-    if candidate.exists():
-        return str(candidate)
+    for base in (ROBOSYNCHALLENGE_ROOT, ROBOSYNCHALLENGE_ROOT / "assets"):
+        candidate = base / path
+        if candidate.exists():
+            return str(candidate)
 
     return None
 
