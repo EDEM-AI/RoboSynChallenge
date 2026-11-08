@@ -1161,6 +1161,7 @@ class replace_distractor_slots_from_library(Functor):
         avoid_uids: list[str],
         min_distance_to_avoid: float,
         max_attempts: int,
+        fallback_to_farthest: bool = False,
     ) -> torch.Tensor:
         num_envs = len(env_ids)
         low = torch.tensor(position_range[0], device=env.device)
@@ -1189,12 +1190,29 @@ class replace_distractor_slots_from_library(Functor):
         threshold2 = float(min_distance_to_avoid) * float(min_distance_to_avoid)
         valid_mask = torch.zeros(num_envs, dtype=torch.bool, device=env.device)
 
+        def _min_dist2(p: torch.Tensor) -> torch.Tensor:
+            m = torch.full((num_envs,), float("inf"), device=env.device)
+            for ref_pos in ref_positions:
+                delta = p[..., :2] - ref_pos[..., :2]
+                m = torch.minimum(m, torch.sum(delta * delta, dim=-1))
+            return m
+
+        # Farthest candidate seen so far for envs that are still invalid (only used with fallback_to_farthest).
+        best_pos = pos.clone()
+        best_d2 = torch.full((num_envs,), -1.0, device=env.device)
+
         for _ in range(max_attempts):
             dist_ok = torch.ones(num_envs, dtype=torch.bool, device=env.device)
             for ref_pos in ref_positions:
                 delta = pos[..., :2] - ref_pos[..., :2]
                 d2 = torch.sum(delta * delta, dim=-1)
                 dist_ok = torch.logical_and(dist_ok, d2 >= threshold2)
+
+            if fallback_to_farthest:
+                cur_d2 = _min_dist2(pos)
+                better = (~valid_mask) & (cur_d2 > best_d2)
+                best_pos[better] = pos[better]
+                best_d2[better] = cur_d2[better]
 
             valid_mask = torch.logical_or(valid_mask, dist_ok)
             if bool(torch.all(valid_mask)):
@@ -1208,6 +1226,13 @@ class replace_distractor_slots_from_library(Functor):
                 device=env.device,
             )
             pos[need] = resampled
+
+        if fallback_to_farthest and not bool(torch.all(valid_mask)):
+            # The loop above returns the last resampled position unchecked when no candidate
+            # met the distance. Check it, and otherwise keep the farthest candidate that was tried.
+            cur_d2 = _min_dist2(pos)
+            still_bad = (~valid_mask) & (cur_d2 < threshold2) & (best_d2 > cur_d2)
+            pos[still_bad] = best_pos[still_bad]
 
         return pos
 
@@ -1232,6 +1257,7 @@ class replace_distractor_slots_from_library(Functor):
         min_distance_to_avoid: float = 0.0,
         max_resample_attempts: int = 20,
         physics_update_step: int = 1,
+        fallback_to_farthest: bool = False,
     ) -> None:
         """Select and position distractor assets from the pre-loaded pool.
 
@@ -1316,6 +1342,7 @@ class replace_distractor_slots_from_library(Functor):
                 avoid_uids=avoid_uids,
                 min_distance_to_avoid=min_distance_to_avoid,
                 max_attempts=max_resample_attempts,
+                fallback_to_farthest=fallback_to_farthest,
             )
 
             yaw_low, yaw_high = z_rotation_ranges[idx]
