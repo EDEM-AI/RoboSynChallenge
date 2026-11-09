@@ -236,6 +236,11 @@ def main():
         save_freq=args.save_freq,
         wandb=WandBConfig(enable=args.wandb and (distributed_context is None or distributed_context[0] == 0), project=args.wandb_project),
     )
+    # lerobot's own CLI entry point calls init_logging(); calling train() directly
+    # skips it, so the root logger stays at WARNING and the loss lines are never printed.
+    from lerobot.utils.utils import init_logging
+
+    init_logging()
     lerobot_train(cfg)
     if distributed_context is not None:
         dist.destroy_process_group()
