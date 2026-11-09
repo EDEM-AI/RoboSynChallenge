@@ -146,6 +146,9 @@ class ClickBellEnv(EmbodiedEnv):
             "movement_threshold": movement_threshold,
         }
         fail = torch.zeros_like(self._success_flag, dtype=torch.bool)
+        # Intentionally zero: a True success here would make EmbodiChain's BaseEnv.step
+        # terminate and auto-reset the env (clearing _success_flag) before the caller can
+        # check it. Read success through is_task_success() instead.
         success = torch.zeros_like(fail, dtype=torch.bool)
         return success, fail, metrics
 
