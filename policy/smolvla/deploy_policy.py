@@ -389,6 +389,8 @@ def eval(env, model, obs):
             inference_times_s[inference_samples[index]] += action_times_s[0]
         model.maybe_print_env_action_debug(action_tensor)
         final_obs, reward, terminated, truncated, info = env.step(action_tensor)
+        if env.get_wrapper_attr("is_task_success")():
+            break
         if bool(_to_numpy(truncated).reshape(-1)[0]):
             break
 
