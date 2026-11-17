@@ -239,8 +239,8 @@ class SampleLoadingEnv(EmbodiedEnv):
         rack_bottom_z = None
         bottom_ok = torch.zeros_like(dist_xy, dtype=torch.bool)
         try:
-            cube_verts = cube.get_vertices()  # (N, V, 3)
-            rack_verts = rack.get_vertices()
+            cube_verts = cube.get_vertices(scale=True)  # (N, V, 3)
+            rack_verts = rack.get_vertices(scale=True)
 
             R_cube = cube_final_xpos[:, :3, :3]
             t_cube = cube_final_xpos[:, :3, 3]
