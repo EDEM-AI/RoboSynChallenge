@@ -1,0 +1,1242 @@
+{
+ "_meta": {
+  "format": "faq-parts/1",
+  "what": "Functional parts of every task object at body_scale = (1, 1, 1), in the object's own mesh-local frame (metres and radians, or the mesh's own units: the milk-box mesh is not in metres, so its numbers are large). faq_checks.parts.scale_parts() multiplies them by an episode's actual body_scale (rules in the module docstring). Only the parts the ten FAQ criteria read are listed.",
+  "structure": "tasks.<task>.<object uid> = {up_axis: mesh axis pointing up or null, parts: {<part name>: {...}}}",
+  "provenance": {
+   "measured_from_official_assets": {
+    "how": "Mesh features of the official asset files (the meshes referenced by configs/<task>/random/gym_config.json): extreme points along an object's axes (mean of the vertices within 2-3 % of the extent at that end), centres and radii of rim / bottom slabs, hole centres of the rack, bounding boxes. They were measured with a mesh-feature routine at the body scales the evaluation configs use and divided by that scale, i.e. they are not hand-typed. Where the same part was measured at several body scales, the de-scaled values agree to within 2 % of the value (largest: water_pouring bottle.mouth, 1.6 % relative on one small component), i.e. within about 2 micrometres after scaling back.",
+    "entries": [
+     "click_bell.button.press (stroke from the official button.urdf: joint range [-0.005, 0] m, axis z; not scaled, see 'scaled')",
+     "handle_basket.basket.mouth / floor, handle_basket.milk.bottom / top",
+     "sample_loading.cube.bottom / mouth, sample_loading.rack.holes",
+     "water_pouring.bottle / cup mouth and bottom",
+     "mixer_operating.beaker.bottom",
+     "mixer_operating.beaker_mixer.ring (the cross-circle of the mixer top: centre and radius are read off the texture mapped back onto the mesh, not derived from the mesh shape)",
+     "table_rearrangement fork / spoon / plate bounding boxes"
+    ]
+   },
+   "measured_with_scripts_measure_faq_parts_py": {
+    "how": "scripts/measure_faq_parts.py reproduces these numbers from the asset files (the drawer meshes come from EmbodiChain's asset pack, pass --drawer-dir).",
+    "entries": [
+     "items_handover.pen.tip / tail",
+     "items_handover.holder.mouth",
+     "item_assembly.guijiao1 / guijiao2 end_head (the +x end of each tube mesh = functional tail / head)",
+     "drawer_open_place.drawer.floor / cavity (flat top face of the inner box's bottom plate; height above it), drawer.slide (URDF prismatic joint, axis x, 0-0.2 m), duck.center"
+    ]
+   },
+   "default_size_constants": {
+    "how": "Values taken over from the default-size measurements of the official pipette and beaker (pipette tip at body_scale 3, beaker mouth at body_scale 1.4 / 1.4 / 1.5), divided by those scales; pipette.button_slide is the URDF joint range of the pipette's button.",
+    "entries": ["manipulate_pipette.pipette.tip / button_slide", "manipulate_pipette.beaker1.mouth"]
+   }
+  },
+  "not_included": "The mixer's switch (mixer_switch.flip.range) is not part of the official asset (the official mixer button is a contact region, not a joint), so it has no entry; see mixer_operating_faq.py."
+ },
+ "tasks": {
+  "handle_basket": {
+   "basket": {
+    "up_axis": "y",
+    "parts": {
+     "mouth": {
+      "kind": "disk",
+      "p": [0.0025311901, 0.22669652, -0.00026705618],
+      "normal": [0.0, 1.0, 0.0],
+      "section": {
+       "shape": "rect",
+       "in_or_out": "in",
+       "w": 0.32252009,
+       "d": 0.30807751,
+       "axes": [[1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]
+      }
+     },
+     "floor": {
+      "kind": "disk",
+      "p": [0.0025311901, 0.014547645, -0.00026705618],
+      "normal": [0.0, 1.0, 0.0],
+      "section": {
+       "shape": "rect",
+       "in_or_out": "in",
+       "w": 0.32252009,
+       "d": 0.30807751,
+       "axes": [[1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]
+      }
+     }
+    }
+   },
+   "milk": {
+    "up_axis": "z",
+    "parts": {
+     "bottom": {
+      "kind": "disk",
+      "p": [-0.060837578, -0.060766551, -0.0083474816],
+      "normal": [0.0, 0.0, -1.0],
+      "section": {"shape": "circle", "r_out": 3.6627051}
+     },
+     "top": {
+      "kind": "disk",
+      "p": [-0.031550651, -1.6065505, 14.843379],
+      "normal": [0.0, 0.0, 1.0],
+      "section": {"shape": "circle", "r_out": 1.4824561}
+     }
+    }
+   }
+  },
+  "water_pouring": {
+   "bottle": {
+    "up_axis": "y",
+    "parts": {
+     "mouth": {
+      "kind": "disk",
+      "p": [-0.00025333333, 1.5715333, 7.3333333e-05],
+      "normal": [0.0, 1.0, 0.0],
+      "section": {"shape": "circle", "r_out": 0.10979333}
+     },
+     "bottom": {
+      "kind": "disk",
+      "p": [0.01002, 0.0, 0.00236],
+      "normal": [0.0, -1.0, 0.0],
+      "section": {"shape": "circle", "r_out": 0.19612667}
+     }
+    }
+   },
+   "cup": {
+    "up_axis": "z",
+    "parts": {
+     "mouth": {
+      "kind": "disk",
+      "p": [0.0043773333, -0.013066667, 0.043878],
+      "normal": [0.0, 0.0, 1.0],
+      "section": {"shape": "circle", "r_in": 0.026769333, "r_out": 0.033065333}
+     },
+     "bottom": {
+      "kind": "disk",
+      "p": [-0.003016, 0.014582667, -0.043878],
+      "normal": [0.0, 0.0, -1.0],
+      "section": {"shape": "circle", "r_out": 0.025970667}
+     }
+    }
+   }
+  },
+  "mixer_operating": {
+   "beaker": {
+    "up_axis": "z",
+    "parts": {
+     "bottom": {
+      "kind": "disk",
+      "p": [0.002335, 0.0, 0.0],
+      "normal": [0.0, 0.0, -1.0],
+      "section": {"shape": "circle", "r_out": 0.023760714}
+     }
+    }
+   },
+   "beaker_mixer": {
+    "up_axis": "y",
+    "parts": {
+     "ring": {
+      "kind": "disk",
+      "p": [0.02333, 0.119, -0.09333],
+      "normal": [0.0, 1.0, 0.0],
+      "section": {"shape": "circle", "r_out": 0.0833}
+     }
+    }
+   }
+  },
+  "click_bell": {
+   "button": {
+    "up_axis": null,
+    "parts": {
+     "press": {
+      "kind": "joint",
+      "axis": [0.0, 0.0, 1.0],
+      "range": [-0.005, 0.0],
+      "range_src": "sdk_qpos_limits",
+      "unit": "m",
+      "scaled": false
+     }
+    }
+   }
+  },
+  "sample_loading": {
+   "cube": {
+    "up_axis": "z",
+    "parts": {
+     "bottom": {
+      "kind": "disk",
+      "p": [-0.00014727273, 5.5454545e-05, -0.075007692],
+      "normal": [0.0, 0.0, -1.0],
+      "section": {"shape": "circle", "r_out": 0.0057454545}
+     },
+     "mouth": {
+      "kind": "disk",
+      "p": [0.00013818182, -5.1818182e-05, 0.075007692],
+      "normal": [0.0, 0.0, 1.0],
+      "section": {"shape": "circle", "r_in": 0.0062, "r_out": 0.0075}
+     }
+    }
+   },
+   "rack": {
+    "up_axis": "z",
+    "parts": {
+     "holes": {
+      "kind": "list",
+      "items": [
+       {
+        "kind": "axis",
+        "p": [-0.11116818, 0.037809091, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 0
+       },
+       {
+        "kind": "axis",
+        "p": [-0.11108, 0.018840909, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 1
+       },
+       {
+        "kind": "axis",
+        "p": [-0.11079091, -0.00015909091, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 2
+       },
+       {
+        "kind": "axis",
+        "p": [-0.11077909, -0.019173636, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 3
+       },
+       {
+        "kind": "axis",
+        "p": [-0.11075727, -0.038176364, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 4
+       },
+       {
+        "kind": "axis",
+        "p": [-0.090755455, 0.018838182, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 5
+       },
+       {
+        "kind": "axis",
+        "p": [-0.090755455, 0.037838182, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 6
+       },
+       {
+        "kind": "axis",
+        "p": [-0.090743636, -0.00016272727, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 7
+       },
+       {
+        "kind": "axis",
+        "p": [-0.090735455, -0.038167273, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 8
+       },
+       {
+        "kind": "axis",
+        "p": [-0.090735455, -0.019167273, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 9
+       },
+       {
+        "kind": "axis",
+        "p": [-0.070733636, 0.037847273, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 10
+       },
+       {
+        "kind": "axis",
+        "p": [-0.070716364, 0.018827273, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 11
+       },
+       {
+        "kind": "axis",
+        "p": [-0.070709091, -0.019166364, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 12
+       },
+       {
+        "kind": "axis",
+        "p": [-0.070709091, -0.00016636364, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 13
+       },
+       {
+        "kind": "axis",
+        "p": [-0.070694545, -0.038177273, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 14
+       },
+       {
+        "kind": "axis",
+        "p": [-0.050694545, 0.037822727, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 15
+       },
+       {
+        "kind": "axis",
+        "p": [-0.050659091, -0.00015545455, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 16
+       },
+       {
+        "kind": "axis",
+        "p": [-0.050659091, 0.018844545, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 17
+       },
+       {
+        "kind": "axis",
+        "p": [-0.050563636, -0.019116364, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 18
+       },
+       {
+        "kind": "axis",
+        "p": [-0.050303636, -0.038133636, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 19
+       },
+       {
+        "kind": "axis",
+        "p": [-0.030289091, 0.018868182, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 20
+       },
+       {
+        "kind": "axis",
+        "p": [-0.030289091, 0.037868182, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 21
+       },
+       {
+        "kind": "axis",
+        "p": [-0.030275455, -0.00012818182, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 22
+       },
+       {
+        "kind": "axis",
+        "p": [-0.030249091, -0.038154545, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 23
+       },
+       {
+        "kind": "axis",
+        "p": [-0.030249091, -0.019154545, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 24
+       },
+       {
+        "kind": "axis",
+        "p": [-0.010240909, 0.037851818, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 25
+       },
+       {
+        "kind": "axis",
+        "p": [-0.010226364, -0.038145455, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 26
+       },
+       {
+        "kind": "axis",
+        "p": [-0.010226364, -0.019145455, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 27
+       },
+       {
+        "kind": "axis",
+        "p": [-0.010226364, -0.00014545455, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 28
+       },
+       {
+        "kind": "axis",
+        "p": [-0.010226364, 0.018854545, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 29
+       },
+       {
+        "kind": "axis",
+        "p": [0.00979, 0.01887, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 30
+       },
+       {
+        "kind": "axis",
+        "p": [0.0097909091, 0.037882727, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 31
+       },
+       {
+        "kind": "axis",
+        "p": [0.0098081818, -0.00012363636, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 32
+       },
+       {
+        "kind": "axis",
+        "p": [0.0098290909, -0.019128182, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 33
+       },
+       {
+        "kind": "axis",
+        "p": [0.0098354545, -0.038135455, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 34
+       },
+       {
+        "kind": "axis",
+        "p": [0.029851818, 0.037924545, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 35
+       },
+       {
+        "kind": "axis",
+        "p": [0.030158182, 0.018909091, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 36
+       },
+       {
+        "kind": "axis",
+        "p": [0.030241818, -0.019055455, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 37
+       },
+       {
+        "kind": "axis",
+        "p": [0.030241818, -5.5454545e-05, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 38
+       },
+       {
+        "kind": "axis",
+        "p": [0.030249091, -0.03805, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 39
+       },
+       {
+        "kind": "axis",
+        "p": [0.050248182, -0.038029091, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 40
+       },
+       {
+        "kind": "axis",
+        "p": [0.050275455, 0.038085455, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 41
+       },
+       {
+        "kind": "axis",
+        "p": [0.050277273, -0.018950909, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.0165,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.00825
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 42
+       },
+       {
+        "kind": "axis",
+        "p": [0.050289091, 0.019115455, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 43
+       },
+       {
+        "kind": "axis",
+        "p": [0.050309091, 0.00016181818, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 44
+       },
+       {
+        "kind": "axis",
+        "p": [0.070268182, 0.038194545, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 45
+       },
+       {
+        "kind": "axis",
+        "p": [0.070278182, 0.00013454545, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 46
+       },
+       {
+        "kind": "axis",
+        "p": [0.070285455, -0.018798182, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 47
+       },
+       {
+        "kind": "axis",
+        "p": [0.070292727, -0.037791818, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 48
+       },
+       {
+        "kind": "axis",
+        "p": [0.070308182, 0.01926, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 49
+       },
+       {
+        "kind": "axis",
+        "p": [0.090329091, 0.038266364, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 50
+       },
+       {
+        "kind": "axis",
+        "p": [0.090336364, 0.019260909, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 51
+       },
+       {
+        "kind": "axis",
+        "p": [0.090343636, 0.00025545455, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 52
+       },
+       {
+        "kind": "axis",
+        "p": [0.090635455, -0.018757273, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 53
+       },
+       {
+        "kind": "axis",
+        "p": [0.090718182, -0.037728182, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 54
+       },
+       {
+        "kind": "axis",
+        "p": [0.11073182, 0.038274545, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 55
+       },
+       {
+        "kind": "axis",
+        "p": [0.11073818, 0.019269091, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 56
+       },
+       {
+        "kind": "axis",
+        "p": [0.11075273, 0.00028181818, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 57
+       },
+       {
+        "kind": "axis",
+        "p": [0.11076727, -0.018715455, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 58
+       },
+       {
+        "kind": "axis",
+        "p": [0.11078, -0.037715455, 0.032892727],
+        "axis": [0.0, 0.0, 1.0],
+        "section": {
+         "shape": "rect",
+         "in_or_out": "in",
+         "w": 0.017,
+         "d": 0.017,
+         "axes": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+         "r_in": 0.0085
+        },
+        "size": {"depth": 0.062006364},
+        "depth_axis": [0.0, 0.0, 1.0],
+        "id": 59
+       }
+      ]
+     }
+    }
+   }
+  },
+  "table_rearrangement": {
+   "plate": {
+    "up_axis": "z",
+    "parts": {
+     "box": {"kind": "box", "aabb": [[-89.85, -90.32, -16.92], [89.85, 90.32, 16.92]]}
+    }
+   },
+   "fork": {
+    "up_axis": "z",
+    "parts": {
+     "box": {"kind": "box", "aabb": [[-0.10141, -0.012390012, -0.00908], [0.10141, 0.012390012, 0.00908]]}
+    }
+   },
+   "spoon": {
+    "up_axis": "z",
+    "parts": {
+     "box": {"kind": "box", "aabb": [[-0.07259, -0.012340213, -0.00686], [0.07259, 0.012340213, 0.00686]]}
+    }
+   }
+  },
+  "items_handover": {
+   "pen": {
+    "up_axis": null,
+    "parts": {
+     "tip": {"kind": "point", "p": [0.06986772, 0.0, 0.0]},
+     "tail": {"kind": "point", "p": [-0.07088004, 0.0, 0.0]}
+    }
+   },
+   "holder": {
+    "up_axis": "y",
+    "parts": {
+     "mouth": {
+      "kind": "disk",
+      "p": [0.0, 0.21441205, 0.0],
+      "normal": [0.0, 1.0, 0.0],
+      "section": {"shape": "circle", "r_in": 0.07628738, "r_out": 0.08248341}
+     }
+    }
+   }
+  },
+  "item_assembly": {
+   "guijiao1": {
+    "up_axis": null,
+    "parts": {
+     "end_head": {"kind": "point", "p": [0.05625012, 0.0, 0.0]}
+    }
+   },
+   "guijiao2": {
+    "up_axis": null,
+    "parts": {
+     "end_head": {"kind": "point", "p": [0.04799959, 0.0, 0.0]}
+    }
+   }
+  },
+  "drawer_open_place": {
+   "drawer": {
+    "up_axis": "z",
+    "parts": {
+     "slide": {"kind": "joint", "axis": [1.0, 0.0, 0.0], "range": [0.0, 0.2], "unit": "m"},
+     "floor": {
+      "kind": "poly",
+      "poly": [[-0.08, -0.08, 0.02], [0.08, -0.08, 0.02], [0.08, 0.08, 0.02], [-0.08, 0.08, 0.02]]
+     },
+     "cavity": {"kind": "box", "up_axis": "z", "size": {"height": 0.17}}
+    }
+   },
+   "duck": {
+    "up_axis": "z",
+    "parts": {
+     "center": {"kind": "point", "p": [0.0, 0.0, 0.035]}
+    }
+   }
+  },
+  "manipulate_pipette": {
+   "pipette": {
+    "up_axis": null,
+    "parts": {
+     "tip": {"kind": "point", "p": [-0.0613333, 0.0, -0.001]},
+     "button_slide": {"kind": "joint", "axis": [1.0, 0.0, 0.0], "range": [-0.002, 0.00467], "unit": "m", "scaled": false}
+    }
+   },
+   "beaker1": {
+    "up_axis": "z",
+    "parts": {
+     "mouth": {
+      "kind": "disk",
+      "p": [0.0, 0.0, 0.072],
+      "normal": [0.0, 0.0, 1.0],
+      "section": {"shape": "circle", "r_in": 0.025}
+     }
+    }
+   }
+  }
+ }
+}
