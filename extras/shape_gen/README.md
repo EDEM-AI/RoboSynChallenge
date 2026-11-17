@@ -64,15 +64,14 @@ per part. `functional` / `placement` / `grasp` blocks are key point-axis annotat
 
 ## Assets (meshes) and licences
 
-The meshes are in the public Hugging Face dataset **liyifreddy/robosyn-extra-assets** (18 items). Fetch with
-`python3 extras/scripts/fetch_assets.py` (verifies sha256 against `extras/assets_manifest.json`).
+The meshes (18 items) are included under `extras/assets/`; `extras/assets_manifest.json` lists the sha256 of every file.
 Items we generated (three test-tube racks, two drawer handles, one solid-wall pen holder) are CC BY 4.0, attribution
-"Yi Li (liyifreddy)". Third-party items keep their own licences (CC BY 4.0, one CC0) with per-item attribution in the
-dataset's `ATTRIBUTION.md`. The code is Apache-2.0.
+"Yi Li (liyifreddy)". Third-party items keep their own licences (CC BY 4.0, one CC0) with per-item attribution in
+`extras/assets/ATTRIBUTION.md`. The code is Apache-2.0.
 
 ## Known limits
 
 - Tests that need generated data (`./out/...`, e.g. bell URDF index, rack/tube fit, solid-wall holder) are skipped on a clean checkout. The pure-numpy tests (parameter relations, determinism, bad-parameter rejection, annotations) always run.
 - Not included: the generator for the 14 "official-size scaled" variants (derived from official assets), the internal review pages, and the staging area.
-- Library-import steps need network access and the original model licences were checked at import time; the 11 third-party models in the dataset were re-checked against their pages on 2026-11-17.
+- Library-import steps need network access and the original model licences were checked at import time; the 11 third-party models under `extras/assets/` were re-checked against their pages on 2026-11-17.
 - Dimensions in `params.py` carry provenance tags; where a tag mentions reference racks or markers, the numbers come from the challenge's reference material and were not measured by us.

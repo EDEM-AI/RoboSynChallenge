@@ -1,0 +1,275 @@
+{
+  "schema": "hq-shape-annot/1",
+  "parts_schema": "hq-ctx-parts/3",
+  "family": "bell",
+  "name": "bell_03_b739cb_93",
+  "units": "m",
+  "up_axis": "+z",
+  "origin": "bottom centre; support plane z=0",
+  "source": {
+    "kind": "ready-made mesh, normalised (PCA + up sign + uniform scale)",
+    "base": "Table Bell",
+    "license": "by",
+    "author": "davide.6.6.95",
+    "base_sha256": "13a089ae2bd04fa0b36f24cc911272c2ebb92f037b59c12b158f3bcf27a647a7",
+    "base_file": "b739cb8a349e472bbbf12eb695e17d8d.glb",
+    "url": "https://sketchfab.com/3d-models/b739cb8a349e472bbbf12eb695e17d8d",
+    "source_kind": "objaverse_lvis",
+    "import_sha256": "6e64a4cfb63dee13bb7b3ab6c9af4ff7fdf25703c9b48820a2edafc021695855",
+    "native_extent_m": [
+      7.999183,
+      7.999179,
+      5.2
+    ],
+    "target_size_m": 0.093,
+    "scale": 0.011625
+  },
+  "params": {
+    "target_m": 0.093,
+    "density": 1050.0,
+    "material": "abs_brass_shell",
+    "stroke": 0.005
+  },
+  "derived": {
+    "extent": [
+      0.092990499,
+      0.092990461,
+      0.060449998
+    ],
+    "roundness": 0.0,
+    "stroke": 0.005,
+    "contact_frac": 1.0,
+    "top_r_frac": 0.077385,
+    "H": 0.06045,
+    "base_r": 0.0465,
+    "overall_r": 0.0465,
+    "cover_r": 0.039507,
+    "cover_bottom_z": 0.01209,
+    "cover_top_z": 0.06045,
+    "button_r": 0.013828
+  },
+  "mass": {
+    "volume_m3": 6.1706e-05,
+    "mass_kg": 0.064790965,
+    "com": [
+      -0.0,
+      0.0,
+      0.018247875
+    ],
+    "inertia_kgm2": [
+      [
+        6.6418e-05,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        6.6418e-05,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        9.3377e-05
+      ]
+    ],
+    "source": "signed mesh volume (estimate); inertia = uniform bbox; mesh is not watertight (shell)"
+  },
+  "bbox": {
+    "min": [
+      -0.046495,
+      -0.046495,
+      0.0
+    ],
+    "max": [
+      0.046495,
+      0.046495,
+      0.06045
+    ],
+    "extent": [
+      0.09299,
+      0.09299,
+      0.06045
+    ]
+  },
+  "placement": [
+    {
+      "name": "table_rest",
+      "point": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "material": {
+    "density": 1050.0,
+    "name": "abs_brass_shell",
+    "transmittance": 0.0
+  },
+  "joint_simulated": false,
+  "joint_note": "single rigid mesh; the press joint is declared in parts.press for the URDF builder (2 links: base, button_cover)",
+  "parts": {
+    "button": {
+      "origin": {
+        "kind": "point",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "tol": null,
+        "src": "variant:bell/bell_03_b739cb_93"
+      },
+      "com": {
+        "kind": "point",
+        "p": [
+          -0.0,
+          0.0,
+          0.018248
+        ],
+        "com_from": "geometry",
+        "tol": null,
+        "src": "variant:bell/bell_03_b739cb_93"
+      },
+      "press": {
+        "kind": "joint",
+        "q_name": "press",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          -0.005,
+          0.0
+        ],
+        "travel": 0.005,
+        "unit": "m",
+        "link": "button_cover",
+        "tol": null,
+        "src": "variant:bell/bell_03_b739cb_93"
+      },
+      "cover_top": {
+        "kind": "disk",
+        "p": [
+          0.0,
+          0.0,
+          0.06045
+        ],
+        "normal": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "section": {
+          "shape": "circle",
+          "r_out": 0.013828
+        },
+        "size": {
+          "diameter": 0.079015,
+          "cover_height": 0.04836,
+          "overall_diameter": 0.093
+        },
+        "link": "button_cover",
+        "provisional": true,
+        "tol": null,
+        "src": "variant:bell/bell_03_b739cb_93"
+      },
+      "base": {
+        "kind": "disk",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "normal": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "section": {
+          "shape": "circle",
+          "r_out": 0.0465
+        },
+        "size": {
+          "overall_diameter": 0.093
+        },
+        "provisional": true,
+        "tol": null,
+        "src": "variant:bell/bell_03_b739cb_93"
+      }
+    }
+  },
+  "relations": [
+    {
+      "id": "BK1",
+      "ok": true,
+      "text": "overall d=93.0 mm in [70, 110] (real bell is clearly bigger than sim 63 mm)"
+    },
+    {
+      "id": "BK2",
+      "ok": true,
+      "text": "H/overall_d=0.65 in (0.4, 1.0)"
+    },
+    {
+      "id": "BK3",
+      "ok": true,
+      "text": "roundness |dx-dy|/max=0.000 <= 0.25 (a bell is round)"
+    },
+    {
+      "id": "BK4",
+      "ok": true,
+      "text": "contact r=46.5 >= 0.30 x overall r=46.5"
+    },
+    {
+      "id": "BK5",
+      "ok": true,
+      "text": "stroke=5.0 mm == 5 (declared joint,)"
+    },
+    {
+      "id": "BK6",
+      "ok": true,
+      "text": "button r=13.8 in [0.15, 0.95] x cover r (top press area)"
+    },
+    {
+      "id": "BK7",
+      "ok": true,
+      "text": "contact/overall=1.00 >= 0.7 (flat seat; a hanging bell has almost no contact ring)"
+    },
+    {
+      "id": "BK8",
+      "ok": true,
+      "text": "top band r/overall=0.08 <= 0.4 (button on top, not a carry handle)"
+    }
+  ],
+  "mesh_parts": [
+    {
+      "name": "all",
+      "face_start": 0,
+      "face_end": 24484
+    }
+  ],
+  "mesh_parts_note": "not decomposed: 410 component runs > 64, one full-range part instead",
+  "generator": {
+    "file": "ware_ready.py",
+    "version": "1",
+    "sha256": "bfc25f57c3833d792249d433f55651a8f3ad928646b01c6a6a53afdfb3de31ea"
+  },
+  "geometry": {
+    "watertight": false,
+    "edge_manifold": false,
+    "orientation_consistent": true,
+    "volume_positive": true,
+    "volume_m3": 6.1706e-05,
+    "n_vertices": 13425,
+    "n_faces": 24484,
+    "degenerate_faces": 0,
+    "duplicate_faces": 0
+  }
+}

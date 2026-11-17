@@ -1,0 +1,307 @@
+{
+  "schema": "hq-shape-annot/1",
+  "parts_schema": "hq-ctx-parts/3",
+  "family": "plate",
+  "name": "plate_04_6f7201_210",
+  "units": "m",
+  "up_axis": "+z",
+  "origin": "bottom centre; support plane z=0",
+  "source": {
+    "kind": "ready-made mesh, normalised (PCA + up sign + uniform scale)",
+    "base": "Kashan dish, c.1200 CE",
+    "license": "cc0",
+    "author": "artsmia",
+    "base_sha256": "527cc8ba651217b885f8d889171eb00bd8e329cdf8fe10efbc7525f9da78cda3",
+    "base_file": "6f7201fbb58649379398a8d1d5c0cc7a.glb",
+    "url": "https://sketchfab.com/3d-models/6f7201fbb58649379398a8d1d5c0cc7a",
+    "source_kind": "objaverse_lvis",
+    "import_sha256": "6e64a4cfb63dee13bb7b3ab6c9af4ff7fdf25703c9b48820a2edafc021695855",
+    "native_extent_m": [
+      0.361646,
+      0.359498,
+      0.081825
+    ],
+    "target_size_m": 0.21,
+    "scale": 0.58299
+  },
+  "params": {
+    "target_m": 0.21,
+    "density": 2400.0,
+    "material": "porcelain",
+    "stroke": 0.005
+  },
+  "derived": {
+    "extent": [
+      0.210836015,
+      0.209583688,
+      0.047703007
+    ],
+    "roundness": 0.00594,
+    "stroke": 0.005,
+    "H": 0.047703,
+    "rim_r": 0.105,
+    "rim_z": 0.045318,
+    "foot_r": 0.048497,
+    "rim_t": 0.0005
+  },
+  "mass": {
+    "volume_m3": 0.000195203,
+    "mass_kg": 0.468488091,
+    "com": [
+      0.000185702,
+      -0.000502903,
+      0.024873164
+    ],
+    "inertia_kgm2": [
+      [
+        0.001803714,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.001824269,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.003450303
+      ]
+    ],
+    "source": "signed mesh volume (estimate); inertia = uniform bbox; mesh is not watertight (shell)"
+  },
+  "bbox": {
+    "min": [
+      -0.105418,
+      -0.104792,
+      0.0
+    ],
+    "max": [
+      0.105418,
+      0.104792,
+      0.047703
+    ],
+    "extent": [
+      0.210836,
+      0.209584,
+      0.047703
+    ]
+  },
+  "placement": [
+    {
+      "name": "table_rest",
+      "point": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "material": {
+    "density": 2400.0,
+    "name": "porcelain",
+    "transmittance": 0.0
+  },
+  "joint_simulated": null,
+  "joint_note": null,
+  "parts": {
+    "plate": {
+      "origin": {
+        "kind": "point",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "tol": null,
+        "src": "variant:plate/plate_04_6f7201_210"
+      },
+      "com": {
+        "kind": "point",
+        "p": [
+          0.000186,
+          -0.000503,
+          0.024873
+        ],
+        "com_from": "geometry",
+        "tol": null,
+        "src": "variant:plate/plate_04_6f7201_210"
+      },
+      "center": {
+        "kind": "disk",
+        "p": [
+          0.0,
+          0.0,
+          0.045318
+        ],
+        "normal": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "section": {
+          "shape": "circle",
+          "r_out": 0.105
+        },
+        "tol": null,
+        "src": "variant:plate/plate_04_6f7201_210"
+      },
+      "bottom": {
+        "kind": "disk",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "normal": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "section": {
+          "shape": "circle",
+          "r_out": 0.048497
+        },
+        "placement_surface": true,
+        "tol": null,
+        "src": "variant:plate/plate_04_6f7201_210"
+      },
+      "rim": {
+        "kind": "list",
+        "items": [
+          {
+            "id": 0,
+            "p": [
+              0.105,
+              0.0,
+              0.045318
+            ],
+            "normal": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "size": {
+              "thickness": 0.0005
+            },
+            "tol": null,
+            "src": "variant:plate/plate_04_6f7201_210"
+          },
+          {
+            "id": 1,
+            "p": [
+              0.0,
+              0.105,
+              0.045318
+            ],
+            "normal": [
+              0.0,
+              1.0,
+              0.0
+            ],
+            "size": {
+              "thickness": 0.0005
+            },
+            "tol": null,
+            "src": "variant:plate/plate_04_6f7201_210"
+          },
+          {
+            "id": 2,
+            "p": [
+              -0.105,
+              0.0,
+              0.045318
+            ],
+            "normal": [
+              -1.0,
+              0.0,
+              0.0
+            ],
+            "size": {
+              "thickness": 0.0005
+            },
+            "tol": null,
+            "src": "variant:plate/plate_04_6f7201_210"
+          },
+          {
+            "id": 3,
+            "p": [
+              -0.0,
+              -0.105,
+              0.045318
+            ],
+            "normal": [
+              -0.0,
+              -1.0,
+              0.0
+            ],
+            "size": {
+              "thickness": 0.0005
+            },
+            "tol": null,
+            "src": "variant:plate/plate_04_6f7201_210"
+          }
+        ],
+        "tol": null,
+        "src": "variant:plate/plate_04_6f7201_210"
+      }
+    }
+  },
+  "relations": [
+    {
+      "id": "PL1",
+      "ok": true,
+      "text": "diameter=210.0 mm in [150, 260]"
+    },
+    {
+      "id": "PL2",
+      "ok": true,
+      "text": "H/d=0.227 in (0.04, 0.32)"
+    },
+    {
+      "id": "PL3",
+      "ok": true,
+      "text": "roundness=0.006 <= 0.18"
+    },
+    {
+      "id": "PL4",
+      "ok": true,
+      "text": "foot r=48.5 <= rim r=105.0"
+    },
+    {
+      "id": "PL5",
+      "ok": true,
+      "text": "rim thickness=0.50 mm > 0"
+    }
+  ],
+  "mesh_parts": [
+    {
+      "name": "all",
+      "face_start": 0,
+      "face_end": 64000
+    }
+  ],
+  "mesh_parts_note": "not decomposed: 32212 component runs > 64, one full-range part instead",
+  "generator": {
+    "file": "ware_ready.py",
+    "version": "1",
+    "sha256": "bfc25f57c3833d792249d433f55651a8f3ad928646b01c6a6a53afdfb3de31ea"
+  },
+  "geometry": {
+    "watertight": false,
+    "edge_manifold": false,
+    "orientation_consistent": true,
+    "volume_positive": false,
+    "volume_m3": -0.000195203,
+    "n_vertices": 32528,
+    "n_faces": 64000,
+    "degenerate_faces": 0,
+    "duplicate_faces": 0
+  }
+}

@@ -1,0 +1,198 @@
+{
+ "schema": "hq-shape-annotation/1",
+ "parts_schema": "hq-ctx-parts/3",
+ "family": "pen",
+ "name": "sharpie_thick_20",
+ "units": "m",
+ "up_axis": "+z",
+ "origin": "长度中点、轴心；长轴 +x，笔尖 +x 端（同官方 assets/Pen 三支笔的约定）",
+ "source": {
+  "from": "shape_gen/out/marker_41_fix/mk41_sharpie_thick_20_fix/mk41_sharpie_thick_20_fix.ply",
+  "sha256": "46c86893358d669129b6bee80b65528842f958a2e4c355a1402a1579908879f5",
+  "transform": "绕局部 z 转 180°（x、y 取反）",
+  "by": " import_marker.py 11-11"
+ },
+ "bbox": {
+  "min": [
+   -0.0725,
+   -0.01157,
+   -0.011593
+  ],
+  "max": [
+   0.0725,
+   0.01157,
+   0.011554
+  ],
+  "extent": [
+   0.145,
+   0.02314,
+   0.023147
+  ]
+ },
+ "mass": {
+  "volume_m3": null,
+  "mass_kg": 0.025589,
+  "com": [
+   0.006369,
+   -0.0,
+   -1.9e-05
+  ],
+  "inertia_kgm2": null,
+  "source": "圆柱近似 x fill 0.535（与原件同法）"
+ },
+ "parts": {
+  "pen": {
+   "origin": {
+    "kind": "point",
+    "p": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "src": "variant:pen/sharpie_thick_20",
+    "tol": null
+   },
+   "tip": {
+    "kind": "point",
+    "p": [
+     0.07249999791383743,
+     0.0,
+     0.0
+    ],
+    "src": "variant:pen/sharpie_thick_20",
+    "tol": null
+   },
+   "tail": {
+    "kind": "point",
+    "p": [
+     -0.07249999791383743,
+     0.0,
+     0.0
+    ],
+    "src": "variant:pen/sharpie_thick_20",
+    "tol": null
+   },
+   "body": {
+    "kind": "axis",
+    "p": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "axis": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "size": {
+     "length": 0.145
+    },
+    "profile": [
+     [
+      0.00464,
+      0.011473
+     ],
+     [
+      0.01392,
+      0.011572
+     ],
+     [
+      0.0232,
+      0.011572
+     ],
+     [
+      0.03248,
+      0.011572
+     ],
+     [
+      0.04176,
+      0.011572
+     ],
+     [
+      0.05104,
+      0.011668
+     ],
+     [
+      0.06032,
+      0.011725
+     ],
+     [
+      0.0696,
+      0.011725
+     ],
+     [
+      0.07888,
+      0.011725
+     ],
+     [
+      0.08816,
+      0.011725
+     ],
+     [
+      0.09744,
+      0.011725
+     ],
+     [
+      0.10672,
+      0.011725
+     ],
+     [
+      0.116,
+      0.010021
+     ],
+     [
+      0.12528,
+      0.010021
+     ],
+     [
+      0.13456,
+      0.00525
+     ]
+    ],
+    "grasp_s": 0.384,
+    "src": "variant:pen/sharpie_thick_20",
+    "tol": null,
+    "section": {
+     "shape": "circle",
+     "r_out": 0.01
+    },
+    "how": "长轴 = 局部 x；轮廓 profile 从笔尾量（公共 ctx_parts 的 _pen 量法）；section.r_out = 原件标注的光柱半径"
+   },
+   "com": {
+    "kind": "point",
+    "p": [
+     -0.007035,
+     0.0,
+     -1.9e-05
+    ],
+    "com_from": "geometry",
+    "src": "variant:pen/sharpie_thick_20",
+    "tol": null
+   },
+   "grip": {
+    "kind": "axis",
+    "p": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "axis": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "span": [
+     0.0435,
+     0.07975
+    ],
+    "section": {
+     "shape": "circle",
+     "r_out": 0.01
+    },
+    "tol": null,
+    "src": "variant:pen/sharpie_thick_20",
+    "how": "原件标注的握带（span 从笔尾端沿 +x 量，米）；公共字段表里没有这一项，任务要用自己读"
+   }
+  }
+ }
+}

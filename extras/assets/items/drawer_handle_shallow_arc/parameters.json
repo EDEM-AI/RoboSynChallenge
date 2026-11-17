@@ -1,0 +1,28 @@
+{
+  "units": "m unless suffixed _mm",
+  "family": "shallow_arc",
+  "handle": {
+    "family": "shallow_arc",
+    "width_mm": 80,
+    "bar_height_mm": 6.3,
+    "bar_depth_mm": 6,
+    "face_x_m": 0.09114578,
+    "center_clearance_mm": 23.85422000000001,
+    "gap_definition": "front panel outermost X to bar rear X at Y=0; side supports excluded",
+    "grasp_inner_link_m": [
+      0.118,
+      0,
+      0.1
+    ],
+    "grasp_after_official_scale_m": [
+      0.118,
+      0,
+      0.035
+    ],
+    "collision": "convex blocks (see the .obj); visual and collision use the same blocks",
+    "inertia": "original inertial values retained; new-handle mass/COM/inertia not validated => diagnostic candidate only",
+    "live_loader": "U",
+    "world_grasp": "U",
+    "range": "single nominal proposal, no approved sampling interval"
+  }
+}

@@ -2,7 +2,7 @@
 
     python3 milk_from_glb.py --flat <ee5edb94...glb> --gable <71364315...glb> --out <dir>
 
-Source works (CC BY 4.0, see the dataset ATTRIBUTION.md):
+Source works (CC BY 4.0, see assets/ATTRIBUTION.md):
   flat   "DAY 14 #3 December2019- Search" by hardbottle  https://sketchfab.com/3d-models/ee5edb945f33416a9e63f3b4aa665d56
   gable  "Milk Carton" by cebbi                        https://sketchfab.com/3d-models/713643151cce41798f6dfb98bbff09cb
 

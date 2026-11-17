@@ -1,0 +1,2250 @@
+{
+ "schema": "hq-shape-annot/1",
+ "parts_schema": "hq-ctx-parts/3",
+ "schema_ref": "RoboTwin-OD key point-axis: placement / functional / grasp (文献库 P40_robotwin2.md:131)",
+ "family": "rack",
+ "name": "rack_4x10_main_zc",
+ "units": "m",
+ "up_axis": "+z",
+ "origin": "centre of the bounding box (official test_tube_rack_standard convention); support plane z = -H/2",
+ "seed": 0,
+ "params": {
+  "rows": 4,
+  "cols": 10,
+  "cell": 0.0215,
+  "pitch_x": 0.0245,
+  "pitch_y": 0.0245,
+  "layers": 3,
+  "gap": 0.028,
+  "base_t": 0.0036,
+  "plate_t": 0.0036,
+  "side_wall_t": 0.003,
+  "openings_long": 3,
+  "post_w": 0.012,
+  "rail_h": 0.006,
+  "margin_x": 0.005,
+  "margin_y": 0.005,
+  "density": 1190.0,
+  "material": "pmma",
+  "color": [
+   0.78,
+   0.82,
+   0.88
+  ],
+  "tube_d": 0.02,
+  "tube_len": 0.19503,
+  "name": "rack_4x10_main"
+ },
+ "material": {
+  "name": "pmma",
+  "density": 1190.0,
+  "color": [
+   0.78,
+   0.82,
+   0.88
+  ]
+ },
+ "derived": {
+  "outer_m": {
+   "Lx": 0.258,
+   "Wy": 0.111,
+   "H": 0.0704
+  },
+  "rows": 4,
+  "cols": 10,
+  "n_cells": 40,
+  "layers": 3,
+  "grid_plate_z": [
+   0.0036,
+   0.0352,
+   0.0668
+  ],
+  "cell": 0.0215,
+  "grid_wall": {
+   "x": 0.003,
+   "y": 0.003
+  },
+  "side_wall_t": 0.003,
+  "openings_long": 3
+ },
+ "geometry": {
+  "watertight": true,
+  "orientation_consistent": true,
+  "n_vertices": 1488,
+  "n_faces": 3360,
+  "volume_m3": 0.000238982,
+  "n_parts": 24
+ },
+ "mass": {
+  "volume_m3": 0.000238982,
+  "mass_kg": 0.284389056,
+  "density_effective_kgm3": 1190.0,
+  "com": [
+   -0.0,
+   0.0,
+   -0.013385249
+  ],
+  "inertia_kgm2": [
+   [
+    0.000592343,
+    -0.0,
+    0.0
+   ],
+   [
+    -0.0,
+    0.002056985,
+    -0.0
+   ],
+   [
+    0.0,
+    -0.0,
+    0.002267823
+   ]
+  ]
+ },
+ "bbox": {
+  "min": [
+   -0.129,
+   -0.0555,
+   -0.0352
+  ],
+  "max": [
+   0.129,
+   0.0555,
+   0.0352
+  ],
+  "extent": [
+   0.258,
+   0.111,
+   0.0704
+  ]
+ },
+ "legacy_root_offset_m": [
+  0.0,
+  0.0,
+  0.0
+ ],
+ "placement": [
+  {
+   "name": "table_rest",
+   "point": [
+    0.0,
+    0.0,
+    -0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "support_polygon": [
+    [
+     -0.129,
+     -0.0555,
+     -0.0352
+    ],
+    [
+     0.129,
+     -0.0555,
+     -0.0352
+    ],
+    [
+     0.129,
+     0.0555,
+     -0.0352
+    ],
+    [
+     -0.129,
+     0.0555,
+     -0.0352
+    ]
+   ]
+  }
+ ],
+ "functional": [
+  {
+   "name": "hole_00",
+   "kind": "hole",
+   "point": [
+    -0.11025,
+    -0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_01",
+   "kind": "hole",
+   "point": [
+    -0.11025,
+    -0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_02",
+   "kind": "hole",
+   "point": [
+    -0.11025,
+    0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_03",
+   "kind": "hole",
+   "point": [
+    -0.11025,
+    0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_04",
+   "kind": "hole",
+   "point": [
+    -0.08575,
+    -0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_05",
+   "kind": "hole",
+   "point": [
+    -0.08575,
+    -0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_06",
+   "kind": "hole",
+   "point": [
+    -0.08575,
+    0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_07",
+   "kind": "hole",
+   "point": [
+    -0.08575,
+    0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_08",
+   "kind": "hole",
+   "point": [
+    -0.06125,
+    -0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_09",
+   "kind": "hole",
+   "point": [
+    -0.06125,
+    -0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_10",
+   "kind": "hole",
+   "point": [
+    -0.06125,
+    0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_11",
+   "kind": "hole",
+   "point": [
+    -0.06125,
+    0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_12",
+   "kind": "hole",
+   "point": [
+    -0.03675,
+    -0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_13",
+   "kind": "hole",
+   "point": [
+    -0.03675,
+    -0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_14",
+   "kind": "hole",
+   "point": [
+    -0.03675,
+    0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_15",
+   "kind": "hole",
+   "point": [
+    -0.03675,
+    0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_16",
+   "kind": "hole",
+   "point": [
+    -0.01225,
+    -0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_17",
+   "kind": "hole",
+   "point": [
+    -0.01225,
+    -0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_18",
+   "kind": "hole",
+   "point": [
+    -0.01225,
+    0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_19",
+   "kind": "hole",
+   "point": [
+    -0.01225,
+    0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_20",
+   "kind": "hole",
+   "point": [
+    0.01225,
+    -0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_21",
+   "kind": "hole",
+   "point": [
+    0.01225,
+    -0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_22",
+   "kind": "hole",
+   "point": [
+    0.01225,
+    0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_23",
+   "kind": "hole",
+   "point": [
+    0.01225,
+    0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_24",
+   "kind": "hole",
+   "point": [
+    0.03675,
+    -0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_25",
+   "kind": "hole",
+   "point": [
+    0.03675,
+    -0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_26",
+   "kind": "hole",
+   "point": [
+    0.03675,
+    0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_27",
+   "kind": "hole",
+   "point": [
+    0.03675,
+    0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_28",
+   "kind": "hole",
+   "point": [
+    0.06125,
+    -0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_29",
+   "kind": "hole",
+   "point": [
+    0.06125,
+    -0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_30",
+   "kind": "hole",
+   "point": [
+    0.06125,
+    0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_31",
+   "kind": "hole",
+   "point": [
+    0.06125,
+    0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_32",
+   "kind": "hole",
+   "point": [
+    0.08575,
+    -0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_33",
+   "kind": "hole",
+   "point": [
+    0.08575,
+    -0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_34",
+   "kind": "hole",
+   "point": [
+    0.08575,
+    0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_35",
+   "kind": "hole",
+   "point": [
+    0.08575,
+    0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_36",
+   "kind": "hole",
+   "point": [
+    0.11025,
+    -0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_37",
+   "kind": "hole",
+   "point": [
+    0.11025,
+    -0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_38",
+   "kind": "hole",
+   "point": [
+    0.11025,
+    0.01225,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  },
+  {
+   "name": "hole_39",
+   "kind": "hole",
+   "point": [
+    0.11025,
+    0.03675,
+    0.0352
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "cell": 0.0215,
+   "radius_equiv": 0.01075,
+   "depth_to_support": 0.0668,
+   "gap": 0.00075
+  }
+ ],
+ "grasp": [
+  {
+   "name": "grasp_post_left",
+   "point": [
+    -0.12,
+    0.054,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "close_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "approach": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "width_m": 0.012,
+   "span_m": 0.0548
+  },
+  {
+   "name": "grasp_post_right",
+   "point": [
+    0.12,
+    0.054,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "close_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "approach": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "width_m": 0.012,
+   "span_m": 0.0548
+  }
+ ],
+ "parts": {
+  "rack": {
+   "origin": {
+    "kind": "point",
+    "p": [
+     0.0,
+     0.0,
+     -0.0352
+    ],
+    "tol": null,
+    "src": "variant:rack/rack_4x10_main"
+   },
+   "holes": {
+    "kind": "list",
+    "items": [
+     {
+      "p": [
+       -0.11025,
+       -0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 0,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.11025,
+       -0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 1,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.11025,
+       0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 2,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.11025,
+       0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 3,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.08575,
+       -0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 4,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.08575,
+       -0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 5,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.08575,
+       0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 6,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.08575,
+       0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 7,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.06125,
+       -0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 8,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.06125,
+       -0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 9,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.06125,
+       0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 10,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.06125,
+       0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 11,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.03675,
+       -0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 12,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.03675,
+       -0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 13,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.03675,
+       0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 14,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.03675,
+       0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 15,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.01225,
+       -0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 16,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.01225,
+       -0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 17,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.01225,
+       0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 18,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       -0.01225,
+       0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 19,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.01225,
+       -0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 20,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.01225,
+       -0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 21,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.01225,
+       0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 22,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.01225,
+       0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 23,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.03675,
+       -0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 24,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.03675,
+       -0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 25,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.03675,
+       0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 26,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.03675,
+       0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 27,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.06125,
+       -0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 28,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.06125,
+       -0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 29,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.06125,
+       0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 30,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.06125,
+       0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 31,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.08575,
+       -0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 32,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.08575,
+       -0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 33,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.08575,
+       0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 34,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.08575,
+       0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 35,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.11025,
+       -0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 36,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.11025,
+       -0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 37,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.11025,
+       0.01225,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 38,
+      "kind": "axis"
+     },
+     {
+      "p": [
+       0.11025,
+       0.03675,
+       0.0352
+      ],
+      "axis": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.0215,
+       "d": 0.0215,
+       "in_or_out": "in"
+      },
+      "size": {
+       "depth": 0.0668
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc",
+      "id": 39,
+      "kind": "axis"
+     }
+    ],
+    "tol": null,
+    "src": "variant:rack/rack_4x10_main"
+   },
+   "plates": {
+    "kind": "list",
+    "items": [
+     {
+      "id": 0,
+      "role": "bottom",
+      "kind": "disk",
+      "p": [
+       0.0,
+       0.0,
+       -0.0298
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.252,
+       "d": 0.105,
+       "in_or_out": "out"
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc"
+     },
+     {
+      "id": 1,
+      "role": "middle",
+      "kind": "disk",
+      "p": [
+       0.0,
+       0.0,
+       0.0018
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.252,
+       "d": 0.105,
+       "in_or_out": "out"
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc"
+     },
+     {
+      "id": 2,
+      "role": "top",
+      "kind": "disk",
+      "p": [
+       0.0,
+       0.0,
+       0.0334
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "section": {
+       "shape": "rect",
+       "w": 0.252,
+       "d": 0.105,
+       "in_or_out": "out"
+      },
+      "tol": null,
+      "src": "variant:rack/rack_4x10_main_zc"
+     }
+    ],
+    "tol": null,
+    "src": "variant:rack/rack_4x10_main"
+   },
+   "com": {
+    "kind": "point",
+    "p": [
+     -0.0,
+     0.0,
+     -0.013385249
+    ],
+    "com_from": "mass",
+    "tol": null,
+    "src": "variant:rack/rack_4x10_main"
+   }
+  }
+ },
+ "notes": {
+  "plates": "the rack top face is plates[-1] (top grid plate); no separate 'top' part (v3 rack rows are holes / plates)"
+ },
+ "mesh_parts": [
+  {
+   "name": "base",
+   "face_start": 0,
+   "face_end": 12
+  },
+  {
+   "name": "grid_0",
+   "face_start": 12,
+   "face_end": 1048
+  },
+  {
+   "name": "grid_1",
+   "face_start": 1048,
+   "face_end": 2084
+  },
+  {
+   "name": "grid_2",
+   "face_start": 2084,
+   "face_end": 3120
+  },
+  {
+   "name": "rail_low_s",
+   "face_start": 3120,
+   "face_end": 3132
+  },
+  {
+   "name": "rail_top_s",
+   "face_start": 3132,
+   "face_end": 3144
+  },
+  {
+   "name": "post_s0",
+   "face_start": 3144,
+   "face_end": 3156
+  },
+  {
+   "name": "post_s1",
+   "face_start": 3156,
+   "face_end": 3168
+  },
+  {
+   "name": "post_s2",
+   "face_start": 3168,
+   "face_end": 3180
+  },
+  {
+   "name": "post_s3",
+   "face_start": 3180,
+   "face_end": 3192
+  },
+  {
+   "name": "rail_low_n",
+   "face_start": 3192,
+   "face_end": 3204
+  },
+  {
+   "name": "rail_top_n",
+   "face_start": 3204,
+   "face_end": 3216
+  },
+  {
+   "name": "post_n0",
+   "face_start": 3216,
+   "face_end": 3228
+  },
+  {
+   "name": "post_n1",
+   "face_start": 3228,
+   "face_end": 3240
+  },
+  {
+   "name": "post_n2",
+   "face_start": 3240,
+   "face_end": 3252
+  },
+  {
+   "name": "post_n3",
+   "face_start": 3252,
+   "face_end": 3264
+  },
+  {
+   "name": "rail_low_w",
+   "face_start": 3264,
+   "face_end": 3276
+  },
+  {
+   "name": "rail_top_w",
+   "face_start": 3276,
+   "face_end": 3288
+  },
+  {
+   "name": "post_w0",
+   "face_start": 3288,
+   "face_end": 3300
+  },
+  {
+   "name": "post_w1",
+   "face_start": 3300,
+   "face_end": 3312
+  },
+  {
+   "name": "rail_low_e",
+   "face_start": 3312,
+   "face_end": 3324
+  },
+  {
+   "name": "rail_top_e",
+   "face_start": 3324,
+   "face_end": 3336
+  },
+  {
+   "name": "post_e0",
+   "face_start": 3336,
+   "face_end": 3348
+  },
+  {
+   "name": "post_e1",
+   "face_start": 3348,
+   "face_end": 3360
+  }
+ ],
+ "generator": {
+  "file": "rack.py",
+  "version": "2",
+  "sha256": "7f2b7a4dcda005ee6c849d2ce0fb0b2222e9282efad1c87047e1ec73f44359a3"
+ },
+ "relations": [
+  {
+   "id": "S1a",
+   "ok": true,
+   "text": "cell clearance c=0.75 mm >= 0.05"
+  },
+  {
+   "id": "S1b",
+   "ok": true,
+   "text": "cell clearance c=0.75 mm <= 2.00"
+  },
+  {
+   "id": "S2",
+   "ok": true,
+   "text": "layers=3 in {2,3} (≥2 plates grip the tube)"
+  },
+  {
+   "id": "S3",
+   "ok": true,
+   "text": "lean=atan(2c/gap)=3.07 deg <= 5.0 deg"
+  },
+  {
+   "id": "S4a",
+   "ok": true,
+   "text": "Lx=258.0 mm in [60,450]"
+  },
+  {
+   "id": "S4b",
+   "ok": true,
+   "text": "Wy=111.0 mm in [60,450]"
+  },
+  {
+   "id": "S5a",
+   "ok": true,
+   "text": "grid wall x=3.00 mm >= 1.5"
+  },
+  {
+   "id": "S5b",
+   "ok": true,
+   "text": "grid wall y=3.00 mm >= 1.5"
+  },
+  {
+   "id": "S6",
+   "ok": true,
+   "text": "exposed tube above the bottom=128.2 mm >= 30"
+  },
+  {
+   "id": "S7a",
+   "ok": true,
+   "text": "openings_long=3 >= 1"
+  },
+  {
+   "id": "S7b",
+   "ok": true,
+   "text": "post_w=12.0 mm >= 8.0"
+  },
+  {
+   "id": "S7c",
+   "ok": true,
+   "text": "window width=68.0 mm >= 20"
+  },
+  {
+   "id": "S8",
+   "ok": true,
+   "text": "H=70.4 mm in [55,125]"
+  }
+ ],
+ "volume_analytic_m3": 0.000238982,
+ "volume_rel_error": 0.0,
+ "recentered_from": {
+  "name": "rack_4x10_main",
+  "dz_m": 0.0352,
+  "by": "recenter_rack.py"
+ }
+}

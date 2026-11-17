@@ -1,0 +1,461 @@
+{
+  "schema": "hq-shape-annot/1",
+  "parts_schema": "hq-ctx-parts/3",
+  "family": "fork",
+  "name": "fork_01_7540e0_175",
+  "units": "m",
+  "up_axis": "+z",
+  "origin": "geometric centre; long axis +x, head at +L/2",
+  "source": {
+    "kind": "ready-made mesh, normalised (PCA + up sign + uniform scale)",
+    "base": "Fork",
+    "license": "by",
+    "author": "azureinferno",
+    "base_sha256": "cfe04c487c77835a550b2d1dbfadd5a222ee54b4d73910cb7b79b135fcc5bea0",
+    "base_file": "7540e0bc543743f688628b8557c43932.glb",
+    "url": "https://sketchfab.com/3d-models/7540e0bc543743f688628b8557c43932",
+    "source_kind": "objaverse_lvis",
+    "import_sha256": "6e64a4cfb63dee13bb7b3ab6c9af4ff7fdf25703c9b48820a2edafc021695855",
+    "native_extent_m": [
+      184.601542,
+      29.799049,
+      14.193468
+    ],
+    "target_size_m": 0.175,
+    "scale": 0.000948
+  },
+  "params": {
+    "target_m": 0.175,
+    "density": 7900.0,
+    "material": "steel",
+    "stroke": 0.005
+  },
+  "derived": {
+    "extent": [
+      0.175,
+      0.028249133,
+      0.013455234
+    ],
+    "roundness": 0.838576,
+    "stroke": 0.005,
+    "L": 0.175,
+    "W": 0.028249,
+    "neck_x": 0.032812,
+    "body_w": 0.009427,
+    "head_w": 0.027158,
+    "handle_w": 0.007736
+  },
+  "mass": {
+    "volume_m3": 3.607e-06,
+    "mass_kg": 0.02849535,
+    "com": [
+      0.014042477,
+      1e-09,
+      -0.002350374
+    ],
+    "inertia_kgm2": [
+      [
+        2.325e-06,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        7.3152e-05,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        7.4617e-05
+      ]
+    ],
+    "source": "signed mesh volume (estimate); inertia = uniform bbox; mesh is not watertight (shell)"
+  },
+  "bbox": {
+    "min": [
+      -0.0875,
+      -0.014125,
+      -0.006728
+    ],
+    "max": [
+      0.0875,
+      0.014125,
+      0.006728
+    ],
+    "extent": [
+      0.175,
+      0.028249,
+      0.013455
+    ]
+  },
+  "placement": [
+    {
+      "name": "table_rest_lying",
+      "point": [
+        0.0,
+        0.0,
+        -0.006728
+      ],
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "support": "flat side"
+    }
+  ],
+  "material": {
+    "density": 7900.0,
+    "name": "steel",
+    "transmittance": 0.0
+  },
+  "joint_simulated": null,
+  "joint_note": null,
+  "parts": {
+    "fork": {
+      "origin": {
+        "kind": "point",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "tol": null,
+        "src": "variant:fork/fork_01_7540e0_175"
+      },
+      "head": {
+        "kind": "point",
+        "p": [
+          0.0875,
+          0.0,
+          0.0
+        ],
+        "tol": null,
+        "src": "variant:fork/fork_01_7540e0_175"
+      },
+      "tail": {
+        "kind": "point",
+        "p": [
+          -0.0875,
+          0.0,
+          0.0
+        ],
+        "tol": null,
+        "src": "variant:fork/fork_01_7540e0_175"
+      },
+      "body": {
+        "kind": "axis",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "size": {
+          "length": 0.175
+        },
+        "span": [
+          -0.0875,
+          0.0875
+        ],
+        "profile": [
+          [
+            0.003646,
+            0.006277
+          ],
+          [
+            0.010938,
+            0.006331
+          ],
+          [
+            0.018229,
+            0.005901
+          ],
+          [
+            0.025521,
+            0.005529
+          ],
+          [
+            0.040104,
+            0.005117
+          ],
+          [
+            0.047396,
+            0.004714
+          ],
+          [
+            0.061979,
+            0.004366
+          ],
+          [
+            0.069271,
+            0.00411
+          ],
+          [
+            0.076563,
+            0.003931
+          ],
+          [
+            0.083854,
+            0.003805
+          ],
+          [
+            0.091146,
+            0.003705
+          ],
+          [
+            0.098437,
+            0.003619
+          ],
+          [
+            0.105729,
+            0.003692
+          ],
+          [
+            0.113021,
+            0.005804
+          ],
+          [
+            0.120312,
+            0.012603
+          ],
+          [
+            0.127604,
+            0.013845
+          ],
+          [
+            0.134896,
+            0.014125
+          ],
+          [
+            0.142187,
+            0.014071
+          ],
+          [
+            0.149479,
+            0.013715
+          ],
+          [
+            0.156771,
+            0.013413
+          ],
+          [
+            0.164062,
+            0.013109
+          ],
+          [
+            0.171354,
+            0.012613
+          ]
+        ],
+        "grasp_s": 0.5802,
+        "tol": null,
+        "src": "variant:fork/fork_01_7540e0_175"
+      },
+      "handle": {
+        "kind": "list",
+        "items": [
+          {
+            "id": 0,
+            "p": [
+              -0.0875,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "section": {
+              "shape": "rect",
+              "w": 0.012579,
+              "d": 0.001718,
+              "in_or_out": "out"
+            },
+            "size": {
+              "thickness": 0.001718
+            },
+            "tol": null,
+            "src": "variant:fork/fork_01_7540e0_175"
+          },
+          {
+            "id": 1,
+            "p": [
+              -0.057422,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "section": {
+              "shape": "rect",
+              "w": 0.011803,
+              "d": 0.001896,
+              "in_or_out": "out"
+            },
+            "size": {
+              "thickness": 0.001896
+            },
+            "tol": null,
+            "src": "variant:fork/fork_01_7540e0_175"
+          },
+          {
+            "id": 2,
+            "p": [
+              -0.027344,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "section": {
+              "shape": "rect",
+              "w": 0.008731,
+              "d": 0.001771,
+              "in_or_out": "out"
+            },
+            "size": {
+              "thickness": 0.001771
+            },
+            "tol": null,
+            "src": "variant:fork/fork_01_7540e0_175"
+          },
+          {
+            "id": 3,
+            "p": [
+              0.002734,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "section": {
+              "shape": "rect",
+              "w": 0.00761,
+              "d": 0.001826,
+              "in_or_out": "out"
+            },
+            "size": {
+              "thickness": 0.001826
+            },
+            "tol": null,
+            "src": "variant:fork/fork_01_7540e0_175"
+          },
+          {
+            "id": 4,
+            "p": [
+              0.032812,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "section": {
+              "shape": "rect",
+              "w": 0.027689,
+              "d": 0.005048,
+              "in_or_out": "out"
+            },
+            "size": {
+              "thickness": 0.005048
+            },
+            "tol": null,
+            "src": "variant:fork/fork_01_7540e0_175"
+          }
+        ],
+        "grasp_s": 0.5802,
+        "tol": null,
+        "src": "variant:fork/fork_01_7540e0_175"
+      },
+      "com": {
+        "kind": "point",
+        "p": [
+          0.014042,
+          0.0,
+          -0.00235
+        ],
+        "com_from": "mass",
+        "tol": null,
+        "src": "variant:fork/fork_01_7540e0_175"
+      }
+    }
+  },
+  "relations": [
+    {
+      "id": "FK1",
+      "ok": true,
+      "text": "L=175.0 mm in [170, 225]"
+    },
+    {
+      "id": "FK2",
+      "ok": true,
+      "text": "head w=27.2 mm in (0.018, 0.042)"
+    },
+    {
+      "id": "FK3",
+      "ok": true,
+      "text": "handle w=7.7 mm in (0.002, 0.018)"
+    },
+    {
+      "id": "FK4",
+      "ok": true,
+      "text": "grasp x=14.0 <= neck x=32.8 (grip on the handle)"
+    },
+    {
+      "id": "FK5",
+      "ok": true,
+      "text": "|grasp - com|=0.0 mm <= 44 mm (grip near the centre of mass)"
+    },
+    {
+      "id": "FK6",
+      "ok": true,
+      "text": "handle fits the 100 mm gripper"
+    },
+    {
+      "id": "FK7",
+      "ok": true,
+      "text": "mass=28.5 g in (0.005, 0.18)"
+    }
+  ],
+  "mesh_parts": [
+    {
+      "name": "comp0_run0",
+      "face_start": 0,
+      "face_end": 5792
+    }
+  ],
+  "generator": {
+    "file": "ware_ready.py",
+    "version": "1",
+    "sha256": "bfc25f57c3833d792249d433f55651a8f3ad928646b01c6a6a53afdfb3de31ea"
+  },
+  "geometry": {
+    "watertight": true,
+    "edge_manifold": true,
+    "orientation_consistent": true,
+    "volume_positive": false,
+    "volume_m3": -3.607e-06,
+    "n_vertices": 2898,
+    "n_faces": 5792,
+    "degenerate_faces": 0,
+    "duplicate_faces": 0
+  }
+}

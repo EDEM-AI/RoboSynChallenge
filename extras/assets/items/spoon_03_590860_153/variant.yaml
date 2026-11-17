@@ -1,0 +1,28 @@
+name: spoon_03_590860_153
+fpath: items/spoon_03_590860_153
+body_scale: [1.0, 1.0, 1.0]
+files:
+  spoon_03_590860_153.annotations.json: 12f5a72e09ecf1269ecd9f1e372c2839f8613dd95e1271cc3aa27e1cdab18aa3
+  spoon_03_590860_153.obj: 02cb6e665a13f0d5156a0c68334536810e1f930dd06abfda32b17e41bd28992c
+  spoon_03_590860_153.ply: 369298d213942ffabf7dfdd6cbf34b20d8e5d415fbe9f9f4897bf9cb575d3503
+source:
+  generator: ware_ready.py@bfc25f57c3833d79
+  base: old spoon low poly
+  base_sha256: 7dac2dfea5053d78c1bc370abe65bfad4cc25f4b43e0a9659cc03663985a6304
+  license: by
+  author: rastakouere.olivier
+  url: https://sketchfab.com/3d-models/590860231989457a8a98e767b6d1218f
+  source_kind: objaverse_lvis
+  import_sha: 6e64a4cfb63dee13
+  params:
+    target_m: 0.153
+    density: 7900.0
+  seed: 0
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  title: "old spoon low poly"
+  author: rastakouere.olivier
+  source_url: https://sketchfab.com/3d-models/590860231989457a8a98e767b6d1218f
+  modification: "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 153 mm; per-part annotations added. No other geometry change."
+status: draft

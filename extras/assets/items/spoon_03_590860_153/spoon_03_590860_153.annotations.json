@@ -1,0 +1,471 @@
+{
+  "schema": "hq-shape-annot/1",
+  "parts_schema": "hq-ctx-parts/3",
+  "family": "spoon",
+  "name": "spoon_03_590860_153",
+  "units": "m",
+  "up_axis": "+z",
+  "origin": "geometric centre; long axis +x, head at +L/2",
+  "source": {
+    "kind": "ready-made mesh, normalised (PCA + up sign + uniform scale)",
+    "base": "old spoon low poly",
+    "license": "by",
+    "author": "rastakouere.olivier",
+    "base_sha256": "7dac2dfea5053d78c1bc370abe65bfad4cc25f4b43e0a9659cc03663985a6304",
+    "base_file": "590860231989457a8a98e767b6d1218f.glb",
+    "url": "https://sketchfab.com/3d-models/590860231989457a8a98e767b6d1218f",
+    "source_kind": "objaverse_lvis",
+    "import_sha256": "6e64a4cfb63dee13bb7b3ab6c9af4ff7fdf25703c9b48820a2edafc021695855",
+    "native_extent_m": [
+      0.177607,
+      0.035871,
+      0.014014
+    ],
+    "target_size_m": 0.153,
+    "scale": 0.861453
+  },
+  "params": {
+    "target_m": 0.153,
+    "density": 7900.0,
+    "material": "steel",
+    "stroke": 0.005
+  },
+  "derived": {
+    "extent": [
+      0.153000289,
+      0.030901202,
+      0.012072621
+    ],
+    "roundness": 0.798032,
+    "stroke": 0.005,
+    "L": 0.153,
+    "W": 0.030901,
+    "neck_x": 0.073313,
+    "body_w": 0.012002,
+    "head_w": 0.027573,
+    "handle_w": 0.010038
+  },
+  "mass": {
+    "volume_m3": 2.83e-06,
+    "mass_kg": 0.022355492,
+    "com": [
+      0.010220207,
+      3.7247e-05,
+      0.000742614
+    ],
+    "inertia_kgm2": [
+      [
+        2.05e-06,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        4.3882e-05,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        4.5389e-05
+      ]
+    ],
+    "source": "signed mesh volume (estimate); inertia = uniform bbox; mesh is not watertight (shell)"
+  },
+  "bbox": {
+    "min": [
+      -0.0765,
+      -0.015451,
+      -0.006036
+    ],
+    "max": [
+      0.0765,
+      0.015451,
+      0.006036
+    ],
+    "extent": [
+      0.153,
+      0.030901,
+      0.012073
+    ]
+  },
+  "placement": [
+    {
+      "name": "table_rest_lying",
+      "point": [
+        0.0,
+        0.0,
+        -0.006036
+      ],
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "support": "flat side"
+    }
+  ],
+  "material": {
+    "density": 7900.0,
+    "name": "steel",
+    "transmittance": 0.0
+  },
+  "joint_simulated": null,
+  "joint_note": null,
+  "parts": {
+    "spoon": {
+      "origin": {
+        "kind": "point",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "tol": null,
+        "src": "variant:spoon/spoon_03_590860_153"
+      },
+      "head": {
+        "kind": "point",
+        "p": [
+          0.0765,
+          0.0,
+          0.0
+        ],
+        "tol": null,
+        "src": "variant:spoon/spoon_03_590860_153"
+      },
+      "tail": {
+        "kind": "point",
+        "p": [
+          -0.0765,
+          0.0,
+          0.0
+        ],
+        "tol": null,
+        "src": "variant:spoon/spoon_03_590860_153"
+      },
+      "body": {
+        "kind": "axis",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "size": {
+          "length": 0.153
+        },
+        "span": [
+          -0.0765,
+          0.0765
+        ],
+        "profile": [
+          [
+            0.003187,
+            0.003769
+          ],
+          [
+            0.009563,
+            0.008413
+          ],
+          [
+            0.015937,
+            0.011415
+          ],
+          [
+            0.022312,
+            0.011659
+          ],
+          [
+            0.028688,
+            0.009991
+          ],
+          [
+            0.035063,
+            0.008032
+          ],
+          [
+            0.041437,
+            0.005241
+          ],
+          [
+            0.047813,
+            0.005953
+          ],
+          [
+            0.054188,
+            0.006001
+          ],
+          [
+            0.060562,
+            0.004945
+          ],
+          [
+            0.066938,
+            0.004396
+          ],
+          [
+            0.073313,
+            0.003825
+          ],
+          [
+            0.092438,
+            0.003255
+          ],
+          [
+            0.098813,
+            0.003947
+          ],
+          [
+            0.105187,
+            0.009931
+          ],
+          [
+            0.111563,
+            0.012566
+          ],
+          [
+            0.117938,
+            0.015013
+          ],
+          [
+            0.124312,
+            0.015451
+          ],
+          [
+            0.130688,
+            0.01468
+          ],
+          [
+            0.137063,
+            0.012694
+          ],
+          [
+            0.143438,
+            0.011223
+          ],
+          [
+            0.149813,
+            0.00712
+          ]
+        ],
+        "grasp_s": 0.5668,
+        "tol": null,
+        "src": "variant:spoon/spoon_03_590860_153"
+      },
+      "handle": {
+        "kind": "list",
+        "items": [
+          {
+            "id": 0,
+            "p": [
+              -0.0765,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "section": {
+              "shape": "rect",
+              "w": 0.013267,
+              "d": 0.001326,
+              "in_or_out": "out"
+            },
+            "size": {
+              "thickness": 0.001326
+            },
+            "tol": null,
+            "src": "variant:spoon/spoon_03_590860_153"
+          },
+          {
+            "id": 1,
+            "p": [
+              -0.039047,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "section": {
+              "shape": "rect",
+              "w": 0.018276,
+              "d": 0.001348,
+              "in_or_out": "out"
+            },
+            "size": {
+              "thickness": 0.001348
+            },
+            "tol": null,
+            "src": "variant:spoon/spoon_03_590860_153"
+          },
+          {
+            "id": 2,
+            "p": [
+              -0.001594,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "section": {
+              "shape": "rect",
+              "w": 0.008792,
+              "d": 0.002066,
+              "in_or_out": "out"
+            },
+            "size": {
+              "thickness": 0.002066
+            },
+            "tol": null,
+            "src": "variant:spoon/spoon_03_590860_153"
+          },
+          {
+            "id": 3,
+            "p": [
+              0.03586,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "section": {
+              "shape": "rect",
+              "w": 0.030026,
+              "d": 0.008608,
+              "in_or_out": "out"
+            },
+            "size": {
+              "thickness": 0.008608
+            },
+            "tol": null,
+            "src": "variant:spoon/spoon_03_590860_153"
+          },
+          {
+            "id": 4,
+            "p": [
+              0.073313,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "section": {
+              "shape": "rect",
+              "w": 0.022447,
+              "d": 0.006014,
+              "in_or_out": "out"
+            },
+            "size": {
+              "thickness": 0.006014
+            },
+            "tol": null,
+            "src": "variant:spoon/spoon_03_590860_153"
+          }
+        ],
+        "grasp_s": 0.5668,
+        "tol": null,
+        "src": "variant:spoon/spoon_03_590860_153"
+      },
+      "com": {
+        "kind": "point",
+        "p": [
+          0.01022,
+          3.7e-05,
+          0.000743
+        ],
+        "com_from": "mass",
+        "tol": null,
+        "src": "variant:spoon/spoon_03_590860_153"
+      }
+    }
+  },
+  "relations": [
+    {
+      "id": "SP1",
+      "ok": true,
+      "text": "L=153.0 mm in [130, 180]"
+    },
+    {
+      "id": "SP2",
+      "ok": true,
+      "text": "head w=27.6 mm in (0.022, 0.045)"
+    },
+    {
+      "id": "SP3",
+      "ok": true,
+      "text": "handle w=10.0 mm in (0.002, 0.018)"
+    },
+    {
+      "id": "SP4",
+      "ok": true,
+      "text": "grasp x=10.2 <= neck x=73.3 (grip on the handle)"
+    },
+    {
+      "id": "SP5",
+      "ok": true,
+      "text": "|grasp - com|=0.0 mm <= 38 mm (grip near the centre of mass)"
+    },
+    {
+      "id": "SP6",
+      "ok": true,
+      "text": "handle fits the 100 mm gripper"
+    },
+    {
+      "id": "SP7",
+      "ok": true,
+      "text": "mass=22.4 g in (0.005, 0.18)"
+    }
+  ],
+  "mesh_parts": [
+    {
+      "name": "comp0_run0",
+      "face_start": 0,
+      "face_end": 328
+    },
+    {
+      "name": "comp1_run1",
+      "face_start": 328,
+      "face_end": 656
+    },
+    {
+      "name": "comp2_run2",
+      "face_start": 656,
+      "face_end": 836
+    }
+  ],
+  "generator": {
+    "file": "ware_ready.py",
+    "version": "1",
+    "sha256": "bfc25f57c3833d792249d433f55651a8f3ad928646b01c6a6a53afdfb3de31ea"
+  },
+  "geometry": {
+    "watertight": false,
+    "edge_manifold": false,
+    "orientation_consistent": true,
+    "volume_positive": false,
+    "volume_m3": -2.83e-06,
+    "n_vertices": 600,
+    "n_faces": 836,
+    "degenerate_faces": 0,
+    "duplicate_faces": 0
+  }
+}

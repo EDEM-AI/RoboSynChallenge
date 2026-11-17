@@ -1,0 +1,286 @@
+{
+  "schema": "hq-shape-annot/1",
+  "parts_schema": "hq-ctx-parts/3",
+  "family": "holder",
+  "name": "holder_bore86_h96_yup_solid",
+  "units": "m",
+  "up_axis": "+y",
+  "origin": "bottom centre; support plane y=0; local +y up",
+  "params": {
+    "mouth_r_in": 0.0428,
+    "H": 0.09635,
+    "wall_t": 0.0039,
+    "bottom_t": 0.006,
+    "taper": 0.0,
+    "density": 1100.0,
+    "pen_d": 0.01533,
+    "insert_gap": 0.006,
+    "name": "holder_bore86_h96_yup_solid"
+  },
+  "derived": {
+    "r_in_mouth": 0.0428,
+    "r_in_floor": 0.0428,
+    "r_out_mouth": 0.0467,
+    "r_out_floor": 0.0467,
+    "usable_depth": 0.09035,
+    "pen_clearance": 0.035135
+  },
+  "mass": {
+    "volume_m3": 0.000139959,
+    "mass_kg": 0.153954999,
+    "density_effective_kgm3": 1100.0,
+    "com": [
+      0.0,
+      0.03704775,
+      0.0
+    ],
+    "inertia_kgm2": [
+      [
+        0.00028176,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.000267109,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.00028176
+      ]
+    ]
+  },
+  "bbox": {
+    "min": [
+      -0.0467,
+      0.0,
+      -0.0467
+    ],
+    "max": [
+      0.0467,
+      0.09635,
+      0.0467
+    ],
+    "extent": [
+      0.0934,
+      0.09635,
+      0.0934
+    ]
+  },
+  "placement": [
+    {
+      "name": "table_rest",
+      "point": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    }
+  ],
+  "material": {
+    "density": 1100.0
+  },
+  "parts": {
+    "holder": {
+      "origin": {
+        "kind": "point",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "tol": null,
+        "src": "variant:holder/holder_bore86_h96_yup_solid"
+      },
+      "com": {
+        "kind": "point",
+        "p": [
+          0.0,
+          0.03704775,
+          0.0
+        ],
+        "com_from": "mass",
+        "tol": null,
+        "src": "variant:holder/holder_bore86_h96_yup_solid"
+      },
+      "mouth": {
+        "kind": "disk",
+        "p": [
+          0.0,
+          0.09635,
+          0.0
+        ],
+        "normal": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "section": {
+          "shape": "circle",
+          "r_in": 0.0428,
+          "r_out": 0.0467
+        },
+        "tol": null,
+        "src": "variant:holder/holder_bore86_h96_yup_solid"
+      },
+      "floor": {
+        "kind": "disk",
+        "p": [
+          0.0,
+          0.006,
+          0.0
+        ],
+        "normal": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "section": {
+          "shape": "circle",
+          "r_out": 0.0428
+        },
+        "tol": null,
+        "src": "variant:holder/holder_bore86_h96_yup_solid"
+      },
+      "bottom": {
+        "kind": "disk",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "normal": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "section": {
+          "shape": "circle",
+          "r_out": 0.0467
+        },
+        "tol": null,
+        "src": "variant:holder/holder_bore86_h96_yup_solid"
+      },
+      "body": {
+        "kind": "axis",
+        "p": [
+          0.0,
+          0.048175,
+          0.0
+        ],
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "size": {
+          "length": 0.09635
+        },
+        "span": [
+          0.0,
+          0.09635
+        ],
+        "section": {
+          "shape": "circle",
+          "r_out": 0.0467
+        },
+        "profile": [
+          [
+            0.0,
+            0.0467
+          ],
+          [
+            0.09635,
+            0.0467
+          ]
+        ],
+        "tol": null,
+        "src": "variant:holder/holder_bore86_h96_yup_solid"
+      }
+    }
+  },
+  "relations": [
+    {
+      "id": "H1",
+      "ok": true,
+      "text": "pen 15.33 + 2x6.0 <= bore 85.6 mm"
+    },
+    {
+      "id": "H2",
+      "ok": true,
+      "text": "H=96.4 mm in [85, 115]"
+    },
+    {
+      "id": "H3",
+      "ok": true,
+      "text": "bore r=42.8 mm in [30, 45]"
+    },
+    {
+      "id": "H4a",
+      "ok": true,
+      "text": "wall=3.90 mm >= 1.5"
+    },
+    {
+      "id": "H4b",
+      "ok": true,
+      "text": "bottom=6.00 mm >= 2"
+    },
+    {
+      "id": "H5",
+      "ok": true,
+      "text": "usable depth=90.3 mm >= 60"
+    }
+  ],
+  "geometry": {
+    "watertight": true,
+    "edge_manifold": true,
+    "orientation_consistent": true,
+    "volume_positive": true,
+    "volume_m3": 0.000139959,
+    "n_vertices": 258,
+    "n_faces": 512,
+    "degenerate_faces": 0,
+    "duplicate_faces": 0
+  },
+  "generator": {
+    "file": "holder.py",
+    "version": "1",
+    "sha256": "f499299d9779e5c9b6e491a221ba9c210b06279a83640917907f276e3294be4c"
+  },
+  "seed": 0,
+  "derivation": {
+    "source_obj": "holder_bore86_h96.obj",
+    "source_obj_sha256": "c6ad8342e612da9d442cef347d7a558ed0c769952c390ac5fc342a63b958cc7e",
+    "source_annotations_sha256": "d96e145965f01a8b7c47ace216a7147c5c5a0150fb0915b1e3f379221821f6d9",
+    "rotation": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        -1,
+        0
+      ]
+    ],
+    "body_scale": [
+      1,
+      1,
+      1
+    ],
+    "source_dimensions_preserved": true
+  }
+}

@@ -1,0 +1,28 @@
+name: spoon_01_2cdb7b_135
+fpath: items/spoon_01_2cdb7b_135
+body_scale: [1.0, 1.0, 1.0]
+files:
+  spoon_01_2cdb7b_135.annotations.json: c9854422682608abb91c09c3e7af2afb2c5718652016b33eeeb27d755cf6ff60
+  spoon_01_2cdb7b_135.obj: ac28d6a5426022b10d10aeed126a6d72e8487de1dc2e41034e71f1729ca56426
+  spoon_01_2cdb7b_135.ply: 4347542fab41ac0631fbc10c221ba7fffec844d0683a62c5778b2edfcd5cdb26
+source:
+  generator: ware_ready.py@bfc25f57c3833d79
+  base: Wooden spoon
+  base_sha256: 5e6b2d3d25e5cbe44b0eec12f88dad76a44c9c6200b7fd929a4a89111753dbbd
+  license: by
+  author: quedlin
+  url: https://sketchfab.com/3d-models/2cdb7b9b398244ccbf887aeb1cde8328
+  source_kind: objaverse_lvis
+  import_sha: 6e64a4cfb63dee13
+  params:
+    target_m: 0.135
+    density: 7900.0
+  seed: 0
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  title: "Wooden spoon"
+  author: quedlin
+  source_url: https://sketchfab.com/3d-models/2cdb7b9b398244ccbf887aeb1cde8328
+  modification: "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 135 mm; per-part annotations added. No other geometry change."
+status: draft

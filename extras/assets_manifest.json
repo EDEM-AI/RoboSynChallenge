@@ -1,24 +1,21 @@
 {
  "schema": "robosyn-extra-assets-manifest/1",
- "repo_id": "liyifreddy/robosyn-extra-assets",
- "repo_type": "dataset",
- "revision": "main",
- "note": "sha256 values are of the files as uploaded; fetch_assets.py verifies every download.",
+ "note": "Paths are relative to extras/assets/. sha256 values are of the files as committed.",
  "docs": [
   {
    "path": "README.md",
-   "sha256": "3294a94372f920b420f0f7698b47f5115ff179c117b331ab6b82b5fca9eb1eaa",
-   "bytes": 2797
+   "sha256": "60b32ecaf05dce47351e3f8e3814d76328804df0b460b9cb9292f937ffe9b72b",
+   "bytes": 1939
   },
   {
    "path": "LICENSE",
-   "sha256": "9d59361a07c570a1660c0f5f2d8b0836fc9b2133f6ef7b1b3c59a231a48045a5",
-   "bytes": 26579
+   "sha256": "e77e81cd434dc0e351145d3f67be0965a115e7ee9f2c54db888293bcb91df373",
+   "bytes": 26589
   },
   {
    "path": "ATTRIBUTION.md",
-   "sha256": "9471cdda0125c4018bd0303b95de5ea48d52a2f49269f8d449dd7b59a2f38f00",
-   "bytes": 8259
+   "sha256": "eca5568e9f615b14eaecf6786ebec6e6c40267d80dd278bbcd0e89428754ec37",
+   "bytes": 8354
   }
  ],
  "items": {

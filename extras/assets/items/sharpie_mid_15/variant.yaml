@@ -1,0 +1,28 @@
+name: sharpie_mid_15
+fpath: items/sharpie_mid_15
+body_scale: [1.0, 1.0, 1.0]
+files:
+  sharpie_mid_15.annotations.json: 49039e90a0b6111a4a89ee522484e83a6c868e5c0e7c818a90383e691d1935fa
+  sharpie_mid_15.ply: 8511f793ee915dc8f37d5591428fd16104c91b5a5584cd5ef7bdb8593b02344e
+source:
+  generator: marker_fix.py@5b8d8593a455315e
+  params:
+    d: 0.015
+    length: 0.145
+    density: 1050.0
+    fill: 0.535
+    fix: 缩放口径 由「全网格径向中位数」改为「干净光柱段 r50」；原件不动
+    source_item: mk41_sharpie_mid_15
+    radial_scale_fix: 0.608653
+  seed: 0
+  title: "Sharpie Marker"
+  author: adim09
+  url: https://sketchfab.com/3d-models/7fc87671c0844fd9874658a9f767a74f
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  title: "Sharpie Marker"
+  author: adim09
+  source_url: https://sketchfab.com/3d-models/7fc87671c0844fd9874658a9f767a74f
+  modification: "Re-oriented (PCA axis), length normalised to 145 mm and radial scale set to a 15 mm nominal diameter (re-measured on the clean barrel section), rotated 180 degrees about the local z axis so the tip points to +x; per-part annotations added."
+status: draft

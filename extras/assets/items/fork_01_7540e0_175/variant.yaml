@@ -1,0 +1,28 @@
+name: fork_01_7540e0_175
+fpath: items/fork_01_7540e0_175
+body_scale: [1.0, 1.0, 1.0]
+files:
+  fork_01_7540e0_175.annotations.json: a1bb7445e7586ae5a28558ba0a9179da1f6bdcb2272e45dcfb8e5497416b9eb0
+  fork_01_7540e0_175.obj: 8bcde2bfe1f69eaea9b7205021dfbc5d823fe60039472d490cd0adcd96b76bb7
+  fork_01_7540e0_175.ply: faa519389fe5392bfc99774dc6dd8f561490102e81df326b828f937b6bc3b255
+source:
+  generator: ware_ready.py@bfc25f57c3833d79
+  base: Fork
+  base_sha256: cfe04c487c77835a550b2d1dbfadd5a222ee54b4d73910cb7b79b135fcc5bea0
+  license: by
+  author: azureinferno
+  url: https://sketchfab.com/3d-models/7540e0bc543743f688628b8557c43932
+  source_kind: objaverse_lvis
+  import_sha: 6e64a4cfb63dee13
+  params:
+    target_m: 0.175
+    density: 7900.0
+  seed: 0
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  title: "Fork"
+  author: azureinferno
+  source_url: https://sketchfab.com/3d-models/7540e0bc543743f688628b8557c43932
+  modification: "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 175 mm; per-part annotations added. No other geometry change."
+status: draft

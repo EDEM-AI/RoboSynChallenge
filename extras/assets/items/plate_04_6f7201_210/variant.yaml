@@ -1,0 +1,28 @@
+name: plate_04_6f7201_210
+fpath: items/plate_04_6f7201_210
+body_scale: [1.0, 1.0, 1.0]
+files:
+  plate_04_6f7201_210.annotations.json: 618480147d5737fa1cf87fbb38f90abf29c1fc5eaa18ad58bda94004ac86cc1d
+  plate_04_6f7201_210.obj: e78c699466cc39ef6c5a50408cdcc75a44f57800ec900fe9d29c75d391253466
+  plate_04_6f7201_210.ply: 90be075465cf44b253ab62a0f735bc1205d6d8019a0a160071f7845637342841
+source:
+  generator: ware_ready.py@bfc25f57c3833d79
+  base: Kashan dish, c.1200 CE
+  base_sha256: 527cc8ba651217b885f8d889171eb00bd8e329cdf8fe10efbc7525f9da78cda3
+  license: cc0
+  author: artsmia
+  url: https://sketchfab.com/3d-models/6f7201fbb58649379398a8d1d5c0cc7a
+  source_kind: objaverse_lvis
+  import_sha: 6e64a4cfb63dee13
+  params:
+    target_m: 0.21
+    density: 2400.0
+  seed: 0
+attribution:
+  license: CC0 1.0
+  license_url: https://creativecommons.org/publicdomain/zero/1.0/
+  title: "Kashan dish, c.1200 CE"
+  author: artsmia
+  source_url: https://sketchfab.com/3d-models/6f7201fbb58649379398a8d1d5c0cc7a
+  modification: "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 210 mm; per-part annotations added. No other geometry change."
+status: draft

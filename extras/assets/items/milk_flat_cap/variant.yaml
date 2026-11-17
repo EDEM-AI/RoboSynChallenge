@@ -1,0 +1,17 @@
+name: milk_flat_cap
+fpath: items/milk_flat_cap
+body_scale: [1.0, 1.0, 1.0]
+files:
+  milk_flat_cap.ply: 0948b6aca7524da14628cc0cc8b7655675b53b44e48c31c8d715215f4377d43a
+source:
+  title: "DAY 14 #3 December2019- Search"
+  author: hardbottle
+  url: https://sketchfab.com/3d-models/ee5edb945f33416a9e63f3b4aa665d56
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  title: "DAY 14 #3 December2019- Search"
+  author: hardbottle
+  source_url: https://sketchfab.com/3d-models/ee5edb945f33416a9e63f3b4aa665d56
+  modification: "Re-oriented (source Y-up to Z-up) and anisotropically rescaled to 46 x 48 x 105 mm; mesh otherwise unchanged (cap kept)."
+status: draft

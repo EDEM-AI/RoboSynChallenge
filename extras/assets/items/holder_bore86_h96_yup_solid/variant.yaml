@@ -1,0 +1,79 @@
+name: holder_bore86_h96_yup_solid
+fpath: items/holder_bore86_h96_yup_solid
+body_scale: [1.0, 1.0, 1.0]
+files:
+  collision/bottom.obj: a5849816f84cdaaf3cd4d8efd78a54063322c4e967d285e53838e9f059c70585
+  collision/wall_00.obj: 3798b6adc1dc5865454dd62df3786346092cac72851dffa72b6eae8522c32334
+  collision/wall_01.obj: 5fa858f4f28f1330237ec6fb99a9e82110cb11cc8b5d5f913cf747e7cb2b56bb
+  collision/wall_02.obj: 80a5d6b1cdb62142b23644ba7e390c31bc026ac7ad6535cfbf88996c3ed9dc8e
+  collision/wall_03.obj: 40130bcfe51d2ef3757701e2865d42438f24f15d82252aaedcb037b05990f308
+  collision/wall_04.obj: 798380ac60d2a93b4a7d88f127a030d62ff97a976d5e2b524dcede6a82486868
+  collision/wall_05.obj: 162857721b08b218275c8db7a98ce58a27e35250d44d5ffa6bcc74c9b69b9a1b
+  collision/wall_06.obj: deabe8c5e4c6e08aff6b7a7ca4431101379d82c22a35171e1c7f6cf329e1fdf6
+  collision/wall_07.obj: 8e9642df597da7a5f243778d831f84f127fcf6ac7743a42ce735bd00b6cd6b01
+  collision/wall_08.obj: eb3c10808766637cceca97c3508bb4355778100fbb6b916ed550d08400082ca9
+  collision/wall_09.obj: 7d3e2c3648171c5c2ee8a5185c56cf6cdee4ce515492d3531434a2eae9a29e3b
+  collision/wall_10.obj: 33edce8cf49fc8152a4b02677e16ef686b4271d5c2e9572fec6fbfc8d5816471
+  collision/wall_11.obj: 3e4ec33b1d41deebd8afc572793e6e5cc1548906daf5f6ade595a97884c21530
+  collision/wall_12.obj: de3a629fafe87cbabadd9b45c073052af44a3b5f4a6d9e551aa29a168821cf28
+  collision/wall_13.obj: 61cdaa86b43a256bc1bd8e3e6cc832957b55530b2abdf19be0ea8a2c520d63db
+  collision/wall_14.obj: dc8aa5f57b4caa2fcd3bb929691bd54c098c1d0cc9a4b6c15d8020f6c84638db
+  collision/wall_15.obj: aa049518b64bff7309a72c6dfb4f29cfed3f20653c06ea0a7b180ec25274837f
+  collision/wall_16.obj: 4cc8c30e4ff3e5c45db9306450ef474954d1e7d81b73f0f84f503851c5c33725
+  collision/wall_17.obj: 2d6f9b324c2e9dd6b84951337a9cc475e3933740fd6a2b31b5211a0be91ebfa4
+  collision/wall_18.obj: d00abbf605b51fa1945039fde611b631016a6e199bed0d1f704ecb3e375f7996
+  collision/wall_19.obj: 352a80a11553cb5548099000c8d4be28f7148571a295539e2a68ad472ae618a9
+  collision/wall_20.obj: 1e7e3117aa4ca8e3b91be7ec01af9ce932b255f10bcb0d35d4b30668e2598e9a
+  collision/wall_21.obj: fc0f41c85f33e5599d018b9081d9ab057599e8c6c0d4dd1f0b339d44de987d25
+  collision/wall_22.obj: 0eb967b324a4959c8779f1c84335ccaaf506b1f38d00fb030176eb6c39022f6d
+  collision/wall_23.obj: fe032cbd10990b9a4f11b97c332ba3bb224e23354dc1158284d98004f0989de6
+  collision/wall_24.obj: 24a13fdfab95d79bf1ebcb52637c85bdad52490ca9bdcbfb4455b07dfb81ed46
+  collision/wall_25.obj: 5047aacef1d712b7da81a1974468e02cf0cb165fb00474b8ddc13ca8ef7fd7e8
+  collision/wall_26.obj: 451a5ebd98e455a9868ddc1cf5417932673109566d46dad46303de19dba4c59b
+  collision/wall_27.obj: fc73739d413bc94599a318e1bdf8c02def0f25d3479f85a7fc70cbc3ccae7e04
+  collision/wall_28.obj: c418bb016f3418c0fa7569202956a5ae086ef8ff617a8fd4c5be2055d76bfc03
+  collision/wall_29.obj: ca82f4e03f461bab9a4fc236cfc07a0c8a923aadee36eb370ebd5fc1d06a67e0
+  collision/wall_30.obj: bb4aae2a59bf9850a27c42046931eda661d211fe68eb6c3ce5870a61d5f76dc2
+  collision/wall_31.obj: 6177026dc4612c05f5125d48c35b908ee568ee2e0f2249c777c2ebfcec42b2cf
+  collision/wall_32.obj: c1f886a3a972059b0195ae9f1f0e8ec77867116825e54dcf003dc143bca1cdf0
+  collision/wall_33.obj: a506aec90880eebe54fd9bec71e2dfab171726894fdb293d76dc0caef8c797e4
+  collision/wall_34.obj: ed2d7d7bb5dff03b3427487b4399b2f240b393d966fee40ba235e75b576ec40a
+  collision/wall_35.obj: bb0d7f478a6375bb43d60c5bcd6f3b8f8ec9d489e65a41c47236864a672bf583
+  collision/wall_36.obj: c4cd3268fbdd5c8a48508e9bc3fbc2220b386c4181ebcc3ee5c74188d12b6b11
+  collision/wall_37.obj: aaeb1a5f4b18ae87f2b33b7a68edbf97c877a8fda18f0eafb0aefbd7718e27e9
+  collision/wall_38.obj: 78357f5fcd9d95f4915930fca5505d6534313096f63d31a9d114072bbbecc96f
+  collision/wall_39.obj: 88abb1a00ecea00d829195bd3d1385419650ba8488abefac63472aa33c23d515
+  collision/wall_40.obj: 6c11e29d7955c2fe698a9ffc119f6fbb163b12dfa9951fdb93e1880b66faf231
+  collision/wall_41.obj: 82e9a9e8c773d5fec53fe07e465aebe65455d9ecda360872da6d9ad6f1deb084
+  collision/wall_42.obj: 738b98a6dc9e5f1f7f86ef9c5805808ef3a5184d36de184a78ab282c391f66c6
+  collision/wall_43.obj: bd8ea6034b883c2802b94b4468c9745847d9b44227d0d71b0a6c1b8a2b460828
+  collision/wall_44.obj: 231de541991bd5c5624c66830c27f04cf21db953a805bd7f0b8317e26370ebec
+  collision/wall_45.obj: 5ce419ac0e39e3d04e5c460ac5d9b2d404b31745d49c21dcd949e0276ffebaf7
+  collision/wall_46.obj: 6a0bd214c4e459c4cbd510f2a2eb911716da4bc89f1ac4af5f50ee8013c4286e
+  collision/wall_47.obj: 80fc5aa4b7737b8408c3d2f32fa13d603324617e6528499227aff112524b8251
+  collision/wall_48.obj: fc647c478b34a5a7c2315c47d8a5dad2edf73fbf9d4849c01488507ae96d35a2
+  collision/wall_49.obj: bc30c69c0385fdd6b9b6a04d0781d08f7facf6aad766f18819615d8db628c459
+  collision/wall_50.obj: 0e704b08815e27208347acbae873b293fde14919269b6cf79abd2323bdcd7fa1
+  collision/wall_51.obj: 20d53bdd099570da6304c6328db6247afe689ac13a3e9f13051a6e2f524bfe19
+  collision/wall_52.obj: 45f4c5824ee29315506ec5eeadef210e8c2a54040663f4209656daea32372b9a
+  collision/wall_53.obj: 7c036cf97c0935e5897e731a5996b4644d8ca101b4750391decfb1045aaba79f
+  collision/wall_54.obj: bdd8ff60c7039a605371878d04198694ad25e3caac0fa1c9a9c993451f49880c
+  collision/wall_55.obj: 0d35761fb9e0bf69a61836187b99bd9405fd4d631033fd63569fbeb523b6ae86
+  collision/wall_56.obj: 5382807b0c92f7c0538f24cb4c729460e8897261497670d5464ca3a5b7cf1eab
+  collision/wall_57.obj: 9f191e45023289079b8ac09a70c25b6452efcae6b9de032edfddf30c23ab3deb
+  collision/wall_58.obj: bd78f86445663728c882498a0b89d0157ed5b5ea46244a0dcf933a81a7be7d25
+  collision/wall_59.obj: 0241b8289e48e9f6b8580c858b82b175295f57b722decb44f86cacaac71143c8
+  collision/wall_60.obj: 4e2034a0ec7102e0c84218d06ac5a9e5b3fe85a8d88a36233b6ad79a01553a2f
+  collision/wall_61.obj: a0f14e7cf9683d083dccbb8697f68b16a5b312d199e21b4ab5b4fe59193e42b0
+  collision/wall_62.obj: 6a00530563196f44453135b7f0b8ca1e4ef329790ea2998b7dc0860cb6f33d59
+  collision/wall_63.obj: e1b09933c46fbabfd16361cb6df4389bee9566d6b7b4a9f523bd5e31aaa1f0a5
+  collision_manifest.json: 56df9673370617d8a7f5fa5b4c0d873a3e992545862d48014c4665271d0fd3b9
+  holder_bore86_h96_yup_solid.annotations.json: 27bccf940f0ced10f55cba49a188b1a98dad8e27b3727d39a44b8c1cf7e0f1f9
+  holder_bore86_h96_yup_solid.obj: 6cb74fe3fb6fd72a97457fc13b417a8acb8b4de189637bd7ad24dabd303d803a
+source:
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  author: Yi Li (liyifreddy)
+  modification: "Pen holder with a solid (hole-free) side wall: generated by shape_gen/holder.py (bore 86 mm, height 96 mm), rotated to +y up; open compound convex collision pieces (bottom + wall segments) in collision/."
+status: draft

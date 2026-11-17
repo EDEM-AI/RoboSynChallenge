@@ -1,0 +1,28 @@
+name: fork_02_780905_183
+fpath: items/fork_02_780905_183
+body_scale: [1.0, 1.0, 1.0]
+files:
+  fork_02_780905_183.annotations.json: 7918e2e096b823e29ae0dbadf4d47d97e33f9f48d53946d98bc7c20829ec12d3
+  fork_02_780905_183.obj: 565f275eaa0b1717809a59e04175a802fbb42e05b1d35b3b48e456652403578b
+  fork_02_780905_183.ply: a2bf450a111bdcab37e0de0d2397d425c9265dbfffedf7e065e3a95515809b06
+source:
+  generator: ware_ready.py@bfc25f57c3833d79
+  base: Tenedor
+  base_sha256: 44b7930504c9de32394487f97e5209a35ca484c673bbe5d6c40464192c86c2de
+  license: by
+  author: BrisM
+  url: https://sketchfab.com/3d-models/7809059b27bf43928360d38ab6c8516b
+  source_kind: objaverse_lvis
+  import_sha: 6e64a4cfb63dee13
+  params:
+    target_m: 0.183
+    density: 7900.0
+  seed: 0
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  title: "Tenedor"
+  author: BrisM
+  source_url: https://sketchfab.com/3d-models/7809059b27bf43928360d38ab6c8516b
+  modification: "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 183 mm; per-part annotations added. No other geometry change."
+status: draft
