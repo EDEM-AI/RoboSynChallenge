@@ -1,0 +1,902 @@
+{
+ "schema": "robosyn-extra-assets-manifest/1",
+ "note": "Paths are relative to extras/assets/. sha256 values are of the files as committed.",
+ "docs": [
+  {
+   "path": "README.md",
+   "sha256": "60b32ecaf05dce47351e3f8e3814d76328804df0b460b9cb9292f937ffe9b72b",
+   "bytes": 1939
+  },
+  {
+   "path": "LICENSE",
+   "sha256": "e77e81cd434dc0e351145d3f67be0965a115e7ee9f2c54db888293bcb91df373",
+   "bytes": 26589
+  },
+  {
+   "path": "ATTRIBUTION.md",
+   "sha256": "eca5568e9f615b14eaecf6786ebec6e6c40267d80dd278bbcd0e89428754ec37",
+   "bytes": 8354
+  }
+ ],
+ "items": {
+  "bell_02_77f2ea_84": {
+   "origin": "third_party",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "gla_bot",
+   "title": "Table Bell",
+   "source_url": "https://sketchfab.com/3d-models/77f2ea17b4c84fe1a8d2aec02caa9de3",
+   "class": "bell",
+   "modification": "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 84 mm; per-part annotations added. No other geometry change. A two-link URDF (base + button cover, prismatic press joint) was derived by splitting the mesh at the cover (urdf/).",
+   "files": [
+    {
+     "path": "items/bell_02_77f2ea_84/bell_02_77f2ea_84.annotations.json",
+     "sha256": "d8a46b946136da1392b9ecfa96e4c42226e049566a736abe89e7f6891a06a6fc",
+     "bytes": 5906
+    },
+    {
+     "path": "items/bell_02_77f2ea_84/bell_02_77f2ea_84.obj",
+     "sha256": "15681fac7757b6363ffbacb7e9125ec63fe7f2869da80aedf4b16c2ce91c76c7",
+     "bytes": 186935
+    },
+    {
+     "path": "items/bell_02_77f2ea_84/bell_02_77f2ea_84.ply",
+     "sha256": "b907789ef9d7a6a4d7ed01e5f50d550348b79703038079b6c3b60665ec9cec8e",
+     "bytes": 96245
+    },
+    {
+     "path": "items/bell_02_77f2ea_84/variant.yaml",
+     "sha256": "7ccc108aeccfb574a5606cab5b348903ee5f655fd58189dec3cf5fbb075720dc",
+     "bytes": 1560
+    },
+    {
+     "path": "items/bell_02_77f2ea_84/urdf/bell_02_77f2ea_84.urdf",
+     "sha256": "91c9a472b00bba1bea334a88e190a5bd45093fe6e20c5e1d0f65e05f2e83e95e",
+     "bytes": 1643
+    },
+    {
+     "path": "items/bell_02_77f2ea_84/urdf/bell_02_77f2ea_84_base.obj",
+     "sha256": "003075d26755f5f3f9d18772f68d073c641d2842df93f63a6ced9a3342686379",
+     "bytes": 136299
+    },
+    {
+     "path": "items/bell_02_77f2ea_84/urdf/bell_02_77f2ea_84_cover.obj",
+     "sha256": "db84af7b7cd4f4e652bc55ea1f0f72de26ee75b13156ae3abc837d603d445118",
+     "bytes": 48244
+    }
+   ]
+  },
+  "bell_03_b739cb_93": {
+   "origin": "third_party",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "davide.6.6.95",
+   "title": "Table Bell",
+   "source_url": "https://sketchfab.com/3d-models/b739cb8a349e472bbbf12eb695e17d8d",
+   "class": "bell",
+   "modification": "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 93 mm; per-part annotations added. No other geometry change. A two-link URDF (base + button cover, prismatic press joint) was derived by splitting the mesh at the cover (urdf/).",
+   "files": [
+    {
+     "path": "items/bell_03_b739cb_93/bell_03_b739cb_93.annotations.json",
+     "sha256": "445e670f74ae62dc30daaaf0f49c1b72727f9de2bebd401c45417596ce57c8e9",
+     "bytes": 5876
+    },
+    {
+     "path": "items/bell_03_b739cb_93/bell_03_b739cb_93.obj",
+     "sha256": "447384d18ac398e6131cf8b2275e8335d6a378c34981eb0ef7b6dddef3b63a3d",
+     "bytes": 952706
+    },
+    {
+     "path": "items/bell_03_b739cb_93/bell_03_b739cb_93.ply",
+     "sha256": "f9ca30cc7581042ff862354955cc97d8540ae594f0fc63a28b64594dde6a2302",
+     "bytes": 479621
+    },
+    {
+     "path": "items/bell_03_b739cb_93/variant.yaml",
+     "sha256": "01fd61ade8520f7f414be963b8bc6dce3398fad71f0b75587186a9c3a18e08b9",
+     "bytes": 1572
+    },
+    {
+     "path": "items/bell_03_b739cb_93/urdf/bell_03_b739cb_93.urdf",
+     "sha256": "8ddfb7b005090328f7a80c539095e4b4b0d225429fe051f85347ce5fe4485140",
+     "bytes": 1643
+    },
+    {
+     "path": "items/bell_03_b739cb_93/urdf/bell_03_b739cb_93_base.obj",
+     "sha256": "5a8f6c7e10e811ad13dd7e377f831f5e977150c31666120537f99015c9388cc9",
+     "bytes": 562525
+    },
+    {
+     "path": "items/bell_03_b739cb_93/urdf/bell_03_b739cb_93_cover.obj",
+     "sha256": "7c667034748668b2e000a26b5c83e07226e088e12b81de624a2713e0b2a9330b",
+     "bytes": 373269
+    }
+   ]
+  },
+  "fork_01_7540e0_175": {
+   "origin": "third_party",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "azureinferno",
+   "title": "Fork",
+   "source_url": "https://sketchfab.com/3d-models/7540e0bc543743f688628b8557c43932",
+   "class": "fork",
+   "modification": "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 175 mm; per-part annotations added. No other geometry change.",
+   "files": [
+    {
+     "path": "items/fork_01_7540e0_175/fork_01_7540e0_175.annotations.json",
+     "sha256": "a1bb7445e7586ae5a28558ba0a9179da1f6bdcb2272e45dcfb8e5497416b9eb0",
+     "bytes": 9251
+    },
+    {
+     "path": "items/fork_01_7540e0_175/fork_01_7540e0_175.obj",
+     "sha256": "8bcde2bfe1f69eaea9b7205021dfbc5d823fe60039472d490cd0adcd96b76bb7",
+     "bytes": 206414
+    },
+    {
+     "path": "items/fork_01_7540e0_175/fork_01_7540e0_175.ply",
+     "sha256": "faa519389fe5392bfc99774dc6dd8f561490102e81df326b828f937b6bc3b255",
+     "bytes": 110300
+    },
+    {
+     "path": "items/fork_01_7540e0_175/variant.yaml",
+     "sha256": "da78367e66aa2bd76502ebd51de1bac32585a986ad1fdccb158c1f179b246786",
+     "bytes": 1150
+    }
+   ]
+  },
+  "fork_02_780905_183": {
+   "origin": "third_party",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "BrisM",
+   "title": "Tenedor",
+   "source_url": "https://sketchfab.com/3d-models/7809059b27bf43928360d38ab6c8516b",
+   "class": "fork",
+   "modification": "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 183 mm; per-part annotations added. No other geometry change.",
+   "files": [
+    {
+     "path": "items/fork_02_780905_183/fork_02_780905_183.annotations.json",
+     "sha256": "7918e2e096b823e29ae0dbadf4d47d97e33f9f48d53946d98bc7c20829ec12d3",
+     "bytes": 9391
+    },
+    {
+     "path": "items/fork_02_780905_183/fork_02_780905_183.obj",
+     "sha256": "565f275eaa0b1717809a59e04175a802fbb42e05b1d35b3b48e456652403578b",
+     "bytes": 1279379
+    },
+    {
+     "path": "items/fork_02_780905_183/fork_02_780905_183.ply",
+     "sha256": "a2bf450a111bdcab37e0de0d2397d425c9265dbfffedf7e065e3a95515809b06",
+     "bytes": 642758
+    },
+    {
+     "path": "items/fork_02_780905_183/variant.yaml",
+     "sha256": "7c584b7f2b0614b5213f799a8c9e2503d32ee4259a01971cb787df0c89963c74",
+     "bytes": 1142
+    }
+   ]
+  },
+  "spoon_01_2cdb7b_135": {
+   "origin": "third_party",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "quedlin",
+   "title": "Wooden spoon",
+   "source_url": "https://sketchfab.com/3d-models/2cdb7b9b398244ccbf887aeb1cde8328",
+   "class": "spoon",
+   "modification": "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 135 mm; per-part annotations added. No other geometry change.",
+   "files": [
+    {
+     "path": "items/spoon_01_2cdb7b_135/spoon_01_2cdb7b_135.annotations.json",
+     "sha256": "c9854422682608abb91c09c3e7af2afb2c5718652016b33eeeb27d755cf6ff60",
+     "bytes": 9508
+    },
+    {
+     "path": "items/spoon_01_2cdb7b_135/spoon_01_2cdb7b_135.obj",
+     "sha256": "ac28d6a5426022b10d10aeed126a6d72e8487de1dc2e41034e71f1729ca56426",
+     "bytes": 91340
+    },
+    {
+     "path": "items/spoon_01_2cdb7b_135/spoon_01_2cdb7b_135.ply",
+     "sha256": "4347542fab41ac0631fbc10c221ba7fffec844d0683a62c5778b2edfcd5cdb26",
+     "bytes": 49418
+    },
+    {
+     "path": "items/spoon_01_2cdb7b_135/variant.yaml",
+     "sha256": "7c99c1500e61f3990d6ffea5086fb618559f0762c25ea931b47927cc6f8d9d70",
+     "bytes": 1161
+    }
+   ]
+  },
+  "spoon_03_590860_153": {
+   "origin": "third_party",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "rastakouere.olivier",
+   "title": "old spoon low poly",
+   "source_url": "https://sketchfab.com/3d-models/590860231989457a8a98e767b6d1218f",
+   "class": "spoon",
+   "modification": "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 153 mm; per-part annotations added. No other geometry change.",
+   "files": [
+    {
+     "path": "items/spoon_03_590860_153/spoon_03_590860_153.annotations.json",
+     "sha256": "12f5a72e09ecf1269ecd9f1e372c2839f8613dd95e1271cc3aa27e1cdab18aa3",
+     "bytes": 9479
+    },
+    {
+     "path": "items/spoon_03_590860_153/spoon_03_590860_153.obj",
+     "sha256": "02cb6e665a13f0d5156a0c68334536810e1f930dd06abfda32b17e41bd28992c",
+     "bytes": 34763
+    },
+    {
+     "path": "items/spoon_03_590860_153/spoon_03_590860_153.ply",
+     "sha256": "369298d213942ffabf7dfdd6cbf34b20d8e5d415fbe9f9f4897bf9cb575d3503",
+     "bytes": 18296
+    },
+    {
+     "path": "items/spoon_03_590860_153/variant.yaml",
+     "sha256": "fb7b681bbd6e5333b3cc8a064f5d1d84282d8f72a414309d66f86cab3c8c7266",
+     "bytes": 1197
+    }
+   ]
+  },
+  "plate_03_57ada5_195": {
+   "origin": "third_party",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "GfS-Rostock",
+   "title": "Schlepper Warnemünder Bucht - Teller",
+   "source_url": "https://sketchfab.com/3d-models/57ada5a88c7743d5813634d92e9fb14d",
+   "class": "plate",
+   "modification": "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 195 mm; per-part annotations added. No other geometry change.",
+   "files": [
+    {
+     "path": "items/plate_03_57ada5_195/plate_03_57ada5_195.annotations.json",
+     "sha256": "87e3153637da76ccefd61f5390b0c02cbebbdfa523ff5742b704cf464f5283d9",
+     "bytes": 6477
+    },
+    {
+     "path": "items/plate_03_57ada5_195/plate_03_57ada5_195.obj",
+     "sha256": "88e1b10b19891d5346786c6c18ae3b6ff9f4d01c10a6a947e4821cfcf1bb766e",
+     "bytes": 590691
+    },
+    {
+     "path": "items/plate_03_57ada5_195/plate_03_57ada5_195.ply",
+     "sha256": "b7688bcaf399c2deaceb98a20a79e7bd2726dd778264608ab0f454ee7fffb7f6",
+     "bytes": 310027
+    },
+    {
+     "path": "items/plate_03_57ada5_195/variant.yaml",
+     "sha256": "72a34a0a669247ccbb328e39371c045e9b14058842c7934f5d5dba39d72fcd7b",
+     "bytes": 1219
+    }
+   ]
+  },
+  "plate_04_6f7201_210": {
+   "origin": "third_party",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "author": "artsmia",
+   "title": "Kashan dish, c.1200 CE",
+   "source_url": "https://sketchfab.com/3d-models/6f7201fbb58649379398a8d1d5c0cc7a",
+   "class": "plate",
+   "modification": "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 210 mm; per-part annotations added. No other geometry change.",
+   "files": [
+    {
+     "path": "items/plate_04_6f7201_210/plate_04_6f7201_210.annotations.json",
+     "sha256": "618480147d5737fa1cf87fbb38f90abf29c1fc5eaa18ad58bda94004ac86cc1d",
+     "bytes": 6287
+    },
+    {
+     "path": "items/plate_04_6f7201_210/plate_04_6f7201_210.obj",
+     "sha256": "e78c699466cc39ef6c5a50408cdcc75a44f57800ec900fe9d29c75d391253466",
+     "bytes": 2483489
+    },
+    {
+     "path": "items/plate_04_6f7201_210/plate_04_6f7201_210.ply",
+     "sha256": "90be075465cf44b253ab62a0f735bc1205d6d8019a0a160071f7845637342841",
+     "bytes": 1222568
+    },
+    {
+     "path": "items/plate_04_6f7201_210/variant.yaml",
+     "sha256": "7828616baff512a5dbd20a9fd84010a30e4a55a6dabb6a78efd4558a12ce1d29",
+     "bytes": 1185
+    }
+   ]
+  },
+  "sharpie_mid_15": {
+   "origin": "third_party",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "adim09",
+   "title": "Sharpie Marker",
+   "source_url": "https://sketchfab.com/3d-models/7fc87671c0844fd9874658a9f767a74f",
+   "class": "marker",
+   "modification": "Re-oriented (PCA axis), length normalised to 145 mm and radial scale set to a 15 mm nominal diameter (re-measured on the clean barrel section), rotated 180 degrees about the local z axis so the tip points to +x; per-part annotations added.",
+   "files": [
+    {
+     "path": "items/sharpie_mid_15/sharpie_mid_15.annotations.json",
+     "sha256": "49039e90a0b6111a4a89ee522484e83a6c868e5c0e7c818a90383e691d1935fa",
+     "bytes": 3198
+    },
+    {
+     "path": "items/sharpie_mid_15/sharpie_mid_15.ply",
+     "sha256": "8511f793ee915dc8f37d5591428fd16104c91b5a5584cd5ef7bdb8593b02344e",
+     "bytes": 102481
+    },
+    {
+     "path": "items/sharpie_mid_15/variant.yaml",
+     "sha256": "c4bae9ca5b78322adec8559895c0d825019313b9db2a97ad9743b6efec0a94c9",
+     "bytes": 1183
+    }
+   ]
+  },
+  "sharpie_thick_20": {
+   "origin": "third_party",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "adim09",
+   "title": "Sharpie Marker",
+   "source_url": "https://sketchfab.com/3d-models/7fc87671c0844fd9874658a9f767a74f",
+   "class": "marker",
+   "modification": "Re-oriented (PCA axis), length normalised to 145 mm and radial scale set to a 20 mm nominal diameter (re-measured on the clean barrel section), rotated 180 degrees about the local z axis so the tip points to +x; per-part annotations added.",
+   "files": [
+    {
+     "path": "items/sharpie_thick_20/sharpie_thick_20.annotations.json",
+     "sha256": "5e9399a825cf4955a57f540775db8b5b54dc7a8c1f5d6120530a313d700f0999",
+     "bytes": 3209
+    },
+    {
+     "path": "items/sharpie_thick_20/sharpie_thick_20.ply",
+     "sha256": "1af86dd2603c769d1cd28f37f85c75c408bc55cf72d14e347ebae58b38090946",
+     "bytes": 102481
+    },
+    {
+     "path": "items/sharpie_thick_20/variant.yaml",
+     "sha256": "19d8778205090107418848e5f3facd0f418fc804cc0cd5e1121b4cf88e794606",
+     "bytes": 1192
+    }
+   ]
+  },
+  "milk_flat_cap": {
+   "origin": "third_party",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "hardbottle",
+   "title": "DAY 14 #3 December2019- Search",
+   "source_url": "https://sketchfab.com/3d-models/ee5edb945f33416a9e63f3b4aa665d56",
+   "class": "milk",
+   "modification": "Re-oriented (source Y-up to Z-up) and anisotropically rescaled to 46 x 48 x 105 mm; mesh otherwise unchanged (cap kept).",
+   "files": [
+    {
+     "path": "items/milk_flat_cap/milk_flat_cap.ply",
+     "sha256": "0948b6aca7524da14628cc0cc8b7655675b53b44e48c31c8d715215f4377d43a",
+     "bytes": 8477
+    },
+    {
+     "path": "items/milk_flat_cap/variant.yaml",
+     "sha256": "6d4d197ab1239007a2d3fff17344a2fe739e1a329ec33e2dde26dcd937c3198a",
+     "bytes": 700
+    }
+   ]
+  },
+  "milk_gable_nocap": {
+   "origin": "third_party",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "cebbi",
+   "title": "Milk Carton",
+   "source_url": "https://sketchfab.com/3d-models/713643151cce41798f6dfb98bbff09cb",
+   "class": "milk",
+   "modification": "Re-oriented (source Y-up to Z-up), anisotropically rescaled to 46 x 48 x 105 mm; the separate cap component was removed (only the 220-face watertight carton body kept).",
+   "files": [
+    {
+     "path": "items/milk_gable_nocap/milk_gable_nocap.ply",
+     "sha256": "634784916292e5639ec8cd094209d81c8cb66a073501cc4150f510471cf9c68e",
+     "bytes": 4419
+    },
+    {
+     "path": "items/milk_gable_nocap/variant.yaml",
+     "sha256": "ce007a0bdbf4402d99e7be26a98c98b51a72d4a3ba7bfc02f1e267938bed1492",
+     "bytes": 709
+    }
+   ]
+  },
+  "rack_4x10_main_zc": {
+   "origin": "own",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "Yi Li (liyifreddy)",
+   "class": "rack",
+   "modification": "Generated from scratch by shape_gen/rack.py (parameters and seed 0 in variant.yaml), then re-centred to the official origin convention (z centred) by recenter_rack.py. Overall dimensions follow measurements of the official test-tube rack asset; the geometry itself is not copied from it.",
+   "files": [
+    {
+     "path": "items/rack_4x10_main_zc/rack_4x10_main_zc.annotations.json",
+     "sha256": "69131298852603f3d32ff58b280737d2b8e8f05af9c761efd70e020e65c876b3",
+     "bytes": 34452
+    },
+    {
+     "path": "items/rack_4x10_main_zc/rack_4x10_main_zc.obj",
+     "sha256": "7be1097643c556f9f7187535fd4f13b3fd5c54b704beea664f1b061e4df5d68d",
+     "bytes": 107997
+    },
+    {
+     "path": "items/rack_4x10_main_zc/rack_4x10_main_zc.ply",
+     "sha256": "ead70a23c03ca1e63cd2458fe1a16bf06dc63d789593e2ee0e256937b4542701",
+     "bytes": 61759
+    },
+    {
+     "path": "items/rack_4x10_main_zc/variant.yaml",
+     "sha256": "07dcd68e6d79e461380159a347070efcc52f7ca54607e2424e3041e8cf32c75f",
+     "bytes": 1280
+    }
+   ]
+  },
+  "rack_4x12_main_zc": {
+   "origin": "own",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "Yi Li (liyifreddy)",
+   "class": "rack",
+   "modification": "Generated from scratch by shape_gen/rack.py (parameters and seed 0 in variant.yaml), then re-centred to the official origin convention (z centred) by recenter_rack.py. Overall dimensions follow measurements of the official test-tube rack asset; the geometry itself is not copied from it.",
+   "files": [
+    {
+     "path": "items/rack_4x12_main_zc/rack_4x12_main_zc.annotations.json",
+     "sha256": "24614d97962ac8ccd3be56b4012ff9c7cf2f5ec9079987b8c06870dc33335f83",
+     "bytes": 39755
+    },
+    {
+     "path": "items/rack_4x12_main_zc/rack_4x12_main_zc.obj",
+     "sha256": "86a53c90f2b40258b35ea76008d0bc4a0997fba652a15a88411b6985a95821f4",
+     "bytes": 127169
+    },
+    {
+     "path": "items/rack_4x12_main_zc/rack_4x12_main_zc.ply",
+     "sha256": "8daa38dc6bb7ab1a234d04d91836a2157e0197816b44350d5a304468dd925bde",
+     "bytes": 72127
+    },
+    {
+     "path": "items/rack_4x12_main_zc/variant.yaml",
+     "sha256": "0c22e48d39dda9ac68562f8a442143e5f1b23d4f31fb95de1b2ec2b649281b12",
+     "bytes": 1279
+    }
+   ]
+  },
+  "rack_5x10_tall_zc": {
+   "origin": "own",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "Yi Li (liyifreddy)",
+   "class": "rack",
+   "modification": "Generated from scratch by shape_gen/rack.py (parameters and seed 0 in variant.yaml), then re-centred to the official origin convention (z centred) by recenter_rack.py. Overall dimensions follow measurements of the official test-tube rack asset; the geometry itself is not copied from it.",
+   "files": [
+    {
+     "path": "items/rack_5x10_tall_zc/rack_5x10_tall_zc.annotations.json",
+     "sha256": "ad90131f8809bc071e14964a0630db2aa2f48b1018cf8db195b055084a24278b",
+     "bytes": 40895
+    },
+    {
+     "path": "items/rack_5x10_tall_zc/rack_5x10_tall_zc.obj",
+     "sha256": "78143ce2f0c67698d5f861acc9d1e8fccf89632b75ad221ecb774758c9bb4744",
+     "bytes": 129309
+    },
+    {
+     "path": "items/rack_5x10_tall_zc/rack_5x10_tall_zc.ply",
+     "sha256": "554893dd71f6b996321347d99066e5071b521959ab4967c0ebf91265f7ae5292",
+     "bytes": 73351
+    },
+    {
+     "path": "items/rack_5x10_tall_zc/variant.yaml",
+     "sha256": "a9a8fc84333acc99d88824cd0e5eec5126a3217e0cea569422e800ef1f823e6d",
+     "bytes": 1279
+    }
+   ]
+  },
+  "holder_bore86_h96_yup_solid": {
+   "origin": "own",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "Yi Li (liyifreddy)",
+   "class": "holder",
+   "modification": "Pen holder with a solid (hole-free) side wall: generated by shape_gen/holder.py (bore 86 mm, height 96 mm), rotated to +y up; open compound convex collision pieces (bottom + wall segments) in collision/.",
+   "files": [
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision_manifest.json",
+     "sha256": "56df9673370617d8a7f5fa5b4c0d873a3e992545862d48014c4665271d0fd3b9",
+     "bytes": 12498
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/holder_bore86_h96_yup_solid.annotations.json",
+     "sha256": "27bccf940f0ced10f55cba49a188b1a98dad8e27b3727d39a44b8c1cf7e0f1f9",
+     "bytes": 5226
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/holder_bore86_h96_yup_solid.obj",
+     "sha256": "6cb74fe3fb6fd72a97457fc13b417a8acb8b4de189637bd7ad24dabd303d803a",
+     "bytes": 16678
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/variant.yaml",
+     "sha256": "34b03ab75bbf4495614dae10255ef986bd52c37e72bb709f372f7d7dacfdd9a1",
+     "bytes": 6631
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/bottom.obj",
+     "sha256": "a5849816f84cdaaf3cd4d8efd78a54063322c4e967d285e53838e9f059c70585",
+     "bytes": 7914
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_00.obj",
+     "sha256": "3798b6adc1dc5865454dd62df3786346092cac72851dffa72b6eae8522c32334",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_01.obj",
+     "sha256": "5fa858f4f28f1330237ec6fb99a9e82110cb11cc8b5d5f913cf747e7cb2b56bb",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_02.obj",
+     "sha256": "80a5d6b1cdb62142b23644ba7e390c31bc026ac7ad6535cfbf88996c3ed9dc8e",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_03.obj",
+     "sha256": "40130bcfe51d2ef3757701e2865d42438f24f15d82252aaedcb037b05990f308",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_04.obj",
+     "sha256": "798380ac60d2a93b4a7d88f127a030d62ff97a976d5e2b524dcede6a82486868",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_05.obj",
+     "sha256": "162857721b08b218275c8db7a98ce58a27e35250d44d5ffa6bcc74c9b69b9a1b",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_06.obj",
+     "sha256": "deabe8c5e4c6e08aff6b7a7ca4431101379d82c22a35171e1c7f6cf329e1fdf6",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_07.obj",
+     "sha256": "8e9642df597da7a5f243778d831f84f127fcf6ac7743a42ce735bd00b6cd6b01",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_08.obj",
+     "sha256": "eb3c10808766637cceca97c3508bb4355778100fbb6b916ed550d08400082ca9",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_09.obj",
+     "sha256": "7d3e2c3648171c5c2ee8a5185c56cf6cdee4ce515492d3531434a2eae9a29e3b",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_10.obj",
+     "sha256": "33edce8cf49fc8152a4b02677e16ef686b4271d5c2e9572fec6fbfc8d5816471",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_11.obj",
+     "sha256": "3e4ec33b1d41deebd8afc572793e6e5cc1548906daf5f6ade595a97884c21530",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_12.obj",
+     "sha256": "de3a629fafe87cbabadd9b45c073052af44a3b5f4a6d9e551aa29a168821cf28",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_13.obj",
+     "sha256": "61cdaa86b43a256bc1bd8e3e6cc832957b55530b2abdf19be0ea8a2c520d63db",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_14.obj",
+     "sha256": "dc8aa5f57b4caa2fcd3bb929691bd54c098c1d0cc9a4b6c15d8020f6c84638db",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_15.obj",
+     "sha256": "aa049518b64bff7309a72c6dfb4f29cfed3f20653c06ea0a7b180ec25274837f",
+     "bytes": 451
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_16.obj",
+     "sha256": "4cc8c30e4ff3e5c45db9306450ef474954d1e7d81b73f0f84f503851c5c33725",
+     "bytes": 455
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_17.obj",
+     "sha256": "2d6f9b324c2e9dd6b84951337a9cc475e3933740fd6a2b31b5211a0be91ebfa4",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_18.obj",
+     "sha256": "d00abbf605b51fa1945039fde611b631016a6e199bed0d1f704ecb3e375f7996",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_19.obj",
+     "sha256": "352a80a11553cb5548099000c8d4be28f7148571a295539e2a68ad472ae618a9",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_20.obj",
+     "sha256": "1e7e3117aa4ca8e3b91be7ec01af9ce932b255f10bcb0d35d4b30668e2598e9a",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_21.obj",
+     "sha256": "fc0f41c85f33e5599d018b9081d9ab057599e8c6c0d4dd1f0b339d44de987d25",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_22.obj",
+     "sha256": "0eb967b324a4959c8779f1c84335ccaaf506b1f38d00fb030176eb6c39022f6d",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_23.obj",
+     "sha256": "fe032cbd10990b9a4f11b97c332ba3bb224e23354dc1158284d98004f0989de6",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_24.obj",
+     "sha256": "24a13fdfab95d79bf1ebcb52637c85bdad52490ca9bdcbfb4455b07dfb81ed46",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_25.obj",
+     "sha256": "5047aacef1d712b7da81a1974468e02cf0cb165fb00474b8ddc13ca8ef7fd7e8",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_26.obj",
+     "sha256": "451a5ebd98e455a9868ddc1cf5417932673109566d46dad46303de19dba4c59b",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_27.obj",
+     "sha256": "fc73739d413bc94599a318e1bdf8c02def0f25d3479f85a7fc70cbc3ccae7e04",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_28.obj",
+     "sha256": "c418bb016f3418c0fa7569202956a5ae086ef8ff617a8fd4c5be2055d76bfc03",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_29.obj",
+     "sha256": "ca82f4e03f461bab9a4fc236cfc07a0c8a923aadee36eb370ebd5fc1d06a67e0",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_30.obj",
+     "sha256": "bb4aae2a59bf9850a27c42046931eda661d211fe68eb6c3ce5870a61d5f76dc2",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_31.obj",
+     "sha256": "6177026dc4612c05f5125d48c35b908ee568ee2e0f2249c777c2ebfcec42b2cf",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_32.obj",
+     "sha256": "c1f886a3a972059b0195ae9f1f0e8ec77867116825e54dcf003dc143bca1cdf0",
+     "bytes": 463
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_33.obj",
+     "sha256": "a506aec90880eebe54fd9bec71e2dfab171726894fdb293d76dc0caef8c797e4",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_34.obj",
+     "sha256": "ed2d7d7bb5dff03b3427487b4399b2f240b393d966fee40ba235e75b576ec40a",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_35.obj",
+     "sha256": "bb0d7f478a6375bb43d60c5bcd6f3b8f8ec9d489e65a41c47236864a672bf583",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_36.obj",
+     "sha256": "c4cd3268fbdd5c8a48508e9bc3fbc2220b386c4181ebcc3ee5c74188d12b6b11",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_37.obj",
+     "sha256": "aaeb1a5f4b18ae87f2b33b7a68edbf97c877a8fda18f0eafb0aefbd7718e27e9",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_38.obj",
+     "sha256": "78357f5fcd9d95f4915930fca5505d6534313096f63d31a9d114072bbbecc96f",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_39.obj",
+     "sha256": "88abb1a00ecea00d829195bd3d1385419650ba8488abefac63472aa33c23d515",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_40.obj",
+     "sha256": "6c11e29d7955c2fe698a9ffc119f6fbb163b12dfa9951fdb93e1880b66faf231",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_41.obj",
+     "sha256": "82e9a9e8c773d5fec53fe07e465aebe65455d9ecda360872da6d9ad6f1deb084",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_42.obj",
+     "sha256": "738b98a6dc9e5f1f7f86ef9c5805808ef3a5184d36de184a78ab282c391f66c6",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_43.obj",
+     "sha256": "bd8ea6034b883c2802b94b4468c9745847d9b44227d0d71b0a6c1b8a2b460828",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_44.obj",
+     "sha256": "231de541991bd5c5624c66830c27f04cf21db953a805bd7f0b8317e26370ebec",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_45.obj",
+     "sha256": "5ce419ac0e39e3d04e5c460ac5d9b2d404b31745d49c21dcd949e0276ffebaf7",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_46.obj",
+     "sha256": "6a0bd214c4e459c4cbd510f2a2eb911716da4bc89f1ac4af5f50ee8013c4286e",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_47.obj",
+     "sha256": "80fc5aa4b7737b8408c3d2f32fa13d603324617e6528499227aff112524b8251",
+     "bytes": 467
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_48.obj",
+     "sha256": "fc647c478b34a5a7c2315c47d8a5dad2edf73fbf9d4849c01488507ae96d35a2",
+     "bytes": 463
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_49.obj",
+     "sha256": "bc30c69c0385fdd6b9b6a04d0781d08f7facf6aad766f18819615d8db628c459",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_50.obj",
+     "sha256": "0e704b08815e27208347acbae873b293fde14919269b6cf79abd2323bdcd7fa1",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_51.obj",
+     "sha256": "20d53bdd099570da6304c6328db6247afe689ac13a3e9f13051a6e2f524bfe19",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_52.obj",
+     "sha256": "45f4c5824ee29315506ec5eeadef210e8c2a54040663f4209656daea32372b9a",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_53.obj",
+     "sha256": "7c036cf97c0935e5897e731a5996b4644d8ca101b4750391decfb1045aaba79f",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_54.obj",
+     "sha256": "bdd8ff60c7039a605371878d04198694ad25e3caac0fa1c9a9c993451f49880c",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_55.obj",
+     "sha256": "0d35761fb9e0bf69a61836187b99bd9405fd4d631033fd63569fbeb523b6ae86",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_56.obj",
+     "sha256": "5382807b0c92f7c0538f24cb4c729460e8897261497670d5464ca3a5b7cf1eab",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_57.obj",
+     "sha256": "9f191e45023289079b8ac09a70c25b6452efcae6b9de032edfddf30c23ab3deb",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_58.obj",
+     "sha256": "bd78f86445663728c882498a0b89d0157ed5b5ea46244a0dcf933a81a7be7d25",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_59.obj",
+     "sha256": "0241b8289e48e9f6b8580c858b82b175295f57b722decb44f86cacaac71143c8",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_60.obj",
+     "sha256": "4e2034a0ec7102e0c84218d06ac5a9e5b3fe85a8d88a36233b6ad79a01553a2f",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_61.obj",
+     "sha256": "a0f14e7cf9683d083dccbb8697f68b16a5b312d199e21b4ab5b4fe59193e42b0",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_62.obj",
+     "sha256": "6a00530563196f44453135b7f0b8ca1e4ef329790ea2998b7dc0860cb6f33d59",
+     "bytes": 459
+    },
+    {
+     "path": "items/holder_bore86_h96_yup_solid/collision/wall_63.obj",
+     "sha256": "e1b09933c46fbabfd16361cb6df4389bee9566d6b7b4a9f523bd5e31aaa1f0a5",
+     "bytes": 459
+    }
+   ]
+  },
+  "drawer_handle_shallow_arc": {
+   "origin": "own",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "Yi Li (liyifreddy)",
+   "class": "drawer_handle",
+   "modification": "Drawer handle made of convex blocks, designed from scratch (shape_gen/drawer_handle.py). Only the handle blocks are distributed. To assemble a full drawer, the script combines them with the official SlidingBoxDrawer inner-box groups from your own checkout (not included here).",
+   "files": [
+    {
+     "path": "items/drawer_handle_shallow_arc/drawer_handle_shallow_arc.obj",
+     "sha256": "12664b89ad28c1518439d2063a9b1d3cb5a3822fdf67197486d84805b77922f4",
+     "bytes": 6158
+    },
+    {
+     "path": "items/drawer_handle_shallow_arc/parameters.json",
+     "sha256": "4f056d95a65bf1ac58803b14a76f020bf38ef0b60d5b3e3d6abce5e42a44edaf",
+     "bytes": 830
+    },
+    {
+     "path": "items/drawer_handle_shallow_arc/variant.yaml",
+     "sha256": "6a496df1c9f3f412a301fcfbea33bde59562baf071d6134e4973edf27c20000a",
+     "bytes": 728
+    }
+   ]
+  },
+  "drawer_handle_bridge": {
+   "origin": "own",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+   "author": "Yi Li (liyifreddy)",
+   "class": "drawer_handle",
+   "modification": "Drawer handle made of convex blocks, designed from scratch (shape_gen/drawer_handle.py). Only the handle blocks are distributed. To assemble a full drawer, the script combines them with the official SlidingBoxDrawer inner-box groups from your own checkout (not included here).",
+   "files": [
+    {
+     "path": "items/drawer_handle_bridge/drawer_handle_bridge.obj",
+     "sha256": "27435f6c4e8654f6291875d9780db0f6bb98ee35a8996db7fe6c021a3939c61a",
+     "bytes": 988
+    },
+    {
+     "path": "items/drawer_handle_bridge/parameters.json",
+     "sha256": "6f280a972e4245a6b1410961897ec442d696badaeb709d5bc1699efa919c6f7c",
+     "bytes": 811
+    },
+    {
+     "path": "items/drawer_handle_bridge/variant.yaml",
+     "sha256": "1d1d134583a92db8b9859ff25385cb3bb576c1a8a2c89ad5ffcead243ffe0a5a",
+     "bytes": 713
+    }
+   ]
+  }
+ }
+}

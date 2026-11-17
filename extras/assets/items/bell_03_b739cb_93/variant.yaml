@@ -1,0 +1,31 @@
+name: bell_03_b739cb_93
+fpath: items/bell_03_b739cb_93
+body_scale: [1.0, 1.0, 1.0]
+files:
+  bell_03_b739cb_93.annotations.json: 445e670f74ae62dc30daaaf0f49c1b72727f9de2bebd401c45417596ce57c8e9
+  bell_03_b739cb_93.obj: 447384d18ac398e6131cf8b2275e8335d6a378c34981eb0ef7b6dddef3b63a3d
+  bell_03_b739cb_93.ply: f9ca30cc7581042ff862354955cc97d8540ae594f0fc63a28b64594dde6a2302
+  urdf/bell_03_b739cb_93.urdf: 8ddfb7b005090328f7a80c539095e4b4b0d225429fe051f85347ce5fe4485140
+  urdf/bell_03_b739cb_93_base.obj: 5a8f6c7e10e811ad13dd7e377f831f5e977150c31666120537f99015c9388cc9
+  urdf/bell_03_b739cb_93_cover.obj: 7c667034748668b2e000a26b5c83e07226e088e12b81de624a2713e0b2a9330b
+source:
+  generator: ware_ready.py@bfc25f57c3833d79
+  base: Table Bell
+  base_sha256: 13a089ae2bd04fa0b36f24cc911272c2ebb92f037b59c12b158f3bcf27a647a7
+  license: by
+  author: davide.6.6.95
+  url: https://sketchfab.com/3d-models/b739cb8a349e472bbbf12eb695e17d8d
+  source_kind: objaverse_lvis
+  import_sha: 6e64a4cfb63dee13
+  params:
+    target_m: 0.093
+    density: 1050.0
+  seed: 0
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  title: "Table Bell"
+  author: davide.6.6.95
+  source_url: https://sketchfab.com/3d-models/b739cb8a349e472bbbf12eb695e17d8d
+  modification: "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 93 mm; per-part annotations added. No other geometry change. A two-link URDF (base + button cover, prismatic press joint) was derived by splitting the mesh at the cover (urdf/)."
+status: draft

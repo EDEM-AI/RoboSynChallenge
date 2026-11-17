@@ -1,0 +1,28 @@
+name: plate_03_57ada5_195
+fpath: items/plate_03_57ada5_195
+body_scale: [1.0, 1.0, 1.0]
+files:
+  plate_03_57ada5_195.annotations.json: 87e3153637da76ccefd61f5390b0c02cbebbdfa523ff5742b704cf464f5283d9
+  plate_03_57ada5_195.obj: 88e1b10b19891d5346786c6c18ae3b6ff9f4d01c10a6a947e4821cfcf1bb766e
+  plate_03_57ada5_195.ply: b7688bcaf399c2deaceb98a20a79e7bd2726dd778264608ab0f454ee7fffb7f6
+source:
+  generator: ware_ready.py@bfc25f57c3833d79
+  base: Schlepper Warnemünder Bucht - Teller
+  base_sha256: 1e862f7a51d3889c31e4c55ca178985020ac10f7f5ae1aa5b44655d831bef855
+  license: by
+  author: GfS-Rostock
+  url: https://sketchfab.com/3d-models/57ada5a88c7743d5813634d92e9fb14d
+  source_kind: objaverse_lvis
+  import_sha: 6e64a4cfb63dee13
+  params:
+    target_m: 0.195
+    density: 2400.0
+  seed: 0
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  title: "Schlepper Warnemünder Bucht - Teller"
+  author: GfS-Rostock
+  source_url: https://sketchfab.com/3d-models/57ada5a88c7743d5813634d92e9fb14d
+  modification: "Re-oriented to a canonical frame (PCA axes, up sign), re-centred and uniformly rescaled to 195 mm; per-part annotations added. No other geometry change."
+status: draft

@@ -1,0 +1,13 @@
+name: drawer_handle_bridge
+fpath: items/drawer_handle_bridge
+body_scale: [1.0, 1.0, 1.0]
+files:
+  drawer_handle_bridge.obj: 27435f6c4e8654f6291875d9780db0f6bb98ee35a8996db7fe6c021a3939c61a
+  parameters.json: 6f280a972e4245a6b1410961897ec442d696badaeb709d5bc1699efa919c6f7c
+source:
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  author: Yi Li (liyifreddy)
+  modification: "Drawer handle made of convex blocks, designed from scratch (shape_gen/drawer_handle.py). Only the handle blocks are distributed. To assemble a full drawer, the script combines them with the official SlidingBoxDrawer inner-box groups from your own checkout (not included here)."
+status: draft

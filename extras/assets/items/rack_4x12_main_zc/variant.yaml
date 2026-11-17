@@ -1,0 +1,40 @@
+name: rack_4x12_main_zc
+fpath: items/rack_4x12_main_zc
+body_scale: [1.0, 1.0, 1.0]
+files:
+  rack_4x12_main_zc.annotations.json: 24614d97962ac8ccd3be56b4012ff9c7cf2f5ec9079987b8c06870dc33335f83
+  rack_4x12_main_zc.obj: 86a53c90f2b40258b35ea76008d0bc4a0997fba652a15a88411b6985a95821f4
+  rack_4x12_main_zc.ply: 8daa38dc6bb7ab1a234d04d91836a2157e0197816b44350d5a304468dd925bde
+source:
+  generator: rack.py@7f2b7a4dcda005ee
+  params:
+    rows: 4
+    cols: 12
+    cell: 0.0215
+    pitch_x: 0.0245
+    pitch_y: 0.0245
+    layers: 3
+    gap: 0.03
+    base_t: 0.0036
+    plate_t: 0.0036
+    side_wall_t: 0.003
+    openings_long: 3
+    post_w: 0.012
+    rail_h: 0.006
+    margin_x: 0.005
+    margin_y: 0.005
+    density: 1190.0
+    material: pmma
+    color:
+      - 0.78
+      - 0.82
+      - 0.88
+    tube_d: 0.02
+    tube_len: 0.19503
+  seed: 0
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  author: Yi Li (liyifreddy)
+  modification: "Generated from scratch by shape_gen/rack.py (parameters and seed 0 in variant.yaml), then re-centred to the official origin convention (z centred) by recenter_rack.py. Overall dimensions follow measurements of the official test-tube rack asset; the geometry itself is not copied from it."
+status: draft

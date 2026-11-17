@@ -1,0 +1,40 @@
+name: rack_5x10_tall_zc
+fpath: items/rack_5x10_tall_zc
+body_scale: [1.0, 1.0, 1.0]
+files:
+  rack_5x10_tall_zc.annotations.json: ad90131f8809bc071e14964a0630db2aa2f48b1018cf8db195b055084a24278b
+  rack_5x10_tall_zc.obj: 78143ce2f0c67698d5f861acc9d1e8fccf89632b75ad221ecb774758c9bb4744
+  rack_5x10_tall_zc.ply: 554893dd71f6b996321347d99066e5071b521959ab4967c0ebf91265f7ae5292
+source:
+  generator: rack.py@7f2b7a4dcda005ee
+  params:
+    rows: 5
+    cols: 10
+    cell: 0.0215
+    pitch_x: 0.0245
+    pitch_y: 0.0245
+    layers: 3
+    gap: 0.03
+    base_t: 0.0036
+    plate_t: 0.0036
+    side_wall_t: 0.003
+    openings_long: 3
+    post_w: 0.012
+    rail_h: 0.006
+    margin_x: 0.005
+    margin_y: 0.005
+    density: 1190.0
+    material: pmma
+    color:
+      - 0.78
+      - 0.82
+      - 0.88
+    tube_d: 0.02
+    tube_len: 0.19503
+  seed: 0
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  author: Yi Li (liyifreddy)
+  modification: "Generated from scratch by shape_gen/rack.py (parameters and seed 0 in variant.yaml), then re-centred to the official origin convention (z centred) by recenter_rack.py. Overall dimensions follow measurements of the official test-tube rack asset; the geometry itself is not copied from it."
+status: draft

@@ -1,0 +1,17 @@
+name: milk_gable_nocap
+fpath: items/milk_gable_nocap
+body_scale: [1.0, 1.0, 1.0]
+files:
+  milk_gable_nocap.ply: 634784916292e5639ec8cd094209d81c8cb66a073501cc4150f510471cf9c68e
+source:
+  title: "Milk Carton"
+  author: cebbi
+  url: https://sketchfab.com/3d-models/713643151cce41798f6dfb98bbff09cb
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  title: "Milk Carton"
+  author: cebbi
+  source_url: https://sketchfab.com/3d-models/713643151cce41798f6dfb98bbff09cb
+  modification: "Re-oriented (source Y-up to Z-up), anisotropically rescaled to 46 x 48 x 105 mm; the separate cap component was removed (only the 220-face watertight carton body kept)."
+status: draft

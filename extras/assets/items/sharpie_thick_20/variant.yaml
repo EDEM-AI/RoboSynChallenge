@@ -1,0 +1,28 @@
+name: sharpie_thick_20
+fpath: items/sharpie_thick_20
+body_scale: [1.0, 1.0, 1.0]
+files:
+  sharpie_thick_20.annotations.json: 5e9399a825cf4955a57f540775db8b5b54dc7a8c1f5d6120530a313d700f0999
+  sharpie_thick_20.ply: 1af86dd2603c769d1cd28f37f85c75c408bc55cf72d14e347ebae58b38090946
+source:
+  generator: marker_fix.py@5b8d8593a455315e
+  params:
+    d: 0.02
+    length: 0.145
+    density: 1050.0
+    fill: 0.535
+    fix: 缩放口径 由「全网格径向中位数」改为「干净光柱段 r50」；原件不动
+    source_item: mk41_sharpie_thick_20
+    radial_scale_fix: 0.608653
+  seed: 0
+  title: "Sharpie Marker"
+  author: adim09
+  url: https://sketchfab.com/3d-models/7fc87671c0844fd9874658a9f767a74f
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  title: "Sharpie Marker"
+  author: adim09
+  source_url: https://sketchfab.com/3d-models/7fc87671c0844fd9874658a9f767a74f
+  modification: "Re-oriented (PCA axis), length normalised to 145 mm and radial scale set to a 20 mm nominal diameter (re-measured on the clean barrel section), rotated 180 degrees about the local z axis so the tip points to +x; per-part annotations added."
+status: draft

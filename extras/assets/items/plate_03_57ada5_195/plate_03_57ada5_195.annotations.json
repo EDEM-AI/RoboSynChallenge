@@ -1,0 +1,321 @@
+{
+  "schema": "hq-shape-annot/1",
+  "parts_schema": "hq-ctx-parts/3",
+  "family": "plate",
+  "name": "plate_03_57ada5_195",
+  "units": "m",
+  "up_axis": "+z",
+  "origin": "bottom centre; support plane z=0",
+  "source": {
+    "kind": "ready-made mesh, normalised (PCA + up sign + uniform scale)",
+    "base": "Schlepper Warnemünder Bucht - Teller",
+    "license": "by",
+    "author": "GfS-Rostock",
+    "base_sha256": "1e862f7a51d3889c31e4c55ca178985020ac10f7f5ae1aa5b44655d831bef855",
+    "base_file": "57ada5a88c7743d5813634d92e9fb14d.glb",
+    "url": "https://sketchfab.com/3d-models/57ada5a88c7743d5813634d92e9fb14d",
+    "source_kind": "objaverse_lvis",
+    "import_sha256": "6e64a4cfb63dee13bb7b3ab6c9af4ff7fdf25703c9b48820a2edafc021695855",
+    "native_extent_m": [
+      245.282997,
+      244.944902,
+      33.470373
+    ],
+    "target_size_m": 0.195,
+    "scale": 0.000795
+  },
+  "params": {
+    "target_m": 0.195,
+    "density": 2400.0,
+    "material": "porcelain",
+    "stroke": 0.005
+  },
+  "derived": {
+    "extent": [
+      0.195069572,
+      0.194800691,
+      0.026618442
+    ],
+    "roundness": 0.001378,
+    "stroke": 0.005,
+    "H": 0.026618,
+    "rim_r": 0.0975,
+    "rim_z": 0.0244,
+    "foot_r": 0.065764,
+    "rim_t": 0.0005
+  },
+  "mass": {
+    "volume_m3": 0.000131397,
+    "mass_kg": 0.315352618,
+    "com": [
+      5.6726e-05,
+      -2.6935e-05,
+      0.012647247
+    ],
+    "inertia_kgm2": [
+      [
+        0.001015852,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.001018607,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.001997219
+      ]
+    ],
+    "source": "signed mesh volume (estimate); inertia = uniform bbox; mesh is not watertight (shell)"
+  },
+  "bbox": {
+    "min": [
+      -0.097535,
+      -0.0974,
+      0.0
+    ],
+    "max": [
+      0.097535,
+      0.0974,
+      0.026618
+    ],
+    "extent": [
+      0.19507,
+      0.194801,
+      0.026618
+    ]
+  },
+  "placement": [
+    {
+      "name": "table_rest",
+      "point": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "material": {
+    "density": 2400.0,
+    "name": "porcelain",
+    "transmittance": 0.0
+  },
+  "joint_simulated": null,
+  "joint_note": null,
+  "parts": {
+    "plate": {
+      "origin": {
+        "kind": "point",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "tol": null,
+        "src": "variant:plate/plate_03_57ada5_195"
+      },
+      "com": {
+        "kind": "point",
+        "p": [
+          5.7e-05,
+          -2.7e-05,
+          0.012647
+        ],
+        "com_from": "geometry",
+        "tol": null,
+        "src": "variant:plate/plate_03_57ada5_195"
+      },
+      "center": {
+        "kind": "disk",
+        "p": [
+          0.0,
+          0.0,
+          0.0244
+        ],
+        "normal": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "section": {
+          "shape": "circle",
+          "r_out": 0.0975
+        },
+        "tol": null,
+        "src": "variant:plate/plate_03_57ada5_195"
+      },
+      "bottom": {
+        "kind": "disk",
+        "p": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "normal": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "section": {
+          "shape": "circle",
+          "r_out": 0.065764
+        },
+        "placement_surface": true,
+        "tol": null,
+        "src": "variant:plate/plate_03_57ada5_195"
+      },
+      "rim": {
+        "kind": "list",
+        "items": [
+          {
+            "id": 0,
+            "p": [
+              0.0975,
+              0.0,
+              0.0244
+            ],
+            "normal": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "size": {
+              "thickness": 0.0005
+            },
+            "tol": null,
+            "src": "variant:plate/plate_03_57ada5_195"
+          },
+          {
+            "id": 1,
+            "p": [
+              0.0,
+              0.0975,
+              0.0244
+            ],
+            "normal": [
+              0.0,
+              1.0,
+              0.0
+            ],
+            "size": {
+              "thickness": 0.0005
+            },
+            "tol": null,
+            "src": "variant:plate/plate_03_57ada5_195"
+          },
+          {
+            "id": 2,
+            "p": [
+              -0.0975,
+              0.0,
+              0.0244
+            ],
+            "normal": [
+              -1.0,
+              0.0,
+              0.0
+            ],
+            "size": {
+              "thickness": 0.0005
+            },
+            "tol": null,
+            "src": "variant:plate/plate_03_57ada5_195"
+          },
+          {
+            "id": 3,
+            "p": [
+              -0.0,
+              -0.0975,
+              0.0244
+            ],
+            "normal": [
+              -0.0,
+              -1.0,
+              0.0
+            ],
+            "size": {
+              "thickness": 0.0005
+            },
+            "tol": null,
+            "src": "variant:plate/plate_03_57ada5_195"
+          }
+        ],
+        "tol": null,
+        "src": "variant:plate/plate_03_57ada5_195"
+      }
+    }
+  },
+  "relations": [
+    {
+      "id": "PL1",
+      "ok": true,
+      "text": "diameter=195.0 mm in [150, 260]"
+    },
+    {
+      "id": "PL2",
+      "ok": true,
+      "text": "H/d=0.137 in (0.04, 0.32)"
+    },
+    {
+      "id": "PL3",
+      "ok": true,
+      "text": "roundness=0.001 <= 0.18"
+    },
+    {
+      "id": "PL4",
+      "ok": true,
+      "text": "foot r=65.8 <= rim r=97.5"
+    },
+    {
+      "id": "PL5",
+      "ok": true,
+      "text": "rim thickness=0.50 mm > 0"
+    }
+  ],
+  "mesh_parts": [
+    {
+      "name": "comp0_run0",
+      "face_start": 0,
+      "face_end": 7275
+    },
+    {
+      "name": "comp2_run1",
+      "face_start": 7275,
+      "face_end": 7276
+    },
+    {
+      "name": "comp0_run2",
+      "face_start": 7276,
+      "face_end": 7384
+    },
+    {
+      "name": "comp1_run3",
+      "face_start": 7384,
+      "face_end": 16216
+    }
+  ],
+  "generator": {
+    "file": "ware_ready.py",
+    "version": "1",
+    "sha256": "bfc25f57c3833d792249d433f55651a8f3ad928646b01c6a6a53afdfb3de31ea"
+  },
+  "geometry": {
+    "watertight": false,
+    "edge_manifold": false,
+    "orientation_consistent": true,
+    "volume_positive": true,
+    "volume_m3": 0.000131397,
+    "n_vertices": 8249,
+    "n_faces": 16216,
+    "degenerate_faces": 0,
+    "duplicate_faces": 0
+  }
+}

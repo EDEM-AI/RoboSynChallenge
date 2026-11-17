@@ -1,0 +1,13 @@
+name: drawer_handle_shallow_arc
+fpath: items/drawer_handle_shallow_arc
+body_scale: [1.0, 1.0, 1.0]
+files:
+  drawer_handle_shallow_arc.obj: 12664b89ad28c1518439d2063a9b1d3cb5a3822fdf67197486d84805b77922f4
+  parameters.json: 4f056d95a65bf1ac58803b14a76f020bf38ef0b60d5b3e3d6abce5e42a44edaf
+source:
+attribution:
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  author: Yi Li (liyifreddy)
+  modification: "Drawer handle made of convex blocks, designed from scratch (shape_gen/drawer_handle.py). Only the handle blocks are distributed. To assemble a full drawer, the script combines them with the official SlidingBoxDrawer inner-box groups from your own checkout (not included here)."
+status: draft

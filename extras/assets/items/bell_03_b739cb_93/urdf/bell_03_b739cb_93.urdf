@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- two-link bell candidate; source mesh: bell_03_b739cb_93 (sha256=447384d18ac398e6131cf8b2275e8335d6a378c34981eb0ef7b6dddef3b63a3d) -->
+<robot name="bell_bell_03_b739cb_93">
+  <link name="base">
+    <inertial>
+      <origin xyz="0 0 0.017945" rpy="0 0 0"/>
+      <mass value="0.064269"/>
+      <inertia ixx="0.000045860" ixy="0." ixz="0." iyy="0.000046128" iyz="0." izz="0.000064122"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="bell_03_b739cb_93_base.obj"/></geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="bell_03_b739cb_93_base.obj"/></geometry>
+    </collision>
+  </link>
+
+  <link name="button_cover">
+    <inertial>
+      <origin xyz="0 0 0.055593" rpy="0 0 0"/>
+      <mass value="0.000522"/>
+      <inertia ixx="0.000000010" ixy="0." ixz="0." iyy="0.000000010" iyz="0." izz="0.000000003"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="bell_03_b739cb_93_cover.obj"/></geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.054450" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.004735" length="0.012000"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="press" type="prismatic">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base"/>
+    <child link="button_cover"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="-0.005" upper="0.0" effort="50." velocity="0.2"/>
+  </joint>
+  <gazebo reference="button_cover">
+    <mu1>0.6</mu1><mu2>0.6</mu2><maxContacts>3</maxContacts>
+  </gazebo>
+</robot>
