@@ -1,0 +1,233 @@
+{
+  "schema": "hq-nominal-measured/1",
+  "repo": "RoboSynChallenge (official repo checkout)",
+  "assets": {
+    "test_tube_rack_standard.ply": {
+      "extent_raw": [
+        0.25021,
+        0.10559,
+        0.07208
+      ],
+      "bounds_raw": [
+        [
+          -0.12511,
+          -0.0528,
+          -0.03604
+        ],
+        [
+          0.12511,
+          0.0528,
+          0.03604
+        ]
+      ],
+      "n_faces": 38930,
+      "watertight": false,
+      "cell_openings_x": [
+        0.0168,
+        0.0172,
+        0.0168,
+        0.0168,
+        0.0172,
+        0.0168,
+        0.0172,
+        0.0168,
+        0.0168,
+        0.0172,
+        0.0168,
+        0.0168
+      ],
+      "cell_openings_y": [
+        0.0172,
+        0.0168,
+        0.0172,
+        0.0168,
+        0.0168
+      ],
+      "walls_x": [
+        0.0028,
+        0.0032
+      ],
+      "walls_y": [
+        0.002,
+        0.0052,
+        0.0056
+      ],
+      "n_cells_x": 12,
+      "n_cells_y": 5,
+      "pitch_x": 0.02015,
+      "pitch_y": 0.01895,
+      "edge_margin_x": [
+        0.006,
+        0.00581
+      ],
+      "edge_margin_y": [
+        0.0064,
+        0.00639
+      ],
+      "top_plate_thickness": 0.0036,
+      "base_thickness": 0.00601,
+      "z_levels_dense": [
+        -0.03244,
+        -0.03003,
+        0.0,
+        0.0036,
+        0.02883,
+        0.03244
+      ],
+      "sha256": "fd90bd1bfaf715257c3bcefafe5a4790df217c3bf55d0ce3abcb1843e48760b5"
+    },
+    "test_tube_standard.ply": {
+      "bounds_raw": [
+        [
+          -0.00763,
+          -0.00754,
+          -0.07501
+        ],
+        [
+          0.00763,
+          0.00754,
+          0.07501
+        ]
+      ],
+      "extent_raw": [
+        0.01525,
+        0.01508,
+        0.15002
+      ],
+      "n_faces": 1440,
+      "sha256": "b5501fe9b9ada9a4f76bd26b7f64fb003d2ba200d0d7d3e8cd1dc93002ab6994"
+    },
+    "Pen/the_pen.obj": {
+      "bounds_raw": [
+        [
+          -0.07139,
+          -0.00479,
+          -0.00479
+        ],
+        [
+          0.07201,
+          0.00479,
+          0.00479
+        ]
+      ],
+      "extent_raw": [
+        0.1434,
+        0.00958,
+        0.00958
+      ],
+      "n_faces": 766,
+      "sha256": "7789d1b8525c7e8de978b33962f6e732d2fbcc9350fd652a433ec833cf203bcb"
+    },
+    "PenHolder/pen_holder.obj": {
+      "bounds_raw": [
+        [
+          -0.08248,
+          0.0003,
+          -0.08248
+        ],
+        [
+          0.08248,
+          0.21441,
+          0.08248
+        ]
+      ],
+      "extent_raw": [
+        0.16497,
+        0.21412,
+        0.16497
+      ],
+      "n_faces": 59548,
+      "inner_opening_x_raw": 0.1528,
+      "wall_runs": [
+        [
+          -0.08148,
+          -0.07628
+        ],
+        [
+          0.07652,
+          0.08132
+        ]
+      ],
+      "sha256": "d491c6aad9024cbae6cb9d7f84b48a6f9c092c240e1a49fec188a34d67f641b0"
+    }
+  },
+  "configs": {
+    "rigid_objects": {
+      "sample_loading:rack": {
+        "body_scale": [
+          1.1,
+          1.1,
+          1.1
+        ],
+        "mass": 5.0,
+        "contact_offset": 0.0002,
+        "rest_offset": 5e-05,
+        "max_convex_hull_num": 1,
+        "sdf_resolution": 128,
+        "fpath": "assets/test_tube_rack_standard.ply"
+      },
+      "sample_loading:cube": {
+        "body_scale": [
+          1.1,
+          1.1,
+          1.3
+        ],
+        "mass": 0.02,
+        "contact_offset": 0.0002,
+        "rest_offset": 5e-05,
+        "max_convex_hull_num": 24,
+        "sdf_resolution": null,
+        "fpath": "assets/test_tube_standard.ply"
+      },
+      "items_handover:pen": {
+        "body_scale": [
+          1,
+          1.6,
+          1.6
+        ],
+        "mass": 0.005,
+        "contact_offset": 0.003,
+        "rest_offset": 0.001,
+        "max_convex_hull_num": 8,
+        "sdf_resolution": null,
+        "fpath": "assets/Pen/the_pen.obj"
+      },
+      "items_handover:holder": {
+        "body_scale": [
+          0.56,
+          0.45,
+          0.56
+        ],
+        "mass": 0.005,
+        "contact_offset": 0.003,
+        "rest_offset": 0.001,
+        "max_convex_hull_num": 8,
+        "sdf_resolution": null,
+        "fpath": "assets/PenHolder/pen_holder.obj"
+      }
+    }
+  },
+  "scaled": {
+    "rack": [
+      0.27523,
+      0.11615,
+      0.07929
+    ],
+    "tube": [
+      0.01678,
+      0.01659,
+      0.19503
+    ],
+    "pen": [
+      0.1434,
+      0.01533,
+      0.01533
+    ],
+    "holder": [
+      0.09238,
+      0.09635,
+      0.09238
+    ],
+    "holder_inner_opening_x": 0.08557
+  }
+}

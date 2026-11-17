@@ -1,0 +1,574 @@
+[
+ {
+  "cls": "bell",
+  "index": 1,
+  "key": "cc21b304c4bb4750bdde7a8fb538b116",
+  "target_m": 0.075,
+  "name": "bell_01_cc21b3_75",
+  "base": "Desk Bell",
+  "license": "by",
+  "author": "clintonabbott.art",
+  "measured": {
+   "faces": 1024,
+   "components": 9,
+   "share": 0.312,
+   "watertight": false,
+   "ext": [
+    1.85121,
+    1.847758,
+    1.184046
+   ],
+   "H": 1.184046,
+   "D": 1.85121,
+   "round": 0.001865,
+   "h_over_d": 0.639607
+  }
+ },
+ {
+  "cls": "bell",
+  "index": 2,
+  "key": "77f2ea17b4c84fe1a8d2aec02caa9de3",
+  "target_m": 0.084,
+  "name": "bell_02_77f2ea_84",
+  "base": "Table Bell",
+  "license": "by",
+  "author": "gla_bot",
+  "measured": {
+   "faces": 4758,
+   "components": 25,
+   "share": 0.404,
+   "watertight": false,
+   "ext": [
+    85.845398,
+    85.78871,
+    58.260976
+   ],
+   "H": 58.260976,
+   "D": 85.845398,
+   "round": 0.00066,
+   "h_over_d": 0.678673
+  }
+ },
+ {
+  "cls": "bell",
+  "index": 3,
+  "key": "b739cb8a349e472bbbf12eb695e17d8d",
+  "target_m": 0.093,
+  "name": "bell_03_b739cb_93",
+  "base": "Table Bell",
+  "license": "by",
+  "author": "davide.6.6.95",
+  "measured": {
+   "faces": 24484,
+   "components": 72,
+   "share": 0.24,
+   "watertight": false,
+   "ext": [
+    7.999183,
+    7.999179,
+    5.2
+   ],
+   "H": 5.2,
+   "D": 7.999183,
+   "round": 1e-06,
+   "h_over_d": 0.650066
+  }
+ },
+ {
+  "cls": "bell",
+  "index": 4,
+  "key": "659d124e115148e7b7605cd1129292c4",
+  "target_m": 0.102,
+  "name": "bell_04_659d12_102",
+  "base": "Clock bell",
+  "license": "by",
+  "author": "WirtualneMuzeaMalopolski",
+  "measured": {
+   "faces": 137960,
+   "components": 20,
+   "share": 0.102,
+   "watertight": false,
+   "ext": [
+    6.725889,
+    6.709458,
+    6.357705
+   ],
+   "H": 6.357705,
+   "D": 6.725889,
+   "round": 0.002443,
+   "h_over_d": 0.945259
+  }
+ },
+ {
+  "cls": "bell",
+  "index": 5,
+  "key": "59344018dcec4dcbafaf896d3a63c35b",
+  "target_m": 0.11,
+  "name": "bell_05_593440_110",
+  "base": "Bell call at the hotel",
+  "license": "by",
+  "author": "grafgrial",
+  "measured": {
+   "faces": 974,
+   "components": 98,
+   "share": 0.254,
+   "watertight": false,
+   "ext": [
+    0.173799,
+    0.173084,
+    0.111294
+   ],
+   "H": 0.111294,
+   "D": 0.173799,
+   "round": 0.004114,
+   "h_over_d": 0.64036
+  }
+ },
+ {
+  "cls": "plate",
+  "index": 1,
+  "key": "ycb_029_plate",
+  "target_m": 0.165,
+  "name": "plate_01_ycb_02_165",
+  "base": "YCB 029_plate (google_16k, real scan)",
+  "license": "CC-BY-4.0",
+  "author": "YCB Benchmark",
+  "measured": {
+   "faces": 16384,
+   "components": 1,
+   "share": 1.0,
+   "watertight": true,
+   "ext": [
+    0.260824,
+    0.260389,
+    0.027175
+   ],
+   "H": 0.027175,
+   "D": 0.260824,
+   "round": 0.001668,
+   "h_over_d": 0.104189
+  }
+ },
+ {
+  "cls": "plate",
+  "index": 2,
+  "key": "60a1d227b99b4399aaf80c1f3ac83860",
+  "target_m": 0.18,
+  "name": "plate_02_60a1d2_180",
+  "base": "Polychrome Dish",
+  "license": "by",
+  "author": "nebulousflynn",
+  "measured": {
+   "faces": 1152,
+   "components": 2,
+   "share": 0.583,
+   "watertight": false,
+   "ext": [
+    0.249568,
+    0.249568,
+    0.043449
+   ],
+   "H": 0.043449,
+   "D": 0.249568,
+   "round": 0.0,
+   "h_over_d": 0.174097
+  }
+ },
+ {
+  "cls": "plate",
+  "index": 3,
+  "key": "57ada5a88c7743d5813634d92e9fb14d",
+  "target_m": 0.195,
+  "name": "plate_03_57ada5_195",
+  "base": "Schlepper Warnemünder Bucht - Teller",
+  "license": "by",
+  "author": "GfS-Rostock",
+  "measured": {
+   "faces": 16216,
+   "components": 3,
+   "share": 0.545,
+   "watertight": false,
+   "ext": [
+    245.282997,
+    244.944902,
+    33.470373
+   ],
+   "H": 33.470373,
+   "D": 245.282997,
+   "round": 0.001378,
+   "h_over_d": 0.136456
+  }
+ },
+ {
+  "cls": "plate",
+  "index": 4,
+  "key": "6f7201fbb58649379398a8d1d5c0cc7a",
+  "target_m": 0.21,
+  "name": "plate_04_6f7201_210",
+  "base": "Kashan dish, c.1200 CE",
+  "license": "cc0",
+  "author": "artsmia",
+  "measured": {
+   "faces": 64000,
+   "components": 4,
+   "share": 0.333,
+   "watertight": false,
+   "ext": [
+    0.361646,
+    0.359498,
+    0.081825
+   ],
+   "H": 0.081825,
+   "D": 0.361646,
+   "round": 0.00594,
+   "h_over_d": 0.226257
+  }
+ },
+ {
+  "cls": "plate",
+  "index": 5,
+  "key": "89e667d86eea41018821fd7796d09903",
+  "target_m": 0.225,
+  "name": "plate_05_89e667_225",
+  "base": "Dish with Sgraffito Decoration, 12th-13th C CE",
+  "license": "cc0",
+  "author": "artsmia",
+  "measured": {
+   "faces": 64000,
+   "components": 5,
+   "share": 0.369,
+   "watertight": false,
+   "ext": [
+    0.373795,
+    0.372987,
+    0.082408
+   ],
+   "H": 0.082408,
+   "D": 0.373795,
+   "round": 0.002162,
+   "h_over_d": 0.220463
+  }
+ },
+ {
+  "cls": "plate",
+  "index": 6,
+  "key": "376afd232afb412184b6f915cfd031ab",
+  "target_m": 0.24,
+  "name": "plate_06_376afd_240",
+  "base": "Dinner Plate",
+  "license": "by",
+  "author": "iankilgour2",
+  "measured": {
+   "faces": 9216,
+   "components": 1,
+   "share": 1.0,
+   "watertight": false,
+   "ext": [
+    0.279861,
+    0.279861,
+    0.021475
+   ],
+   "H": 0.021475,
+   "D": 0.279861,
+   "round": 0.0,
+   "h_over_d": 0.076735
+  }
+ },
+ {
+  "cls": "fork",
+  "index": 1,
+  "key": "7540e0bc543743f688628b8557c43932",
+  "target_m": 0.175,
+  "name": "fork_01_7540e0_175",
+  "base": "Fork",
+  "license": "by",
+  "author": "azureinferno",
+  "measured": {
+   "faces": 5792,
+   "components": 1,
+   "share": 1.0,
+   "watertight": true,
+   "ext": [
+    184.601542,
+    29.799049,
+    14.193468
+   ],
+   "L": 184.601542,
+   "W": 29.799049,
+   "T": 14.193468,
+   "l_over_w": 6.19488,
+   "w_over_t": 2.09949,
+   "handle_frac": 0.053869
+  }
+ },
+ {
+  "cls": "fork",
+  "index": 2,
+  "key": "7809059b27bf43928360d38ab6c8516b",
+  "target_m": 0.183,
+  "name": "fork_02_780905_183",
+  "base": "Tenedor",
+  "license": "by",
+  "author": "BrisM",
+  "measured": {
+   "faces": 33792,
+   "components": 1,
+   "share": 1.0,
+   "watertight": false,
+   "ext": [
+    0.168811,
+    0.024613,
+    0.015415
+   ],
+   "L": 0.168811,
+   "W": 0.024613,
+   "T": 0.015415,
+   "l_over_w": 6.858611,
+   "w_over_t": 1.596692,
+   "handle_frac": 0.045584
+  }
+ },
+ {
+  "cls": "fork",
+  "index": 3,
+  "key": "c036576c8f484b7e9c2c75a7702bb9fd",
+  "target_m": 0.19,
+  "name": "fork_03_c03657_190",
+  "base": "Low Poly - Fork",
+  "license": "by",
+  "author": "tadeus",
+  "measured": {
+   "faces": 15200,
+   "components": 1,
+   "share": 1.0,
+   "watertight": false,
+   "ext": [
+    430.199415,
+    58.476888,
+    35.994685
+   ],
+   "L": 430.199415,
+   "W": 58.476888,
+   "T": 35.994685,
+   "l_over_w": 7.356743,
+   "w_over_t": 1.624598,
+   "handle_frac": 0.051486
+  }
+ },
+ {
+  "cls": "fork",
+  "index": 4,
+  "key": "337164386e0448219a79d1fd7a5a7ab5",
+  "target_m": 0.198,
+  "name": "fork_04_337164_198",
+  "base": "Fork",
+  "license": "by",
+  "author": "deadlygeek",
+  "measured": {
+   "faces": 52424,
+   "components": 3,
+   "share": 0.998,
+   "watertight": false,
+   "ext": [
+    255.780074,
+    47.398673,
+    23.419844
+   ],
+   "L": 255.780074,
+   "W": 47.398673,
+   "T": 23.419844,
+   "l_over_w": 5.396355,
+   "w_over_t": 2.023868,
+   "handle_frac": 0.056645
+  }
+ },
+ {
+  "cls": "fork",
+  "index": 5,
+  "key": "ycb_030_fork",
+  "target_m": 0.206,
+  "name": "fork_05_ycb_03_206",
+  "base": "YCB 030_fork (google_16k, real scan)",
+  "license": "CC-BY-4.0",
+  "author": "YCB Benchmark",
+  "measured": {
+   "faces": 16384,
+   "components": 1,
+   "share": 1.0,
+   "watertight": true,
+   "ext": [
+    0.197618,
+    0.027401,
+    0.015383
+   ],
+   "L": 0.197618,
+   "W": 0.027401,
+   "T": 0.015383,
+   "l_over_w": 7.212073,
+   "w_over_t": 1.781252,
+   "handle_frac": 0.085362
+  }
+ },
+ {
+  "cls": "fork",
+  "index": 6,
+  "key": "629550ccf566447389a2c5fc00af0408",
+  "target_m": 0.215,
+  "name": "fork_06_629550_215",
+  "base": "Fork",
+  "license": "by",
+  "author": "shasha2108",
+  "measured": {
+   "faces": 7584,
+   "components": 1,
+   "share": 1.0,
+   "watertight": true,
+   "ext": [
+    15.255534,
+    2.485527,
+    0.522886
+   ],
+   "L": 15.255534,
+   "W": 2.485527,
+   "T": 0.522886,
+   "l_over_w": 6.137746,
+   "w_over_t": 4.753478,
+   "handle_frac": 0.077361
+  }
+ },
+ {
+  "cls": "spoon",
+  "index": 1,
+  "key": "2cdb7b9b398244ccbf887aeb1cde8328",
+  "target_m": 0.135,
+  "name": "spoon_01_2cdb7b_135",
+  "base": "Wooden spoon",
+  "license": "by",
+  "author": "quedlin",
+  "measured": {
+   "faces": 2496,
+   "components": 3,
+   "share": 0.538,
+   "watertight": false,
+   "ext": [
+    19.65903,
+    3.405474,
+    1.170368
+   ],
+   "L": 19.65903,
+   "W": 3.405474,
+   "T": 1.170368,
+   "l_over_w": 5.772773,
+   "w_over_t": 2.909746,
+   "handle_frac": 0.042398
+  }
+ },
+ {
+  "cls": "spoon",
+  "index": 2,
+  "key": "ycb_031_spoon",
+  "target_m": 0.144,
+  "name": "spoon_02_ycb_03_144",
+  "base": "YCB 031_spoon (google_16k, real scan)",
+  "license": "CC-BY-4.0",
+  "author": "YCB Benchmark",
+  "measured": {
+   "faces": 16384,
+   "components": 2,
+   "share": 1.0,
+   "watertight": false,
+   "ext": [
+    0.195633,
+    0.041554,
+    0.021045
+   ],
+   "L": 0.195633,
+   "W": 0.041554,
+   "T": 0.021045,
+   "l_over_w": 4.707922,
+   "w_over_t": 1.974531,
+   "handle_frac": 0.085594
+  }
+ },
+ {
+  "cls": "spoon",
+  "index": 3,
+  "key": "590860231989457a8a98e767b6d1218f",
+  "target_m": 0.153,
+  "name": "spoon_03_590860_153",
+  "base": "old spoon low poly",
+  "license": "by",
+  "author": "rastakouere.olivier",
+  "measured": {
+   "faces": 836,
+   "components": 3,
+   "share": 0.392,
+   "watertight": false,
+   "ext": [
+    0.177607,
+    0.035871,
+    0.014014
+   ],
+   "L": 0.177607,
+   "W": 0.035871,
+   "T": 0.014014,
+   "l_over_w": 4.95127,
+   "w_over_t": 2.559655,
+   "handle_frac": 0.078443
+  }
+ },
+ {
+  "cls": "spoon",
+  "index": 4,
+  "key": "862ac9fcc4104b5fb828fd5b2c3136a7",
+  "target_m": 0.162,
+  "name": "spoon_04_862ac9_162",
+  "base": "Wooden Spoon",
+  "license": "by",
+  "author": "NathanielLDEutc",
+  "measured": {
+   "faces": 2144,
+   "components": 8,
+   "share": 0.446,
+   "watertight": false,
+   "ext": [
+    6.064928,
+    1.392178,
+    0.369515
+   ],
+   "L": 6.064928,
+   "W": 1.392178,
+   "T": 0.369515,
+   "l_over_w": 4.356431,
+   "w_over_t": 3.767582,
+   "handle_frac": 0.078782
+  }
+ },
+ {
+  "cls": "spoon",
+  "index": 5,
+  "key": "29677102e1804e72bbb68b408890b77b",
+  "target_m": 0.171,
+  "name": "spoon_05_296771_171",
+  "base": "Simple Wooden Spoon",
+  "license": "by",
+  "author": "Blender3D",
+  "measured": {
+   "faces": 572,
+   "components": 10,
+   "share": 0.316,
+   "watertight": false,
+   "ext": [
+    10.544269,
+    2.796337,
+    0.361994
+   ],
+   "L": 10.544269,
+   "W": 2.796337,
+   "T": 0.361994,
+   "l_over_w": 3.770743,
+   "w_over_t": 7.724816,
+   "handle_frac": 0.093825
+  }
+ }
+]
