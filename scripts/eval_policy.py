@@ -298,6 +298,19 @@ class RecordingEnvProxy:
         return bool(value)
 
 
+def _faq_episode_entry(result):
+    """Compact per-episode record of the optional FAQ-aligned criteria."""
+    entry = {
+        "success": bool(result["faq_success"]),
+        "conditions_last_step": result["faq"],
+        "hold_steps": result["hold"]["steps"],
+        "contacts_available": result.get("contacts_available"),
+    }
+    if result.get("error"):
+        entry["error"] = result["error"]
+    return entry
+
+
 def prepare_episode_reset(env, seed):
     """Seed every RNG used by task randomizers before a reproducible reset.
 
@@ -674,6 +687,19 @@ def main():
     if video_recorder:
         print(f"Recording eval videos to: {video_recorder.save_dir}")
 
+    # Optional FAQ-aligned criteria (off by default; the official criteria and outcome are unchanged).
+    faq_checker = None
+    faq_extra_steps = int(config.get("faq_extra_steps", 40))
+    if bool(config.get("faq_checks", False)):
+        from faq_checks.runtime import FaqChecker, FaqEnvProxy
+
+        faq_checker = FaqChecker(env, task_name, gym_config_dict)
+        eval_env = FaqEnvProxy(eval_env, faq_checker)
+        print(
+            f"FAQ-aligned criteria enabled for task {task_name} "
+            f"(extra steps after the official success: {faq_extra_steps})"
+        )
+
     # Create model
     print("Creating model...")
     model = policy_pkg.get_model(config)
@@ -683,6 +709,7 @@ def main():
     platform_metadata = collect_platform_metadata()
     rng = np.random.RandomState(seed)
     success_count = 0
+    faq_success_count = 0
     action_steps = []
     all_inference_times = []
     episode_inference_totals = []
@@ -783,6 +810,8 @@ def main():
                 video_recorder.start_episode(episode, ep_seed)
 
             episode_success = False
+            official_steps = None
+            faq_result = None
             inference_times = []
             env_steps = 0
             progress_bar = None
@@ -790,6 +819,8 @@ def main():
                 # Expert planning consumes RNG state. Re-seed immediately
                 # before reset so the policy sees the identical candidate scene.
                 ep_seed = prepare_episode_reset(eval_env, ep_seed)
+                if faq_checker is not None:
+                    eval_env.active = True
                 obs, info = eval_env.reset(seed=ep_seed, options={"save_data": False})
                 policy_pkg.reset_model(model)
                 progress_bar = tqdm(
@@ -816,6 +847,28 @@ def main():
                     )
 
                     is_truncated = RecordingEnvProxy._as_done(truncated)
+                    if faq_checker is not None:
+                        # The official outcome is latched at its first success step, exactly where the
+                        # default loop would have stopped; the episode then runs on only so the FAQ
+                        # criteria can see their 20-step hold (and never longer than faq_extra_steps).
+                        if (
+                            not is_truncated
+                            and not episode_success
+                            and env.get_wrapper_attr("is_task_success")()
+                        ):
+                            episode_success = True
+                            official_steps = env_steps
+                            progress_bar.write("Task success!")
+                        if is_truncated:
+                            if not episode_success:
+                                progress_bar.write("Task timeout!")
+                            break
+                        if faq_checker.hold_reached or (
+                            official_steps is not None
+                            and env_steps - official_steps >= faq_extra_steps
+                        ):
+                            break
+                        continue
                     if not is_truncated and env.get_wrapper_attr("is_task_success")():
                         episode_success = True
                         progress_bar.write("Task success!")
@@ -824,12 +877,19 @@ def main():
                         progress_bar.write("Task timeout!")
                         break
             finally:
+                if faq_checker is not None:
+                    eval_env.active = False
+                    faq_result = faq_checker.result()
                 if progress_bar:
                     progress_bar.close()
                 if video_recorder:
                     video_recorder.close_episode(success=episode_success)
 
             success_count += int(episode_success)
+            if faq_result is not None:
+                faq_success_count += int(bool(faq_result["faq_success"]))
+            if official_steps is not None:
+                env_steps = official_steps
             effective_steps = env_steps if episode_success else max_env_steps
             action_steps.append(effective_steps)
             all_inference_times.extend(inference_times)
@@ -847,6 +907,11 @@ def main():
                         if expert_result is not None
                         else None
                     ),
+                    **(
+                        {"faq": _faq_episode_entry(faq_result)}
+                        if faq_result is not None
+                        else {}
+                    ),
                 }
             )
             episode_average = float(np.mean(inference_times)) if inference_times else 0
@@ -859,6 +924,11 @@ def main():
             )
             print(f"  [{episode+1:3d}/{max_episodes}] success rate: "
                   f"{success_count}/{episode+1} = {100*success_count/(episode+1):.1f}%")
+            if faq_result is not None:
+                print(
+                    f"       FAQ-aligned: {'PASS' if faq_result['faq_success'] else 'FAIL'}; "
+                    f"{faq_success_count}/{episode+1} = {100*faq_success_count/(episode+1):.1f}%"
+                )
             episode += 1
             current_episode_seed_attempts = 0
     finally:
@@ -883,6 +953,9 @@ def main():
             np.mean(episode_inference_totals)
         ),
     }
+    if faq_checker is not None:
+        summary["faq_success_count"] = faq_success_count
+        summary["faq_success_rate"] = faq_success_count / len(action_steps)
     result_payload = {
         "schema_version": 1,
         "created_at": datetime.now().astimezone().isoformat(),
@@ -915,6 +988,8 @@ def main():
             "skipped_seeds": skipped_episode_seeds,
         },
     }
+    if faq_checker is not None:
+        result_payload["faq_checks_enabled"] = True
     with result_path.open("w", encoding="utf-8") as result_file:
         json.dump(result_payload, result_file, indent=2, ensure_ascii=False)
         result_file.write("\n")
@@ -925,6 +1000,11 @@ def main():
         f"  Evaluation Results Summary: {success_count}/{max_episodes} "
         f"({100*success_count/max_episodes:.1f}%)"
     )
+    if faq_checker is not None:
+        print(
+            f"  FAQ-aligned criteria:   {faq_success_count}/{max_episodes} "
+            f"({100*faq_success_count/max_episodes:.1f}%)  [official column above is unchanged]"
+        )
     print(
         f"  Average action steps: {summary['average_action_steps']:.2f}/"
         f"{max_env_steps} ({100*summary['average_action_steps_ratio']:.2f}%; "

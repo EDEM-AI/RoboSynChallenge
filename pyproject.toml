@@ -34,6 +34,9 @@ build-backend = "setuptools.build_meta"
 where = ["."]
 exclude = ["docs"]
 
+[tool.setuptools.package-data]
+faq_checks = ["parts_default.json"]
+
 [tool.setuptools.dynamic]
 version = { file = ["RoboSynChallenge/VERSION"] }
 
