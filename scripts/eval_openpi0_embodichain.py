@@ -237,7 +237,6 @@ def _add_env_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--enable_rt", default=False, action="store_true")
     parser.add_argument("--gpu_id", default=0, type=int)
     parser.add_argument("--gym_config", required=True, type=str)
-    parser.add_argument("--action_config", default=None, type=str)
     parser.add_argument("--preview", default=False, action="store_true")
     parser.add_argument("--filter_visual_rand", default=False, action="store_true")
     parser.add_argument("--filter_dataset_saving", default=False, action="store_true")
@@ -306,12 +305,12 @@ def make_env(args: argparse.Namespace):
     import gymnasium as gym
     from embodichain.lab.gym.utils.gym_utils import build_env_cfg_from_args
     from embodichain.lab.gym.utils.registration import discover_task_packages, execute_init_hooks
-    from robosynchallenge.deployments import deployment_from_path
+    from robosynchallenge.deployments import require_deployment_path
 
     os.environ.setdefault("EMBODICHAIN_DATA_ROOT", str(REPO_ROOT / "assets"))
     discover_task_packages()
     execute_init_hooks()
-    args.gym_config = str(deployment_from_path(args.gym_config))
+    args.gym_config = str(require_deployment_path(args.gym_config))
     args.action_config = None
     env_cfg, gym_config, _ = build_env_cfg_from_args(args)
     if args.max_steps is not None:
@@ -613,7 +612,6 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
     payload = {
         "task": gym_config.get("id"),
         "gym_config": args.gym_config,
-        "action_config": args.action_config,
         "prompt": prompt,
         "policy_input_format": args.policy_input_format,
         "clip_actions": args.clip_actions,

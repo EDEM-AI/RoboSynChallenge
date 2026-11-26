@@ -37,27 +37,16 @@
 
 ---
 
-## 2. import_lerobot_v21.py
-
-读取本地 LeRobot v2.1 数据并写入新的 v3.0 目录，保留源数据、相机流和动作数组。
-
-```bash
-uv run --locked --python 3.12 python -m scripts.import_lerobot_v21 /data/legacy /data/imported-v30
-```
-
----
-
 ## 运行任务、回放和分析
 
 ```bash
-uv run --locked --python 3.12 python -m scripts.run_env \
-  --gym_config configs/click_bell/clear/task.cobotmagic.yaml --headless --max_episodes 1
+bash launch/run_task.sh click_bell clear --headless --max_episodes 1
 bash launch/run_visualize.sh click_bell clear --resets 1 --output-root /data/visualization
 uv run --locked --python 3.12 python -m scripts.analyze_rigid_spawn_range \
   --gym_config configs/sample_loading/random/task.cobotmagic.yaml --list-events
 ```
 
-仓库内的旧场景 JSON 路径会由兼容入口定位到对应的原生部署。范围分析使用原生专家执行，`--rollout` 同时记录当前任务的物理验收结果。
+范围分析使用原生 Task Program，`--rollout` 同时记录当前任务的物理验收结果。
 
 ## 为 LeRobot v3.0 补录末端位姿
 

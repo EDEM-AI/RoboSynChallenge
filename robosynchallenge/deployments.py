@@ -19,16 +19,11 @@ def deployment_path(task, setting):
     raise FileNotFoundError(f"No native deployment for {task}/{setting}.")
 
 
-def deployment_from_path(path):
-    """Translate an in-repository legacy scene path to its native deployment."""
+def require_deployment_path(path):
+    """Resolve a native task deployment supplied on the command line."""
     path = Path(path).expanduser().resolve()
-    if path.suffix != ".json" or not path.is_relative_to(ROOT / "configs"):
-        return path
-    directory = path.parent.relative_to(ROOT / "configs")
-    parts = list(directory.parts)
-    if not parts:
-        return path
-    setting = parts.pop() if parts[-1] in {"clear", "random"} else None
-    if setting is None:
-        setting = "random" if "random" in path.stem else "clear"
-    return deployment_path("/".join(parts), setting)
+    if path.suffix not in {".yaml", ".yml"}:
+        raise ValueError(f"Expected a task deployment in YAML: {path}")
+    if not path.is_file():
+        raise FileNotFoundError(f"Task deployment does not exist: {path}")
+    return path

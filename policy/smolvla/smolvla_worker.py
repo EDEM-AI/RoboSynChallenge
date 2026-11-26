@@ -88,10 +88,7 @@ def _infer(policy, preprocessor, postprocessor, request: dict, device: str) -> d
 
     actions, durations_s, inference_action_indices = [], [], []
     for index in range(int(request.get("n_action_steps", 1))):
-        action_queue = getattr(policy, "_action_queue", None)
-        if action_queue is None:
-            action_queue = getattr(policy, "_queues", {}).get("action")
-        runs_model_inference = action_queue is None or len(action_queue) == 0
+        runs_model_inference = len(policy._queues["action"]) == 0
         started_at = _clock(device) if runs_model_inference else None
         action = policy.select_action(proc_obs)
         action = postprocessor(action)

@@ -25,7 +25,7 @@ except ModuleNotFoundError:  # Allows --help and --list-events in bare Python.
     np = None
 
 
-from robosynchallenge.deployments import ROOT as REPO_ROOT, deployment_from_path
+from robosynchallenge.deployments import ROOT as REPO_ROOT, require_deployment_path
 
 
 AXIS_TO_INDEX = {
@@ -94,11 +94,6 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument("--gym_config", required=True, help="Path to task.cobotmagic.yaml.")
-    parser.add_argument(
-        "--action_config",
-        default=None,
-        help=argparse.SUPPRESS,
-    )
     parser.add_argument(
         "--uid",
         default=None,
@@ -568,7 +563,7 @@ def build_native_config(args):
         os.environ.setdefault("SDL_VIDEODRIVER", "offscreen")
         os.environ.setdefault("SDL_VIDEO_DRIVER", "offscreen")
     if not hasattr(args, "deployment"):
-        args.deployment = deployment_from_path(args.gym_config)
+        args.deployment = require_deployment_path(args.gym_config)
     discover_task_packages()
     execute_init_hooks()
     parser = argparse.ArgumentParser()
@@ -748,7 +743,7 @@ def make_recommended_range(
     if good_points.size == 0:
         raise RuntimeError(
             "No safe points found. Try lowering --point-success-threshold, "
-            "increasing --samples/--grid-size, or checking the action_config."
+            "increasing --samples/--grid-size, or checking the Task Program."
         )
 
     rec_low = original_low.copy()
@@ -1089,7 +1084,7 @@ def write_environment_component(
 ) -> None:
     from embodichain.utils.utility import load_config, save_config
 
-    deployment_path = deployment_from_path(gym_config_path)
+    deployment_path = require_deployment_path(gym_config_path)
     component = load_config(deployment_path)["environment"]["component"]
     source = deployment_path.parent / component
     data = load_config(source)
@@ -1283,7 +1278,6 @@ def main() -> None:
         )
         report = {
             "gym_config": str(args.gym_config),
-            "action_config": str(args.action_config),
             "uid": target_event.uid,
             "event": target_event.name,
             "entity_type": target_event.entity_type,

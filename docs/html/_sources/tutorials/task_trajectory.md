@@ -31,13 +31,8 @@ CUDA_VISIBLE_DEVICES=0 bash launch/replay_task.sh click_bell clear \
 
 ## 🔧 Debug Reference
 
-For a legacy native recording whose seed reconstructs a different initial
+If a native recording’s seed reconstructs a different initial
 state, pass `--recorded-reset` to restore the recorded robot and rigid-body
 state with EmbodiChain and then replay the controller actions under physics.
 Add `--dataset-dir` to record the replay as LeRobot v3.0. The recorder uses
 the source segment instructions and commits only a successful full replay.
-
-Historical task-class imports (for example
-`robosynchallenge.tasks.click_bell.ClickBellEnv`) resolve to the native
-environment. Select the scene through its deployment YAML. The archived
-ActionBank source is available for reference.

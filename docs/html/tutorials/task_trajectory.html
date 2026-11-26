@@ -387,15 +387,11 @@ document.write(`
 </section>
 <section id="debug-reference">
 <h2>🔧 Debug Reference<a class="headerlink" href="#debug-reference" title="Link to this heading">#</a></h2>
-<p>For a legacy native recording whose seed reconstructs a different initial
+<p>If a native recording’s seed reconstructs a different initial
 state, pass <code class="docutils literal notranslate"><span class="pre">--recorded-reset</span></code> to restore the recorded robot and rigid-body
 state with EmbodiChain and then replay the controller actions under physics.
 Add <code class="docutils literal notranslate"><span class="pre">--dataset-dir</span></code> to record the replay as LeRobot v3.0. The recorder uses
 the source segment instructions and commits only a successful full replay.</p>
-<p>Historical task-class imports (for example
-<code class="docutils literal notranslate"><span class="pre">robosynchallenge.tasks.click_bell.ClickBellEnv</span></code>) resolve to the native
-environment. Select the scene through its deployment YAML. The archived
-ActionBank source is available for reference.</p>
 </section>
 </section>
 

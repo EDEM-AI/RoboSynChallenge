@@ -22,10 +22,6 @@ if [[ ! -f "$TASK_CONFIG" && "$1" != */* ]]; then
     TASK_CONFIG="$REPO_ROOT/configs/other_tasks/$1/$2/task.cobotmagic.yaml"
 fi
 shift 2
-case "${1:-}" in
-    3_0) shift ;;
-    2_1) echo "Collection supports LeRobot v3.0." >&2; exit 2 ;;
-esac
 if [[ ! -f "$TASK_CONFIG" ]]; then
     echo "EmbodiChain 0.3.3 task deployment is missing: $TASK_CONFIG" >&2
     exit 1
@@ -43,11 +39,5 @@ if [[ "${1:-}" == --seeded ]]; then
     exec uv run --locked --python 3.12 python -m scripts.collect_seeded \
         --gym_config "$TASK_CONFIG" --num_envs 1 "$@"
 fi
-for option in "$@"; do
-    if [[ "$option" == --replay ]]; then
-        exec uv run --locked --python 3.12 python -m scripts.run_env \
-            --gym_config "$TASK_CONFIG" --num_envs 1 "$@"
-    fi
-done
 exec uv run --locked --python 3.12 embodichain run-task \
     --gym_config "$TASK_CONFIG" --num_envs 1 "$@"

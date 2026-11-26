@@ -29,7 +29,7 @@ import torch
 import tqdm
 
 
-from robosynchallenge.deployments import ROOT as CHALLENGE_ROOT, deployment_from_path
+from robosynchallenge.deployments import ROOT as CHALLENGE_ROOT, require_deployment_path
 
 
 POSE_FIELDS = {
@@ -41,7 +41,7 @@ POSE_FIELDS = {
 
 # python3 RoboSynChallenge/scripts/add_lerobot_eef_pose.py \
 #   --dataset RoboSynChallenge/lerobot_dataset/cobotmagic_Sim_manipulate_mixer_dual_046 \
-#   --gym_config RoboSynChallenge/configs/manipulate_pipette/gym_config.json \
+#   --gym_config RoboSynChallenge/configs/manipulate_pipette/clear/task.cobotmagic.yaml \
 #   --device cuda
 
 def parse_args() -> argparse.Namespace:
@@ -74,13 +74,7 @@ def parse_args() -> argparse.Namespace:
         "--gym_config",
         type=Path,
         required=True,
-        help="Gym config matching the robot used to collect the dataset.",
-    )
-    parser.add_argument(
-        "--action_config",
-        type=Path,
-        default=None,
-        help="Optional action config. Usually not needed for FK backfill.",
+        help="Native task deployment matching the robot used to collect the dataset.",
     )
     parser.add_argument(
         "--output-dataset",
@@ -217,7 +211,7 @@ def build_fk_env(gym_config_path: Path, args: argparse.Namespace):
     parser = argparse.ArgumentParser()
     gym_utils.add_env_launcher_args_to_parser(parser, require_gym_config=True)
     options = parser.parse_args([
-        "--gym_config", str(deployment_from_path(gym_config_path)),
+        "--gym_config", str(require_deployment_path(gym_config_path)),
         "--num_envs", "1", "--device", args.device, "--gpu_id", str(args.gpu_id),
         "--headless", "--renderer", "fast-rt", "--filter_dataset_saving",
     ])

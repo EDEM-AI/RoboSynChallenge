@@ -350,26 +350,12 @@ def check_episode_feasibility(env, seed):
     try:
         seed = prepare_episode_reset(env, seed)
         env.reset(seed=seed, options={"save_data": False})
-        if getattr(env.unwrapped.cfg, "task_program", None) is not None:
-            from embodichain.lab.gym.envs.demo import execute_demo_episode
+        from embodichain.lab.gym.envs.demo import execute_demo_episode
 
-            episode = execute_demo_episode(env)
-            result["feasible"] = episode.completed and all(episode.success)
-            result["reason"] = episode.terminal_reason
-            result["expert_plan_steps"] = episode.length
-            return result
-        action_list = env.get_wrapper_attr("create_demo_action_list")(
-            action_sentence=0
-        )
-        if action_list is None:
-            return result
-        result["expert_plan_steps"] = len(action_list)
-        if result["expert_plan_steps"] == 0:
-            result["reason"] = "expert_action_list_empty"
-            return result
-
-        result["feasible"] = True
-        result["reason"] = "expert_planning_succeeded"
+        episode = execute_demo_episode(env)
+        result["feasible"] = episode.completed and all(episode.success)
+        result["reason"] = episode.terminal_reason
+        result["expert_plan_steps"] = episode.length
         return result
     except Exception as exc:
         message = " ".join(str(exc).split())
@@ -466,7 +452,7 @@ def _find_instruction_recursive(value):
 
 
 def extract_instruction_from_gym_config(gym_config):
-    """Return the task language instruction declared in gym_config.json."""
+    """Return the task language instruction from the resolved deployment."""
     dataset_cfg = gym_config.get("env", {}).get("dataset", {})
     if isinstance(dataset_cfg, dict):
         for functor_cfg in dataset_cfg.values():

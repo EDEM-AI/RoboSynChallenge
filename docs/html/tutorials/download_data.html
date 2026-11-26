@@ -380,17 +380,11 @@ document.write(`
 <p>For fine-tuning with downloaded datasets, see <a href="policy/pi0.html#train-with-downloaded-data">PI0 training with downloaded data</a> and <a href="policy/pi05.html#train-with-downloaded-data">PI0.5 training with downloaded data</a>.</p>
 <p>Pass a simulation task name, a full Hub dataset ID, or a local v3.0 directory
 to <code class="docutils literal notranslate"><span class="pre">launch/train_policy.sh</span></code>. A task name such as <code class="docutils literal notranslate"><span class="pre">click_bell</span></code> resolves to
-<code class="docutils literal notranslate"><span class="pre">han-xudong/cobotmagic_Sim_click_bell</span></code>. To use an older local v2.1 copy,
-run the importer first.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>scripts.import_lerobot_v21<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>datasets/raw/cobotmagic_Real_click_bell<span class="w"> </span>datasets/v30/cobotmagic_Real_click_bell
-</pre></div>
-</div>
+<code class="docutils literal notranslate"><span class="pre">han-xudong/cobotmagic_Sim_click_bell</span></code>. For an earlier release, download its converted <code class="docutils literal notranslate"><span class="pre">v3.0</span></code> revision from the collections above.</p>
 <p>The current simulator writes v3.0 and adds task-program segment annotations.
 To regenerate those annotations, collect a new expert episode or record a
 physically successful dynamic replay with its source segments. Joint-state
-and action training on imported releases can use the original frames after
-conversion. The simulation policy expects the CobotMagic action layout.</p>
+and action training on the converted releases uses the original frames. The simulation policy expects the CobotMagic action layout.</p>
 <p>See <a class="reference internal" href="collect_data.html"><span class="doc">collection and validation</span></a> and
 <a class="reference internal" href="task_trajectory.html"><span class="doc">expert trajectories</span></a>.</p>
 </section>
@@ -408,8 +402,7 @@ hf<span class="w"> </span>download<span class="w"> </span>han-xudong/ACT_sim_cli
 </div>
 <ul class="simple">
 <li><p><strong>ACT and Diffusion.</strong> The default Hub releases include the LeRobot
-preprocessor and postprocessor files. For a legacy local checkpoint, the
-evaluation adapter can recover the processor state from embedded statistics.</p></li>
+preprocessor and postprocessor files. Include both files when evaluating a local checkpoint.</p></li>
 <li><p><strong>SmolVLA.</strong> The released checkpoint includes the processor files.
 Its backbone and tokenizer use the Hugging Face cache under <code class="docutils literal notranslate"><span class="pre">HF_HOME</span></code>.</p></li>
 <li><p><strong>π₀ and π₀.₅.</strong> OpenPI downloads base weights into <code class="docutils literal notranslate"><span class="pre">OPENPI_DATA_HOME</span></code>.

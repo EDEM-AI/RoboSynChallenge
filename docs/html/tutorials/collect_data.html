@@ -364,10 +364,7 @@ bash<span class="w"> </span>launch/run_task.sh<span class="w"> </span>click_bell
 bash<span class="w"> </span>launch/run_task.sh<span class="w"> </span>mixer_operating<span class="w"> </span>random<span class="w"> </span>--headless<span class="w"> </span>--max_episodes<span class="w"> </span><span class="m">1</span>
 </pre></div>
 </div>
-<p>After data collection is completed, the collected data will be stored under <code class="docutils literal notranslate"><span class="pre">lerobot_dataset/&lt;task_name&gt;/</span></code>. Pass <code class="docutils literal notranslate"><span class="pre">--dataset-dir</span></code> to select another location. Use the importer to read a local legacy release and create a v3.0 copy.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>scripts.import_lerobot_v21<span class="w"> </span>datasets/legacy<span class="w"> </span>datasets/imported-v30
-</pre></div>
-</div>
+<p>After data collection is completed, the collected data will be stored under <code class="docutils literal notranslate"><span class="pre">lerobot_dataset/&lt;task_name&gt;/</span></code>. Pass <code class="docutils literal notranslate"><span class="pre">--dataset-dir</span></code> to select another location.</p>
 <section id="data-collection-hardware">
 <h2>🔧 Data Collection Hardware<a class="headerlink" href="#data-collection-hardware" title="Link to this heading">#</a></h2>
 <p>For GPUs equivalent to the RTX 5060 Ti, collect large datasets in batches. The original collection guide suggests starting with at most about 500 episodes per batch on this tier. Run the merge script to combine data from separate collection batches. Validate the resulting dataset before training.</p>

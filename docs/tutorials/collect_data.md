@@ -12,11 +12,7 @@ bash launch/run_task.sh click_bell clear --headless --max_episodes 1
 bash launch/run_task.sh mixer_operating random --headless --max_episodes 1
 ```
 
-After data collection is completed, the collected data will be stored under `lerobot_dataset/<task_name>/`. Pass `--dataset-dir` to select another location. Use the importer to read a local legacy release and create a v3.0 copy.
-
-```bash
-uv run --locked --python 3.12 python -m scripts.import_lerobot_v21 datasets/legacy datasets/imported-v30
-```
+After data collection is completed, the collected data will be stored under `lerobot_dataset/<task_name>/`. Pass `--dataset-dir` to select another location.
 
 ## 🔧 Data Collection Hardware
 

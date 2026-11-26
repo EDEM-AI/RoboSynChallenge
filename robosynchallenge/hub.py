@@ -1,5 +1,6 @@
 """Hugging Face locations for the published challenge assets."""
 
+import json
 from pathlib import Path
 
 from huggingface_hub import snapshot_download
@@ -26,7 +27,11 @@ def is_hub_id(reference):
 def dataset_source(reference):
     """Use a local dataset, a Hub ID, or a released simulation task name."""
     path = Path(reference).expanduser()
-    if (path / "meta/info.json").is_file():
+    info_path = path / "meta/info.json"
+    if info_path.is_file():
+        version = json.loads(info_path.read_text())["codebase_version"]
+        if version != DATASET_REVISION:
+            raise ValueError(f"{path} uses LeRobot {version}. Expected {DATASET_REVISION}.")
         return "local/robosynchallenge", path.resolve()
     if path.exists() or reference.startswith((".", "~", "/")):
         raise FileNotFoundError(f"No LeRobot dataset metadata in {path}.")

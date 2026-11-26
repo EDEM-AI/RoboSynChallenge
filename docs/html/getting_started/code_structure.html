@@ -358,12 +358,12 @@ document.write(`
 <h2>Enviornments<a class="headerlink" href="#enviornments" title="Link to this heading">#</a></h2>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>RoboSynChallenge
 ├──<span class="w"> </span>assets<span class="w"> </span><span class="c1"># All other required assets besides those provided by EmbodiChain</span>
-├──<span class="w"> </span>configs<span class="w"> </span><span class="c1"># Actions and gym configurations for 10 tasks</span>
+├──<span class="w"> </span>configs<span class="w"> </span><span class="c1"># Native deployments and Task Programs for 14 tasks</span>
 ├──<span class="w"> </span>robosynchallenge
 │<span class="w">   </span>├──<span class="w"> </span>data
 │<span class="w">   </span>├──<span class="w"> </span>Distractor<span class="w"> </span><span class="c1"># Distractor assets and configuration</span>
 │<span class="w">   </span>├──<span class="w"> </span>managers<span class="w"> </span><span class="c1"># The functor implemented by RoboSynChallenge</span>
-│<span class="w">   </span>├──<span class="w"> </span>tasks<span class="w"> </span><span class="c1"># The action bank and environment class definitions for 10 tasks.</span>
+│<span class="w">   </span>├──<span class="w"> </span>deployments.py<span class="w"> </span><span class="c1"># Locate native task deployments</span>
 │<span class="w">   </span>├──<span class="w"> </span>utils
 ├──<span class="w"> </span>launch<span class="w"> </span><span class="c1"># Data collection scripts</span>
 │<span class="w">   </span>├──<span class="w"> </span>clear<span class="w"> </span><span class="c1"># for clear envs</span>
@@ -371,7 +371,7 @@ document.write(`
 │<span class="w">   </span>└──<span class="w"> </span>visualize_distribution<span class="w"> </span><span class="c1"># for visualizing the range of rigid body randomization in simulation environments</span>
 ├──<span class="w"> </span>scripts
 │<span class="w">   </span>├──<span class="w"> </span>analyze_rigid_spawn_range.py<span class="w"> </span><span class="c1"># Script for analyzing the feasible range of rigid body position randomization</span>
-│<span class="w">   </span>├──<span class="w"> </span>import_lerobot_v21.py<span class="w">       </span><span class="c1"># Import legacy LeRobot datasets into v3.0</span>
+│<span class="w">   </span>├──<span class="w"> </span>merge_lerobot_v30.py<span class="w">        </span><span class="c1"># Merge LeRobot v3.0 datasets</span>
 │<span class="w">   </span>└──<span class="w"> </span>eval_openpi0_embodichain.py<span class="w"> </span><span class="c1"># Script for openpi eval</span>
 └──
 </pre></div>
@@ -422,7 +422,7 @@ document.write(`
   <div class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> Contents
   </div>
-  <nav class="bd-toc-nav page-toc">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enviornments">Enviornments</a></li>
 </ul>

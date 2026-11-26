@@ -28,19 +28,12 @@ For fine-tuning with downloaded datasets, see <a href="policy/pi0.html#train-wit
 
 Pass a simulation task name, a full Hub dataset ID, or a local v3.0 directory
 to `launch/train_policy.sh`. A task name such as `click_bell` resolves to
-`han-xudong/cobotmagic_Sim_click_bell`. To use an older local v2.1 copy,
-run the importer first.
-
-```bash
-uv run --locked --python 3.12 python -m scripts.import_lerobot_v21 \
-  datasets/raw/cobotmagic_Real_click_bell datasets/v30/cobotmagic_Real_click_bell
-```
+`han-xudong/cobotmagic_Sim_click_bell`. For an earlier release, download its converted `v3.0` revision from the collections above.
 
 The current simulator writes v3.0 and adds task-program segment annotations.
 To regenerate those annotations, collect a new expert episode or record a
 physically successful dynamic replay with its source segments. Joint-state
-and action training on imported releases can use the original frames after
-conversion. The simulation policy expects the CobotMagic action layout.
+and action training on the converted releases uses the original frames. The simulation policy expects the CobotMagic action layout.
 
 See [collection and validation](collect_data.md) and
 [expert trajectories](task_trajectory.md).
@@ -60,8 +53,7 @@ hf download han-xudong/ACT_sim_click_bell --local-dir checkpoints/ACT_sim_click_
 ```
 
 - **ACT and Diffusion.** The default Hub releases include the LeRobot
-  preprocessor and postprocessor files. For a legacy local checkpoint, the
-  evaluation adapter can recover the processor state from embedded statistics.
+  preprocessor and postprocessor files. Include both files when evaluating a local checkpoint.
 - **SmolVLA.** The released checkpoint includes the processor files.
   Its backbone and tokenizer use the Hugging Face cache under `HF_HOME`.
 - **π₀ and π₀.₅.** OpenPI downloads base weights into `OPENPI_DATA_HOME`.

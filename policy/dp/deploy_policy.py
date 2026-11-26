@@ -31,19 +31,8 @@ def get_model(usr_args):
         num_inference_steps = DEFAULT_NUM_INFERENCE_STEPS
     num_inference_steps = int(num_inference_steps)
     cli_overrides.append(f"--num_inference_steps={num_inference_steps}")
-    try:
-        policy = DiffusionPolicy.from_pretrained(
-            checkpoint_path,
-            cli_overrides=cli_overrides,
-        )
-    except TypeError as exc:
-        if "cli_overrides" not in str(exc):
-            raise
-        config = PreTrainedConfig.from_pretrained(
-            checkpoint_path,
-            cli_overrides=cli_overrides,
-        )
-        policy = DiffusionPolicy.from_pretrained(checkpoint_path, config=config)
+    config = PreTrainedConfig.from_pretrained(checkpoint_path, cli_overrides=cli_overrides)
+    policy = DiffusionPolicy.from_pretrained(checkpoint_path, config=config)
     policy.eval()
     policy.checkpoint_processors = load_processors(policy.config, checkpoint_path, device)
 
