@@ -17,16 +17,16 @@ services:
       - SERVER_ARGS  
 
   openpi_server:
-    image: openpi_server
+    image: robosyn-pi05
     build:
-      context: ../..
-      dockerfile: scripts/docker/serve_policy.Dockerfile
+      context: ../../../..
+      dockerfile: policy/pi05/scripts/docker/serve_policy.Dockerfile
     init: true
     tty: true
     network_mode: host
     volumes:
-      - $PWD:/app
       - ${OPENPI_DATA_HOME:-~/.cache/openpi}:/openpi_assets
+      - ${OPENPI_CHECKPOINT_DIR:-../../checkpoints}:/app/policy/pi05/checkpoints:ro
     environment:
       - SERVER_ARGS
       - OPENPI_DATA_HOME=/openpi_assets

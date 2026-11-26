@@ -1,0 +1,86 @@
+integration_id: robosyn_other_open_pan
+program_id: other_open_pan
+requires:
+  scene_contract: robosyn_other_open_pan
+  embodiment_contract: cobotmagic_parallel_grippers
+scene_binding:
+  contract_id: robosyn_other_open_pan
+  registry_id: robosyn_other_open_pan
+  rigid_objects:
+  - entity_id: lid
+    dynamics: dynamic
+    affordances:
+    - entity_id: lid_grasp
+      kind: antipodal_grasp
+  - entity_id: pan
+    dynamics: static
+  - entity_id: carrot
+    dynamics: dynamic
+    affordances:
+    - entity_id: carrot_grasp
+      kind: antipodal_grasp
+profile:
+  defaults: {}
+  skill_options:
+    pick:
+      kind: pick_up
+      pre_grasp_distance: 0.055
+      approach_direction:
+      - 0.3
+      - 0
+      - -1.0
+      lift_height: 0.115
+      grasp_settle_steps: 16
+      hand_interp_steps: 15
+    robosyn.pick_lid:
+      kind: pick_up
+      pre_grasp_distance: 0.065
+      approach_direction:
+      - 0.0
+      - 0.0
+      - -1.0
+      lift_height: 0.105
+      grasp_settle_steps: 20
+      hand_interp_steps: 15
+    simulation.move_held_object:
+      kind: move_held_object
+    robosyn.align_for_insertion:
+      kind: move_joints
+    simulation.place_relative:
+      kind: place
+      lift_height: 0.018
+      cartesian_waypoint_count: 1
+      hand_interp_steps: 16
+      release_settle_steps: 20
+  effect_monitors: {}
+runtime_services:
+  registered_semantic_lowerers:
+  - kind: move_held_object
+    target_id: lid_clearance
+    reference_entity_id: pan
+    relative_pose:
+      position:
+      - -0.075
+      - 0.145
+      - 0.215
+      quaternion_xyzw:
+      - 0.0
+      - 0.0
+      - -0.7071067811865476
+      - 0.7071067811865476
+  - kind: place_relative
+    routes:
+    - object_id: carrot
+      reference_entity_id: pan
+      relation: above
+      world_displacement:
+      - 0.0
+      - 0.0
+      - 0.125
+    - object_id: lid
+      reference_entity_id: pan
+      relation: above
+      world_displacement:
+      - 0.0
+      - 0.0
+      - 0.092

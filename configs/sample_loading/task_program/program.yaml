@@ -1,0 +1,96 @@
+program_id: sample_loading
+instruction: Pick up the test tube, hand it to the left arm, and insert it in the
+  rack.
+targets:
+  transfer_pose:
+    kind: pose
+    position:
+    - 0.53
+    - 0.02
+    - 0.93
+    quaternion_xyzw:
+    - 0.0
+    - 0.0
+    - 0.0
+    - 1.0
+program:
+  kind: sequence
+  items:
+  - kind: segment
+    name: pick_test_tube
+    instruction: Pick and lift the test tube with the right arm.
+    steps:
+      kind: invoke
+      call:
+        kind: pick
+        object: test_tube
+        grasp: test_tube_grasp
+        resources:
+          primary: right_manipulator
+    validators:
+    - kind: object_lifted
+      object: test_tube
+      minimum_lift: 0.02
+  - kind: segment
+    name: orient_for_handover
+    instruction: Present the held object at a reachable angle for the receiving gripper.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.move_held_object
+        arguments:
+          target: handover_presentation
+        resources:
+          primary: right_manipulator
+  - kind: segment
+    name: hand_over_test_tube
+    instruction: Transfer the test tube to the left hand.
+    steps:
+      kind: invoke
+      call:
+        kind: hand_over
+        object: test_tube
+        final_target: transfer_pose
+        resources:
+          source: right_manipulator
+          destination: left_manipulator
+  - kind: segment
+    name: align_with_rack
+    instruction: Turn the test tube upright above the selected rack opening.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.align_for_insertion
+        arguments: {}
+        resources:
+          primary: left_loaded_manipulator
+  - kind: segment
+    name: lower_test_tube
+    instruction: Lower the held test tube into the rack opening.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.lower_into_receptacle
+        arguments: {}
+        resources:
+          primary: left_loaded_manipulator
+  - kind: segment
+    name: place_test_tube
+    instruction: Release the test tube without moving the aligned wrist.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.place_relative
+        arguments:
+          object: test_tube
+          reference: rack
+          relation: above
+        resources:
+          primary: left_manipulator
+    post:
+    - kind: wait_stable
+      entity: test_tube

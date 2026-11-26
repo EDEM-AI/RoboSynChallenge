@@ -29,6 +29,9 @@ class Checkpoint:
     # Checkpoint directory (e.g., "checkpoints/pi0_aloha_sim/exp/10000").
     dir: str
 
+    # Normalization asset ID stored under the checkpoint assets directory.
+    asset_id: str | None = None
+
 
 @dataclasses.dataclass
 class Default:
@@ -46,7 +49,8 @@ class Args:
     # prompt.
     default_prompt: str | None = None
 
-    # Port to serve the policy on.
+    # Interface and port to serve the policy on.
+    host: str = "0.0.0.0"
     port: int = 8000
     # Record the policy's behavior for debugging.
     record: bool = False
@@ -89,8 +93,17 @@ def create_policy(args: Args) -> _policy.Policy:
     """Create a policy from the given arguments."""
     match args.policy:
         case Checkpoint():
+            config = _config.get_config(args.policy.config)
+            if args.policy.asset_id is not None:
+                config = dataclasses.replace(
+                    config,
+                    data=dataclasses.replace(
+                        config.data,
+                        assets=dataclasses.replace(config.data.assets, asset_id=args.policy.asset_id),
+                    ),
+                )
             return _policy_config.create_trained_policy(
-                _config.get_config(args.policy.config), args.policy.dir, default_prompt=args.default_prompt
+                config, args.policy.dir, default_prompt=args.default_prompt
             )
         case Default():
             return create_default_policy(args.env, default_prompt=args.default_prompt)
@@ -110,7 +123,7 @@ def main(args: Args) -> None:
 
     server = websocket_policy_server.WebsocketPolicyServer(
         policy=policy,
-        host="0.0.0.0",
+        host=args.host,
         port=args.port,
         metadata=policy_metadata,
     )

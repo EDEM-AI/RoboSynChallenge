@@ -13,6 +13,7 @@ import torch
 from lerobot.configs.policies import PreTrainedConfig
 from lerobot.policies.diffusion.modeling_diffusion import DiffusionPolicy
 from policy.inference_timing import finish_inference, start_inference
+from policy.lerobot_checkpoint import load_processors, reset_model, select_action
 
 
 DEFAULT_NUM_INFERENCE_STEPS = 10
@@ -44,6 +45,7 @@ def get_model(usr_args):
         )
         policy = DiffusionPolicy.from_pretrained(checkpoint_path, config=config)
     policy.eval()
+    policy.checkpoint_processors = load_processors(policy.config, checkpoint_path, device)
 
     image_key_map = {
         "observation.images.cam_high": "cam_high",
@@ -104,7 +106,7 @@ def eval(env, model, obs):
                 image_tensor = image_tensor / 255.0
             batch[image_key] = image_tensor
 
-        action = model.select_action(batch)
+        action = select_action(model, batch)
         if action.ndim == 1:
             action = action.unsqueeze(0)
         if action.ndim != 2:
@@ -143,7 +145,3 @@ def eval(env, model, obs):
             break
 
     return final_obs, info, truncated, inference_times_s
-
-
-def reset_model(model):
-    model.reset()

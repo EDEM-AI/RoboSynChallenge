@@ -7,9 +7,10 @@ from typing import Literal, Protocol, SupportsIndex, TypeVar
 
 import jax
 import jax.numpy as jnp
-import lerobot.common.datasets.lerobot_dataset as lerobot_dataset
 import numpy as np
 import torch
+
+from policy.openpi_v30 import open_dataset, task_prompt
 
 import openpi.models.model as _model
 import openpi.training.config as _config
@@ -132,21 +133,19 @@ def create_torch_dataset(
 ) -> Dataset:
     """Create a dataset for training."""
     repo_id = data_config.repo_id
-    if repo_id is None:
-        raise ValueError("Repo ID is not set. Cannot create dataset.")
     if repo_id == "fake":
         return FakeDataset(model_config, num_samples=1024)
+    if repo_id is None and data_config.dataset_root is None:
+        raise ValueError("Configure a LeRobot v3.0 dataset root or Hub repo ID.")
 
-    dataset_meta = lerobot_dataset.LeRobotDatasetMetadata(repo_id)
-    dataset = lerobot_dataset.LeRobotDataset(
-        data_config.repo_id,
-        delta_timestamps={
-            key: [t / dataset_meta.fps for t in range(action_horizon)] for key in data_config.action_sequence_keys
-        },
+    dataset = open_dataset(
+        repo_id or "local/robosynchallenge",
+        data_config.dataset_root,
+        data_config.action_sequence_keys,
+        action_horizon,
     )
-
     if data_config.prompt_from_task:
-        dataset = TransformedDataset(dataset, [_transforms.PromptFromLeRobotTask(dataset_meta.tasks)])
+        dataset = TransformedDataset(dataset, [task_prompt])
 
     return dataset
 

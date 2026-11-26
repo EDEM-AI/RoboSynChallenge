@@ -19,7 +19,7 @@ RoboSynChallenge
 │   └── visualize_distribution # for visualizing the range of rigid body randomization in simulation environments
 ├── scripts
 │   ├── analyze_rigid_spawn_range.py # Script for analyzing the feasible range of rigid body position randomization
-│   ├── convert_lerobot3.0_to_2.1.py # Script for converting lerobot3.0 to 2.1 format
+│   ├── import_lerobot_v21.py       # Import legacy LeRobot datasets into v3.0
 │   └── eval_openpi0_embodichain.py # Script for openpi eval
 └──
 ```

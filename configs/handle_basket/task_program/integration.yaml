@@ -1,0 +1,102 @@
+integration_id: robosyn_handle_basket
+program_id: handle_basket
+requires:
+  scene_contract: robosyn_handle_basket
+  embodiment_contract: cobotmagic_parallel_grippers
+scene_binding:
+  contract_id: robosyn_handle_basket
+  registry_id: robosyn_handle_basket
+  rigid_objects:
+  - entity_id: milk
+    dynamics: dynamic
+    affordances:
+    - entity_id: milk_grasp
+      kind: antipodal_grasp
+  - entity_id: basket
+    dynamics: dynamic
+    affordances:
+    - entity_id: basket_grasp
+      kind: antipodal_grasp
+    - entity_id: basket_interior
+      kind: container
+      native_name: basket_interior
+      object_target_pose:
+        position:
+        - -0.045
+        - 0.125
+        - -0.085
+        quaternion_xyzw:
+        - 0
+        - 0
+        - 0
+        - 1
+      release_clearance: 0.01
+  - entity_id: table
+    dynamics: static
+profile:
+  defaults: {}
+  skill_options:
+    pick:
+      kind: pick_up
+      pre_grasp_distance: 0.045
+      approach_direction: [0.65, -0.2, -1.0]
+      lift_height: 0.075
+      grasp_settle_steps: 12
+      hand_interp_steps: 12
+    robosyn.pick_basket_handle:
+      kind: pick_up
+      pre_grasp_distance: 0.055
+      approach_direction: [0.7, 0.0, -0.7]
+      lift_height: 0.055
+      grasp_settle_steps: 15
+      hand_interp_steps: 12
+    simulation.place_relative:
+      kind: place
+      lift_height: 0.025
+      cartesian_waypoint_count: 1
+      hand_interp_steps: 12
+      release_settle_steps: 15
+    simulation.park:
+      kind: move_joints
+    simulation.move_held_object:
+      kind: move_held_object
+  effect_monitors: {}
+runtime_services:
+  settle_presets:
+    rigid_object:
+      linear_velocity_threshold: 0.03
+      angular_velocity_threshold: 0.20
+      min_steps: 10
+      max_steps: 240
+      check_interval_steps: 2
+      required_stable_checks: 3
+    carry_loaded_basket:
+      # A held handle vibrates in contact even when the basket stays in place.
+      measurement: pose_delta
+      linear_velocity_threshold: 0.07
+      angular_velocity_threshold: 0.60
+      min_steps: 65
+      max_steps: 240
+      check_interval_steps: 2
+      required_stable_checks: 3
+  registered_semantic_lowerers:
+  - kind: park
+  - kind: place_relative
+    routes:
+    - object_id: milk
+      reference_entity_id: basket
+      relation: above
+      world_displacement: [0.0, 0.0, 0.105]
+  - kind: move_held_object
+    target_id: basket_destination
+    reference_entity_id: table
+    relative_pose:
+      position:
+      - -0.267
+      - 0.075
+      - 0.15
+      quaternion_xyzw:
+      - 0.7071067811865476
+      - 0.0
+      - 0.0
+      - 0.7071067811865476

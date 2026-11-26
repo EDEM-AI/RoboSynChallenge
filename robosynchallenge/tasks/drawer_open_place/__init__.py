@@ -1,3 +1,5 @@
-from .drawer_open_place import DrawerOpenPlaceAgentEnv, DrawerOpenPlaceEnv
+"""Native environment exports for drawer_open_place."""
 
-__all__ = ["DrawerOpenPlaceEnv", "DrawerOpenPlaceAgentEnv"]
+from .drawer_open_place import DrawerOpenPlaceEnv, DrawerOpenPlaceTestEnv, DrawerOpenPlaceAgentEnv
+
+__all__ = ['DrawerOpenPlaceEnv', 'DrawerOpenPlaceTestEnv', 'DrawerOpenPlaceAgentEnv']

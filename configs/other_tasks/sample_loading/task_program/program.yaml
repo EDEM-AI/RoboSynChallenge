@@ -1,0 +1,60 @@
+program_id: other_sample_loading
+instruction: Pick up the test tube and insert it into the rack using the right arm.
+targets: {}
+program:
+  kind: sequence
+  items:
+  - kind: segment
+    name: pick_test_tube
+    instruction: Pick and lift the test tube with the right arm.
+    steps:
+      kind: invoke
+      call:
+        kind: pick
+        object: test_tube
+        grasp: test_tube_grasp
+        resources:
+          primary: right_manipulator
+    validators:
+    - kind: object_lifted
+      object: test_tube
+      minimum_lift: 0.02
+  - kind: segment
+    name: align_with_rack
+    instruction: Turn the test tube upright above the selected rack opening.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.align_for_insertion
+        arguments: {}
+        resources:
+          primary: right_loaded_manipulator
+  - kind: segment
+    name: lower_test_tube
+    instruction: Lower the held test tube into the rack opening.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.lower_into_receptacle
+        arguments: {}
+        resources:
+          primary: right_loaded_manipulator
+  - kind: segment
+    name: place_test_tube
+    instruction: Release the test tube without moving the aligned wrist.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.place_relative
+        arguments:
+          object: test_tube
+          reference: rack
+          relation: above
+        resources:
+          primary: right_manipulator
+    post:
+    - kind: wait_stable
+      entity: test_tube

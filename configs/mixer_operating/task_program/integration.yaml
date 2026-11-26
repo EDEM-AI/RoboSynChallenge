@@ -1,0 +1,51 @@
+integration_id: robosyn_mixer_operating
+program_id: mixer_operating
+requires:
+  scene_contract: robosyn_mixer
+  embodiment_contract: cobotmagic_parallel_grippers
+scene_binding:
+  contract_id: robosyn_mixer
+  registry_id: robosyn_mixer
+  rigid_objects:
+    - entity_id: mixer
+      simulation_uid: beaker_mixer
+      dynamics: dynamic
+    - entity_id: beaker
+      dynamics: dynamic
+      affordances:
+        - entity_id: beaker_grasp
+          kind: antipodal_grasp
+profile:
+  defaults: {}
+  skill_options:
+    pick:
+      kind: pick_up
+      pre_grasp_distance: 0.07
+      approach_direction: [1.0, 0.0, -0.3]
+      lift_height: 0.09
+      hand_interp_steps: 12
+      grasp_settle_steps: 24
+      cartesian_lift: true
+    simulation.place_relative:
+      kind: place
+      lift_height: 0.035
+      hand_interp_steps: 12
+      release_settle_steps: 25
+    simulation.press:
+      kind: press
+      approach_distance: 0.055
+      press_distance: 0.019
+      hand_interp_steps: 8
+  effect_monitors: {}
+runtime_services:
+  registered_semantic_lowerers:
+    - kind: place_relative
+      routes:
+        - object_id: beaker
+          reference_entity_id: mixer
+          relation: "on"
+          world_displacement: [0.0, 0.0, 0.075]
+    - kind: press
+      object_affordances:
+        - object: mixer
+          affordance: mixer_switch

@@ -1,0 +1,25 @@
+effect_assurance: projected
+motion:
+  dynamic_collision_mode: 'off'
+  ik_seed_mode: sequential
+  sample_count: 60
+  strategy: ik_interp
+  velocity_targets: auto
+policy_id: trajectory_open_loop_v1
+preset_id: trajectory
+recovery:
+  max_replans: 0
+  max_skill_retries: 0
+  planning_recovery:
+    kind: press_bounded
+    revision: 1
+requires:
+  embodiment_contract: single_arm_parallel_gripper
+runner:
+  hold_during_effect_verification: false
+  hold_on_completion: false
+  minimum_cycle_time: 0.0
+tracking:
+  kind: timed
+workflow_recovery:
+  max_recovery_attempts: 0

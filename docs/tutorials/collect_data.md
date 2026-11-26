@@ -1,58 +1,40 @@
 # Collect Data
-We provide 1,000 pre-collected trajectories per task as part of the open-source release **RoboSynChallenge** Dataset. The datasets hosted on HuggingFace are available at [here](https://edem-ai.github.io/robosynchallenge.github.io/#/data).
+Released LeRobot v3.0 datasets are listed in the
+[Real data](https://huggingface.co/collections/han-xudong/real-data-6b078018b5eb646b7c26fbe1)
+and [Sim data](https://huggingface.co/collections/han-xudong/sim-data-6b07801c45756c22865cc334)
+collections. See [download instructions](download_data.md) for the pinned revision.
 
-However, we still strongly recommend users to perform data collection themselves.
-```python
-bash launch/run_task.sh {task_name} [random|clear] [3_0/2_1] [Other Extra Arguments]
-# View supported tasks and extra arguments: bash launch/run_task.sh -h
-# bash launch/run_task.sh click_bell clear 3_0
-# Collect data for the click_bell task without domain randomization and the data is the LeRobot 3.0 format.
-# bash launch/run_task.sh mixer_operating random 2_1
-# Collect data for the mixer_operating task involving domain randomization and convert the data to the LeRobot 2.1 format.
+The native collection pipeline writes LeRobot v3.0. Each official task has a CobotMagic deployment for both `clear` and `random`.
+
+```bash
+uv sync --locked --python 3.12
+bash launch/run_task.sh click_bell clear --headless --max_episodes 1
+bash launch/collect_combined_dataset.sh click_bell 10 10 /data/click_bell-combined --headless
+uv run --locked --python 3.12 embodichain dataset validate /data/click_bell-combined
 ```
 
-After data collection is completed, the collected data will be stored under `lerobot_dataset/{task_name}/`. The dataset task names are: `click_bell`, `handle_basket`, `water_pouring`, `table_rearrangement`, `items_handover`, `drawer_open_place`, `mixer_operating`, `item_assembly`, `manipulate_pipette`, `sample_loading`, and `open_pan`. For local collection, use `bash launch/run_task.sh -h` to view the tasks currently supported by the collection script.
+The task recorder defaults to `lerobot_dataset/<task_name>/`. Pass `--dataset-dir` to select another location. Use the importer to read a local legacy release and create a v3.0 copy.
 
-If you want to convert `lerobot 3.0` to the `lerobot 2.1` format manually, we have also provide ready-made conversion scripts:
-```python
-python scripts/convert_lerobot3.0_to_2.1.py --repo-id {repo_id} --root /path/to/datasets
+```bash
+uv run --locked --python 3.12 python -m scripts.import_lerobot_v21 /data/legacy /data/imported-v30
 ```
-## 🔧 Data Collection Hardware
-For GPUs equivalent to the RTX 5060 Ti, limit each collection task to approximately 500 episodes. Setting a much larger batch size per task may cause unexpected program interruptions and compromise collection stability. High-end GPUs at the RTX 4090 tier are not affected by this issue, allowing you to adjust the batch size per task as needed.
-
-If you need to collect large amounts of data using a device like the 5060Ti, please follow this recommended procedure:
-
-① Collect raw data in the LeRobot 3.0 format first;
-
-② Run the merge script to combine data from multiple separate collection batches;
-
-③ Convert the merged full dataset to LeRobot 2.1 format if required for your use case.
 
 ## Collect simulation data with depth information
 
-To collect simulation data with depth information, you need to add the following to the camera definition section in the "sensor" field of the gym_config.json file for the corresponding task:
+Set `enable_depth: true` on the camera in the robot component referenced by
+`task.cobotmagic.yaml`. For `click_bell`, both settings use
+`configs/click_bell/cobotmagic.yaml`. For example, add the flag to the existing
+`cam_high` entry under `sensor`.
 
-"enable_depth": true,
-
-For example：
-
-```json
-{
-    
-    "sensor": [
-        {
-            "sensor_type": "Camera",
-            "uid": "cam_high",
-            "width": 640,
-            "height": 480,
-            "enable_mask": false,
-            "enable_depth": true, # Add this line
-            "intrinsics": [606.315186, 606.100952, 320.549316, 245.877106],
-
-}
+```yaml
+sensor:
+  - sensor_type: Camera
+    uid: cam_high
+    enable_depth: true
 ```
-For details, please visit: [here](https://dexforce.github.io/EmbodiChain/main/tutorial/sensor.html)
 
+The native recorder saves depth as a numeric feature by default. Keep the RGB
+camera fields enabled if the dataset will also be used to train the policy.
 
 For pre-collected simulated and real datasets, see <a href="download_data.html">Download Data</a>.
 

@@ -1,0 +1,71 @@
+program_id: items_handover
+instruction: Pick up the pen, hand it to the left arm, and insert it in the holder.
+targets:
+  transfer_pose:
+    kind: pose
+    position:
+    - 0.53
+    - 0.02
+    - 0.93
+    quaternion_xyzw:
+    - 0.0
+    - 0.0
+    - 0.0
+    - 1.0
+program:
+  kind: sequence
+  items:
+  - kind: segment
+    name: pick_pen
+    instruction: Pick and lift the pen with the right arm.
+    steps:
+      kind: invoke
+      call:
+        kind: pick
+        object: pen
+        grasp: pen_grasp
+        resources:
+          primary: right_manipulator
+    validators:
+    - kind: object_lifted
+      object: pen
+      minimum_lift: 0.02
+  - kind: segment
+    name: hand_over_pen
+    instruction: Transfer the pen to the left hand.
+    steps:
+      kind: invoke
+      call:
+        kind: hand_over
+        object: pen
+        final_target: transfer_pose
+        resources:
+          source: right_manipulator
+          destination: left_manipulator
+  - kind: segment
+    name: align_pen
+    instruction: Bring the held pen upright above the holder opening.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.align_for_insertion
+        arguments: {}
+        resources: {primary: left_loaded_manipulator}
+  - kind: segment
+    name: place_pen
+    instruction: Place the pen inside the holder opening.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.place_relative
+        arguments:
+          object: pen
+          reference: holder
+          relation: above
+        resources:
+          primary: left_manipulator
+    post:
+    - kind: wait_stable
+      entity: pen

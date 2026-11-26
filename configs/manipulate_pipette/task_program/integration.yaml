@@ -1,0 +1,40 @@
+integration_id: robosyn_manipulate_pipette
+program_id: manipulate_pipette
+requires:
+  scene_contract: robosyn_pipette
+  embodiment_contract: cobotmagic_parallel_grippers
+scene_binding:
+  contract_id: robosyn_pipette
+  registry_id: robosyn_pipette
+  rigid_objects:
+    - entity_id: beaker1
+      dynamics: dynamic
+  articulations:
+    - entity_id: pipette
+      dynamics: dynamic
+  links:
+    - entity_id: pipette_body
+      articulation_id: pipette
+      native_link_name: root
+      dynamics: dynamic
+    - entity_id: pipette_button
+      articulation_id: pipette
+      native_link_name: pipette_button_link
+      dynamics: dynamic
+profile:
+  defaults: {}
+  skill_options:
+    robosyn.grasp_pipette:
+      kind: pick_up
+      pre_grasp_distance: 0.035
+      approach_direction: [0.0, 0.0, -1.0]
+      hand_interp_steps: 15
+      grasp_settle_steps: 24
+      lift_height: 0.10
+    robosyn.approach_pipette:
+      kind: move_end_effector
+    robosyn.position_pipette:
+      kind: move_joints
+    robosyn.depress_plunger:
+      kind: move_joints
+  effect_monitors: {}

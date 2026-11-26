@@ -1,0 +1,73 @@
+program_id: water_pouring
+instruction: Hold the cup with the left hand, tilt the bottle above the cup, and return
+  the bottle upright.
+targets: {}
+program:
+  kind: sequence
+  items:
+  - kind: segment
+    name: pick_cup
+    instruction: Pick and lift the cup with the left arm.
+    steps:
+      kind: invoke
+      call:
+        kind: pick
+        object: cup
+        grasp: cup_grasp
+        resources:
+          primary: left_manipulator
+    validators:
+    - kind: object_lifted
+      object: cup
+      minimum_lift: 0.02
+  - kind: segment
+    name: position_cup
+    instruction: Hold the cup upright in the shared workspace.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.move_held_object
+        arguments:
+          object: cup
+          target: cup_pour_position
+        resources:
+          primary: left_manipulator
+  - kind: segment
+    name: pick_bottle
+    instruction: Pick and lift the bottle with the right arm.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.pick_bottle
+        arguments: {}
+        resources:
+          primary: right_manipulator
+    validators:
+    - kind: object_lifted
+      object: bottle
+      minimum_lift: 0.02
+  - kind: segment
+    name: position_bottle
+    instruction: Position the bottle so its mouth reaches the cup when tilted.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.position_bottle_to_pour
+        arguments: {}
+        resources:
+          primary: right_manipulator
+  - kind: segment
+    name: pour_water
+    instruction: Move the bottle above the cup, tilt it to pour, then return it upright.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.pour
+        arguments:
+          object: bottle
+        resources:
+          primary: right_manipulator

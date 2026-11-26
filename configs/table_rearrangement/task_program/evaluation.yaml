@@ -1,0 +1,60 @@
+graph:
+  roots:
+  - fork_placed
+  - spoon_placed
+  - fork_at_plate_height
+  - spoon_at_plate_height
+  rules:
+    fork_placed:
+      kind: near_relative_target
+      bindings:
+        position: rigid_objects/fork/pose
+        reference: rigid_objects/plate/pose
+      params:
+        displacement:
+        - 0.0
+        - 0.16
+        - 0.0
+        axes:
+        - 1
+        tolerance: 0.02
+        inclusive: true
+    spoon_placed:
+      kind: near_relative_target
+      bindings:
+        position: rigid_objects/spoon/pose
+        reference: rigid_objects/plate/pose
+      params:
+        displacement:
+        - 0.0
+        - -0.16
+        - 0.0
+        axes:
+        - 1
+        tolerance: 0.02
+        inclusive: true
+    fork_at_plate_height:
+      kind: near_relative_target
+      bindings:
+        position: rigid_objects/fork/pose
+        reference: rigid_objects/plate/pose
+      params:
+        displacement: [0.0, 0.0, 0.0]
+        axes: [2]
+        tolerance: 0.05
+        inclusive: true
+    spoon_at_plate_height:
+      kind: near_relative_target
+      bindings:
+        position: rigid_objects/spoon/pose
+        reference: rigid_objects/plate/pose
+      params:
+        displacement: [0.0, 0.0, 0.0]
+        axes: [2]
+        tolerance: 0.05
+        inclusive: true
+final_acceptance:
+- fork_placed
+- spoon_placed
+- fork_at_plate_height
+- spoon_at_plate_height

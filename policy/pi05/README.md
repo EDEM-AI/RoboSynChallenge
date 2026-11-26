@@ -1,5 +1,7 @@
 # openpi
 
+> **RoboSynChallenge π₀.₅.** Install the root environment with `uv sync --locked --python 3.12`. The [project guide](../../docs/tutorials/policy/pi05.md) covers the LeRobot v3.0 data source, OpenPI training, Orbax resume, and evaluation. Use `launch/openpi.sh` from the repository root for the project workflows. The upstream OpenPI reference follows.
+
 openpi holds open-source models and packages for robotics, published by the [Physical Intelligence team](https://www.physicalintelligence.company/).
 
 Currently, this repo contains three types of models:

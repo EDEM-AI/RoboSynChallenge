@@ -1,0 +1,92 @@
+integration_id: robosyn_item_assembly
+program_id: item_assembly
+requires:
+  scene_contract: robosyn_two_tubes
+  embodiment_contract: cobotmagic_parallel_grippers
+scene_binding:
+  contract_id: robosyn_two_tubes
+  registry_id: robosyn_two_tubes
+  rigid_objects:
+  - entity_id: sleeve
+    simulation_uid: guijiao1
+    dynamics: dynamic
+    affordances:
+    - kind: antipodal_grasp
+      entity_id: sleeve_grasp
+  - entity_id: insert
+    simulation_uid: guijiao2
+    dynamics: dynamic
+    affordances:
+    - kind: antipodal_grasp
+      entity_id: insert_grasp
+profile:
+  defaults: {}
+  skill_options:
+    pick:
+      kind: pick_up
+      pre_grasp_distance: 0.05
+      lift_height: 0.14
+      grasp_settle_steps: 30
+      hand_interp_steps: 16
+      cartesian_lift: true
+    simulation.move_held_object:
+      kind: move_held_object
+  effect_monitors:
+    pick:
+      monitor_id: builtin.composite_effect
+      revision: "1"
+      params: {consecutive_samples: 1}
+    simulation.move_held_object:
+      monitor_id: builtin.composite_effect
+      revision: "1"
+      params: {consecutive_samples: 1}
+runtime_services:
+  control_part_evidence:
+    kind: joint_position_constraint
+    control_parts: [right_eef, left_eef]
+    open_qpos: [0.05, 0.05]
+    minimum_displacement: 0.005
+  registered_semantic_lowerers:
+  - kind: move_held_object
+    routes:
+    - object_id: sleeve
+      target_id: sleeve_pose
+      pose:
+        kind: pose
+        position:
+        - 0.49
+        - -0.08
+        - 0.97
+        quaternion_xyzw:
+        - 0.0
+        - 0.0
+        - 0.7071067811865476
+        - 0.7071067811865476
+    - object_id: insert
+      target_id: dock_pose
+      pose:
+        kind: scene_entity
+        entity_id: sleeve
+        relative_pose:
+          position:
+          - 0.186
+          - 0.0
+          - 0.0
+          quaternion_xyzw: [0.0, 0.5, 0.8660254037844386, 0.0]
+      waypoints:
+      - kind: scene_entity
+        entity_id: sleeve
+        relative_pose:
+          position:
+          - 0.216
+          - 0.0
+          - 0.0
+          quaternion_xyzw: [0.0, 0.5, 0.8660254037844386, 0.0]
+      - kind: scene_entity
+        entity_id: sleeve
+        relative_pose:
+          position:
+          - 0.195
+          - 0.0
+          - 0.0
+          quaternion_xyzw: [0.0, 0.5, 0.8660254037844386, 0.0]

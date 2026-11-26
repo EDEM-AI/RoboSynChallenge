@@ -1,94 +1,90 @@
-#!/home/lin/software/miniconda3/envs/aloha/bin/python
-# -- coding: UTF-8
-"""
-#!/usr/bin/python3
-"""
+"""OpenPI inference for RoboSynChallenge using its original checkpoint layout."""
+
 import dataclasses
-import json
-import sys
-import jax
-import numpy as np
-from openpi.models import model as _model
-from openpi.policies import aloha_policy
-from openpi.policies import policy_config as _policy_config
-from openpi.shared import download
-from openpi.training import config as _config
-from openpi.training import data_loader as _data_loader
+from pathlib import Path
 
-import cv2
-from PIL import Image
-
-from openpi.models import model as _model
-from openpi.policies import policy_config as _policy_config
-from openpi.shared import download
-from openpi.training import config as _config
-from openpi.training import data_loader as _data_loader
+from openpi.policies import policy_config
+from openpi.training import config as openpi_config
 
 
 class PI0:
+    policy_name = "pi0"
 
-    def __init__(self, train_config_name, model_name, checkpoint_id, pi0_step, pytorch_device="cuda"):
-        self.train_config_name = train_config_name
-        self.model_name = model_name
-        self.checkpoint_id = checkpoint_id
+    def __init__(
+        self,
+        train_config_name,
+        model_name,
+        checkpoint_id,
+        pi0_step,
+        pytorch_device="cuda",
+        *,
+        checkpoint_path=None,
+        asset_id=None,
+    ):
         self.pytorch_device = pytorch_device
-
-        self.policy = self._create_policy(self.pytorch_device)
-        print("loading model success!")
-        self.img_size = (224, 224)
-        self.observation_window = None
         self.pi0_step = pi0_step
-
-    def _checkpoint_path(self):
-        return f"policy/pi0/checkpoints/{self.train_config_name}/{self.model_name}/{self.checkpoint_id}"
-
-    def _config_for_device(self, pytorch_device):
-        config = _config.get_config(self.train_config_name)
+        self.observation_window = None
+        self.instruction = None
+        checkpoint = (
+            Path(checkpoint_path)
+            if checkpoint_path
+            else (
+                Path(__file__).resolve().parents[1]
+                / self.policy_name
+                / "checkpoints"
+                / train_config_name
+                / model_name
+                / str(checkpoint_id)
+            )
+        )
+        config = openpi_config.get_config(train_config_name)
         if pytorch_device == "cpu" and hasattr(config.model, "pytorch_compile_mode"):
             config = dataclasses.replace(
                 config,
                 model=dataclasses.replace(config.model, pytorch_compile_mode=None),
             )
-        return config
-
-    def _create_policy(self, pytorch_device):
-        return _policy_config.create_trained_policy(
-            self._config_for_device(pytorch_device),
-            self._checkpoint_path(),
-            pytorch_device=pytorch_device,
+        assets = config.data.assets
+        default_asset = assets.asset_id or config.data.repo_id
+        if (
+            asset_id is None
+            and not (
+                checkpoint / "assets" / str(default_asset) / "norm_stats.json"
+            ).is_file()
+        ):
+            matches = list((checkpoint / "assets").rglob("norm_stats.json"))
+            if len(matches) == 1:
+                asset_id = str(matches[0].parent.relative_to(checkpoint / "assets"))
+        if asset_id is not None:
+            config = dataclasses.replace(
+                config,
+                data=dataclasses.replace(
+                    config.data, assets=dataclasses.replace(assets, asset_id=asset_id)
+                ),
+            )
+        self.policy = policy_config.create_trained_policy(
+            config, checkpoint, pytorch_device=pytorch_device
         )
 
-    # set img_size
-    def set_img_size(self, img_size):
-        self.img_size = img_size
-
-    # set language randomly
     def set_language(self, instruction):
         self.instruction = instruction
-        print(f"successfully set instruction:{instruction}")
 
-    # Update the observation window buffer
-    def update_observation_window(self, img_arr, state):
-        img_front, img_right, img_left, puppet_arm = (
-            img_arr[0],
-            img_arr[1],
-            img_arr[2],
-            state,
-        )
-
+    def update_observation_window(self, images, state):
+        front, right_wrist, left_wrist = images
         self.observation_window = {
-            "observation/image": img_front,
-            "observation/left_wrist_image": img_left,
-            "observation/right_wrist_image": img_right,
+            "observation/image": front,
+            "observation/left_wrist_image": left_wrist,
+            "observation/right_wrist_image": right_wrist,
             "observation/state": state,
             "prompt": self.instruction,
         }
 
     def get_action(self):
-        assert self.observation_window is not None, "update observation_window first!"
+        if self.observation_window is None:
+            raise RuntimeError(
+                "Update the observation window before requesting an action."
+            )
         return self.policy.infer(self.observation_window)["actions"]
 
     def reset_obsrvationwindows(self):
         self.instruction = None
         self.observation_window = None
-        print("successfully unset obs and language intruction")

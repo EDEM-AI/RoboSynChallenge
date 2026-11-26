@@ -1,0 +1,83 @@
+integration_id: robosyn_drawer_open_place
+program_id: drawer_open_place
+requires:
+  scene_contract: robosyn_drawer_tomato
+  embodiment_contract: cobotmagic_parallel_grippers
+scene_binding:
+  contract_id: robosyn_drawer_tomato
+  registry_id: robosyn_drawer_tomato
+  articulations:
+    - entity_id: drawer
+      dynamics: dynamic
+  links:
+    - entity_id: drawer_tray
+      articulation_id: drawer
+      native_link_name: inner_box
+      dynamics: dynamic
+      affordances:
+        - entity_id: drawer_interior
+          native_name: interior
+          kind: container
+          object_target_pose:
+            position: [0.02, -0.02, 0.065]
+            quaternion_xyzw: [0.0, 0.0, 1.0, 0.0]
+          release_clearance: 0.015
+  rigid_objects:
+    - entity_id: tomato
+      simulation_uid: duck
+      dynamics: dynamic
+      affordances:
+        - entity_id: tomato_grasp
+          kind: antipodal_grasp
+profile:
+  defaults:
+    slide: {primary: right_manipulator}
+    pick_up: {primary: left_manipulator}
+    place: {primary: left_manipulator}
+  skill_options:
+    simulation.articulation_link_slide:
+      kind: slide
+      direction: pull
+      hand_interp_steps: 12
+      approach_distance: 0.09
+      translation_distance: 0.12
+      release_retreat_distance: 0.035
+    robosyn.close_drawer:
+      kind: slide
+      direction: pull
+      approach_along_grasp_axis: true
+      preshape_fraction: 1.0
+      hand_interp_steps: 20
+      approach_distance: 0.07
+      translation_distance: 0.12
+      release_retreat_distance: 0.010
+    pick:
+      kind: pick_up
+      lift_height: 0.14
+      grasp_settle_steps: 15
+    simulation.place_relative:
+      kind: place
+      lift_height: 0.055
+      cartesian_waypoint_count: 1
+      hand_interp_steps: 12
+      release_settle_steps: 15
+  effect_monitors: {}
+runtime_services:
+  grasp_pose_generator_overrides:
+    right_eef: {filter_ground_collision: false}
+  registered_semantic_lowerers:
+    - kind: place_relative
+      routes:
+        - object_id: tomato
+          reference_entity_id: drawer_tray
+          relation: above
+          world_displacement: [0.0, 0.0, 0.1]
+    - kind: articulation_link_slide
+      articulation_id: drawer
+      articulation_simulation_uid: drawer
+      link_entity_id: drawer_tray
+      target_pose_mode: snapshot
+      translation_axis: [-1.0, 0.0, 0.0]
+      joint_target:
+        joint_name: slide_rails
+        axis_sign: -1

@@ -1,0 +1,62 @@
+program_id: item_assembly
+instruction: Pick up the two centrifuge tubes and dock them horizontally.
+targets: {}
+program:
+  kind: sequence
+  items:
+  - kind: segment
+    name: pick_sleeve
+    instruction: Grasp and lift the sleeve with the right hand.
+    steps:
+      kind: invoke
+      call:
+        kind: pick
+        object: sleeve
+        grasp: sleeve_grasp
+        resources:
+          primary: right_manipulator
+    validators:
+    - kind: object_lifted
+      object: sleeve
+      minimum_lift: 0.04
+  - kind: segment
+    name: pick_insert
+    instruction: Grasp and lift the insert with the left hand.
+    steps:
+      kind: invoke
+      call:
+        kind: pick
+        object: insert
+        grasp: insert_grasp
+        resources:
+          primary: left_manipulator
+    validators:
+    - kind: object_lifted
+      object: insert
+      minimum_lift: 0.04
+  - kind: segment
+    name: orient_sleeve
+    instruction: Hold the sleeve horizontally at the assembly position.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.move_held_object
+        arguments:
+          object: sleeve
+          target: sleeve_pose
+        resources:
+          primary: right_manipulator
+  - kind: segment
+    name: dock_insert
+    instruction: Align the insert to the sleeve axis and push the two ends together.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.move_held_object
+        arguments:
+          object: insert
+          target: dock_pose
+        resources:
+          primary: left_manipulator

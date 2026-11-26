@@ -5,6 +5,8 @@ will compute the mean and standard deviation of the data in the dataset and save
 to the config assets directory.
 """
 
+import dataclasses
+
 import numpy as np
 import tqdm
 import tyro
@@ -29,8 +31,8 @@ def create_torch_dataloader(
     num_workers: int,
     max_frames: int | None = None,
 ) -> tuple[_data_loader.Dataset, int]:
-    if data_config.repo_id is None:
-        raise ValueError("Data config must have a repo_id")
+    if data_config.repo_id is None and data_config.dataset_root is None:
+        raise ValueError("Configure a LeRobot v3.0 dataset root or Hub repo ID.")
     dataset = _data_loader.create_torch_dataset(data_config, action_horizon, model_config)
     dataset = _data_loader.TransformedDataset(
         dataset,
@@ -86,8 +88,31 @@ def create_rlds_dataloader(
     return data_loader, num_batches
 
 
-def main(config_name: str, max_frames: int | None = None):
+def main(
+    config_name: str,
+    max_frames: int | None = None,
+    dataset_root: str | None = None,
+    repo_id: str | None = None,
+    asset_id: str | None = None,
+    assets_base_dir: str | None = None,
+    batch_size: int | None = None,
+    num_workers: int | None = None,
+):
     config = _config.get_config(config_name)
+    data_options = {}
+    if dataset_root is not None:
+        data_options["dataset_root"] = dataset_root
+    if repo_id is not None:
+        data_options["repo_id"] = repo_id
+    if asset_id is not None:
+        data_options["assets"] = dataclasses.replace(config.data.assets, asset_id=asset_id)
+    config = dataclasses.replace(
+        config,
+        data=dataclasses.replace(config.data, **data_options),
+        assets_base_dir=assets_base_dir or config.assets_base_dir,
+        batch_size=batch_size if batch_size is not None else config.batch_size,
+        num_workers=num_workers if num_workers is not None else config.num_workers,
+    )
     data_config = config.data.create(config.assets_dirs, config.model)
 
     if data_config.rlds_data_dir is not None:
@@ -108,7 +133,9 @@ def main(config_name: str, max_frames: int | None = None):
 
     norm_stats = {key: stats.get_statistics() for key, stats in stats.items()}
 
-    output_path = config.assets_dirs / data_config.repo_id
+    if data_config.asset_id is None:
+        raise ValueError("Set a normalization asset ID or dataset repo ID.")
+    output_path = config.assets_dirs / data_config.asset_id
     print(f"Writing stats to: {output_path}")
     normalize.save(output_path, norm_stats)
 

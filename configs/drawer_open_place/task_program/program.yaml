@@ -1,0 +1,62 @@
+program_id: drawer_open_place
+instruction: Open the drawer, put the tomato inside with the other arm, then close the drawer.
+targets: {}
+program:
+  kind: sequence
+  items:
+    - kind: segment
+      name: open_drawer
+      instruction: Pull the drawer open with the right hand.
+      steps:
+        kind: invoke
+        call:
+          kind: registered
+          call_id: simulation.articulation_link_slide
+          arguments: {handle: drawer_tray, position: 0.12}
+          resources: {primary: right_manipulator}
+      validators:
+        - kind: articulation_joint_position
+          articulation: drawer
+          joint: slide_rails
+          minimum_position: 0.09
+          maximum_position: 0.20
+    - kind: segment
+      name: pick_tomato
+      instruction: Pick up the tomato with the left hand.
+      steps:
+        kind: invoke
+        call:
+          kind: pick
+          object: tomato
+          grasp: tomato_grasp
+          resources: {primary: left_manipulator}
+      validators:
+        - kind: object_lifted
+          object: tomato
+          minimum_lift: 0.035
+    - kind: segment
+      name: place_tomato
+      instruction: Place the tomato inside the drawer.
+      steps:
+        kind: invoke
+        call:
+          kind: registered
+          call_id: simulation.place_relative
+          arguments: {object: tomato, reference: drawer_tray, relation: above}
+          resources: {primary: left_manipulator}
+    - kind: segment
+      name: close_drawer
+      instruction: Push the drawer closed with the right hand.
+      steps:
+        kind: invoke
+        call:
+          kind: registered
+          call_id: robosyn.close_drawer
+          arguments: {handle: drawer_tray, position: 0.0}
+          resources: {primary: right_manipulator}
+      validators:
+        - kind: articulation_joint_position
+          articulation: drawer
+          joint: slide_rails
+          minimum_position: 0.0
+          maximum_position: 0.02

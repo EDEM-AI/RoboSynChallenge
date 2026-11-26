@@ -32,7 +32,14 @@ def _get_version():
 
 __version__ = _get_version()
 
-from . import data as data
-data.install_embodichain_asset_resolver()
-from . import managers as managers
-from . import tasks as tasks
+def register_managers():
+    """Expose project functors through EmbodiChain's manager registry."""
+    from embodichain.lab.gym.utils.gym_utils import register_manager_modules
+
+    register_manager_modules(
+        [
+            "robosynchallenge.managers.actions",
+            "robosynchallenge.managers.events",
+            "robosynchallenge.managers.observations",
+        ]
+    )

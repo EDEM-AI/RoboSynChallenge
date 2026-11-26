@@ -1,272 +1,82 @@
-# ----------------------------------------------------------------------------
-# Copyright (c) 2021-2025 DexForce Technology Co., Ltd.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ----------------------------------------------------------------------------
-
-"""Script to run the environment."""
+"""Compatibility entry point for the native EmbodiChain task launcher."""
 
 import argparse
-import torch
-import numpy as np
-import tqdm
+import os
+import sys
 
-import gymnasium as gym
-import robosynchallenge
-from robosynchallenge.replay import replay_trajectory
+from embodichain.cli.main import main as embodichain_cli
 
-from embodichain.lab.gym.utils.gym_utils import (
-    add_env_launcher_args_to_parser,
-    build_env_cfg_from_args,
-)
-import embodichain.lab.gym.utils.gym_utils as gym_utils
-from embodichain.lab.scripts.run_env import generate_and_execute_action_list, preview
-from embodichain.utils.logger import log_warning, log_info
-
-gym_utils.DEFAULT_MANAGER_MODULES = gym_utils.DEFAULT_MANAGER_MODULES + [
-    "robosynchallenge.managers.actions",
-    "robosynchallenge.managers.datasets",
-    "robosynchallenge.managers.events",
-    "robosynchallenge.managers.observations",
-]
+from robosynchallenge.deployments import ROOT, deployment_from_path
 
 
-def _generate_function(
-    env,
-    num_traj,
-    time_id: int = 0,
-    save_path: str = "",
-    save_video: bool = False,
-    debug_mode: bool = False,
-    reset_first: bool = True,
-    **kwargs,
-) -> bool:
-    valid = True
-    if reset_first:
-        _, _ = env.reset()
-
-    while True:
-        for trajectory_idx in range(num_traj):
-            valid = generate_and_execute_action_list(
-                env, trajectory_idx, debug_mode, **kwargs
-            )
-
-            if not valid:
-                _, _ = env.reset(options={"save_data": False})
-                break
-
-        if valid:
-            break
-
-        log_warning("Reset valid flag to True.")
-        valid = True
-
-    return True
-
-
-def _get_saved_episode_count(env):
-    try:
-        dataset_manager = env.get_wrapper_attr("dataset_manager")
-    except AttributeError:
-        dataset_manager = getattr(
-            getattr(env, "unwrapped", env), "dataset_manager", None
-        )
-
-    if dataset_manager is None:
-        return None
-
-    episode_counts = []
-    for mode_cfgs in getattr(dataset_manager, "_mode_functor_cfgs", {}).values():
-        for functor_cfg in mode_cfgs:
-            functor = getattr(functor_cfg, "func", None)
-            if hasattr(functor, "curr_episode"):
-                episode_counts.append(int(functor.curr_episode))
-
-    if not episode_counts:
-        return None
-
-    return max(episode_counts)
-
-
-def _generate_until_saved_episode_target(args, env, gym_config, num_traj: int) -> bool:
-    target_episodes = int(gym_config.get("max_episodes", 1))
-    saved_episodes = _get_saved_episode_count(env)
-
-    if saved_episodes is None:
+def replay_legacy(arguments):
+    if "--replay" not in arguments:
+        return False
+    parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
+    parser.add_argument("--replay_trajectory")
+    parser.add_argument("--replay_mode", choices=("kinematic", "dynamic", "control"), default="kinematic")
+    replay, _ = parser.parse_known_args(arguments)
+    if not replay.replay_trajectory:
         return False
 
-    log_info(
-        f"Collecting until {target_episodes} successful episodes are saved.",
-        color="green",
-    )
+    import torch
 
-    _, _ = env.reset()
-    saved_episodes = _get_saved_episode_count(env)
-    attempt = 0
-    progress = tqdm.tqdm(
-        total=target_episodes,
-        initial=min(saved_episodes, target_episodes),
-        desc="Saved successful episodes",
-        unit="episode",
-    )
+    trajectory = torch.load(replay.replay_trajectory, map_location="cpu", weights_only=False)
+    if not isinstance(trajectory, dict) or not {"state", "action"}.issubset(trajectory):
+        return False
 
-    while saved_episodes < target_episodes:
-        attempt += 1
-        previous_saved_episodes = saved_episodes
+    import gymnasium as gym
+    from embodichain.lab.gym.utils import gym_utils
+    from embodichain.lab.gym.utils.registration import discover_task_packages, execute_init_hooks
+    from embodichain.lab.sim import SimulationManager
 
-        _generate_function(
-            env,
-            num_traj,
-            attempt - 1,
-            save_path=getattr(args, "save_path", ""),
-            save_video=getattr(args, "save_video", False),
-            debug_mode=getattr(args, "debug_mode", False),
-            reset_first=False,
-            regenerate=getattr(args, "regenerate", False),
-        )
+    from robosynchallenge.replay import replay_trajectory
 
-        saved_before_reset = _get_saved_episode_count(env)
-        _, _ = env.reset(
-            options={"save_data": saved_before_reset < target_episodes}
-        )
-        saved_episodes = _get_saved_episode_count(env)
-
-        progress.update(max(0, min(saved_episodes, target_episodes) - progress.n))
-
-        if saved_episodes == previous_saved_episodes:
-            log_warning(
-                f"Attempt {attempt} did not save a successful episode "
-                f"({saved_episodes}/{target_episodes}). Retrying."
-            )
-        else:
-            log_info(
-                f"Saved successful episodes: {saved_episodes}/{target_episodes} "
-                f"after {attempt} attempts.",
-                color="green",
-            )
-
-    progress.close()
+    os.environ.setdefault("EMBODICHAIN_SIM_EXIT_PROCESS", "0")
+    gym_utils.add_env_launcher_args_to_parser(parser, require_gym_config=True)
+    args, _ = parser.parse_known_args(arguments)
+    args.filter_dataset_saving = True
+    discover_task_packages()
+    execute_init_hooks()
+    cfg, scene, action_cfg = gym_utils.build_env_cfg_from_args(args)
+    env = gym.make(scene["id"], cfg=cfg, **action_cfg)
+    try:
+        replay_trajectory(env, replay.replay_trajectory, mode=replay.replay_mode)
+    finally:
+        env.close()
+        SimulationManager.flush_cleanup_queue()
     return True
 
 
-def run_env_main(args, env, gym_config):
-    if getattr(args, "replay", False):
-        replay_trajectory(
-            env,
-            args.replay_trajectory,
-            mode=getattr(args, "replay_mode", "kinematic"),
-        )
-        return
+def main():
+    os.environ.setdefault("EMBODICHAIN_DATA_ROOT", str(ROOT / "assets"))
+    if not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
+        os.environ.setdefault("SDL_VIDEODRIVER", "offscreen")
+        os.environ.setdefault("SDL_VIDEO_DRIVER", "offscreen")
+    args = list(sys.argv[1:])
+    for index, arg in enumerate(args):
+        if arg in {"--gym_config", "--gym-config"} and index + 1 < len(args):
+            path = deployment_from_path(args[index + 1])
+            args[index + 1] = str(path)
+        elif arg.startswith(("--gym_config=", "--gym-config=")):
+            flag, value = arg.split("=", 1)
+            path = deployment_from_path(value)
+            args[index] = f"{flag}={path}"
+        else:
+            continue
 
-    if getattr(args, "preview", False):
-        log_info(
-            "Preview mode enabled. Launching environment preview...", color="green"
-        )
-        preview(env)
-
-    log_info("Start offline data generation.", color="green")
-    num_traj = 1
-
-    if _generate_until_saved_episode_target(args, env, gym_config, num_traj):
-        return
-
-    log_warning(
-        "No dataset recorder was found. Falling back to max_episodes generation attempts."
-    )
-    for i in range(gym_config.get("max_episodes", 1)):
-        _generate_function(
-            env,
-            num_traj,
-            i,
-            save_path=getattr(args, "save_path", ""),
-            save_video=getattr(args, "save_video", False),
-            debug_mode=getattr(args, "debug_mode", False),
-            regenerate=getattr(args, "regenerate", False),
-        )
-
-    _, _ = env.reset()
+        if path.suffix in {".yml", ".yaml"}:
+            for action_index, action_arg in enumerate(args):
+                if action_arg == "--action_config":
+                    del args[action_index : action_index + 2]
+                    break
+                if action_arg.startswith("--action_config="):
+                    del args[action_index]
+                    break
+        break
+    if not replay_legacy(args):
+        embodichain_cli(["run-task", *args])
 
 
 if __name__ == "__main__":
-    np.set_printoptions(precision=5, suppress=True)
-    torch.set_printoptions(precision=5, sci_mode=False)
-
-    parser = argparse.ArgumentParser()
-
-    add_env_launcher_args_to_parser(parser)
-
-    parser.add_argument(
-        "--replay",
-        action="store_true",
-        help="Replay a native EmbodiChain or legacy state/action trajectory.",
-    )
-    parser.add_argument(
-        "--replay_trajectory",
-        type=str,
-        default=None,
-        help="Path to the .pt trajectory file to replay.",
-    )
-    parser.add_argument(
-        "--replay_mode",
-        choices=["kinematic", "dynamic", "control"],
-        default="kinematic",
-        help="Replay mode (default: kinematic).",
-    )
-
-    args = parser.parse_args()
-
-    if args.replay and not args.replay_trajectory:
-        parser.error("--replay requires --replay_trajectory <path>.")
-    if args.replay and args.preview:
-        parser.error("--replay and --preview are mutually exclusive.")
-    if args.replay:
-        args.filter_dataset_saving = True
-
-    env_cfg, gym_config, action_config = build_env_cfg_from_args(args)
-    physics_config = gym_config.get("physics", {})
-    if "enable_ccd" in physics_config:
-        env_cfg.sim_cfg.physics_config.enable_ccd = bool(
-            physics_config["enable_ccd"]
-        )
-        if env_cfg.sim_cfg.physics_config.enable_ccd:
-            log_info(
-                "Scene-level continuous collision detection enabled.", color="green"
-            )
-    if args.max_episodes is not None:
-        gym_config["max_episodes"] = args.max_episodes
-
-    env = gym.make(id=gym_config["id"], cfg=env_cfg, **action_config)
-
-    try:
-        run_env_main(args, env, gym_config=gym_config)
-    except Exception as e:
-        log_warning(f"An error occurred during environment execution: {e}")
-    finally:
-        # Always close before Python interpreter shutdown. Native dexsim, Warp,
-        # CUDA, and renderer resources have an unsafe destructor order during
-        # normal interpreter finalization and may otherwise exit with SIGSEGV
-        # (status 139) even after an episode was saved successfully.
-        try:
-            env.close()
-        except Exception as e:
-            log_warning(f"Failed to close environment: {e}")
-
-        # env.close() normally exits the process through sim.destroy(). When
-        # EMBODICHAIN_SIM_EXIT_PROCESS is disabled, explicitly run the queued
-        # cleanup at this top-level frame instead.
-        try:
-            from embodichain.lab.sim.sim_manager import SimulationManager
-
-            SimulationManager.flush_cleanup_queue()
-        except Exception as e:
-            log_warning(f"Failed to flush simulation cleanup queue: {e}")
+    main()

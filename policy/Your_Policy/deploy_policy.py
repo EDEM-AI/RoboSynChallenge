@@ -46,7 +46,7 @@ def eval(env, model, obs):
     # Set language instruction if first call (Try to keep it unchanged)
     # implement the `set_language` function in your own policy object.
     if model.observation_window is None:
-        instruction = getattr(env, "_current_instruction", None)
+        instruction = env.get_wrapper_attr("_current_instruction")
         model.set_language(instruction)
 
     inference_times_s = []

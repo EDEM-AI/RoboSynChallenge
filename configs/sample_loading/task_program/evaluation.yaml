@@ -1,0 +1,45 @@
+graph:
+  roots:
+  - test_tube_placed
+  - test_tube_upright
+  - rack_upright
+  - test_tube_at_rack_height
+  rules:
+    test_tube_placed:
+      kind: near_relative_target
+      bindings:
+        position: rigid_objects/test_tube/pose
+        reference: rigid_objects/rack/pose
+      params:
+        displacement:
+        - 0.0
+        - 0.0
+        - 0.0
+        axes:
+        - 0
+        - 1
+        tolerance: 0.035
+        inclusive: true
+    test_tube_upright:
+      kind: upright
+      bindings: {pose: rigid_objects/test_tube/frame}
+      params: {maximum_tilt_degrees: 10}
+    rack_upright:
+      kind: upright
+      bindings: {pose: rigid_objects/rack/frame}
+      params: {maximum_tilt_degrees: 10}
+    test_tube_at_rack_height:
+      kind: near_relative_target
+      bindings:
+        position: rigid_objects/test_tube/pose
+        reference: rigid_objects/rack/pose
+      params:
+        displacement: [0.0, 0.0, 0.0]
+        axes: [2]
+        tolerance: 0.07
+        inclusive: true
+final_acceptance:
+- test_tube_placed
+- test_tube_upright
+- rack_upright
+- test_tube_at_rack_height

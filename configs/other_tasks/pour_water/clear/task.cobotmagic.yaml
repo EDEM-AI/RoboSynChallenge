@@ -1,0 +1,7 @@
+id: RoboSyn-PourWater-v1
+environment:
+  component: env.yaml
+embodiment:
+  component: cobotmagic.yaml
+collection:
+  max_attempts: 8

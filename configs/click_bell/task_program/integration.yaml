@@ -1,0 +1,34 @@
+integration_id: click_bell
+profile:
+  defaults:
+    press:
+      primary: primary_manipulator
+  effect_monitors: {}
+  skill_options:
+    simulation.press:
+      approach_distance: 0.05
+      contact_roll_alternatives:
+      - 1.5707963267948966
+      hand_interp_steps: 8
+      kind: press
+      press_distance: 0.006
+program_id: click_bell
+requires:
+  embodiment_contract: single_arm_parallel_gripper
+  scene_contract: robosyn_bell
+runtime_services:
+  registered_semantic_lowerers:
+  - kind: press
+    object_affordances:
+    - affordance: bell_press_surface
+      object: button_cap
+scene_binding:
+  articulations:
+  - entity_id: bell
+    simulation_uid: button
+  contract_id: robosyn_bell
+  links:
+  - articulation_id: bell
+    entity_id: button_cap
+    native_link_name: button_cover
+  registry_id: robosyn_bell

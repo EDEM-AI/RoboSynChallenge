@@ -16,22 +16,11 @@ import torch
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint-dir", required=True)
-    parser.add_argument("--lerobot-root", default="")
     parser.add_argument("--device", default="cuda")
     return parser.parse_args()
 
 
 def _load_runtime(args: argparse.Namespace):
-    if args.lerobot_root:
-        lerobot_src = Path(args.lerobot_root).expanduser().resolve() / "src"
-        if lerobot_src.exists():
-            sys.path.insert(0, str(lerobot_src))
-        else:
-            raise FileNotFoundError(
-                f"LeRobot source path does not exist: {lerobot_src}. "
-                "Install lerobot in this Python environment or set SMOLVLA_LEROBOT_ROOT."
-            )
-
     try:
         from lerobot.policies.smolvla.modeling_smolvla import SmolVLAPolicy
         from lerobot.processor import (
@@ -43,8 +32,7 @@ def _load_runtime(args: argparse.Namespace):
         )
     except ModuleNotFoundError as exc:
         raise ModuleNotFoundError(
-            "Cannot import lerobot. Install LeRobot in the SmolVLA Python env, "
-            "or run policy/smolvla/setup_lerobot.sh and set SMOLVLA_LEROBOT_ROOT."
+            "Install the root project environment with uv sync --locked --python 3.12."
         ) from exc
 
     checkpoint_dir = str(Path(args.checkpoint_dir).resolve())

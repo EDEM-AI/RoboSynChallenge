@@ -37,281 +37,37 @@
 
 ---
 
-## 2. convert_lerobot3.0_to_2.1.py
+## 2. import_lerobot_v21.py
 
-**用途**：
-将 LeRobot 数据集从 v3.0 版本格式转换回 v2.1 旧格式，便于兼容老版本代码或工具。
-
-**使用方法**：
-- 主要通过命令行参数指定数据集路径。
-- 运行示例：
-  ```bash
-  python convert_lerobot3.0_to_2.1.py --repo-id lerobot/pusht --root /path/to/datasets
-  ```
-- 支持 HuggingFace Hub 数据集快照下载、本地数据集校验、元数据和数据文件批量转换。
-
-**详细案例**：
-- 假设你有一个 v3.0 格式的数据集在 `/root/workspace/RoboSynChallenge/lerobot_dataset/cobotmagic_Sim_items_handover_place_000`，转换命令：
-  ```bash
-  python convert_lerobot3.0_to_2.1.py --repo-id cobotmagic_Sim_items_handover_place_table_height --root /root/workspace/RoboSynChallenge/lerobot_dataset/random/
-
-  ```
-- 转换后会在目标目录生成 v2.1 兼容的数据结构和元数据。
-
----
-## 3. add_lerobot_eef_pose
-**用途**：
-基于EmbodiChain的前向动力学，读取lerobot数据集中机械臂关节角，在lerobot数据集中补充机械臂末端位姿
-
-**用法**：
-```bash
-cd ~/workspace
-# 先检查dataset文件夹映射关系
-python3 scripts/add_lerobot_eef_pose.py --dataset /path/to/datasets/ --gym_config /path/to/gym_config.json --dry-run
-# 运行
-python3 scripts/add_lerobot_eef_pose.py --dataset /path/to/datasets/ --gym_config /path/to/gym_config.json
-
-python3 scripts/add_lerobot_eef_pose.py --dataset /root/workspace/RoboSynChallenge/lerobot_dataset/random/cobotmagic_Sim_items_handover_place_table_height --gym_config /root/workspace/RoboSynChallenge/configs/items_handover_place/gym_config_random.json
-
-```
----
-
-## 4. Generic Policy Evaluation on EmbodiChain
-
-`scripts/eval_policy.py` is a RoboTwin-style evaluator for EmbodiChain tasks.
-It keeps the same policy adapter contract used by RoboTwin:
-
-```python
-def get_model(usr_args): ...
-def eval(TASK_ENV, model, observation): ...
-def reset_model(model): ...
-```
-
-The difference is that `TASK_ENV` is an EmbodiChain/Gymnasium wrapper. It
-provides RoboTwin-like methods such as `get_obs()`, `take_action(action)`,
-`set_instruction()`, and `get_instruction()`, while internally calling
-`env.reset()` and `env.step()`.
-
-An OpenPI pi0 adapter is provided at `eval_policies/pi0.py`.
-
-### (1). Start OpenPI Server
-
-Run this in one terminal from the local pi0 checkout:
+读取本地 LeRobot v2.1 数据并写入新的 v3.0 目录，保留源数据、相机流和动作数组。
 
 ```bash
-cd /home/wu/AA-Program/docker-volume-EmbodiChain/RoboSynChallenge/policy/pi0
-
-uv run scripts/serve_policy.py policy:checkpoint \
-  --policy.config=pi0_base_robosynchallenge_full \
-  --policy.dir=/path/to/your/checkpoint_step_dir \
-  --port=8000 \
-  --default_prompt="perform the task"
+uv run --locked --python 3.12 python -m scripts.import_lerobot_v21 /data/legacy /data/imported-v30
 ```
-
-### (2). Run Generic Evaluation
-
-Run this in a second terminal from `RoboSynChallenge`:
-
-```bash
-cd /home/wu/AA-Program/docker-volume-EmbodiChain/RoboSynChallenge
-
-python scripts/eval_policy.py \
-  --config configs/eval/pi0_embodichain.yml \
-  --overrides \
-  --task_name beaker_mixer \
-  --gym_config configs/beaker_mixer/gym_config.json \
-  --action_config configs/beaker_mixer/action_config.json \
-  --episodes 10 \
-  --max_steps 500 \
-  --output results/pi0_beaker_mixer_eval.json
-```
-
-To evaluate another task, swap `task_name`, `gym_config`, and `action_config`.
-To add another model, create a new module under `eval_policies/` that exposes
-the same three functions.
 
 ---
 
-## 5. OpenPI pi0 on EmbodiChain Legacy Script
-
-This note shows how to run a trained OpenPI pi0 checkpoint as a websocket
-policy server and evaluate it in an EmbodiChain simulation environment.
-
-The evaluation script added here is:
+## 运行任务、回放和分析
 
 ```bash
-RoboSynChallenge/scripts/eval_openpi0_embodichain.py
+uv run --locked --python 3.12 python -m scripts.run_env \
+  --gym_config configs/click_bell/clear/task.cobotmagic.yaml --headless --max_episodes 1
+bash launch/run_visualize.sh click_bell clear --resets 1 --output-root /data/visualization
+uv run --locked --python 3.12 python -m scripts.analyze_rigid_spawn_range \
+  --gym_config configs/sample_loading/random/task.cobotmagic.yaml --list-events
 ```
 
-It is designed for OpenPI checkpoints trained with the local
-`pi0_embodichain` or `debug_embodichain` config. Those configs expect runtime
-observations with these keys:
+仓库内的旧场景 JSON 路径会由兼容入口定位到对应的原生部署。范围分析使用原生专家执行，`--rollout` 同时记录当前任务的物理验收结果。
 
-```text
-observation/state
-observation/image
-observation/left_wrist_image
-observation/right_wrist_image
-prompt
-```
-
-The script builds those keys from EmbodiChain observations:
-
-```text
-robot/qpos                         -> observation/state
-sensor/cam_high/color              -> observation/image
-sensor/cam_left_wrist/color        -> observation/left_wrist_image
-sensor/cam_right_wrist/color       -> observation/right_wrist_image
-```
-
-If you want to evaluate an ALOHA-format checkpoint instead, pass
-`--policy_input_format aloha`.
-
-### (1). Start OpenPI Server
-
-Run this in one terminal. Replace `CHECKPOINT_DIR` with the trained checkpoint
-step directory. In this workspace, the available press-button checkpoint is:
-
-```text
-openpi/checkpoints/pi0_embodichain_press_button/26000
-```
+## 为 LeRobot v3.0 补录末端位姿
 
 ```bash
-cd /home/wu/AA-Program/docker-volume-EmbodiChain/openpi
-
-uv run openpi/scripts/serve_policy.py policy:checkpoint --policy.config=pi0_embodichain_press_button --policy.dir=openpi/checkpoints/pi0_embodichain_press_button/26000 --port=8000 --default_prompt="Press the button"
-
+uv run --locked --python 3.12 python -m scripts.add_lerobot_eef_pose \
+  --dataset /data/task-dataset --gym_config configs/click_bell/clear/task.cobotmagic.yaml --dry-run
 ```
 
-### (2). Run EmbodiChain Evaluation
+默认在新目录写入末端位姿和统计。使用与录制一致的 CobotMagic 部署进行 FK。
 
-Run this in a second terminal from the workspace root:
+## 策略评估
 
-```bash
-cd /home/wu/AA-Program/docker-volume-EmbodiChain
-
-python scripts/eval_openpi0_embodichain.py \
-  --gym_config configs/Beat_Hammer_Block/gym_config.json \
-  --action_config configs/Beat_Hammer_Block/action_config.json \
-  --num_envs 1 \
-  --enable_rt \
-  --filter_dataset_saving \
-  --host 127.0.0.1 \
-  --port 8000 \
-  --episodes 10 \
-  --max_steps 500 \
-  --output results/pi0_Beat_Hammer_Block_eval.json
-  # --filter_visual_rand \
-```
-
-You can evaluate another EmbodiChain task by swapping `--gym_config` and
-`--action_config`, as long as the policy was trained for the same observation
-and action convention.
-
-### (3). Metrics
-
-The output JSON contains one record per episode and a summary block.
-
-Key fields:
-
-```text
-success_rate
-  successes / episodes, using EmbodiChain's task success signal.
-
-action_steps
-  Number of env.step() calls that executed OpenPI actions in each episode.
-  This is the per-task action_step count.
-
-model_infer_calls
-  Number of OpenPI model chunk requests in each episode. pi0 returns an action
-  chunk, so this is usually ceil(action_steps / action_horizon).
-
-model_forward_ms
-  Raw server-reported policy_timing.infer_ms values for the episode. Each value
-  corresponds to one model.sample_actions() call, not one env step.
-
-episode_mean_model_forward_ms
-  Mean of pure model forward time over all model chunk calls. This excludes
-  websocket transfer, observation conversion, simulation stepping, action
-  clipping and JSON writing.
-```
-
-
-## run_env.py
-
-**用途**：
-用于运行 robosynchallenge 环境，支持自定义环境配置、动作配置等。
-
-**使用方法**：
-- 支持命令行参数，自动加载环境配置。
-- 运行示例：
-  ```bash
-  python run_env.py --env-id=YourEnvID --config=your_config.yaml
-  ```
-- 具体参数可通过 `--help` 查看。
-
-**详细案例**：
-- 运行 gym 环境并指定配置：
-  ```bash
-  python run_env.py --env-id=robosynchallenge-v0 --config=configs/beaker_mixer/gym_config_duel.json
-  ```
-- 支持自定义动作空间、观测空间等高级参数。
-
-
-
----
-
-## analyze_rigid_spawn_range.py
-
-**用途**：
-基于给定 `gym_config` 和 `action_config`，采样某个任务物体在 pose 随机化事件 `position_range` 内的生成位置，并调用现有专家动作图生成流程检测 IK / 节点可行性，最后输出更适合域随机化的推荐 `position_range`。目前支持 `randomize_rigid_object_pose` 和 `randomize_articulation_root_pose`。
-
-**使用方法**：
-先列出配置里的刚体随机化事件：
-```bash
-python RoboSynChallenge/scripts/analyze_rigid_spawn_range.py \
-  --gym_config RoboSynChallenge/configs/pour_water/gym_config.json \
-  --list-events
-```
-
-分析指定刚体，例如 `bottle`：
-```bash
-python scripts/analyze_rigid_spawn_range.py \
-  --gym_config configs/carry_basket/gym_config_clear.json \
-  --action_config configs/carry_basket/action_config.json \
-  --uid milk \
-  --grid-size 15 15 \
-  --output results/carry_basket-milk_report.json \
-  --list-events
-```
-
-分析 articulation，例如 `Beat_Hammer_Block` 中的 `button`：
-```bash
-python scripts/analyze_rigid_spawn_range.py \
-  --gym_config configs/Beat_Hammer_Block/gym_config.json \
-  --action_config configs/Beat_Hammer_Block/action_config.json \
-  --uid button \
-  --grid-size 9 9 \
-  --output results/button_spawn_range_report.json
-```
-
-如果需要把推荐范围直接写到一份新的配置中：
-```bash
-python RoboSynChallenge/scripts/analyze_rigid_spawn_range.py \
-  --gym_config RoboSynChallenge/configs/pour_water/gym_config.json \
-  --action_config RoboSynChallenge/configs/pour_water/action_config.json \
-  --uid bottle \
-  --write-gym-config RoboSynChallenge/configs/pour_water/gym_config_bottle_safe.json
-```
-
-默认判据是“专家轨迹能够成功生成”，这会覆盖 `action_config` 中 `get_ik_ret` 等 IK 校验失败的情况。若希望在 Docker 环境内额外复核推荐范围，可加入 `--validation-samples 30`；若希望进一步验证生成后的动作实际执行成功，可加入 `--rollout`。
-
-脚本默认会在创建环境前过滤 distractor 随机化事件，避免缺少 distractor asset index 时影响 IK 可达范围分析。若确实需要保留 distractor 事件，可加 `--no-filter_distractor_events`。
-
-分析结束后默认会绘制成功/失败采样点和推荐 bbox。若指定了 `--output results/report.json`，图片默认保存为 `results/report.png`；也可以用 `--plot results/custom.png` 指定路径，或用 `--no-plot` 关闭绘图。
-
-对于 `relative_position=true` 的 pose 随机化事件，脚本会按配置中的 offset 范围采样，但在验证时会转换为 `init_pos + offset` 的实际位置，并临时以 `relative_position=false` 固定目标事件，避免 articulation 或连续 reset 出现相对位移累积。JSON 报告中 `recommended_position_range` 保持原配置语义，可直接写回 `gym_config`；`recommended_actual_position_range` 和图片中的 bbox 表示实际位置范围。
-
----
-
-如需补充更多脚本说明，请补充到本 README。
+通过 [启动脚本](../launch/README.md) 评估 ACT、Diffusion、SmolVLA 和 OpenPI。评估输出包含成功率、每回合结果和推理采样时间。单独连接 OpenPI WebSocket 服务时，可用 `python -m scripts.eval_openpi0_embodichain --gym_config <部署 YAML>`。

@@ -14,75 +14,68 @@
 # limitations under the License.
 # ----------------------------------------------------------------------------
 
-# entry-level tasks
-from .click_bell.click_bell import (
+"""Public task classes backed by the native Task Program deployments."""
+
+from .click_bell import (
     ClickBellEnv,
     ClickBellTestEnv,
     ClickBellAgentEnv,
 )
-from .handle_basket.handle_basket import (
+from .drawer_open_place import (
+    DrawerOpenPlaceEnv,
+    DrawerOpenPlaceTestEnv,
+    DrawerOpenPlaceAgentEnv,
+)
+from .handle_basket import (
     HandleBasketEnv,
+    HandleBasketTestEnv,
     HandleBasketAgentEnv,
 )
-from .water_pouring.water_pouring import (
-    WaterPouringEnv,
-    WaterPouringTestEnv,
-    WaterPouringAgentEnv,
-)
-from .table_rearrangement.table_rearrangement import (
-    TableRearrangementEnv,
-    TableRearrangementTestEnv
-)
-
-
-# mid-level tasks
-from .items_handover.items_handover import (
-    ItemsHandoverEnv,
-    ItemsHandoverTestEnv,
-)
-from .drawer_open_place.drawer_open_place import (
-    DrawerOpenPlaceAgentEnv,
-    DrawerOpenPlaceEnv,
-)
-from .mixer_operating.mixer_operating import (
-    MixerOperatingEnv,
-    MixerOperatingTestEnv,
-    MixerOperatingAgentEnv,
-)
-
-# high-level tasks
-from .item_assembly.item_assembly import (
+from .item_assembly import (
     ItemAssemblyEnv,
     ItemAssemblyAgentEnv,
 )
-from .manipulate_pipette.manipulate_pipette import (
+from .items_handover import (
+    ItemsHandoverEnv,
+    ItemsHandoverTestEnv,
+    ItemsHandoverAgentEnv,
+)
+from .manipulate_pipette import (
     ManipulatePipetteEnv,
     ManipulatePipetteTestEnv,
     ManipulatePipetteAgentEnv,
 )
-from .sample_loading.sample_loading import (
+from .mixer_operating import (
+    MixerOperatingEnv,
+    MixerOperatingTestEnv,
+    MixerOperatingAgentEnv,
+)
+from .sample_loading import (
     SampleLoadingEnv,
     SampleLoadingTestEnv,
     SampleLoadingAgentEnv,
 )
-
-
-# Competition-irrelevant tasks
-# from ._other_tasks.open_pan.open_pan import (
-#     OpenPanPickAndPlaceEnv,
-#     OpenPanPickAndPlaceTestEnv,
-#     OpenPanPickAndPlaceAgentEnv,
-# )
-# from ._other_tasks.sample_loading.sample_loading import (
-#     SampleLoadingEnv,
-#     SampleLoadingAgentEnv,
-# )
-# from ._other_tasks.manipulate_pipette_two_beaker.manipulate_pipette_two_beaker import (
-#     ManipulatePipetteTwoBeakerEnv,
-#     ManipulatePipetteTwoBeakerTestEnv,
-#     ManipulatePipetteTwoBeakerAgentEnv,
-# )
-# from ._other_tasks.pour_water.pour_water import (
-#     PourWaterEnv,
-#     PourWaterAgentEnv,
-# )
+from .table_rearrangement import (
+    TableRearrangementEnv,
+    TableRearrangementTestEnv,
+)
+from .water_pouring import (
+    WaterPouringEnv,
+    WaterPouringTestEnv,
+    WaterPouringAgentEnv,
+)
+from ._other_tasks.manipulate_pipette_two_beaker import (
+    ManipulatePipetteTwoBeakerEnv,
+    ManipulatePipetteTwoBeakerTestEnv,
+    ManipulatePipetteTwoBeakerAgentEnv,
+)
+from ._other_tasks.open_pan import (
+    OpenPanPickAndPlaceEnv,
+    OpenPanPickAndPlaceTestEnv,
+    OpenPanPickAndPlaceAgentEnv,
+)
+from ._other_tasks.pour_water import (
+    PourWaterEnv,
+    PourWaterAgentEnv,
+)
+from ._other_tasks.sample_loading import SampleLoadingEnv as SingleArmSampleLoadingEnv

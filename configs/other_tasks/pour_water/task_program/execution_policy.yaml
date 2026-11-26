@@ -1,0 +1,22 @@
+policy_id: other_pour_water_trajectory
+preset_id: trajectory
+requires:
+  embodiment_contract: cobotmagic_parallel_grippers
+motion:
+  strategy: ik_interp
+  ik_seed_mode: sequential
+  velocity_targets: auto
+  sample_count: 100
+  dynamic_collision_mode: 'off'
+tracking:
+  kind: timed
+recovery:
+  max_replans: 3
+  max_skill_retries: 1
+workflow_recovery:
+  max_recovery_attempts: 0
+runner:
+  minimum_cycle_time: 0
+  hold_on_completion: false
+  hold_during_effect_verification: false
+effect_assurance: verified

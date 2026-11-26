@@ -25,8 +25,8 @@ import torch
 from tensordict import TensorDict
 
 from embodichain.lab.gym.envs.wrapper import ReplayWrapper
-from embodichain.lab.scripts.run_env import replay as replay_native_trajectory
-from embodichain.lab.scripts.run_env import replay_auto, replay_control
+from embodichain.lab.scripts.run_task import replay as replay_native_trajectory
+from embodichain.lab.scripts.run_task import replay_auto, replay_control
 from embodichain.utils.logger import log_info, log_warning
 
 __all__ = ["convert_state_action_trajectory", "replay_trajectory"]
