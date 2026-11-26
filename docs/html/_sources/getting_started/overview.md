@@ -7,7 +7,7 @@ RoboSynChallenge evaluates how well simulated and real-world co-training closes 
     <div class="col-md-24 col-lg-16">
       <figure>
         <div class="image" >
-          <img src="../../_images/robosynchallenge-pipeline.png" class="img-fluid">
+          <img src="../_images/robosynchallenge-pipeline.png" class="img-fluid">
         </div>
         <figcaption class="figcaption-study">RoboSynChallenge: Mastering Real-World Dexterity via Generalizing Synthesized Manipulation Skills</figcaption>
       </figure>

@@ -166,16 +166,11 @@
 <li class="toctree-l1"><a class="reference internal" href="collect_data.html">Collect Data</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Download Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="task_trajectory.html">Task Trajectory Implementation</a></li>
-
-
-
-
-
-
 <li class="toctree-l1 has-children"><a class="reference internal" href="policy/index.html">Policy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="policy/your_own_policy.html">Deploy Your Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/act.html">ACT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/dp.html">DP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy/smolvla.html">SmolVLA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/pi0.html">PI0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/pi05.html">PI0.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/motus.html">Motus</a></li>
@@ -347,6 +342,8 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#real-data">Real Data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sim-data">Sim Data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training">Training</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#checkpoints">Checkpoints</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulation-assets">Simulation assets</a></li>
 </ul>
             </nav>
         </div>
@@ -360,23 +357,33 @@ document.write(`
 
   <section id="download-data">
 <h1>Download Data<a class="headerlink" href="#download-data" title="Link to this heading">#</a></h1>
-<section id="lerobot-datasets">
-<h2>LeRobot datasets<a class="headerlink" href="#lerobot-datasets" title="Link to this heading">#</a></h2>
-<p>The default Hub datasets are <code class="docutils literal notranslate"><span class="pre">han-xudong/cobotmagic_Real_&lt;task&gt;</span></code> and
-<code class="docutils literal notranslate"><span class="pre">han-xudong/cobotmagic_Sim_&lt;task&gt;</span></code> at revision <code class="docutils literal notranslate"><span class="pre">v3.0</span></code>. Browse the
-<a class="reference external" href="https://huggingface.co/collections/han-xudong/real-data-6b078018b5eb646b7c26fbe1">Real data</a>
-and <a class="reference external" href="https://huggingface.co/collections/han-xudong/sim-data-6b07801c45756c22865cc334">Sim data</a>
-collections.</p>
+<p>Pre-collected RoboSynChallenge datasets are hosted on Hugging Face. Store each downloaded dataset under the standard local LeRobot id <code class="docutils literal notranslate"><span class="pre">han-xudong/cobotmagic_Real_{task_name}</span></code> or <code class="docutils literal notranslate"><span class="pre">han-xudong/cobotmagic_Sim_{task_name}</span></code>. Both collections use the <code class="docutils literal notranslate"><span class="pre">v3.0</span></code> revision.</p>
+<section id="real-data">
+<h2>Real Data<a class="headerlink" href="#real-data" title="Link to this heading">#</a></h2>
+<p>For example, download the <a class="reference external" href="https://huggingface.co/collections/han-xudong/real-data-6b078018b5eb646b7c26fbe1">Real Data</a> source dataset <code class="docutils literal notranslate"><span class="pre">han-xudong/cobotmagic_Real_click_bell</span></code> into the <code class="docutils literal notranslate"><span class="pre">click_bell</span></code> real-data directory:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hf<span class="w"> </span>download<span class="w"> </span>han-xudong/cobotmagic_Real_click_bell<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--repo-type<span class="w"> </span>dataset<span class="w"> </span>--revision<span class="w"> </span>v3.0<span class="w"> </span>--local-dir<span class="w"> </span>/data/cobotmagic_Real_click_bell
+<span class="w">  </span>--repo-type<span class="w"> </span>dataset<span class="w"> </span>--revision<span class="w"> </span>v3.0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--local-dir<span class="w"> </span>lerobot_dataset/han-xudong/cobotmagic_Real_click_bell
 </pre></div>
 </div>
+</section>
+<section id="sim-data">
+<h2>Sim Data<a class="headerlink" href="#sim-data" title="Link to this heading">#</a></h2>
+<p>For the same local layout, generated or downloaded simulation data can be stored as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lerobot_dataset/han-xudong/cobotmagic_Sim_{task_name}
+</pre></div>
+</div>
+<p>Browse the <a class="reference external" href="https://huggingface.co/collections/han-xudong/sim-data-6b07801c45756c22865cc334">Sim Data</a> collection for published tasks. For <code class="docutils literal notranslate"><span class="pre">click_bell</span></code>, use <code class="docutils literal notranslate"><span class="pre">han-xudong/cobotmagic_Sim_click_bell</span></code> with the same <code class="docutils literal notranslate"><span class="pre">--repo-type</span> <span class="pre">dataset</span> <span class="pre">--revision</span> <span class="pre">v3.0</span></code> options.</p>
+</section>
+<section id="training">
+<h2>Training<a class="headerlink" href="#training" title="Link to this heading">#</a></h2>
+<p>For fine-tuning with downloaded datasets, see <a href="policy/pi0.html#train-with-downloaded-data">PI0 training with downloaded data</a> and <a href="policy/pi05.html#train-with-downloaded-data">PI0.5 training with downloaded data</a>.</p>
 <p>Pass a simulation task name, a full Hub dataset ID, or a local v3.0 directory
 to <code class="docutils literal notranslate"><span class="pre">launch/train_policy.sh</span></code>. A task name such as <code class="docutils literal notranslate"><span class="pre">click_bell</span></code> resolves to
 <code class="docutils literal notranslate"><span class="pre">han-xudong/cobotmagic_Sim_click_bell</span></code>. To use an older local v2.1 copy,
 run the importer first.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>scripts.import_lerobot_v21<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>/data/raw/cobotmagic_Real_click_bell<span class="w"> </span>/data/v30/cobotmagic_Real_click_bell
+<span class="w">  </span>datasets/raw/cobotmagic_Real_click_bell<span class="w"> </span>datasets/v30/cobotmagic_Real_click_bell
 </pre></div>
 </div>
 <p>The current simulator writes v3.0 and adds task-program segment annotations.
@@ -395,8 +402,8 @@ checkpoint argument to <code class="docutils literal notranslate"><span class="p
 <code class="docutils literal notranslate"><span class="pre">han-xudong/ACT_sim_&lt;task&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">han-xudong/DP_sim_&lt;task&gt;</span></code> or
 <code class="docutils literal notranslate"><span class="pre">han-xudong/SmolVLA_sim_&lt;task&gt;</span></code> for the selected policy. You can also pass
 an explicit Hub ID or local checkpoint directory.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>launch/eval_policy.sh<span class="w"> </span>act<span class="w"> </span>click_bell<span class="w"> </span>clear<span class="w"> </span><span class="m">3</span><span class="w"> </span>--headless<span class="w"> </span><span class="nb">true</span>
-hf<span class="w"> </span>download<span class="w"> </span>han-xudong/ACT_sim_click_bell<span class="w"> </span>--local-dir<span class="w"> </span>/data/weights/ACT_sim_click_bell
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>launch/eval_policy.sh<span class="w"> </span>act<span class="w"> </span>click_bell<span class="w"> </span>clear<span class="w"> </span><span class="m">0</span><span class="w"> </span>--headless<span class="w"> </span><span class="nb">true</span>
+hf<span class="w"> </span>download<span class="w"> </span>han-xudong/ACT_sim_click_bell<span class="w"> </span>--local-dir<span class="w"> </span>checkpoints/ACT_sim_click_bell
 </pre></div>
 </div>
 <ul class="simple">
@@ -469,9 +476,11 @@ CobotMagic scene assets.</p>
   <div class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> Contents
   </div>
-  <nav class="bd-toc-nav page-toc">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lerobot-datasets">LeRobot datasets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#real-data">Real Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sim-data">Sim Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training">Training</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#checkpoints">Checkpoints</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulation-assets">Simulation assets</a></li>
 </ul>

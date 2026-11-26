@@ -166,16 +166,11 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Collect Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="download_data.html">Download Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="task_trajectory.html">Task Trajectory Implementation</a></li>
-
-
-
-
-
-
 <li class="toctree-l1 has-children"><a class="reference internal" href="policy/index.html">Policy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="policy/your_own_policy.html">Deploy Your Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/act.html">ACT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/dp.html">DP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy/smolvla.html">SmolVLA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/pi0.html">PI0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/pi05.html">PI0.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/motus.html">Motus</a></li>
@@ -359,21 +354,28 @@ document.write(`
 
   <section id="collect-data">
 <h1>Collect Data<a class="headerlink" href="#collect-data" title="Link to this heading">#</a></h1>
-<p>Released LeRobot v3.0 datasets are listed in the
-<a class="reference external" href="https://huggingface.co/collections/han-xudong/real-data-6b078018b5eb646b7c26fbe1">Real data</a>
-and <a class="reference external" href="https://huggingface.co/collections/han-xudong/sim-data-6b07801c45756c22865cc334">Sim data</a>
-collections. See <a class="reference internal" href="download_data.html"><span class="doc">download instructions</span></a> for the pinned revision.</p>
-<p>The native collection pipeline writes LeRobot v3.0. Each official task has a CobotMagic deployment for both <code class="docutils literal notranslate"><span class="pre">clear</span></code> and <code class="docutils literal notranslate"><span class="pre">random</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12
+<p>We provide 1,000 pre-collected trajectories per simulation task as part of the open-source release <strong>RoboSynChallenge</strong> Dataset. The datasets hosted on Hugging Face are available in the <a class="reference external" href="https://huggingface.co/collections/han-xudong/sim-data-6b07801c45756c22865cc334">Sim Data</a> and <a class="reference external" href="https://huggingface.co/collections/han-xudong/real-data-6b078018b5eb646b7c26fbe1">Real Data</a> collections.</p>
+<p>However, we still strongly recommend users to perform data collection themselves. Both the <code class="docutils literal notranslate"><span class="pre">clear</span></code> and <code class="docutils literal notranslate"><span class="pre">random</span></code> settings write LeRobot v3.0.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View supported tasks and extra arguments.</span>
+bash<span class="w"> </span>launch/run_task.sh<span class="w"> </span>-h
+<span class="c1"># Collect data for click_bell without domain randomization.</span>
 bash<span class="w"> </span>launch/run_task.sh<span class="w"> </span>click_bell<span class="w"> </span>clear<span class="w"> </span>--headless<span class="w"> </span>--max_episodes<span class="w"> </span><span class="m">1</span>
-bash<span class="w"> </span>launch/collect_combined_dataset.sh<span class="w"> </span>click_bell<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">10</span><span class="w"> </span>/data/click_bell-combined<span class="w"> </span>--headless
-uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>embodichain<span class="w"> </span>dataset<span class="w"> </span>validate<span class="w"> </span>/data/click_bell-combined
+<span class="c1"># Collect data for mixer_operating with domain randomization.</span>
+bash<span class="w"> </span>launch/run_task.sh<span class="w"> </span>mixer_operating<span class="w"> </span>random<span class="w"> </span>--headless<span class="w"> </span>--max_episodes<span class="w"> </span><span class="m">1</span>
 </pre></div>
 </div>
-<p>The task recorder defaults to <code class="docutils literal notranslate"><span class="pre">lerobot_dataset/&lt;task_name&gt;/</span></code>. Pass <code class="docutils literal notranslate"><span class="pre">--dataset-dir</span></code> to select another location. Use the importer to read a local legacy release and create a v3.0 copy.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>scripts.import_lerobot_v21<span class="w"> </span>/data/legacy<span class="w"> </span>/data/imported-v30
+<p>After data collection is completed, the collected data will be stored under <code class="docutils literal notranslate"><span class="pre">lerobot_dataset/&lt;task_name&gt;/</span></code>. Pass <code class="docutils literal notranslate"><span class="pre">--dataset-dir</span></code> to select another location. Use the importer to read a local legacy release and create a v3.0 copy.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>scripts.import_lerobot_v21<span class="w"> </span>datasets/legacy<span class="w"> </span>datasets/imported-v30
 </pre></div>
 </div>
+<section id="data-collection-hardware">
+<h2>🔧 Data Collection Hardware<a class="headerlink" href="#data-collection-hardware" title="Link to this heading">#</a></h2>
+<p>For GPUs equivalent to the RTX 5060 Ti, collect large datasets in batches. The original collection guide suggests starting with at most about 500 episodes per batch on this tier. Run the merge script to combine data from separate collection batches. Validate the resulting dataset before training.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>launch/collect_combined_dataset.sh<span class="w"> </span>click_bell<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">10</span><span class="w"> </span>datasets/click_bell-combined<span class="w"> </span>--headless
+uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>embodichain<span class="w"> </span>dataset<span class="w"> </span>validate<span class="w"> </span>datasets/click_bell-combined
+</pre></div>
+</div>
+</section>
 <section id="collect-simulation-data-with-depth-information">
 <h2>Collect simulation data with depth information<a class="headerlink" href="#collect-simulation-data-with-depth-information" title="Link to this heading">#</a></h2>
 <p>Set <code class="docutils literal notranslate"><span class="pre">enable_depth:</span> <span class="pre">true</span></code> on the camera in the robot component referenced by
@@ -386,8 +388,7 @@ uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </
 <span class="w">    </span><span class="nt">enable_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
-<p>The native recorder saves depth as a numeric feature by default. Keep the RGB
-camera fields enabled if the dataset will also be used to train the policy.</p>
+<p>For an explicitly configured recorder, include the depth observation in its feature mapping. Keep the RGB camera fields enabled if the dataset will also be used to train the policy.</p>
 <p>For pre-collected simulated and real datasets, see <a href="download_data.html">Download Data</a>.</p>
 <p>If you want to train on multiple datasets together (e.g., multi-task, mixed training with simulated and real data), use the <a class="reference external" href="https://huggingface.co/docs/lerobot/using_dataset_tools">lerobot-edit-dataset tool</a> or the helper script <a class="reference external" href="https://github.com/EDEM-AI/RoboSynChallenge/blob/main/launch/collect_combined_dataset.sh"><code class="docutils literal notranslate"><span class="pre">launch/collect_combined_dataset.sh</span></code></a>.</p>
 </section>
@@ -436,8 +437,9 @@ camera fields enabled if the dataset will also be used to train the policy.</p>
   <div class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> Contents
   </div>
-  <nav class="bd-toc-nav page-toc">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-collection-hardware">🔧 Data Collection Hardware</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#collect-simulation-data-with-depth-information">Collect simulation data with depth information</a></li>
 </ul>
   </nav></div>

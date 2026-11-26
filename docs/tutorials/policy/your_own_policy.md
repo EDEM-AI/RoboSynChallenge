@@ -79,9 +79,8 @@ def eval(env, model, obs):
         action_tensor = encode_action(action, env) # Map the actions output by your model to the format required by EmbodiChain.
         observation, reward, terminated, truncated, info = env.step(action_tensor)
         # joint control: [left_arm_joints + left_gripper + right_arm_joints + right_gripper]
-        # Absolute joint control is the default;
-        # if other control modes—such as relative endpose control are required, you must add an `actions` field to the `gym_config` for the specific task to utilize the action manager.
-        # Please refer to https://dexforce.github.io/EmbodiChain/main/overview/gym/action_functors.html for details.
+        # Absolute joint control is the default. The task deployment defines the
+        # action interface used by the environment.
 
         if truncated.any():
             break
@@ -139,7 +138,7 @@ Copy the `policy/Your_Policy` template into a directory named after your policy.
 
 ```bash
 uv sync --locked --python 3.12
-bash policy/Your_Policy/eval.sh click_bell clear my-config my-run 3 \
+bash policy/Your_Policy/eval.sh click_bell clear my-config my-run 0 \
   --headless true --renderer fast-rt --max_episodes 1
 ```
 

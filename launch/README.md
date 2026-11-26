@@ -1,10 +1,25 @@
-# 启动脚本
+# Launch Scripts
+
+`launch/` 目录包含用于运行 RoboSynChallenge 任务环境的脚本集合，覆盖数据收集、环境检查、可视化等工作流。
 
 从仓库根目录运行。所有命令使用同一个由 `uv.lock` 锁定的 Python 3.12 环境。
 
 ```bash
 uv sync --locked --python 3.12
 ```
+
+## 脚本概览
+
+| 脚本 | 用途 |
+|---|---|
+| `check_all_envs.sh` | 依次检查全部任务环境 |
+| `run_task.sh` | 运行单个任务环境，收集专家演示数据 |
+| `replay_task.sh` | 以 kinematic、dynamic 或 control 模式回放轨迹 |
+| `collect_combined_dataset.sh` | 收集 clear + random 数据集并自动合并 |
+| `run_visualize.sh` | 可视化单个任务的域随机化效果 |
+| `batch_run_visualize.sh` | 批量可视化所有任务的域随机化效果 |
+| `train_policy.sh`、`eval_policy.sh` | 训练和评估 LeRobot 策略 |
+| `openpi.sh` | 运行原生 OpenPI 训练、评估和服务 |
 
 ## 仿真、专家采集与回放
 
@@ -27,11 +42,13 @@ CUDA_VISIBLE_DEVICES=3 bash launch/replay_task.sh other_tasks/manipulate_pipette
   --headless --renderer fast-rt --dataset-dir /data/pipette-replay
 ```
 
-## 任务和场景
+## 可用任务列表
 
 正式任务包括 `click_bell`、`drawer_open_place`、`handle_basket`、`item_assembly`、`items_handover`、`manipulate_pipette`、`mixer_operating`、`sample_loading`、`table_rearrangement` 和 `water_pouring`。
 
 四个附加任务的标识为 `other_tasks/open_pan`、`other_tasks/manipulate_pipette_two_beaker`、`other_tasks/pour_water` 和 `other_tasks/sample_loading`。其中 `other_tasks/sample_loading` 是右臂直接插管。两组任务都提供 `clear` 和 `random` 场景。
+
+## 配置文件路径约定
 
 `configs/<任务>/<场景>/task.cobotmagic.yaml` 是入口。该文件组合场景、CobotMagic 机器人和相机。专家步骤与技能参数在任务的 `task_program/`。 `launch/check_all_envs.sh` 依次检查 28 个场景。
 
@@ -51,3 +68,19 @@ ACT、Diffusion 和 SmolVLA 使用 `launch/train_policy.sh <act|diffusion|smolvl
 π₀ 和 π₀.₅ 使用 `launch/openpi.sh` 或各自策略目录的 `finetune.sh` 和 `eval.sh`，训练和续训采用 OpenPI 的 Orbax 格式。RoboSynChallenge 训练配置默认使用 `han-xudong/cobotmagic_Sim_click_bell` 的 `v3.0` 数据。参见 [π₀](../docs/tutorials/policy/pi0.md) 和 [π₀.₅](../docs/tutorials/policy/pi05.md)。
 
 使用 `launch/openpi.sh <pi0|pi05> serve` 启动原生 OpenPI 服务，训练、续训及服务均使用根环境。
+
+## Evaluation metrics and result files
+
+ACT、Diffusion Policy、SmolVLA、π₀、π₀.₅ 及其他通过 `scripts/eval_policy.py` 运行的策略会在结束时打印：
+
+- success rate
+- average action steps：成功 episode 使用完成任务时的 environment step，失败 episode 按本次评估的 timeout step 上限计算
+- average inference latency：按实际 policy inference call 加权平均。计时从 raw environment observation 到获得可执行 action，包含预处理、推理及动作格式转换，计时在调用 `env.step()` 前结束
+
+同样的汇总和平台信息会在评估结束时写入：
+
+```text
+eval_result/<task>/<policy>/<setting>/<train_config>/<model>/<timestamp>/evaluation_metrics.json
+```
+
+可通过 `--eval_result_dir /path/to/results` 覆盖最外层的 `eval_result` 目录。

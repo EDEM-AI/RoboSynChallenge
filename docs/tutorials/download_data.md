@@ -1,17 +1,30 @@
 # Download Data
 
-## LeRobot datasets
+Pre-collected RoboSynChallenge datasets are hosted on Hugging Face. Store each downloaded dataset under the standard local LeRobot id `han-xudong/cobotmagic_Real_{task_name}` or `han-xudong/cobotmagic_Sim_{task_name}`. Both collections use the `v3.0` revision.
 
-The default Hub datasets are `han-xudong/cobotmagic_Real_<task>` and
-`han-xudong/cobotmagic_Sim_<task>` at revision `v3.0`. Browse the
-[Real data](https://huggingface.co/collections/han-xudong/real-data-6b078018b5eb646b7c26fbe1)
-and [Sim data](https://huggingface.co/collections/han-xudong/sim-data-6b07801c45756c22865cc334)
-collections.
+## Real Data
+
+For example, download the [Real Data](https://huggingface.co/collections/han-xudong/real-data-6b078018b5eb646b7c26fbe1) source dataset `han-xudong/cobotmagic_Real_click_bell` into the `click_bell` real-data directory:
 
 ```bash
 hf download han-xudong/cobotmagic_Real_click_bell \
-  --repo-type dataset --revision v3.0 --local-dir /data/cobotmagic_Real_click_bell
+  --repo-type dataset --revision v3.0 \
+  --local-dir lerobot_dataset/han-xudong/cobotmagic_Real_click_bell
 ```
+
+## Sim Data
+
+For the same local layout, generated or downloaded simulation data can be stored as:
+
+```text
+lerobot_dataset/han-xudong/cobotmagic_Sim_{task_name}
+```
+
+Browse the [Sim Data](https://huggingface.co/collections/han-xudong/sim-data-6b07801c45756c22865cc334) collection for published tasks. For `click_bell`, use `han-xudong/cobotmagic_Sim_click_bell` with the same `--repo-type dataset --revision v3.0` options.
+
+## Training
+
+For fine-tuning with downloaded datasets, see <a href="policy/pi0.html#train-with-downloaded-data">PI0 training with downloaded data</a> and <a href="policy/pi05.html#train-with-downloaded-data">PI0.5 training with downloaded data</a>.
 
 Pass a simulation task name, a full Hub dataset ID, or a local v3.0 directory
 to `launch/train_policy.sh`. A task name such as `click_bell` resolves to
@@ -20,7 +33,7 @@ run the importer first.
 
 ```bash
 uv run --locked --python 3.12 python -m scripts.import_lerobot_v21 \
-  /data/raw/cobotmagic_Real_click_bell /data/v30/cobotmagic_Real_click_bell
+  datasets/raw/cobotmagic_Real_click_bell datasets/v30/cobotmagic_Real_click_bell
 ```
 
 The current simulator writes v3.0 and adds task-program segment annotations.
@@ -42,8 +55,8 @@ checkpoint argument to `launch/eval_policy.sh` uses
 an explicit Hub ID or local checkpoint directory.
 
 ```bash
-bash launch/eval_policy.sh act click_bell clear 3 --headless true
-hf download han-xudong/ACT_sim_click_bell --local-dir /data/weights/ACT_sim_click_bell
+bash launch/eval_policy.sh act click_bell clear 0 --headless true
+hf download han-xudong/ACT_sim_click_bell --local-dir checkpoints/ACT_sim_click_bell
 ```
 
 - **ACT and Diffusion.** The default Hub releases include the LeRobot

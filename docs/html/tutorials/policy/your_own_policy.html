@@ -166,16 +166,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../collect_data.html">Collect Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../download_data.html">Download Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../task_trajectory.html">Task Trajectory Implementation</a></li>
-
-
-
-
-
-
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Policy</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Deploy Your Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="act.html">ACT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dp.html">DP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="smolvla.html">SmolVLA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pi0.html">PI0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pi05.html">PI0.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="motus.html">Motus</a></li>
@@ -444,9 +439,8 @@ document.write(`
         <span class="n">action_tensor</span> <span class="o">=</span> <span class="n">encode_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span> <span class="c1"># Map the actions output by your model to the format required by EmbodiChain.</span>
         <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action_tensor</span><span class="p">)</span>
         <span class="c1"># joint control: [left_arm_joints + left_gripper + right_arm_joints + right_gripper]</span>
-        <span class="c1"># Absolute joint control is the default;</span>
-        <span class="c1"># if other control modes—such as relative endpose control are required, you must add an `actions` field to the `gym_config` for the specific task to utilize the action manager.</span>
-        <span class="c1"># Please refer to https://dexforce.github.io/EmbodiChain/main/overview/gym/action_functors.html for details.</span>
+        <span class="c1"># Absolute joint control is the default. The task deployment defines the</span>
+        <span class="c1"># action interface used by the environment.</span>
 
         <span class="k">if</span> <span class="n">truncated</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
             <span class="k">break</span>
@@ -497,7 +491,7 @@ document.write(`
 <h2>🖥️ <code class="docutils literal notranslate"><span class="pre">eval.sh</span></code><a class="headerlink" href="#eval-sh" title="Link to this heading">#</a></h2>
 <p>Copy the <code class="docutils literal notranslate"><span class="pre">policy/Your_Policy</span></code> template into a directory named after your policy. Set the same name under <code class="docutils literal notranslate"><span class="pre">policy_name</span></code> in the deployment config. The launcher uses the root uv environment and forwards arguments to the evaluation script.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12
-bash<span class="w"> </span>policy/Your_Policy/eval.sh<span class="w"> </span>click_bell<span class="w"> </span>clear<span class="w"> </span>my-config<span class="w"> </span>my-run<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+bash<span class="w"> </span>policy/Your_Policy/eval.sh<span class="w"> </span>click_bell<span class="w"> </span>clear<span class="w"> </span>my-config<span class="w"> </span>my-run<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--headless<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--renderer<span class="w"> </span>fast-rt<span class="w"> </span>--max_episodes<span class="w"> </span><span class="m">1</span>
 </pre></div>
 </div>
@@ -594,7 +588,7 @@ bash<span class="w"> </span>policy/Your_Policy/eval.sh<span class="w"> </span>cl
   <div class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> Contents
   </div>
-  <nav class="bd-toc-nav page-toc">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deploy-policy-yml">🔧 <code class="docutils literal notranslate"><span class="pre">deploy_policy.yml</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eval-sh">🖥️ <code class="docutils literal notranslate"><span class="pre">eval.sh</span></code></a></li>

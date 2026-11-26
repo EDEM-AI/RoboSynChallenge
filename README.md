@@ -19,24 +19,18 @@
 - [LeaderBoard](#leaderboard)
 
 # Installation
-Install the shared Linux GPU environment from the repository root with `uv sync --locked --python 3.12`. See the [installation guide](docs/getting_started/installation.md) for simulation and policy dependencies.
+Based on the [**EmbodiChain**](https://github.com/DexForce/EmbodiChain/tree/v0.3.3), we offer both `Docker` and `local uv` installation methods. For detailed installation instructions, please refer to [**Installation Document**](docs/getting_started/installation.md). Both use the root lock for EmbodiChain 0.3.3.
 
 # Datasets
-The public RoboSynChallenge datasets use LeRobot v3.0. Browse the [real data](https://huggingface.co/collections/han-xudong/real-data-6b078018b5eb646b7c26fbe1) and [simulation data](https://huggingface.co/collections/han-xudong/sim-data-6b07801c45756c22865cc334) collections.
+We provide 1,000 pre-collected trajectories per simulation task as part of the open-source release **RoboSynChallenge** Dataset. The LeRobot v3.0 datasets are available in the [Real data](https://huggingface.co/collections/han-xudong/real-data-6b078018b5eb646b7c26fbe1) and [Sim data](https://huggingface.co/collections/han-xudong/sim-data-6b07801c45756c22865cc334) collections on Hugging Face.
 
-The current simulator records LeRobot v3.0. See [data collection](docs/tutorials/collect_data.md) and [data, checkpoint and asset storage](docs/tutorials/download_data.md).
-
+However, we still strongly recommend users to perform data collection themselves. For detailed data collection instructions, please refer to [**Data Collection Document**](docs/tutorials/collect_data.md).
 
 # Training and Evaluation
-The root environment supports [ACT](docs/tutorials/policy/act.md),
-[Diffusion Policy](docs/tutorials/policy/dp.md),
-[SmolVLA](docs/tutorials/policy/smolvla.md),
-[π₀](docs/tutorials/policy/pi0.md), and [π₀.₅](docs/tutorials/policy/pi05.md).
-See the [launcher guide](launch/README.md) for training, evaluation, and
-native task replay. To add a policy, start with the
-[policy template](docs/tutorials/policy/your_own_policy.md).
-The ACT, Diffusion, and SmolVLA evaluation launchers can load the published
-checkpoint for the selected task from the [model checkpoints collection](https://huggingface.co/collections/han-xudong/model-checkpoints-6b07801f9f42e3bccb4a82e0).
+Currently, RoboSynChallenge integrates training and evaluation for [ACT](docs/tutorials/policy/act.md), [Diffusion Policy](docs/tutorials/policy/dp.md), [SmolVLA](docs/tutorials/policy/smolvla.md), [PI0](docs/tutorials/policy/pi0.md), and [PI0.5](docs/tutorials/policy/pi05.md). See the [Motus page](docs/tutorials/policy/motus.md) for the external policy. Detailed procedures can be found in the documentation for the corresponding strategies: 👉<a href="docs/tutorials/policy/index.rst">Webpage</a>.
+In addition, you can easily extend your own policys for training and evaluation by following the documentation 👉<a href="docs/tutorials/policy/your_own_policy.md">Webpage</a>.
+
+The [Model checkpoints collection](https://huggingface.co/collections/han-xudong/model-checkpoints-6b07801f9f42e3bccb4a82e0) contains the released ACT, Diffusion and SmolVLA weights.
 
 # Released Checkpoint Results
 

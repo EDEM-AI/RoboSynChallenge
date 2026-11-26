@@ -166,16 +166,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../collect_data.html">Collect Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../download_data.html">Download Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../task_trajectory.html">Task Trajectory Implementation</a></li>
-
-
-
-
-
-
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Policy</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="your_own_policy.html">Deploy Your Policy</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">ACT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dp.html">DP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="smolvla.html">SmolVLA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pi0.html">PI0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pi05.html">PI0.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="motus.html">Motus</a></li>
@@ -363,20 +358,208 @@ document.write(`
 
   <section id="act">
 <h1>ACT<a class="headerlink" href="#act" title="Link to this heading">#</a></h1>
-<p>Install the repository’s root environment with <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--locked</span> <span class="pre">--python</span> <span class="pre">3.12</span></code>. A task name selects the published simulation dataset at <code class="docutils literal notranslate"><span class="pre">v3.0</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">3</span><span class="w"> </span>bash<span class="w"> </span>launch/train_policy.sh<span class="w"> </span>act<span class="w"> </span>click_bell<span class="w"> </span>/data/act-run<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--steps<span class="o">=</span><span class="m">10000</span><span class="w"> </span>--save_freq<span class="o">=</span><span class="m">1000</span><span class="w"> </span>--wandb.enable<span class="o">=</span><span class="nb">false</span>
-bash<span class="w"> </span>launch/eval_policy.sh<span class="w"> </span>act<span class="w"> </span>click_bell<span class="w"> </span>clear<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--headless<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--renderer<span class="w"> </span>fast-rt<span class="w"> </span>--max_episodes<span class="w"> </span><span class="m">10</span>
+<section id="environment-setup">
+<h2>Environment Setup<a class="headerlink" href="#environment-setup" title="Link to this heading">#</a></h2>
+<p>We use <a class="reference external" href="https://docs.astral.sh/uv/">uv</a> to manage Python dependencies. Once uv is installed, run the following command from the RoboSynChallenge root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12
 </pre></div>
 </div>
-<p>The dataset argument also accepts a full Hub ID or the local directory
-containing <code class="docutils literal notranslate"><span class="pre">meta/info.json</span></code>, <code class="docutils literal notranslate"><span class="pre">data/</span></code> and <code class="docutils literal notranslate"><span class="pre">videos/</span></code>. Extra training flags
-are passed to <code class="docutils literal notranslate"><span class="pre">lerobot-train</span></code>, including <code class="docutils literal notranslate"><span class="pre">--policy.path</span></code> for compatible
-base weights and <code class="docutils literal notranslate"><span class="pre">--batch_size</span></code> for memory control.</p>
-<p>The evaluation example loads <code class="docutils literal notranslate"><span class="pre">han-xudong/ACT_sim_click_bell</span></code>. Pass a
-checkpoint directory or Hub ID before the GPU argument to select another
-checkpoint. See <a class="reference internal" href="../download_data.html"><span class="doc">data and checkpoint downloads</span></a>.</p>
+<p>See <a class="reference internal" href="../../getting_started/installation.html"><span class="doc">Installation</span></a> for Docker and local uv setup.</p>
+</section>
+<section id="generate-robosynchallenge-data">
+<h2>Generate RoboSynChallenge Data<a class="headerlink" href="#generate-robosynchallenge-data" title="Link to this heading">#</a></h2>
+<p>See <a href="../collect_data.html">Collect Data Section</a> for more details.</p>
+</section>
+<section id="prepare-act-data-for-training">
+<h2>Prepare ACT Data for Training<a class="headerlink" href="#prepare-act-data-for-training" title="Link to this heading">#</a></h2>
+<p>ACT training reads a RoboSynChallenge LeRobot v3.0 dataset directly. For a single task, pass the task dataset directory directly. A task name such as <code class="docutils literal notranslate"><span class="pre">click_bell</span></code> selects the published simulation dataset at <code class="docutils literal notranslate"><span class="pre">v3.0</span></code>. You can also pass a full Hub ID.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lerobot_dataset/han-xudong/cobotmagic_Sim_click_bell
+</pre></div>
+</div>
+<p>If you want to train on multiple datasets together (e.g., multi-task, mixed training with simulated and real data), you can use the <a class="reference external" href="https://huggingface.co/docs/lerobot/using_dataset_tools">lerobot-edit-dataset tool</a> to merge datasets. After preparing the data, keep the dataset directory available and pass it to the training launcher.</p>
+</section>
+<section id="write-the-corresponding-train-config">
+<h2>Write the Corresponding <code class="docutils literal notranslate"><span class="pre">train_config</span></code><a class="headerlink" href="#write-the-corresponding-train-config" title="Link to this heading">#</a></h2>
+<p>You usually do not need to edit source code for a new task. Instead, pass the dataset path, output path, and training arguments from the command line. The root launcher forwards native options to <code class="docutils literal notranslate"><span class="pre">lerobot-train</span></code>. Use <code class="docutils literal notranslate"><span class="pre">--policy.path</span></code> to initialize from compatible base weights.</p>
+<p>The Python entry point <code class="docutils literal notranslate"><span class="pre">policy.act.scripts.train</span></code> also accepts the original command-line options:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--dataset-root</code></td>
+<td>Required</td>
+<td>Path to the RoboSynChallenge LeRobot dataset directory.</td>
+</tr>
+<tr>
+<td><code>--repo-id</code></td>
+<td>Inferred from local metadata</td>
+<td>LeRobot repo id used for metadata; normally leave unset for local training.</td>
+</tr>
+<tr>
+<td><code>--output-dir</code></td>
+<td>Required</td>
+<td>Directory where checkpoints, logs, and config snapshots are saved.</td>
+</tr>
+<tr>
+<td><code>--job-name</code></td>
+<td><code>None</code></td>
+<td>Optional local job name when <code>--wandb-name</code> is not set.</td>
+</tr>
+<tr>
+<td><code>--video-backend</code></td>
+<td><code>pyav</code></td>
+<td>Video decoding backend passed to LeRobot.</td>
+</tr>
+<tr>
+<td><code>--device</code></td>
+<td><code>cuda</code></td>
+<td>Torch device used by the ACT policy.</td>
+</tr>
+<tr>
+<td><code>--batch-size</code></td>
+<td><code>8</code></td>
+<td>Per-process batch size. In DDP, global batch size is <code>batch-size * number_of_processes</code>.</td>
+</tr>
+<tr>
+<td><code>--num-workers</code></td>
+<td><code>4</code></td>
+<td>DataLoader worker count per process.</td>
+</tr>
+<tr>
+<td><code>--steps</code></td>
+<td><code>100000</code></td>
+<td>Total optimization steps.</td>
+</tr>
+<tr>
+<td><code>--log-freq</code></td>
+<td><code>200</code></td>
+<td>Console and tracker logging interval in steps.</td>
+</tr>
+<tr>
+<td><code>--save-freq</code></td>
+<td><code>20000</code></td>
+<td>Checkpoint save interval in steps.</td>
+</tr>
+<tr>
+<td><code>--eval-freq</code></td>
+<td><code>0</code></td>
+<td>LeRobot training-time eval interval. <code>0</code> disables it.</td>
+</tr>
+<tr>
+<td><code>--seed</code></td>
+<td><code>1000</code></td>
+<td>Random seed.</td>
+</tr>
+<tr>
+<td><code>--n-obs-steps</code></td>
+<td><code>1</code></td>
+<td>Number of observation steps consumed by ACT.</td>
+</tr>
+<tr>
+<td><code>--chunk-size</code></td>
+<td><code>16</code></td>
+<td>Number of actions predicted per policy chunk.</td>
+</tr>
+<tr>
+<td><code>--n-action-steps</code></td>
+<td><code>8</code></td>
+<td>Number of predicted actions executed before the next policy query.</td>
+</tr>
+<tr>
+<td><code>--use-amp</code></td>
+<td>Off</td>
+<td>Enable automatic mixed precision.</td>
+</tr>
+<tr>
+<td><code>--wandb</code></td>
+<td>Off</td>
+<td>Enable Weights &amp; Biases logging.</td>
+</tr>
+<tr>
+<td><code>--wandb-project</code></td>
+<td><code>robosynchallenge</code></td>
+<td>Weights &amp; Biases project name.</td>
+</tr>
+<tr>
+<td><code>--wandb-name</code></td>
+<td><code>None</code></td>
+<td>Weights &amp; Biases run name; also used as <code>job_name</code> if set.</td>
+</tr>
+<tr>
+<td><code>--resume</code></td>
+<td>Off</td>
+<td>Resume from the existing output directory.</td>
+</tr>
+<tr>
+<td><code>--overwrite</code></td>
+<td>Off</td>
+<td>Delete the output directory before training when not resuming.</td>
+</tr>
+<tr>
+<td><code>--no-imagenet-stats</code></td>
+<td>Off</td>
+<td>Disable ImageNet normalization stats in the LeRobot dataset config.</td>
+</tr>
+<tr>
+<td><code>--no-save-checkpoint</code></td>
+<td>Off</td>
+<td>Disable checkpoint writing.</td>
+</tr>
+<tr>
+<td><code>--distributed</code></td>
+<td>Off</td>
+<td>Enable DDP wrapping. Use with <code>torchrun</code>.</td>
+</tr>
+<tr>
+<td><code>--local-rank</code>, <code>--local_rank</code></td>
+<td>From <code>LOCAL_RANK</code></td>
+<td>Local GPU rank supplied by <code>torchrun</code>; usually do not set manually.</td>
+</tr>
+</tbody>
+</table></section>
+<section id="finetune-model">
+<h2>Finetune model<a class="headerlink" href="#finetune-model" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># dataset: a task name, a Hub repo ID, or a local dataset directory</span>
+<span class="c1"># output_dir: where checkpoints will be saved</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>bash<span class="w"> </span>launch/train_policy.sh<span class="w"> </span>act<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">dataset</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">output_dir</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--steps<span class="o">=</span><span class="m">80000</span><span class="w"> </span>--batch_size<span class="o">=</span><span class="m">32</span><span class="w"> </span>--policy.chunk_size<span class="o">=</span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--policy.n_action_steps<span class="o">=</span><span class="m">50</span><span class="w"> </span>--log_freq<span class="o">=</span><span class="m">100</span><span class="w"> </span>--save_freq<span class="o">=</span><span class="m">10000</span>
+</pre></div>
+</div>
+<p>For 2-GPU training with global batch size 64, start from the repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1
+uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>torchrun<span class="w"> </span>--standalone<span class="w"> </span>--nproc_per_node<span class="o">=</span><span class="m">2</span><span class="w"> </span>-m<span class="w"> </span>policy.act.scripts.train<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--distributed<span class="w"> </span>--dataset-root<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">dataset_root</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>--output-dir<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">output_dir</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--batch-size<span class="w"> </span><span class="m">32</span><span class="w"> </span>--chunk-size<span class="w"> </span><span class="m">50</span><span class="w"> </span>--n-action-steps<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--steps<span class="w"> </span><span class="m">80000</span><span class="w"> </span>--log-freq<span class="w"> </span><span class="m">100</span><span class="w"> </span>--save-freq<span class="w"> </span><span class="m">10000</span>
+</pre></div>
+</div>
+<p>If your GPU memory is insufficient, reduce the per-GPU batch size, reduce the policy’s action window, or use multi-GPU training with a smaller per-GPU batch size.</p>
+</section>
+<section id="eval-on-robosynchallenge">
+<h2>Eval on RoboSynChallenge<a class="headerlink" href="#eval-on-robosynchallenge" title="Link to this heading">#</a></h2>
+<p>Checkpoints are saved in <code class="docutils literal notranslate"><span class="pre">${output_dir}/checkpoints/${checkpoint_id}/pretrained_model</span></code>. Find the tasks with released weights in the <a class="reference internal" href="../download_data.html#checkpoints"><span class="std std-ref">model checkpoints collection</span></a>.</p>
+<p>Download a released ACT checkpoint into a task-specific local directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">task_name</span><span class="o">=</span>click_bell
+hf<span class="w"> </span>download<span class="w"> </span><span class="s2">"han-xudong/ACT_sim_</span><span class="si">${</span><span class="nv">task_name</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>--repo-type<span class="w"> </span>model<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--local-dir<span class="w"> </span><span class="s2">"checkpoints/ACT_sim_</span><span class="si">${</span><span class="nv">task_name</span><span class="si">}</span><span class="s2">"</span>
+</pre></div>
+</div>
+<p>The released repository contains the complete <code class="docutils literal notranslate"><span class="pre">pretrained_model</span></code> directory, so pass the downloaded directory directly as <code class="docutils literal notranslate"><span class="pre">${checkpoint_path}</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">checkpoint_path</span><span class="o">=</span><span class="s2">"checkpoints/ACT_sim_</span><span class="si">${</span><span class="nv">task_name</span><span class="si">}</span><span class="s2">"</span>
+bash<span class="w"> </span>policy/act/eval.sh<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">task_name</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>random<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">checkpoint_path</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--pytorch_device<span class="w"> </span>cuda<span class="w"> </span>--headless<span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>To load the published checkpoint automatically, use <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">launch/eval_policy.sh</span> <span class="pre">act</span> <span class="pre">click_bell</span> <span class="pre">clear</span> <span class="pre">0</span> <span class="pre">--headless</span> <span class="pre">true</span></code>.</p>
+<p>The evaluation results, including videos, are saved under <code class="docutils literal notranslate"><span class="pre">eval_result/{task_name}/act/{setting}/{train_config_name}/{model_name}/{timestamp}/</span></code>.</p>
+</section>
 </section>
 
 

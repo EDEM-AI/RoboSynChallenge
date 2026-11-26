@@ -166,16 +166,11 @@
 <li class="toctree-l1"><a class="reference internal" href="collect_data.html">Collect Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="download_data.html">Download Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="task_trajectory.html">Task Trajectory Implementation</a></li>
-
-
-
-
-
-
 <li class="toctree-l1 has-children"><a class="reference internal" href="policy/index.html">Policy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="policy/your_own_policy.html">Deploy Your Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/act.html">ACT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/dp.html">DP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy/smolvla.html">SmolVLA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/pi0.html">PI0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/pi05.html">PI0.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy/motus.html">Motus</a></li>
@@ -352,11 +347,6 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#action-configuration">🔧 Action Configuration</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scope-definition">1. Scope Definition</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-node-definition">2. Graph Node Definition</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#directed-edge-for-motion-trajectory">3. Directed Edge for Motion Trajectory</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synchronization-timing-rules">4. Synchronization Timing Rules</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#misc-auxiliary-configurations">5. Misc Auxiliary Configurations</a></li>
 </ul>
             </nav>
         </div>
@@ -370,6 +360,10 @@ document.write(`
 
   <section id="configuration-tutorial">
 <h1>Configuration Tutorial<a class="headerlink" href="#configuration-tutorial" title="Link to this heading">#</a></h1>
+<section id="gym-configuration">
+<h2>🔧 Gym Configuration<a class="headerlink" href="#gym-configuration" title="Link to this heading">#</a></h2>
+<section id="tasksettings">
+<h3>🎯 TaskSettings<a class="headerlink" href="#tasksettings" title="Link to this heading">#</a></h3>
 <p>A CobotMagic deployment references one scene and one embodiment.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RoboSyn-ClickBell-v1</span>
 <span class="nt">environment</span><span class="p">:</span>
@@ -380,9 +374,25 @@ document.write(`
 <span class="w">  </span><span class="nt">max_attempts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
 </pre></div>
 </div>
-<p>The scene component declares the physics backend, rigid objects, articulations, reset and interval events, and the LeRobot recorder. The embodiment component declares the robot, cameras, control parts and skill resources. Use the <code class="docutils literal notranslate"><span class="pre">clear</span></code> and <code class="docutils literal notranslate"><span class="pre">random</span></code> components to adjust the same task’s layout and domain randomization.</p>
+<p>The scene component declares the physics backend, rigid objects, and articulations. The embodiment component declares the robot, cameras, control parts and skill resources.</p>
+</section>
+<section id="domain-randomization">
+<h3>🧠 Domain Randomization<a class="headerlink" href="#domain-randomization" title="Link to this heading">#</a></h3>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">clear</span></code> and <code class="docutils literal notranslate"><span class="pre">random</span></code> scene components to adjust the same task’s layout and domain randomization. Reset and interval events are declared in the selected <code class="docutils literal notranslate"><span class="pre">env.yaml</span></code>.</p>
+</section>
+<section id="camera-configuration">
+<h3>📷 Camera Configuration<a class="headerlink" href="#camera-configuration" title="Link to this heading">#</a></h3>
 <p>For camera randomization, use <code class="docutils literal notranslate"><span class="pre">eye_range</span></code>, <code class="docutils literal notranslate"><span class="pre">target_range</span></code> and <code class="docutils literal notranslate"><span class="pre">up_range</span></code> for a look-at camera, or <code class="docutils literal notranslate"><span class="pre">pos_range</span></code> and <code class="docutils literal notranslate"><span class="pre">euler_range</span></code> for a camera with pose extrinsics.</p>
+</section>
+<section id="data-collection-settings">
+<h3>📦 Data Collection Settings<a class="headerlink" href="#data-collection-settings" title="Link to this heading">#</a></h3>
+<p>The selected <code class="docutils literal notranslate"><span class="pre">env.yaml</span></code> declares the LeRobot recorder and observation fields. The deployment’s <code class="docutils literal notranslate"><span class="pre">collection</span></code> settings control collection attempts. See <a class="reference internal" href="collect_data.html"><span class="doc">Collect Data</span></a> for dataset paths.</p>
+</section>
+</section>
+<section id="action-configuration">
+<h2>🔧 Action Configuration<a class="headerlink" href="#action-configuration" title="Link to this heading">#</a></h2>
 <p>The task’s <code class="docutils literal notranslate"><span class="pre">task_program/</span></code> contains its expert sequence, skill options and physics acceptance wiring. Run the deployment with <code class="docutils literal notranslate"><span class="pre">launch/run_task.sh</span> <span class="pre">&lt;task&gt;</span> <span class="pre">&lt;clear|random&gt;</span></code>. See <a class="reference internal" href="task_trajectory.html"><span class="doc">task trajectory authoring</span></a> for the program files and <a class="reference internal" href="collect_data.html"><span class="doc">collection</span></a> for dataset paths.</p>
+</section>
 </section>
 
 
