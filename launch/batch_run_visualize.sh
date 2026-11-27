@@ -30,6 +30,10 @@ TASKS=(
     "item_assembly"
     "manipulate_pipette"
     "sample_loading"
+    "other_tasks/open_pan"
+    "other_tasks/manipulate_pipette_two_beaker"
+    "other_tasks/pour_water"
+    "other_tasks/sample_loading"
 )
 
 echo "========================================="

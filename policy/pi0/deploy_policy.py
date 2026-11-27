@@ -7,16 +7,10 @@
 #   - reset_model(model) -> None
 # ----------------------------------------------------------------------------
 
-import os
-import sys
 import numpy as np
 import torch
 
-current_file_path = os.path.abspath(__file__)
-parent_directory = os.path.dirname(current_file_path)
-sys.path.insert(0, parent_directory)
-
-from pi_model import PI0
+from .pi_model import PI0
 from policy.inference_timing import finish_inference, start_inference
 
 
@@ -59,12 +53,25 @@ def encode_obs(obs):
 
     # Joint state — (num_envs, num_joints) -> squeeze env dim
     state = obs["robot"]["qpos"][0]
-    img_arr = [img_front, img_right, img_left]
-
-    return img_arr, state
+    return [
+        (
+            image.detach().cpu().numpy()
+            if isinstance(image, torch.Tensor)
+            else np.asarray(image)
+        )
+        for image in (img_front, img_right, img_left)
+    ], (
+        state.detach().cpu().numpy()
+        if isinstance(state, torch.Tensor)
+        else np.asarray(state)
+    )
 
 
 def get_model(usr_args):
+    return load_model(usr_args, PI0)
+
+
+def load_model(usr_args, policy_type):
     """Create and return a π₀ policy model instance.
 
     usr_args 中需要的字段:
@@ -84,12 +91,14 @@ def get_model(usr_args):
             "train_config_name and model_name must be provided in usr_args"
         )
 
-    model = PI0(
+    model = policy_type(
         train_config_name=train_config_name,
         model_name=model_name,
         checkpoint_id=checkpoint_id,
         pi0_step=pi0_step,
         pytorch_device=pytorch_device,
+        checkpoint_path=usr_args.get("checkpoint_path"),
+        asset_id=usr_args.get("asset_id"),
     )
     return model
 
@@ -105,7 +114,7 @@ def eval(env, model, obs):
     """
     # Set language instruction if first call
     if model.observation_window is None:
-        instruction = getattr(env, "_current_instruction", None)
+        instruction = env.get_wrapper_attr("_current_instruction")
         model.set_language(instruction)
 
     inference_times_s = []
@@ -124,9 +133,11 @@ def eval(env, model, obs):
         final_obs, reward, terminated, truncated, info = env.step(action_tensor)
         # The `gym_config` setting configures the `actionmanager` to support delta action input;
         # the default action must be absolute `qpos`.
-        if env.get_wrapper_attr("is_task_success")():
+        if bool(torch.as_tensor(env.unwrapped.is_task_success()).any()):
             break
-        if truncated.any():
+        if bool(torch.as_tensor(terminated).any()) or bool(
+            torch.as_tensor(truncated).any()
+        ):
             break
         # Update observation window after each step
         img_arr, state = encode_obs(final_obs)

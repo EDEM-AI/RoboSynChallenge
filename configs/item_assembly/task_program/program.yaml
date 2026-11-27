@@ -1,0 +1,85 @@
+program_id: item_assembly
+instruction: Pick up the two centrifuge tubes and dock them horizontally.
+targets: {}
+program:
+  kind: sequence
+  items:
+  - kind: segment
+    name: pick_sleeve
+    instruction: Grasp and lift the sleeve with the right hand.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.pick_tube
+        arguments: {object: sleeve}
+        resources:
+          primary: right_manipulator
+    validators:
+    - kind: object_lifted
+      object: sleeve
+      minimum_lift: 0.04
+  - kind: segment
+    name: pick_insert
+    instruction: Grasp and lift the insert with the left hand.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.pick_tube
+        arguments: {object: insert}
+        resources:
+          primary: left_manipulator
+    validators:
+    - kind: object_lifted
+      object: insert
+      minimum_lift: 0.04
+  - kind: segment
+    name: orient_sleeve
+    instruction: Hold the sleeve horizontally at the assembly position.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.move_tube
+        arguments: {object: sleeve, phase: orient}
+        resources:
+          primary: right_manipulator
+  - kind: segment
+    name: align_insert
+    instruction: Bring the insert into alignment with the sleeve before contact.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.move_tube
+        arguments: {object: insert, phase: align}
+        resources:
+          primary: left_manipulator
+  - kind: segment
+    name: dock_insert
+    instruction: Align the insert to the sleeve axis and push the two ends together.
+    steps:
+      kind: sequence
+      items:
+      - kind: invoke
+        call:
+          kind: registered
+          call_id: robosyn.dock_tubes
+          arguments: {phase: approach}
+          resources:
+            primary: assembly_manipulators
+      - kind: repeat
+        count: 6
+        body:
+          kind: invoke
+          call:
+            kind: registered
+            call_id: robosyn.dock_tubes
+            arguments: {phase: advance}
+            resources:
+              primary: assembly_manipulators
+    post:
+    - kind: wait_stable
+      entity: insert
+      preset: docked_tubes

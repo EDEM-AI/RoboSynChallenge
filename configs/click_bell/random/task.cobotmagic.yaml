@@ -1,0 +1,7 @@
+id: RoboSyn-ClickBell-v1
+environment:
+  component: env.yaml
+embodiment:
+  component: ../cobotmagic.yaml
+collection:
+  max_attempts: 20

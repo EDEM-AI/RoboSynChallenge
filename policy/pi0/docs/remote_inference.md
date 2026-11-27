@@ -5,19 +5,18 @@ We provide utilities for running openpi models remotely. This is useful for runn
 
 ## Starting a remote policy server
 
-To start a remote policy server, you can simply run the following command:
+Run the policy server from the RoboSynChallenge repository root with
+the locked Python 3.12 environment.
 
 ```bash
-uv run scripts/serve_policy.py --env=[DROID | ALOHA | LIBERO]
+CUDA_VISIBLE_DEVICES=3 bash launch/openpi.sh pi0 serve --port 8000 policy:checkpoint \
+  --policy.config pi0_base_robosynchallenge_full --policy.dir /data/openpi-checkpoint \
+  --policy.asset-id cobotmagic
 ```
 
-The `env` argument specifies which $\pi_0$ checkpoint should be loaded. Under the hood, this script will execute a command like the following, which you can use to start a policy server, e.g. for checkpoints you trained yourself (here an example for the DROID environment):
-
-```bash
-uv run scripts/serve_policy.py policy:checkpoint --policy.config=pi0_fast_droid --policy.dir=gs://openpi-assets/checkpoints/pi0_fast_droid
-```
-
-This will start a policy server that will serve the policy specified by the `config` and `dir` arguments. The policy will be served on the specified port (default: 8000).
+Set `--host 127.0.0.1` for a local server. The OpenPI client receives a
+chunk of actions from the server. See [Docker serving](docker.md) for the
+Compose entry point.
 
 ## Querying the remote policy server from your robot code
 
@@ -50,8 +49,11 @@ for step in range(num_steps):
         "observation/image": image_tools.convert_to_uint8(
             image_tools.resize_with_pad(img, 224, 224)
         ),
-        "observation/wrist_image": image_tools.convert_to_uint8(
-            image_tools.resize_with_pad(wrist_img, 224, 224)
+        "observation/left_wrist_image": image_tools.convert_to_uint8(
+            image_tools.resize_with_pad(left_wrist_img, 224, 224)
+        ),
+        "observation/right_wrist_image": image_tools.convert_to_uint8(
+            image_tools.resize_with_pad(right_wrist_img, 224, 224)
         ),
         "observation/state": state,
         "prompt": task_instruction,

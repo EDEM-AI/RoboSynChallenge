@@ -212,6 +212,10 @@ __marimo__/
 
 *.mp4
 lerobot_dataset/
+/assets/assembled/
+/assets/download/
+/assets/extract/
+/assets/trajectories/
 checkpoints/
 eval_result/
 

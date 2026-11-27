@@ -1,0 +1,57 @@
+integration_id: robosyn_table_rearrangement
+program_id: table_rearrangement
+requires:
+  scene_contract: robosyn_table_rearrangement
+  embodiment_contract: cobotmagic_parallel_grippers
+scene_binding:
+  contract_id: robosyn_table_rearrangement
+  registry_id: robosyn_table_rearrangement
+  rigid_objects:
+  - entity_id: plate
+    dynamics: dynamic
+  - entity_id: fork
+    dynamics: dynamic
+    affordances:
+    - entity_id: fork_grasp
+      kind: antipodal_grasp
+  - entity_id: spoon
+    dynamics: dynamic
+    affordances:
+    - entity_id: spoon_grasp
+      kind: antipodal_grasp
+profile:
+  defaults: {}
+  skill_options:
+    robosyn.pick_cutlery:
+      kind: pick_up
+      lift_height: 0.11
+      pre_grasp_distance: 0.055
+      cartesian_lift: true
+      grasp_settle_steps: 12
+      hand_interp_steps: 12
+    simulation.place_relative:
+      kind: place
+      lift_height: 0.12
+      cartesian_waypoint_count: 1
+      hand_interp_steps: 12
+      release_settle_steps: 15
+      preserve_current_object_orientation: true
+  effect_monitors: {}
+runtime_services:
+  registered_semantic_lowerers:
+  - kind: place_relative
+    routes:
+    - object_id: fork
+      reference_entity_id: plate
+      relation: left_of
+      world_displacement:
+      - 0.0
+      - 0.16
+      - 0.011
+    - object_id: spoon
+      reference_entity_id: plate
+      relation: right_of
+      world_displacement:
+      - 0.0
+      - -0.16
+      - 0.011

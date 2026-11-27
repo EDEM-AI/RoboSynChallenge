@@ -28,6 +28,7 @@ import openpi.training.misc.roboarena_config as roboarena_config
 import openpi.training.optimizer as _optimizer
 import openpi.training.weight_loaders as weight_loaders
 import openpi.transforms as _transforms
+from robosynchallenge.hub import DEFAULT_SIM_DATASET
 
 ModelType: TypeAlias = _model.ModelType
 # Work around a tyro issue with using nnx.filterlib.Filter directly.
@@ -65,6 +66,7 @@ class AssetsConfig:
 class DataConfig:
     # LeRobot repo id. If None, fake data will be created.
     repo_id: str | None = None
+    dataset_root: str | None = None
     # Directory within the assets directory containing the data assets.
     asset_id: str | None = None
     # Contains precomputed normalization stats. If None, normalization will not be performed.
@@ -167,6 +169,7 @@ class ModelTransformFactory(GroupFactory):
 class DataConfigFactory(abc.ABC):
     # The LeRobot repo id.
     repo_id: str = tyro.MISSING
+    dataset_root: str | None = None
     # Determines how the assets will be loaded.
     assets: AssetsConfig = dataclasses.field(default_factory=AssetsConfig)
     # Base config that will be updated by the factory.
@@ -182,6 +185,7 @@ class DataConfigFactory(abc.ABC):
         return dataclasses.replace(
             self.base_config or DataConfig(),
             repo_id=repo_id,
+            dataset_root=self.dataset_root,
             asset_id=asset_id,
             norm_stats=self._load_norm_stats(epath.Path(self.assets.assets_dir or assets_dirs), asset_id),
             use_quantile_norm=model_config.model_type != ModelType.PI0,
@@ -378,10 +382,10 @@ class LeRobotEmbodiChainDataConfig(DataConfigFactory):
             inputs=[
                 _transforms.RepackTransform(
                     {
-                        "observation/image": "cam_high.color",
-                        "observation/left_wrist_image": "cam_left_wrist.color",
-                        "observation/right_wrist_image": "cam_right_wrist.color",
-                        "observation/state": "observation.qpos",
+                        "observation/image": "observation.images.cam_high",
+                        "observation/left_wrist_image": "observation.images.cam_left_wrist",
+                        "observation/right_wrist_image": "observation.images.cam_right_wrist",
+                        "observation/state": "observation.state",
                         "actions": "action",
                         "prompt": "prompt",
                     }
@@ -826,8 +830,7 @@ _CONFIGS = [
         name="pi0_base_robosynchallenge_full",
         model=pi0_config.Pi0Config(action_horizon=50),
         data=LeRobotEmbodiChainDataConfig(
-            repo_id="your_repo_id",
-            # Replace with your repo-id
+            repo_id=DEFAULT_SIM_DATASET,
             base_config=DataConfig(prompt_from_task=True),
             # EmbodiChain datasets are usually absolute-action targets.
             # Keep this False unless your checkpoint expects extra delta conversion.
@@ -852,8 +855,7 @@ _CONFIGS = [
         name="pi05_base_robosynchallenge_full",
         model=pi0_config.Pi0Config(pi05=True,action_horizon=50),
         data=LeRobotEmbodiChainDataConfig(
-            repo_id="your_repo_id",
-            # Replace with your repo-id
+            repo_id=DEFAULT_SIM_DATASET,
             base_config=DataConfig(prompt_from_task=True),
             # EmbodiChain datasets are usually absolute-action targets.
             # Keep this False unless your checkpoint expects extra delta conversion.

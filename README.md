@@ -12,28 +12,29 @@
 # Contents
 
 - [Contents](#contents)
-- [Installtion](#installtion)
+- [Installation](#installation)
 - [Datasets](#datasets)
 - [Training and Evaluation](#training-and-evaluation)
 - [Released Checkpoint Results](#released-checkpoint-results)
 - [LeaderBoard](#leaderboard)
 
-# Installtion
-Based on the [**EmbodiChain**](https://dexforce.github.io/EmbodiChain/main/quick_start/install.html), we offer both `docker` and `local` installation methods. For detailed installation instructions, please refer to [**Installation Document**](https://edem-ai.github.io/RoboSynChallenge/html/getting_started/installation.html).
+# Installation
+Based on the [**EmbodiChain**](https://github.com/DexForce/EmbodiChain/tree/v0.3.3), we offer both `Docker` and `local uv` installation methods. For detailed installation instructions, please refer to [**Installation Document**](docs/getting_started/installation.md). Both use the root lock for EmbodiChain 0.3.3.
 
 # Datasets
-We provide 1,000 pre-collected trajectories per task as part of the open-source release **RoboSynChallenge** Dataset. The datasets hosted on HuggingFace are available at [here](https://edem-ai.github.io/robosynchallenge.github.io/#/data).
+We provide 1,000 pre-collected trajectories per simulation task as part of the open-source release **RoboSynChallenge** Dataset. The LeRobot v3.0 datasets are available in the [Real data](https://huggingface.co/collections/han-xudong/real-data-6b078018b5eb646b7c26fbe1) and [Sim data](https://huggingface.co/collections/han-xudong/sim-data-6b07801c45756c22865cc334) collections on Hugging Face.
 
-However, we still strongly recommend users to perform data collection themselves. For detailed data collection instructions, please refer to [**Data Collection Document**](https://edem-ai.github.io/RoboSynChallenge/html/tutorials/collect_data.html).
-
+However, we still strongly recommend users to perform data collection themselves. For detailed data collection instructions, please refer to [**Data Collection Document**](docs/tutorials/collect_data.md).
 
 # Training and Evaluation
-Currently, RoboSynChallenge integrates training and evaluation for <a href="https://github.com/Physical-Intelligence/openpi">PI0</a>, <a href="https://github.com/Physical-Intelligence/openpi">PI0.5</a>, and <a href="https://github.com/thu-ml/Motus">Motus</a>. Detailed procedures can be found in the documentation for the corresponding strategies: 👉<a href="https://edem-ai.github.io/RoboSynChallenge/html/tutorials/policy/index.html">Webpage</a>.
-In addition, you can easily extend your own policys for training and evaluation by following the documentation 👉<a href="https://edem-ai.github.io/RoboSynChallenge/html/tutorials/policy/your_own_policy.html.html">Webpage</a>.
+Currently, RoboSynChallenge integrates training and evaluation for [ACT](docs/tutorials/policy/act.md), [Diffusion Policy](docs/tutorials/policy/dp.md), [SmolVLA](docs/tutorials/policy/smolvla.md), [PI0](docs/tutorials/policy/pi0.md), and [PI0.5](docs/tutorials/policy/pi05.md). See the [Motus page](docs/tutorials/policy/motus.md) for the external policy. Detailed procedures can be found in the documentation for the corresponding strategies: 👉<a href="docs/tutorials/policy/index.rst">Webpage</a>.
+In addition, you can easily extend your own policys for training and evaluation by following the documentation 👉<a href="docs/tutorials/policy/your_own_policy.md">Webpage</a>.
+
+The [Model checkpoints collection](https://huggingface.co/collections/han-xudong/model-checkpoints-6b07801f9f42e3bccb4a82e0) contains the released ACT, Diffusion and SmolVLA weights.
 
 # Released Checkpoint Results
 
-100-episode simulation evaluations for the released ACT and Diffusion Policy checkpoints are published in [`evaluation_results`](evaluation_results/README.md). The machine-readable result file pins success rate, action steps, millisecond inference time, Hugging Face checkpoint revisions, and the `random` protocol configuration.
+Historical 100-episode simulation evaluations for the released ACT and Diffusion Policy checkpoints are published in [`evaluation_results`](evaluation_results/README.md). The machine-readable result file pins success rate, action steps, millisecond inference time, Hugging Face checkpoint revisions, and the `random` protocol configuration.
 
 # LeaderBoard
 The full leaderboard and setting can be found in: https://edem-ai.github.io/robosynchallenge.github.io/#/leaderboard.

@@ -135,15 +135,8 @@ def encode_action(
 class SmolVLAWorkerClient:
     def __init__(self, usr_args: dict):
         policy_root = Path(__file__).resolve().parent
-        self.checkpoint_dir = Path(usr_args["checkpoint_dir"]).resolve()
-        lerobot_root = (
-            usr_args.get("lerobot_root")
-            or os.environ.get("SMOLVLA_LEROBOT_ROOT")
-            or os.environ.get("LEROBOT_ROOT")
-            or ""
-        )
-        self.lerobot_root = Path(lerobot_root).expanduser().resolve() if lerobot_root else None
-        self.python_bin = usr_args.get("smolvla_python") or os.environ.get("SMOLVLA_PYTHON") or sys.executable
+        checkpoint = usr_args.get("checkpoint_path") or usr_args.get("checkpoint_dir")
+        self.checkpoint_dir = Path(checkpoint).resolve()
         self.device = usr_args.get("pytorch_device", "cuda")
         self.smolvla_steps = int(usr_args.get("smolvla_steps", 10))
         self.gripper_indices = tuple(int(idx) for idx in usr_args.get("smolvla_gripper_indices", [6, 13]))
@@ -154,25 +147,18 @@ class SmolVLAWorkerClient:
         self.debug_action_chunks = int(usr_args.get("smolvla_debug_action_chunks", 1))
         self.debug_action_log_path = usr_args.get("smolvla_debug_action_log_path")
         self._debug_chunks_printed = 0
-        self.cuda_visible_devices = str(
-            usr_args.get("smolvla_cuda_visible_devices", usr_args.get("gpu_id", 0))
-        )
         self.image_keys = self._resolve_image_keys()
         self.last_inference_times_s = []
         self.last_inference_action_indices = []
         worker_path = policy_root / "smolvla_worker.py"
-        worker_env = os.environ.copy()
-        worker_env["CUDA_VISIBLE_DEVICES"] = self.cuda_visible_devices
         worker_cmd = [
-            self.python_bin,
+            sys.executable,
             str(worker_path),
             "--checkpoint-dir",
             str(self.checkpoint_dir),
             "--device",
             self.device,
         ]
-        if self.lerobot_root is not None:
-            worker_cmd.extend(["--lerobot-root", str(self.lerobot_root)])
         self.proc = subprocess.Popen(
             worker_cmd,
             stdin=subprocess.PIPE,
@@ -180,7 +166,6 @@ class SmolVLAWorkerClient:
             stderr=None,
             text=True,
             bufsize=1,
-            env=worker_env,
         )
         atexit.register(self.close)
 
@@ -351,13 +336,15 @@ class SmolVLAWorkerClient:
 
 
 def get_model(usr_args):
-    if "checkpoint_dir" not in usr_args or not usr_args["checkpoint_dir"]:
-        raise ValueError("checkpoint_dir must be provided in deploy_policy.yml or overrides.")
+    if not (usr_args.get("checkpoint_path") or usr_args.get("checkpoint_dir")):
+        raise ValueError("Provide the LeRobot checkpoint directory.")
     return SmolVLAWorkerClient(usr_args)
 
 
 def eval(env, model, obs):
-    instruction = getattr(env, "_current_instruction", None) or "click the bell"
+    instruction = getattr(env, "_current_instruction", None) or getattr(
+        env.unwrapped, "_current_instruction", "click the bell"
+    )
     observation_times_s = []
     started_at = start_inference(env.unwrapped.device)
     encoded_obs = encode_obs(obs, image_keys=model.image_keys)

@@ -1,0 +1,11 @@
+instruction: Press the bell.
+program:
+  instruction: Press the bell.
+  segment: press_bell
+  steps:
+    registered:
+      arguments:
+        object: button_cap
+      call_id: simulation.press
+program_id: click_bell
+targets: {}

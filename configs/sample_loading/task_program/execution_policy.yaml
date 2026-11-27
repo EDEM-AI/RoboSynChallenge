@@ -1,0 +1,22 @@
+policy_id: sample_loading_open_loop
+preset_id: trajectory
+requires:
+  embodiment_contract: cobotmagic_parallel_grippers
+motion:
+  strategy: ik_interp
+  velocity_targets: auto
+  sample_count: 150
+  ik_seed_mode: sequential
+  dynamic_collision_mode: 'off'
+tracking:
+  kind: timed
+recovery:
+  max_replans: 3
+  max_skill_retries: 1
+workflow_recovery:
+  max_recovery_attempts: 0
+runner:
+  minimum_cycle_time: 0
+  hold_on_completion: false
+  hold_during_effect_verification: false
+effect_assurance: projected

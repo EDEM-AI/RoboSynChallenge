@@ -166,12 +166,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../collect_data.html">Collect Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../download_data.html">Download Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../task_trajectory.html">Task Trajectory Implementation</a></li>
-
-
-
-
-
-
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Policy</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="your_own_policy.html">Deploy Your Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="act.html">ACT</a></li>
@@ -367,293 +361,53 @@ document.write(`
 <h1>SmolVLA<a class="headerlink" href="#smolvla" title="Link to this heading">#</a></h1>
 <section id="environment-setup">
 <h2>Environment Setup<a class="headerlink" href="#environment-setup" title="Link to this heading">#</a></h2>
-<p>First install RoboSynChallenge and EmbodiChain following the main installation
-guide. For local installation, the recommended workspace layout is:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>RoboSynChallenge_ws/
-<span class="w">  </span>EmbodiChain/
-<span class="w">  </span>RoboSynChallenge/
+<p>We use <a class="reference external" href="https://docs.astral.sh/uv/">uv</a> to manage Python dependencies. Once uv is installed, run the following command from the RoboSynChallenge root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--locked<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12
 </pre></div>
 </div>
-<p>SmolVLA also needs LeRobot. The policy adapter supports either an installed
-<code class="docutils literal notranslate"><span class="pre">lerobot</span></code> Python package or a local LeRobot source checkout.</p>
-<p>During evaluation, there are two Python contexts:</p>
-<ul class="simple">
-<li><p>RoboSynChallenge/EmbodiChain Python runs the simulator and <code class="docutils literal notranslate"><span class="pre">scripts/eval_policy.py</span></code>.</p></li>
-<li><p>SmolVLA Python runs the LeRobot SmolVLA worker that loads the checkpoint.</p></li>
-</ul>
-<p>They may be the same environment, but they do not have to be. If you use a
-separate SmolVLA environment, set:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">SMOLVLA_PYTHON</span><span class="o">=</span><span class="k">$(</span>which<span class="w"> </span>python<span class="k">)</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">SMOLVLA_LEROBOT_ROOT</span><span class="o">=</span>policy/smolvla/lerobot
-</pre></div>
-</div>
-<p>If you only have the RoboSynChallenge repository, clone and install LeRobot from
-the SmolVLA policy folder:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>RoboSynChallenge
-<span class="nb">source</span><span class="w"> </span>../EmbodiChain/.venv/bin/activate
-
-bash<span class="w"> </span>policy/smolvla/setup_lerobot.sh
-<span class="nb">export</span><span class="w"> </span><span class="nv">SMOLVLA_LEROBOT_ROOT</span><span class="o">=</span><span class="nv">$PWD</span>/policy/smolvla/lerobot
-<span class="nb">export</span><span class="w"> </span><span class="nv">SMOLVLA_PYTHON</span><span class="o">=</span><span class="k">$(</span>which<span class="w"> </span>python<span class="k">)</span>
-</pre></div>
-</div>
-<p>To use a specific LeRobot fork or revision:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">LEROBOT_REPO</span><span class="o">=</span>https://github.com/huggingface/lerobot.git<span class="w"> </span><span class="se">\</span>
-<span class="nv">LEROBOT_REF</span><span class="o">=</span>main<span class="w"> </span><span class="se">\</span>
-bash<span class="w"> </span>policy/smolvla/setup_lerobot.sh
-</pre></div>
-</div>
+<p>See <a class="reference internal" href="../../getting_started/installation.html"><span class="doc">Installation</span></a> for Docker and local uv setup.</p>
 </section>
 <section id="generate-robosynchallenge-data">
 <h2>Generate RoboSynChallenge Data<a class="headerlink" href="#generate-robosynchallenge-data" title="Link to this heading">#</a></h2>
-<p>See <a href="../collect_data.html">Collect Data Section</a> for details.
-SmolVLA training assumes the task dataset is already exported in a valid
-LeRobot format.</p>
+<p>See <a href="../collect_data.html">Collect Data Section</a> for more details.</p>
 </section>
 <section id="prepare-smolvla-data-for-training">
 <h2>Prepare SmolVLA Data for Training<a class="headerlink" href="#prepare-smolvla-data-for-training" title="Link to this heading">#</a></h2>
-<p>SmolVLA training reads a RoboSynChallenge LeRobot dataset directly from
-<code class="docutils literal notranslate"><span class="pre">--dataset.root</span></code>. You do not need to copy data into <code class="docutils literal notranslate"><span class="pre">policy/smolvla</span></code>.</p>
-<p>For a single task, pass the task dataset directory directly:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datasets/cobotmagic_Sim_click_bell
-</pre></div>
-</div>
-<p>The default feature mapping is:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">"observation.qpos"</span><span class="p">:</span><span class="w"> </span><span class="s2">"observation.state"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"cam_high.color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"observation.images.camera1"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"cam_left_wrist.color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"observation.images.camera2"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"cam_right_wrist.color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"observation.images.camera3"</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>The policy consumes three RGB camera views and the robot joint state:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>cam_high.color
-cam_left_wrist.color
-cam_right_wrist.color
-observation.qpos
-</pre></div>
-</div>
-<p>If your dataset already uses SmolVLA feature names, override the rename map:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">SMOLVLA_RENAME_MAP</span><span class="o">=</span><span class="s1">'{}'</span><span class="w"> </span><span class="se">\</span>
-bash<span class="w"> </span>policy/smolvla/finetune.sh<span class="w"> </span><span class="si">${</span><span class="nv">task_name</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">dataset_root</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">output_dir</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">gpu_id</span><span class="si">}</span>
-</pre></div>
-</div>
+<p>SmolVLA training reads a RoboSynChallenge LeRobot v3.0 dataset directly. The dataset argument accepts a task name, a full Hub ID, or the local dataset directory. The policy consumes three RGB camera views and the robot joint state.</p>
 </section>
 <section id="write-the-corresponding-training-configuration">
 <h2>Write the Corresponding Training Configuration<a class="headerlink" href="#write-the-corresponding-training-configuration" title="Link to this heading">#</a></h2>
-<p>SmolVLA uses LeRobot’s <code class="docutils literal notranslate"><span class="pre">lerobot-train</span></code> entrypoint. Most options are passed as
-command-line overrides, so a new task usually does not require editing source
-code.</p>
-<p>Important defaults in <code class="docutils literal notranslate"><span class="pre">policy/smolvla/finetune.sh</span></code>:</p>
-<table border="1" class="docutils">
-<thead>
-<tr>
-<th>Flag</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--policy.type</code></td>
-<td><code>smolvla</code></td>
-<td>Selects the LeRobot SmolVLA policy.</td>
-</tr>
-<tr>
-<td><code>--policy.load_vlm_weights</code></td>
-<td><code>true</code></td>
-<td>Loads the base VLM weights before finetuning.</td>
-</tr>
-<tr>
-<td><code>--policy.push_to_hub</code></td>
-<td><code>false</code></td>
-<td>Disables automatic model upload during training.</td>
-</tr>
-<tr>
-<td><code>--wandb.enable</code></td>
-<td><code>false</code></td>
-<td>Disables Weights &amp; Biases by default.</td>
-</tr>
-<tr>
-<td><code>--policy.device</code></td>
-<td><code>cuda</code></td>
-<td>Torch device used for training.</td>
-</tr>
-<tr>
-<td><code>--batch_size</code></td>
-<td><code>32</code></td>
-<td>Per-process batch size.</td>
-</tr>
-<tr>
-<td><code>--steps</code></td>
-<td><code>50000</code></td>
-<td>Total optimization steps.</td>
-</tr>
-<tr>
-<td><code>--num_workers</code></td>
-<td><code>8</code></td>
-<td>DataLoader worker count.</td>
-</tr>
-<tr>
-<td><code>--dataset.repo_id</code></td>
-<td><code>RoboSynChallenge/cobotmagic_Sim_&lt;task_name&gt;</code></td>
-<td>LeRobot repo id used by dataset metadata.</td>
-</tr>
-<tr>
-<td><code>--dataset.root</code></td>
-<td>Required</td>
-<td>Local dataset root passed to <code>finetune.sh</code>.</td>
-</tr>
-<tr>
-<td><code>--output_dir</code></td>
-<td>Required</td>
-<td>Directory where checkpoints and logs are saved.</td>
-</tr>
-<tr>
-<td><code>--job_name</code></td>
-<td>Output directory basename</td>
-<td>Local training job name.</td>
-</tr>
-</tbody>
-</table><p>Extra arguments after <code class="docutils literal notranslate"><span class="pre">gpu_id</span></code> are appended to <code class="docutils literal notranslate"><span class="pre">lerobot-train</span></code>, so they can
-override these defaults.</p>
+<p>SmolVLA uses LeRobot’s <code class="docutils literal notranslate"><span class="pre">lerobot-train</span></code> entry point. Most options are passed as command-line overrides, so a new task usually does not require editing source code.</p>
 </section>
 <section id="finetune-model">
 <h2>Finetune Model<a class="headerlink" href="#finetune-model" title="Link to this heading">#</a></h2>
-<p>Make sure the shell can find <code class="docutils literal notranslate"><span class="pre">lerobot-train</span></code>. This is true if LeRobot is
-installed in the active environment, or if <code class="docutils literal notranslate"><span class="pre">SMOLVLA_LEROBOT_ROOT</span></code> points to a
-local LeRobot source checkout.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>RoboSynChallenge
-
-<span class="nv">task_name</span><span class="o">=</span>click_bell
-<span class="nv">dataset_root</span><span class="o">=</span>datasets/cobotmagic_Sim_<span class="si">${</span><span class="nv">task_name</span><span class="si">}</span>
-<span class="nv">output_dir</span><span class="o">=</span>outputs/train/cobotmagic_smolvla_<span class="si">${</span><span class="nv">task_name</span><span class="si">}</span>_run1
-<span class="nv">gpu_id</span><span class="o">=</span><span class="m">0</span>
-
-bash<span class="w"> </span>policy/smolvla/finetune.sh<span class="w"> </span><span class="si">${</span><span class="nv">task_name</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">dataset_root</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">output_dir</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">gpu_id</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--steps<span class="o">=</span><span class="m">50000</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--batch_size<span class="o">=</span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--num_workers<span class="o">=</span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--persistent_workers<span class="o">=</span><span class="nb">true</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>bash<span class="w"> </span>launch/train_policy.sh<span class="w"> </span>smolvla<span class="w"> </span>click_bell<span class="w"> </span>outputs/smolvla-run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--steps<span class="o">=</span><span class="m">10000</span><span class="w"> </span>--save_freq<span class="o">=</span><span class="m">1000</span><span class="w"> </span>--wandb.enable<span class="o">=</span><span class="nb">false</span>
 </pre></div>
 </div>
-<p>Run finetuning in the background:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">SMOLVLA_NOHUP</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>bash<span class="w"> </span>policy/smolvla/finetune.sh<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="si">${</span><span class="nv">task_name</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">dataset_root</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">output_dir</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">gpu_id</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--steps<span class="o">=</span><span class="m">50000</span>
-
-tail<span class="w"> </span>-f<span class="w"> </span>outputs/train/logs/<span class="k">$(</span>basename<span class="w"> </span><span class="si">${</span><span class="nv">output_dir</span><span class="si">}</span><span class="k">)</span>.log
+<p>When initializing from the published task checkpoint, map the dataset’s camera names to the checkpoint’s input features.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>bash<span class="w"> </span>launch/train_policy.sh<span class="w"> </span>smolvla<span class="w"> </span>click_bell<span class="w"> </span>outputs/smolvla-finetune<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--policy.path<span class="o">=</span>han-xudong/SmolVLA_sim_click_bell<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--rename_map<span class="o">=</span><span class="s1">'{"observation.images.cam_high":"observation.images.camera1","observation.images.cam_left_wrist":"observation.images.camera2","observation.images.cam_right_wrist":"observation.images.camera3"}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--batch_size<span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
-<p>Override the dataset repo id if your local metadata uses a custom name:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">SMOLVLA_DATASET_REPO_ID</span><span class="o">=</span>my_org/my_dataset<span class="w"> </span><span class="se">\</span>
-bash<span class="w"> </span>policy/smolvla/finetune.sh<span class="w"> </span><span class="si">${</span><span class="nv">task_name</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">dataset_root</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">output_dir</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">gpu_id</span><span class="si">}</span>
-</pre></div>
-</div>
-<p>Checkpoints are saved under:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>${output_dir}/checkpoints/&lt;step&gt;/pretrained_model
-</pre></div>
-</div>
+<p>Checkpoints are saved under <code class="docutils literal notranslate"><span class="pre">${output_dir}/checkpoints/&lt;step&gt;/pretrained_model</span></code>.</p>
 </section>
 <section id="eval-on-robosynchallenge">
 <h2>Eval on RoboSynChallenge<a class="headerlink" href="#eval-on-robosynchallenge" title="Link to this heading">#</a></h2>
-<p>Use one of these task names:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>click_bell
-handle_basket
-water_pouring
-table_rearrangement
-items_handover
-drawer_open_place
-mixer_operating
-item_assembly
-manipulate_pipette
-sample_loading
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>launch/eval_policy.sh<span class="w"> </span>smolvla<span class="w"> </span>click_bell<span class="w"> </span>clear<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--headless<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--renderer<span class="w"> </span>fast-rt<span class="w"> </span>--max_episodes<span class="w"> </span><span class="m">10</span>
 </pre></div>
 </div>
-<p>Download a released SmolVLA checkpoint from Hugging Face:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>RoboSynChallenge
-mkdir<span class="w"> </span>-p<span class="w"> </span>checkpoints
-
-<span class="nv">task_name</span><span class="o">=</span>click_bell
-hf<span class="w"> </span>download<span class="w"> </span>RoboSynChallenge/SmolVLA_sim_<span class="si">${</span><span class="nv">task_name</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--repo-type<span class="w"> </span>model<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--local-dir<span class="w"> </span>checkpoints/SmolVLA_sim_<span class="si">${</span><span class="nv">task_name</span><span class="si">}</span>
-</pre></div>
-</div>
-<p>The released repository contains the complete LeRobot <code class="docutils literal notranslate"><span class="pre">pretrained_model</span></code>
-contents, so pass the downloaded directory directly as <code class="docutils literal notranslate"><span class="pre">checkpoint_path</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">checkpoint_path</span><span class="o">=</span>checkpoints/SmolVLA_sim_<span class="si">${</span><span class="nv">task_name</span><span class="si">}</span>
-
-bash<span class="w"> </span>policy/smolvla/eval.sh<span class="w"> </span><span class="si">${</span><span class="nv">task_name</span><span class="si">}</span><span class="w"> </span>random<span class="w"> </span><span class="si">${</span><span class="nv">checkpoint_path</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">gpu_id</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--pytorch_device<span class="w"> </span>cuda<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--headless<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--renderer<span class="w"> </span>auto<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--max_episodes<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--eval_video_log<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--smolvla_rescale_gripper<span class="w"> </span><span class="nb">true</span>
-</pre></div>
-</div>
-<p>Example:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>policy/smolvla/eval.sh<span class="w"> </span>click_bell<span class="w"> </span>random<span class="w"> </span>checkpoints/SmolVLA_sim_click_bell<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--pytorch_device<span class="w"> </span>cuda<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--headless<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--renderer<span class="w"> </span>auto<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--max_episodes<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--eval_video_log<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--smolvla_steps<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--smolvla_rescale_gripper<span class="w"> </span><span class="nb">true</span>
-</pre></div>
-</div>
-<p>The evaluation script also accepts a LeRobot checkpoint step directory:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>policy/smolvla/eval.sh<span class="w"> </span>click_bell<span class="w"> </span>random<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>outputs/train/cobotmagic_smolvla_click_bell_run1/checkpoints/050000<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--pytorch_device<span class="w"> </span>cuda<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--headless<span class="w"> </span><span class="nb">true</span>
-</pre></div>
-</div>
-<p>Evaluation results, including videos, are saved under:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>eval_result/{task_name}/smolvla/{setting}/{train_config_name}/{model_name}/{timestamp}/videos
-</pre></div>
-</div>
-<p>Runtime notes:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">gpu_id</span></code> is the physical GPU id used by DexSim and EmbodiChain.</p></li>
-<li><p>Do not manually set <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> before evaluation. The script keeps
-the simulator parent process unmasked and masks only the SmolVLA worker.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--smolvla_steps</span></code> controls how many low-level actions are executed per policy
-query. The default is <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--smolvla_rescale_gripper</span> <span class="pre">true</span></code> rescales normalized gripper outputs from
-<code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> into the environment action range. Use <code class="docutils literal notranslate"><span class="pre">auto</span></code> to infer this from
-checkpoint stats.</p></li>
-<li><p>The effective episode horizon follows the task <code class="docutils literal notranslate"><span class="pre">gym_config.max_episode_steps</span></code>
-in RoboSynChallenge. Depending on the repository version, command-line
-<code class="docutils literal notranslate"><span class="pre">--max_steps</span></code> may be used only as a fallback when the gym config does not set
-a timeout.</p></li>
-</ul>
+<p>The evaluation example loads <code class="docutils literal notranslate"><span class="pre">han-xudong/SmolVLA_sim_click_bell</span></code>. Pass a
+checkpoint directory or Hub ID before the GPU argument to select another
+checkpoint. See <a class="reference internal" href="../download_data.html"><span class="doc">data and checkpoint downloads</span></a>.</p>
+<p>SmolVLA’s interpreter, worker and simulator use the same root environment and visible GPUs. The first run downloads its model assets unless they are already cached. A checkpoint includes the saved preprocessor and postprocessor.</p>
 </section>
 <section id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
-<p>If evaluation cannot import <code class="docutils literal notranslate"><span class="pre">lerobot</span></code>, install LeRobot in the worker Python
-environment or set:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">SMOLVLA_PYTHON</span><span class="o">=</span><span class="k">$(</span>which<span class="w"> </span>python<span class="k">)</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">SMOLVLA_LEROBOT_ROOT</span><span class="o">=</span>policy/smolvla/lerobot
-</pre></div>
-</div>
-<p>If <code class="docutils literal notranslate"><span class="pre">lerobot-train</span></code> is not on <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>policy/smolvla/setup_lerobot.sh
-<span class="nb">export</span><span class="w"> </span><span class="nv">SMOLVLA_LEROBOT_ROOT</span><span class="o">=</span><span class="nv">$PWD</span>/policy/smolvla/lerobot
-</pre></div>
-</div>
-<p>If Hugging Face downloads are slow or rate-limited:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">HF_HOME</span><span class="o">=</span>.cache/huggingface
-hf<span class="w"> </span>auth<span class="w"> </span>login
-</pre></div>
-</div>
-<p>If DexSim reports an invalid CUDA device ordinal, remove manual
-<code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> settings and pass the physical GPU id as the fourth
-argument to <code class="docutils literal notranslate"><span class="pre">policy/smolvla/eval.sh</span></code>.</p>
+<p>If model downloads are slow or rate-limited, configure <code class="docutils literal notranslate"><span class="pre">HF_HOME</span></code> and run <code class="docutils literal notranslate"><span class="pre">hf</span> <span class="pre">auth</span> <span class="pre">login</span></code> for gated assets. Pass the physical GPU ID to the evaluation launcher as shown above.</p>
 </section>
 </section>
 
@@ -700,17 +454,7 @@ argument to <code class="docutils literal notranslate"><span class="pre">policy/
   <div class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> Contents
   </div>
-  <nav class="bd-toc-nav page-toc">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-setup">Environment Setup</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generate-robosynchallenge-data">Generate RoboSynChallenge Data</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prepare-smolvla-data-for-training">Prepare SmolVLA Data for Training</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#write-the-corresponding-training-configuration">Write the Corresponding Training Configuration</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#finetune-model">Finetune Model</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eval-on-robosynchallenge">Eval on RoboSynChallenge</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a></li>
-</ul>
-  </nav></div>
+  </div>
 
 </div></div>
 

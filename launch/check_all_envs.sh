@@ -119,6 +119,10 @@ TASKS=(
     mixer_operating
     sample_loading
     item_assembly
+    other_tasks/open_pan
+    other_tasks/manipulate_pipette_two_beaker
+    other_tasks/pour_water
+    other_tasks/sample_loading
 )
 
 TOTAL=$(( ${#TASKS[@]} * 2 ))
@@ -140,34 +144,26 @@ for TASK in "${TASKS[@]}"; do
     for SETTING in random clear; do
         COUNT=$((COUNT + 1))
 
-        GYM_CONFIG="configs/${TASK}/${SETTING}/gym_config.json"
-        if [ -f "configs/${TASK}/action_config.json" ]; then
-            ACTION_CONFIG="configs/${TASK}/action_config.json"
-        else
-            ACTION_CONFIG="configs/${TASK}/${SETTING}/action_config.json"
-        fi
-
-        if [ ! -f "$GYM_CONFIG" ] || [ ! -f "$ACTION_CONFIG" ]; then
-            echo -e "[${COUNT}/${TOTAL}] \033[1;33mSKIP\033[0m  $TASK ($SETTING) — 配置文件缺失"
+        TASK_CONFIG="configs/${TASK}/${SETTING}/task.cobotmagic.yaml"
+        if [ ! -f "$TASK_CONFIG" ]; then
+            echo -e "[${COUNT}/${TOTAL}] \033[1;33mPENDING\033[0m  $TASK ($SETTING) — 原生任务未迁移"
             FAILED=$((FAILED + 1))
-            FAILED_LIST+=("$TASK ($SETTING): missing config")
+            FAILED_LIST+=("$TASK ($SETTING): pending native deployment")
             continue
         fi
 
         echo -e "[${COUNT}/${TOTAL}] \033[1;34mRUN\033[0m   $TASK ($SETTING)"
 
-        LOG_FILE="/tmp/check_env_${TASK}_${SETTING}_$(date +%s).log"
+        LOG_FILE="/tmp/check_env_${TASK//\//_}_${SETTING}_$(date +%s).log"
         enter_episode_screen
         echo -e "\033[1;34mEpisode [${COUNT}/${TOTAL}]: $TASK ($SETTING)\033[0m"
         echo "Timeout: $EPISODE_TIMEOUT"
         echo "========================================="
 
         if timeout --signal=TERM --kill-after=10s "$EPISODE_TIMEOUT" \
-            python -m scripts.run_env \
-                --gym_config "$GYM_CONFIG" \
-                --action_config "$ACTION_CONFIG" \
-                --num_envs 1 \
+            "$SCRIPT_DIR/run_task.sh" "$TASK" "$SETTING" \
                 --headless \
+                --filter_dataset_saving \
                 --max_episodes 1 \
                 "${EXTRA_ARGS[@]}" \
                 2>&1 | tee "$LOG_FILE"; then

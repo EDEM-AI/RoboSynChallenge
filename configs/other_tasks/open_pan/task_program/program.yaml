@@ -1,0 +1,112 @@
+program_id: other_open_pan
+instruction: Lift the pan lid, put the carrot in the pan, and close the lid.
+targets: {}
+program:
+  kind: sequence
+  items:
+  - kind: segment
+    name: lift_lid
+    instruction: Grip the lid knob and uncover the pan.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.pick_lid
+        arguments: {}
+        resources:
+          primary: left_manipulator
+    validators:
+    - kind: object_lifted
+      object: lid
+      minimum_lift: 0.04
+  - kind: segment
+    name: move_lid_clear
+    instruction: Hold the lid away from the pan opening.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.move_lid_clear
+        arguments: {}
+        resources:
+          primary: left_manipulator
+  - kind: segment
+    name: pick_carrot
+    instruction: Pick up the carrot with the right arm.
+    steps:
+      kind: invoke
+      call:
+        kind: pick
+        object: carrot
+        grasp: carrot_grasp
+        resources:
+          primary: right_manipulator
+    validators:
+    - kind: object_lifted
+      object: carrot
+      minimum_lift: 0.02
+  - kind: segment
+    name: align_carrot
+    instruction: Bring the holding gripper over the near side of the pan.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.align_for_insertion
+        arguments: {}
+        resources: {primary: right_loaded_manipulator}
+  - kind: segment
+    name: place_carrot
+    instruction: Release the carrot into the open pan.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.place_relative
+        arguments:
+          object: carrot
+          reference: pan
+          relation: above
+        resources:
+          primary: right_manipulator
+    post:
+    - kind: wait_stable
+      entity: carrot
+  - kind: segment
+    name: clear_right_arm
+    instruction: Withdraw the empty right hand before replacing the lid.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.park
+        arguments: {}
+        resources: {primary: right_manipulator}
+  - kind: segment
+    name: align_lid
+    instruction: Align the held lid horizontally over the pan rim.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.seat_lid
+        arguments: {}
+        resources: {primary: left_manipulator}
+  - kind: segment
+    name: close_lid
+    instruction: Put the lid back over the pan opening.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.place_relative
+        arguments:
+          object: lid
+          reference: pan
+          relation: above
+        resources:
+          primary: left_manipulator
+    post:
+    - kind: wait_stable
+      entity: lid
+      preset: seated_lid

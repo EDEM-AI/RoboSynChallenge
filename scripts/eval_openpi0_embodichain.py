@@ -29,17 +29,9 @@ except ModuleNotFoundError:  # Allows --help in bare system Python.
     torch = None
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-
-for path in (
-    REPO_ROOT / "EmbodiChain",
-    REPO_ROOT / "RoboSynChallenge",
-    REPO_ROOT / "openpi" / "src",
-    REPO_ROOT / "openpi" / "packages" / "openpi-client" / "src",
-):
-    path_str = str(path)
-    if path.exists() and path_str not in sys.path:
-        sys.path.insert(0, path_str)
+REPO_ROOT = Path(__file__).resolve().parents[1]
+CLIENT_ROOT = REPO_ROOT / "policy/pi0/packages/openpi-client/src"
+sys.path.insert(0, str(CLIENT_ROOT))
 
 
 @dataclass
@@ -245,7 +237,6 @@ def _add_env_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--enable_rt", default=False, action="store_true")
     parser.add_argument("--gpu_id", default=0, type=int)
     parser.add_argument("--gym_config", required=True, type=str)
-    parser.add_argument("--action_config", default=None, type=str)
     parser.add_argument("--preview", default=False, action="store_true")
     parser.add_argument("--filter_visual_rand", default=False, action="store_true")
     parser.add_argument("--filter_dataset_saving", default=False, action="store_true")
@@ -309,29 +300,23 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _import_embodichain_runtime() -> None:
-    import robosynchallenge  # noqa: F401
-    import embodichain.lab.gym.utils.gym_utils as gym_utils
-
-    gym_utils.DEFAULT_MANAGER_MODULES = gym_utils.DEFAULT_MANAGER_MODULES + [
-        "robosynchallenge.managers.actions",
-        "robosynchallenge.managers.datasets",
-        "robosynchallenge.managers.events",
-        "robosynchallenge.managers.observations",
-    ]
-
-
 def make_env(args: argparse.Namespace):
+    import os
     import gymnasium as gym
     from embodichain.lab.gym.utils.gym_utils import build_env_cfg_from_args
+    from embodichain.lab.gym.utils.registration import discover_task_packages, execute_init_hooks
+    from robosynchallenge.deployments import require_deployment_path
 
-    env_cfg, gym_config, action_config = build_env_cfg_from_args(args)
+    os.environ.setdefault("EMBODICHAIN_DATA_ROOT", str(REPO_ROOT / "assets"))
+    discover_task_packages()
+    execute_init_hooks()
+    args.gym_config = str(require_deployment_path(args.gym_config))
+    args.action_config = None
+    env_cfg, gym_config, _ = build_env_cfg_from_args(args)
     if args.max_steps is not None:
         env_cfg.max_episode_steps = args.max_steps
         gym_config["max_episode_steps"] = args.max_steps
-
-    env = gym.make(id=gym_config["id"], cfg=env_cfg, **action_config)
-    return env, gym_config
+    return gym.make(id=gym_config["id"], cfg=env_cfg), gym_config
 
 
 def _to_numpy(value: Any) -> np.ndarray:
@@ -481,7 +466,6 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
             "environment you use for EmbodiChain/OpenPI, not the bare system Python."
         )
 
-    _import_embodichain_runtime()
     env, gym_config = make_env(args)
 
     if args.num_envs != 1:
@@ -554,7 +538,7 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
                 obs, _, terminated_t, truncated_t, info = env.step(action_tensor)
                 action_steps += 1
 
-                success = _bool_from_tensor(info.get("success", terminated_t))
+                success = _bool_from_tensor(env.unwrapped.is_task_success())
                 terminated = _bool_from_tensor(terminated_t)
                 truncated = _bool_from_tensor(truncated_t)
                 if args.record_action_results:
@@ -628,7 +612,6 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
     payload = {
         "task": gym_config.get("id"),
         "gym_config": args.gym_config,
-        "action_config": args.action_config,
         "prompt": prompt,
         "policy_input_format": args.policy_input_format,
         "clip_actions": args.clip_actions,

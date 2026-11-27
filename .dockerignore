@@ -1,0 +1,14 @@
+.git
+.venv*
+**/__pycache__
+assets
+configs
+docs
+lerobot_dataset
+eval_result
+evaluation_results
+**/checkpoints
+**/assets
+**/third_party
+**/examples
+**/results

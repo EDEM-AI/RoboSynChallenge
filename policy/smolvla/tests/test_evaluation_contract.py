@@ -29,18 +29,15 @@ class Clock:
 
 
 class QueuedPolicy:
-    def __init__(self, clock, legacy=False):
+    def __init__(self, clock):
         self.clock = clock
-        if legacy:
-            self._action_queue = deque()
-        else:
-            self._queues = {"action": deque()}
+        self._queues = {"action": deque()}
         self.calls = 0
         self.seen = []
 
     @property
     def queue(self):
-        return self._queues["action"] if hasattr(self, "_queues") else self._action_queue
+        return self._queues["action"]
 
     def reset(self):
         self.queue.clear()
@@ -109,6 +106,8 @@ class EvaluationContractTests(unittest.TestCase):
     @unittest.skipUnless(torch.cuda.is_available(), "CUDA is required for the Byte resize regression")
     def test_byte_image_can_reach_cuda_bilinear_resize(self):
         class ResizePolicy:
+            _queues = {"action": deque()}
+
             def select_action(self, obs):
                 image = obs["observation.images.cam_high"].unsqueeze(0).to("cuda")
                 resized = torch.nn.functional.interpolate(image, size=(4, 4), mode="bilinear", align_corners=False)
@@ -132,26 +131,11 @@ class EvaluationContractTests(unittest.TestCase):
         self.policy.reset()
         self.assertEqual(self.infer(1)["durations_s"], [8.0])
 
-    def test_legacy_queue_attribute_is_also_supported(self):
-        self.policy = QueuedPolicy(self.clock, legacy=True)
-        result = self.infer(4)
-        self.assertEqual(result["inference_action_indices"], [0, 3])
-        self.assertEqual(result["durations_s"], [8.0, 6.0])
-
     def test_cached_prefix_does_not_inflate_next_forward(self):
         self.infer(1)
         result = self.infer(4)
         self.assertEqual(result["inference_action_indices"], [2])
         self.assertEqual(result["durations_s"], [8.0])
-
-    def test_backend_without_action_queue_counts_each_call(self):
-        policy = SimpleNamespace(select_action=lambda obs: self.postprocess(torch.zeros(1, 14)))
-        with patch.object(worker, "_load_obs", side_effect=self.load), \
-                patch.object(worker, "_clock", side_effect=self.clock.now):
-            result = worker._infer(policy, self.preprocess, self.postprocess,
-                                   {"obs_path": "unused", "n_action_steps": 2}, "cpu")
-        self.assertEqual(result["inference_action_indices"], [0, 1])
-        self.assertEqual(result["durations_s"], [4.0, 2.0])
 
     def test_actions_match_original_worker_pipeline(self):
         original = QueuedPolicy(Clock())

@@ -1,0 +1,84 @@
+program_id: other_manipulate_pipette_two_beaker
+instruction: Transfer liquid between the beakers by pressing and releasing the pipette
+  above each one.
+targets: {}
+program:
+  kind: sequence
+  items:
+  - kind: segment
+    name: approach_pipette
+    instruction: Approach the pipette from above with the right gripper.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.approach_pipette
+        arguments: {}
+        resources:
+          primary: right_manipulator
+  - kind: segment
+    name: pick_pipette
+    instruction: Pinch the pipette body with the right gripper and lift it.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.grasp_pipette
+        arguments: {}
+        resources:
+          primary: right_manipulator
+  - kind: segment
+    name: hold_over_beaker
+    instruction: Turn the pipette upright and hold its tip over the beaker.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.position_pipette
+        arguments: {}
+        resources:
+          primary: right_loaded_manipulator
+  - kind: segment
+    name: press_plunger
+    instruction: Push the pipette plunger with the left gripper and release it.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.depress_plunger
+        arguments: {}
+        resources:
+          primary: pipette_manipulators
+  - kind: segment
+    name: clear_left_arm
+    instruction: Move the left gripper clear of the transfer path.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.park
+        arguments: {}
+        resources:
+          primary: left_manipulator
+  - kind: segment
+    name: hold_over_destination
+    instruction: Hold the pipette over the second beaker.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.position_pipette_at_destination
+        arguments: {}
+        resources:
+          primary: right_loaded_manipulator
+  - kind: segment
+    name: dispense
+    instruction: Press and release the plunger over the second beaker.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.depress_plunger
+        arguments: {}
+        resources:
+          primary: pipette_manipulators

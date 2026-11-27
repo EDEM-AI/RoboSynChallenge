@@ -1,0 +1,43 @@
+program_id: mixer_operating
+instruction: Place the beaker on the mixer with the right hand, then operate the switch with the left hand.
+targets: {}
+program:
+  kind: sequence
+  items:
+    - kind: segment
+      name: pick_beaker
+      instruction: Pick up the beaker with the right hand.
+      steps:
+        kind: invoke
+        call:
+          kind: pick
+          object: beaker
+          grasp: beaker_grasp
+          resources: {primary: right_manipulator}
+      validators:
+        - kind: object_lifted
+          object: beaker
+          minimum_lift: 0.025
+    - kind: segment
+      name: place_beaker_on_mixer
+      instruction: Set the beaker on the mixer platform.
+      steps:
+        kind: invoke
+        call:
+          kind: registered
+          call_id: simulation.place_relative
+          arguments: {object: beaker, reference: mixer, relation: "on"}
+          resources: {primary: right_manipulator}
+      post:
+        - kind: wait_stable
+          entity: beaker
+    - kind: segment
+      name: operate_mixer_switch
+      instruction: Operate the mixer switch with the left hand.
+      steps:
+        kind: invoke
+        call:
+          kind: registered
+          call_id: robosyn.press_mixer_switch
+          arguments: {object: mixer}
+          resources: {primary: left_loaded_manipulator}

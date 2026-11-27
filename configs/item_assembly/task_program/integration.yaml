@@ -1,0 +1,63 @@
+integration_id: robosyn_item_assembly
+program_id: item_assembly
+requires:
+  scene_contract: robosyn_two_tubes
+  embodiment_contract: cobotmagic_parallel_grippers
+scene_binding:
+  contract_id: robosyn_two_tubes
+  registry_id: robosyn_two_tubes
+  rigid_objects:
+  - entity_id: sleeve
+    simulation_uid: guijiao1
+    dynamics: dynamic
+    affordances:
+    - kind: antipodal_grasp
+      entity_id: sleeve_grasp
+  - entity_id: insert
+    simulation_uid: guijiao2
+    dynamics: dynamic
+    affordances:
+    - kind: antipodal_grasp
+      entity_id: insert_grasp
+profile:
+  defaults: {}
+  skill_options:
+    robosyn.pick_tube:
+      kind: pick_up
+      pre_grasp_distance: 0.05
+      lift_height: 0.14
+      grasp_settle_steps: 30
+      hand_interp_steps: 16
+      fixed_object_to_eef:
+        position: [0.0, 0.0, 0.0]
+        quaternion_xyzw: [1.0, 0.0, 0.0, 0.0]
+      approach_along_grasp_axis: true
+      cartesian_lift: true
+    robosyn.move_tube:
+      kind: move_held_object
+    robosyn.dock_tubes:
+      kind: move_joints
+  effect_monitors:
+    robosyn.pick_tube:
+      monitor_id: builtin.composite_effect
+      revision: "1"
+      params: {consecutive_samples: 1}
+    robosyn.move_tube:
+      monitor_id: builtin.composite_effect
+      revision: "1"
+      params: {consecutive_samples: 1}
+runtime_services:
+  settle_presets:
+    docked_tubes:
+      measurement: pose_delta
+      linear_velocity_threshold: 0.03
+      angular_velocity_threshold: 0.20
+      min_steps: 10
+      max_steps: 90
+      check_interval_steps: 2
+      required_stable_checks: 3
+  control_part_evidence:
+    kind: joint_position_constraint
+    control_parts: [right_eef, left_eef]
+    open_qpos: [0.05, 0.05]
+    minimum_displacement: 0.005

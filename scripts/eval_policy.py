@@ -14,7 +14,6 @@ import platform
 import random
 import subprocess
 from contextlib import ExitStack, contextmanager, redirect_stderr, redirect_stdout
-from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 
@@ -37,11 +36,8 @@ def prepend_existing_paths(paths):
             sys.path.insert(0, path)
 
 
-WORKSPACE_ROOT = os.path.dirname(REPO_ROOT)
-EMBODICHAIN_ROOT = os.environ.get(
-    "EMBODICHAIN_ROOT", os.path.join(WORKSPACE_ROOT, "EmbodiChain")
-)
-prepend_existing_paths([REPO_ROOT, POLICY_DIR, EMBODICHAIN_ROOT])
+prepend_existing_paths([REPO_ROOT, POLICY_DIR])
+os.environ.setdefault("EMBODICHAIN_DATA_ROOT", os.path.join(REPO_ROOT, "assets"))
 
 
 def add_policy_dependency_paths(policy_name):
@@ -54,21 +50,8 @@ def add_policy_dependency_paths(policy_name):
     ]
     prepend_existing_paths(paths)
 
-import robosynchallenge
 import embodichain.lab.gym.utils.gym_utils as gym_utils
 from embodichain.utils import logger as emb_logger
-
-CHALLENGE_MANAGER_MODULES = [
-    "robosynchallenge.managers.actions",
-    "robosynchallenge.managers.datasets",
-    "robosynchallenge.managers.events",
-    "robosynchallenge.managers.observations",
-]
-
-for module in CHALLENGE_MANAGER_MODULES:
-    if module not in gym_utils.DEFAULT_MANAGER_MODULES:
-        gym_utils.DEFAULT_MANAGER_MODULES.append(module)
-
 
 def load_policy_adapter(policy_name):
     """Dynamically import a policy adapter package.
@@ -118,6 +101,11 @@ def resolve_episode_max_steps(config, gym_config):
     deploy_max_steps = _as_int_or_none(config.get("max_steps"))
     gym_max_steps = _as_int_or_none(gym_config.get("max_episode_steps"))
     max_env_steps = gym_max_steps or deploy_max_steps or 300
+    evaluation_limit = _as_int_or_none(config.get("eval_max_steps"))
+    if evaluation_limit is not None:
+        if not 0 < evaluation_limit <= max_env_steps:
+            raise ValueError(f"eval_max_steps must be between 1 and {max_env_steps}.")
+        max_env_steps = evaluation_limit
     return max_env_steps, deploy_max_steps, gym_max_steps
 
 
@@ -246,12 +234,13 @@ class EpisodeVideoRecorder:
 
 
 class RecordingEnvProxy:
-    """Proxy env.step/reset so policy adapters do not need video-specific code."""
+    """Apply rollout recording, reset synchronization, and the policy step limit."""
 
-    def __init__(self, env, recorder=None, reset_sync_steps=0):
+    def __init__(self, env, recorder=None, reset_sync_steps=0, max_steps=None):
         self._env = env
         self._recorder = recorder
         self._reset_sync_steps = int(reset_sync_steps)
+        self._max_steps = max_steps
 
     def __getattr__(self, name):
         return getattr(self._env, name)
@@ -265,6 +254,8 @@ class RecordingEnvProxy:
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self._env.step(action)
+        if self._max_steps is not None:
+            truncated = truncated | (info["elapsed_steps"] >= self._max_steps)
         if self._recorder and not (
             self._as_done(terminated) or self._as_done(truncated)
         ):
@@ -353,8 +344,7 @@ def suppress_expert_output():
 
 
 def check_episode_feasibility(env, seed):
-    """Accept a seed when the expert generates a non-empty action plan.
-    """
+    """Qualify a candidate scene with its configured expert."""
     result = {
         "feasible": False,
         "reason": "expert_action_generation_failed",
@@ -363,18 +353,12 @@ def check_episode_feasibility(env, seed):
     try:
         seed = prepare_episode_reset(env, seed)
         env.reset(seed=seed, options={"save_data": False})
-        action_list = env.get_wrapper_attr("create_demo_action_list")(
-            action_sentence=0
-        )
-        if action_list is None:
-            return result
-        result["expert_plan_steps"] = len(action_list)
-        if result["expert_plan_steps"] == 0:
-            result["reason"] = "expert_action_list_empty"
-            return result
+        from embodichain.lab.gym.envs.demo import execute_demo_episode
 
-        result["feasible"] = True
-        result["reason"] = "expert_planning_succeeded"
+        episode = execute_demo_episode(env)
+        result["feasible"] = episode.completed and all(episode.success)
+        result["reason"] = episode.terminal_reason
+        result["expert_plan_steps"] = episode.length
         return result
     except Exception as exc:
         message = " ".join(str(exc).split())
@@ -417,87 +401,28 @@ def create_video_recorder(config, run_dir=None):
     )
 
 
-def make_env_from_configs(config, gym_config_dict, action_config_dict):
-    """Build the gym env using EmbodiChain's config parser.
-
-    This keeps nested robot/sensor/object dictionaries as EmbodiChain config
-    objects instead of passing raw dicts into EmbodiedEnvCfg.
-    """
-    from embodichain.lab.sim import SimulationManagerCfg
-    from embodichain.lab.sim.cfg import RenderCfg
-
-    gym_config = deepcopy(gym_config_dict)
-    _set_default(gym_config, "num_envs", int(config.get("num_envs", 1)))
-    _set_default(gym_config, "device", config.get("device", "cpu"))
-    _set_default(gym_config, "headless", bool(config.get("headless", False)))
-    _set_default(gym_config, "renderer", config.get("renderer", "hybrid"))
-    _set_default(gym_config, "gpu_id", int(config.get("gpu_id", 0)))
-    _set_default(gym_config, "arena_space", float(config.get("arena_space", 5.0)))
-    if config.get("seed") is not None:
-        gym_config["seed"] = int(config["seed"])
-
-    max_env_steps, _, _ = resolve_episode_max_steps(config, gym_config)
-    gym_config["max_episode_steps"] = max_env_steps
-
-    env_cfg = gym_utils.config_to_cfg(
-        gym_config,
-        manager_modules=CHALLENGE_MANAGER_MODULES,
+def make_native_env(config, deployment):
+    """Use the same deployment and config parser as EmbodiChain run-task."""
+    from embodichain.lab.gym.utils.registration import (
+        discover_task_packages,
+        execute_init_hooks,
     )
-    env_cfg.filter_dataset_saving = bool(config.get("filter_dataset_saving", True))
-    env_cfg.sim_cfg = SimulationManagerCfg(
-        headless=gym_config["headless"],
-        sim_device=gym_config["device"],
-        render_cfg=RenderCfg(renderer=gym_config["renderer"]),
-        gpu_id=gym_config["gpu_id"],
-        arena_space=gym_config["arena_space"],
-    )
-    physics_config = gym_config.get("physics", {})
-    if "enable_ccd" in physics_config:
-        env_cfg.sim_cfg.physics_config.enable_ccd = bool(
-            physics_config["enable_ccd"]
-        )
 
-    action_kwargs = {}
-    if action_config_dict:
-        action_kwargs = (
-            action_config_dict
-            if "action_config" in action_config_dict
-            else {"action_config": action_config_dict}
-        )
-
-    env = gym.make(
-        id=gym_config["id"],
-        max_episode_steps=max_env_steps,
-        cfg=env_cfg,
-        **action_kwargs,
-    )
-    return env, gym_config
-
-def find_gym_config(config):
-    """Load configs/<task_name>/<setting>/gym_config.json."""
-    task_name = config.get("task_name")
-    setting = config.get("setting")
-    if not task_name or not setting:
-        print("Error: task_name and setting are required to load gym_config")
-        sys.exit(1)
-
-    with open(f"configs/{task_name}/{setting}/gym_config.json", "r") as f:
-        return json.load(f)
-
-def find_action_config(config):
-    """Load the task action_config.json, falling back to the setting folder."""
-    task_name = config.get("task_name")
-    setting = config.get("setting")
-    if not task_name:
-        print("Error: task_name is required to load action_config")
-        sys.exit(1)
-
-    action_cfg_path = f"configs/{task_name}/action_config.json"
-    if not os.path.exists(action_cfg_path) and setting:
-        action_cfg_path = f"configs/{task_name}/{setting}/action_config.json"
-
-    with open(action_cfg_path, "r") as f:
-        return json.load(f)
+    discover_task_packages()
+    execute_init_hooks()
+    parser = argparse.ArgumentParser()
+    gym_utils.add_env_launcher_args_to_parser(parser, require_gym_config=True)
+    args = parser.parse_args(["--gym_config", str(deployment)])
+    for name in ("num_envs", "seed", "device", "headless", "renderer", "gpu_id", "arena_space"):
+        if config.get(name) is not None:
+            setattr(args, name, config[name])
+    args.num_envs = args.num_envs or 1
+    args.preview = False
+    args.filter_dataset_saving = True
+    cfg, gym_config, _ = gym_utils.build_env_cfg_from_args(args)
+    if config.get("eval_max_steps") is not None:
+        resolve_episode_max_steps(config, gym_config)
+    return gym.make(id=gym_config["id"], cfg=cfg), gym_config
 
 def _instruction_to_text(instruction):
     if isinstance(instruction, str):
@@ -528,7 +453,7 @@ def _find_instruction_recursive(value):
 
 
 def extract_instruction_from_gym_config(gym_config):
-    """Return the task language instruction declared in gym_config.json."""
+    """Return the task language instruction from the resolved deployment."""
     dataset_cfg = gym_config.get("env", {}).get("dataset", {})
     if isinstance(dataset_cfg, dict):
         for functor_cfg in dataset_cfg.values():
@@ -610,7 +535,8 @@ def parse_args_and_config():
                 # Parse literals without resolving names such as "random".
                 value = ast.literal_eval(value)
             except (ValueError, SyntaxError):
-                pass
+                if value.lower() in ("true", "false"):
+                    value = value.lower() == "true"
             config[key] = value
 
     return config
@@ -627,6 +553,16 @@ def main():
         sys.exit(1)
 
     task_name = config.get("task_name")
+    setting = config.get("setting")
+    if not task_name or setting not in ("clear", "random"):
+        raise ValueError("Evaluation requires a task name and a clear or random scene.")
+    from robosynchallenge.hub import CHECKPOINT_PREFIXES, checkpoint_directory
+
+    if policy_name in CHECKPOINT_PREFIXES:
+        checkpoint_path = config.get("checkpoint_path")
+        config["checkpoint_path"] = str(
+            checkpoint_directory(policy_name, task_name, checkpoint_path)
+        )
     max_episodes = config.get("max_episodes")
     seed = config.get("seed")
     fixed_episode_seed = config.get("eval_fixed_episode_seed")
@@ -647,29 +583,37 @@ def main():
     print(f"Loading policy: {policy_name}")
     policy_pkg = load_policy_adapter(policy_name)
 
-    # Resolve gym and action configs
-    gym_config_dict = find_gym_config(config)
-    action_config_dict = find_action_config(config)
+    from robosynchallenge.deployments import deployment_path
+
+    env, gym_config_dict = make_native_env(config, deployment_path(task_name, setting))
     max_env_steps, deploy_max_steps, gym_max_steps = resolve_episode_max_steps(
         config, gym_config_dict
     )
-
-    # Build environment
-    env_id = gym_config_dict.get("id")
-    print(f"Creating environment: {env_id}")
-    env, gym_config_dict = make_env_from_configs(config, gym_config_dict, action_config_dict)
-    instruction = extract_instruction_from_gym_config(gym_config_dict)
+    task_program = getattr(env.unwrapped.cfg, "task_program", None)
+    instruction = (
+        getattr(task_program, "instruction", None)
+        or extract_instruction_from_gym_config(gym_config_dict)
+    )
     if instruction:
-        env._current_instruction = instruction
+        env.unwrapped._current_instruction = instruction
         print(f"Using instruction from gym_config: {instruction}")
     run_dir = create_eval_run_dir(config)
     result_path = run_dir / "evaluation_metrics.json"
     video_recorder = create_video_recorder(config, run_dir=run_dir)
     reset_sync_steps = int(config.get("eval_reset_sync_steps", 0))
-    eval_env = (
-        RecordingEnvProxy(env, video_recorder, reset_sync_steps=reset_sync_steps)
-        if video_recorder or reset_sync_steps > 0
+    expert_env = (
+        RecordingEnvProxy(env, reset_sync_steps=reset_sync_steps)
+        if reset_sync_steps > 0
         else env
+    )
+    policy_step_limit = max_env_steps if config.get("eval_max_steps") is not None else None
+    eval_env = (
+        RecordingEnvProxy(
+            env, video_recorder, reset_sync_steps=reset_sync_steps,
+            max_steps=policy_step_limit,
+        )
+        if video_recorder or policy_step_limit is not None
+        else expert_env
     )
     if video_recorder:
         print(f"Recording eval videos to: {video_recorder.save_dir}")
@@ -743,7 +687,7 @@ def main():
             if expert_check:
                 with suppress_expert_output():
                     expert_result = check_episode_feasibility(
-                        eval_env,
+                        expert_env,
                         seed=ep_seed,
                     )
                 if not expert_result["feasible"]:
@@ -849,6 +793,9 @@ def main():
                     ),
                 }
             )
+            peak_press_depth = info.get("metrics", {}).get("peak_press_depth")
+            if peak_press_depth is not None:
+                episode_results[-1]["peak_press_depth_m"] = float(peak_press_depth.item())
             episode_average = float(np.mean(inference_times)) if inference_times else 0
             status = "\033[92mSUCCESS\033[0m" if episode_success else "\033[91mFAIL\033[0m"
             print(

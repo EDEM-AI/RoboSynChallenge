@@ -16,7 +16,7 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 
@@ -25,6 +25,23 @@ dependencies = [
 
 [project.urls]
 Repository = "https://github.com/EDEM-AI/RoboSynChallenge"
+
+[project.entry-points."embodichain.tasks"]
+robosynchallenge = "robosynchallenge.native_tasks"
+robosynchallenge-drawer = "robosynchallenge.drawer_program"
+robosynchallenge-mixer = "robosynchallenge.mixer_program"
+robosynchallenge-assembly = "robosynchallenge.assembly_program"
+robosynchallenge-pipette = "robosynchallenge.pipette_program"
+robosynchallenge-carry-pour = "robosynchallenge.carry_pour_programs"
+robosynchallenge-handover = "robosynchallenge.handover_program"
+robosynchallenge-placement = "robosynchallenge.placement_programs"
+robosynchallenge-experimental = "robosynchallenge.experimental_programs"
+
+[project.entry-points."embodichain.init"]
+robosynchallenge = "robosynchallenge:register_managers"
+
+[project.entry-points."embodichain.robots"]
+robosynchallenge = "robosynchallenge.robot_catalog:ROBOT_CATALOG"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
@@ -35,6 +52,61 @@ where = ["."]
 exclude = ["docs"]
 
 [tool.setuptools.dynamic]
-version = { file = ["RoboSynChallenge/VERSION"] }
+version = { file = ["robosynchallenge/VERSION"] }
 
 [tool.black]
+
+[dependency-groups]
+simulation = [
+    "embodichain==0.3.3",
+    "dexsim-engine==0.6.0",
+    "lerobot[training,diffusion,smolvla]==0.6.1",
+    "torch",
+    "torchvision",
+]
+
+openpi = [
+    "augmax>=0.3.4",
+    "beartype==0.19.0",
+    "dm-tree>=0.1.8",
+    "flax==0.10.2",
+    "fsspec[gcs]",
+    "jax[cuda12]==0.5.3",
+    "jaxtyping==0.2.36",
+    "ml-collections==1.0.0",
+    "msgpack>=1.0.5",
+    "numpydantic>=1.6.6",
+    "optax>=0.2.4,<0.2.6",
+    "orbax-checkpoint==0.11.13",
+    "sentencepiece>=0.2.0",
+    "tensorstore==0.1.74",
+    "tqdm-loggable>=0.2",
+    "treescope>=0.1.7",
+    "tyro>=0.9.5",
+    "wandb>=0.19.1",
+    "websockets>=11.0",
+]
+
+[tool.uv]
+default-groups = ["simulation", "openpi"]
+environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]
+allow-insecure-host = ["pyp.open3dv.site:2345"]
+
+[tool.uv.dependency-groups]
+simulation = { requires-python = ">=3.12,<3.13" }
+openpi = { requires-python = ">=3.12,<3.13" }
+
+[tool.uv.sources]
+dexsim-engine = { index = "open3dv" }
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+
+[[tool.uv.index]]
+name = "open3dv"
+url = "http://pyp.open3dv.site:2345/simple/"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true

@@ -1,0 +1,83 @@
+integration_id: robosyn_sample_loading
+program_id: sample_loading
+requires:
+  scene_contract: robosyn_sample_loading
+  embodiment_contract: cobotmagic_parallel_grippers
+scene_binding:
+  contract_id: robosyn_sample_loading
+  registry_id: robosyn_sample_loading
+  rigid_objects:
+  - entity_id: test_tube
+    dynamics: dynamic
+    simulation_uid: cube
+    affordances:
+    - entity_id: test_tube_grasp
+      kind: antipodal_grasp
+  - entity_id: rack
+    dynamics: static
+    affordances:
+    - entity_id: rack_opening
+      kind: container
+      native_name: rack_opening
+      object_target_pose:
+        position:
+        - 0.0
+        - 0.0
+        - 0.05
+        quaternion_xyzw: [0.0, 0.0, 0.0, 1.0]
+      release_clearance: 0.015
+  - entity_id: table
+    dynamics: static
+profile:
+  defaults: {}
+  skill_options:
+    pick:
+      kind: pick_up
+      pre_grasp_distance: 0.05
+      lift_height: 0.065
+      approach_direction: [0.32, 0.50, -1.0]
+      grasp_settle_steps: 12
+      hand_interp_steps: 12
+    robosyn.hand_over_test_tube:
+      kind: hand_over
+      arm_selection: bound
+      release_at_target: false
+      pre_grasp_distance: 0.035
+      receive_pick_object_part: top
+      lift_height: 0.0
+      hand_interp_steps: 20
+      hold_steps: 12
+      retreat_distance: 0.012
+      retreat_steps: 50
+    simulation.move_held_object:
+      kind: move_held_object
+    robosyn.align_for_insertion:
+      kind: move_joints
+    robosyn.lower_into_receptacle:
+      kind: move_joints
+    simulation.place_relative:
+      kind: place
+      lift_height: 0.0
+      cartesian_waypoint_count: 1
+      hand_interp_steps: 20
+      release_settle_steps: 25
+  effect_monitors: {}
+runtime_services:
+  grasp_pose_generator_overrides:
+    left_eef:
+      filter_ground_collision: false
+      sample_count: 5000
+      point_spacing: 0.003
+  registered_semantic_lowerers:
+  - kind: place_relative
+    routes:
+    - object_id: test_tube
+      reference_entity_id: rack
+      relation: above
+      world_displacement: [0.0, 0.0, 0.115]
+  - kind: move_held_object
+    target_id: handover_presentation
+    reference_entity_id: table
+    relative_pose:
+      position: [-0.215, -0.045, 0.285]
+      quaternion_xyzw: [0.0, 0.3826834323650898, 0.0, 0.9238795325112867]

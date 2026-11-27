@@ -16,11 +16,9 @@ copy. Pass `--in-place` to update the original dataset.
 from __future__ import annotations
 
 import argparse
-import copy
 import json
 import logging
 import shutil
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -31,15 +29,7 @@ import torch
 import tqdm
 
 
-SCRIPT_PATH = Path(__file__).resolve()
-WORKSPACE_ROOT = SCRIPT_PATH.parents[2]
-EMBODICHAIN_ROOT = WORKSPACE_ROOT / "EmbodiChain"
-CHALLENGE_ROOT = WORKSPACE_ROOT / "RoboSynChallenge"
-
-for path in (WORKSPACE_ROOT, EMBODICHAIN_ROOT, CHALLENGE_ROOT):
-    path_str = str(path)
-    if path_str not in sys.path:
-        sys.path.insert(0, path_str)
+from robosynchallenge.deployments import ROOT as CHALLENGE_ROOT, require_deployment_path
 
 
 POSE_FIELDS = {
@@ -51,7 +41,7 @@ POSE_FIELDS = {
 
 # python3 RoboSynChallenge/scripts/add_lerobot_eef_pose.py \
 #   --dataset RoboSynChallenge/lerobot_dataset/cobotmagic_Sim_manipulate_mixer_dual_046 \
-#   --gym_config RoboSynChallenge/configs/manipulate_pipette/gym_config.json \
+#   --gym_config RoboSynChallenge/configs/manipulate_pipette/clear/task.cobotmagic.yaml \
 #   --device cuda
 
 def parse_args() -> argparse.Namespace:
@@ -84,13 +74,7 @@ def parse_args() -> argparse.Namespace:
         "--gym_config",
         type=Path,
         required=True,
-        help="Gym config matching the robot used to collect the dataset.",
-    )
-    parser.add_argument(
-        "--action_config",
-        type=Path,
-        default=None,
-        help="Optional action config. Usually not needed for FK backfill.",
+        help="Native task deployment matching the robot used to collect the dataset.",
     )
     parser.add_argument(
         "--output-dataset",
@@ -118,7 +102,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--qpos-key",
-        default="observation.qpos",
+        default="observation.state",
         help="Qpos column in the LeRobot parquet files.",
     )
     parser.add_argument(
@@ -211,56 +195,30 @@ def prepare_output_dataset(
     return target
 
 
-def build_fk_env(gym_config_path: Path, action_config_path: Path | None, args: argparse.Namespace):
-    """Build a minimal EmbodiChain env so robot.compute_fk matches collection."""
-
+def build_fk_env(gym_config_path: Path, args: argparse.Namespace):
+    """Use the same embodiment articulation and control parts as collection."""
+    import os
     import gymnasium as gym
-    import robosynchallenge  # noqa: F401 - registers challenge envs
-    import embodichain.lab.gym.utils.gym_utils as gym_utils
-    from embodichain.lab.gym.utils.gym_utils import config_to_cfg
-    from embodichain.lab.sim import SimulationManagerCfg
+    from embodichain.lab.gym.utils import gym_utils
+    from embodichain.lab.gym.utils.registration import discover_task_packages, execute_init_hooks
 
-    challenge_modules = [
-        "robosynchallenge.managers.actions",
-        "robosynchallenge.managers.datasets",
-        "robosynchallenge.managers.events",
-        "robosynchallenge.managers.observations",
-    ]
-    for module in challenge_modules:
-        if module not in gym_utils.DEFAULT_MANAGER_MODULES:
-            gym_utils.DEFAULT_MANAGER_MODULES.append(module)
-
-    gym_config = load_json(gym_config_path)
-    gym_config = copy.deepcopy(gym_config)
-
-    gym_config["num_envs"] = 1
-    gym_config["device"] = args.device
-    gym_config["headless"] = True
-    gym_config["enable_rt"] = False
-    gym_config["gpu_id"] = args.gpu_id
-    gym_config.setdefault("arena_space", 4.0)
-
-    if not args.keep_sensors:
-        gym_config["sensor"] = []
-
-    env_cfg = config_to_cfg(gym_config, manager_modules=challenge_modules)
-    env_cfg.filter_dataset_saving = True
-    env_cfg.filter_visual_rand = True
-    env_cfg.init_rollout_buffer = False
-    env_cfg.sim_cfg = SimulationManagerCfg(
-        headless=True,
-        sim_device=gym_config["device"],
-        gpu_id=gym_config["gpu_id"],
-        arena_space=gym_config["arena_space"],
-    )
-
-    action_kwargs: dict[str, Any] = {}
-    if action_config_path is not None:
-        action_config = load_json(action_config_path)
-        action_kwargs["action_config"] = action_config
-
-    env = gym.make(id=gym_config["id"], cfg=env_cfg, **action_kwargs)
-    return env
+    os.environ.setdefault("EMBODICHAIN_DATA_ROOT", str(CHALLENGE_ROOT / "assets"))
+    if not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
+        os.environ.setdefault("SDL_VIDEODRIVER", "offscreen")
+        os.environ.setdefault("SDL_VIDEO_DRIVER", "offscreen")
+    discover_task_packages()
+    execute_init_hooks()
+    parser = argparse.ArgumentParser()
+    gym_utils.add_env_launcher_args_to_parser(parser, require_gym_config=True)
+    options = parser.parse_args([
+        "--gym_config", str(require_deployment_path(gym_config_path)),
+        "--num_envs", "1", "--device", args.device, "--gpu_id", str(args.gpu_id),
+        "--headless", "--filter_dataset_saving",
+    ])
+    cfg, gym_config, _ = gym_utils.build_env_cfg_from_args(options)
+    cfg.enable_sensor = args.keep_sensors
+    cfg.init_rollout_buffer = False
+    return gym.make(gym_config["id"], cfg=cfg)
 
 
 def unwrap_env(env):
@@ -443,6 +401,8 @@ def add_pose_columns_to_dataset(
         raise FileNotFoundError(f"Missing LeRobot metadata file: {info_path}")
 
     info = load_json(info_path)
+    if info["codebase_version"] != "v3.0":
+        raise ValueError("FK backfill expects a LeRobot v3.0 dataset.")
     dataset_joint_names = get_qpos_feature_names(info, qpos_key)
     part_columns = {
         field: build_part_column_indices(env, dataset_joint_names, part_name)
@@ -514,7 +474,7 @@ def main() -> None:
 
     env = None
     try:
-        env = build_fk_env(args.gym_config, args.action_config, args)
+        env = build_fk_env(args.gym_config, args)
         fk_env = unwrap_env(env)
         logging.info("Built FK env with robot joints: %s", fk_env.robot.joint_names)
         add_pose_columns_to_dataset(

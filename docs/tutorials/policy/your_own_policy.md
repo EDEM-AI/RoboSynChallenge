@@ -61,7 +61,7 @@ def eval(env, model, obs):
     # Set language instruction if first call (Try to keep it unchanged)
     # implement the `set_language` function in your own policy object.
     if model.observation_window is None:
-        instruction = getattr(env, "_current_instruction", None)
+        instruction = env.get_wrapper_attr("_current_instruction")
         model.set_language(instruction)
 
     # Encode and update observation window
@@ -79,9 +79,8 @@ def eval(env, model, obs):
         action_tensor = encode_action(action, env) # Map the actions output by your model to the format required by EmbodiChain.
         observation, reward, terminated, truncated, info = env.step(action_tensor)
         # joint control: [left_arm_joints + left_gripper + right_arm_joints + right_gripper]
-        # Absolute joint control is the default;
-        # if other control modes—such as relative endpose control are required, you must add an `actions` field to the `gym_config` for the specific task to utilize the action manager.
-        # Please refer to https://dexforce.github.io/EmbodiChain/main/overview/gym/action_functors.html for details.
+        # Absolute joint control is the default. The task deployment defines the
+        # action interface used by the environment.
 
         if truncated.any():
             break
@@ -90,7 +89,7 @@ def eval(env, model, obs):
         obs = encode_obs(observation)
         model.update_observation_window(obs)
 
-    return observation, info, truncated
+    return observation, info, truncated, []
 
 def reset_model(model):
     # Clean the model cache at the beginning of every evaluation episode, such as the observation window
@@ -115,7 +114,7 @@ setting: null
 model_name: null
 seed: 0
 max_episodes: 20
-max_steps: 1000 # Maximum environment steps per episode. Effective limit is max(deploy_config.max_steps, gym_config.max_episode_steps).
+max_steps: 1000 # Maximum environment steps per episode. The task deployment supplies the limit when it defines one.
 headless: false
 pytorch_device: cuda
 filter_dataset_saving: true
@@ -129,56 +128,18 @@ eval_video_obs_key: cam_high
 
 ```
 
-Set `task_name` to one of: `click_bell`, `handle_basket`, `water_pouring`, `table_rearrangement`, `items_handover`, `drawer_open_place`, `mixer_operating`, `item_assembly`, `manipulate_pipette`, `sample_loading`, or `open_pan`.
+Set `task_name` to one of: `click_bell`, `handle_basket`, `water_pouring`, `table_rearrangement`, `items_handover`, `drawer_open_place`, `mixer_operating`, `item_assembly`, `manipulate_pipette`, `sample_loading`, or an additional task with the `other_tasks/` prefix, such as `other_tasks/open_pan`.
 
 ---
 
 ## 🖥️ `eval.sh`
 
-Update the script to pass additional arguments to override default values in `deploy_policy.yml`.
+Copy the `policy/Your_Policy` template into a directory named after your policy. Set the same name under `policy_name` in the deployment config. The launcher uses the root uv environment and forwards arguments to the evaluation script.
 
 ```bash
-#!/bin/bash
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-WORKSPACE_ROOT="$(cd "$REPO_ROOT/.." && pwd)"
-EMBODICHAIN_ROOT="${EMBODICHAIN_ROOT:-$WORKSPACE_ROOT/EmbodiChain}"
-VENV_DIR="$SCRIPT_DIR/.venv"
-if [[ -z "${PYTHON_BIN:-}" && -x "$VENV_DIR/bin/python" ]]; then
-    PYTHON_BIN="$VENV_DIR/bin/python"
-else
-    PYTHON_BIN="${PYTHON_BIN:-python}"
-fi
-
-POLICY_NAME=Your_Policy # [TODO]
-
-TASK_NAME="${1}"
-SETTING="${2}"
-TRAIN_CONFIG="${3}"
-MODEL_NAME="${4}"
-GPU_ID="${5}"
-# [TODO] add parameters here
-
-export CUDA_VISIBLE_DEVICES="$GPU_ID"
-export XLA_PYTHON_CLIENT_MEM_FRACTION=0.4
-
-echo "========================================="
-echo "  Your-Own-Policy Evaluation"
-echo "  Task:       $TASK_NAME ($SETTING)"
-echo "  GPU:        $GPU_ID"
-echo "========================================="
-
-cd "$REPO_ROOT" # move to RoboSynChallenge root
-
-PYTHONWARNINGS=ignore::UserWarning \
-"$PYTHON_BIN" scripts/eval_policy.py \
-    --config policy/$POLICY_NAME/deploy_policy.yml \
-    --overrides \
-    --task_name "$TASK_NAME" \
-    --setting "$SETTING" \
-    --model_name "$MODEL_NAME" \
-    # [TODO] add parameters here
+uv sync --locked --python 3.12
+bash policy/Your_Policy/eval.sh click_bell clear my-config my-run 0 \
+  --headless true --renderer fast-rt --max_episodes 1
 ```
 
 ---

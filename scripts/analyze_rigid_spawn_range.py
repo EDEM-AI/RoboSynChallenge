@@ -2,7 +2,7 @@
 
 The script probes fixed spawn offsets inside the current
 pose-randomization ``position_range`` and checks whether the task can generate
-an expert action list from the given action config.  It then reports a
+a successful native Task Program execution. It then reports a
 recommended axis-aligned range that keeps the sampled success rate high.
 """
 
@@ -11,7 +11,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import sys
+import os
 import traceback
 from copy import deepcopy
 from dataclasses import asdict, dataclass
@@ -25,15 +25,7 @@ except ModuleNotFoundError:  # Allows --help and --list-events in bare Python.
     np = None
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-
-for path in (
-    REPO_ROOT / "EmbodiChain",
-    REPO_ROOT / "RoboSynChallenge",
-):
-    path_str = str(path)
-    if path.exists() and path_str not in sys.path:
-        sys.path.insert(0, path_str)
+from robosynchallenge.deployments import ROOT as REPO_ROOT, require_deployment_path
 
 
 AXIS_TO_INDEX = {
@@ -58,7 +50,6 @@ def require_numpy() -> None:
 POSE_RANDOMIZATION_FUNCS = {
     "randomize_rigid_object_pose": "rigid_object",
     "randomize_entity_root_pose_group": "rigid_object",
-    "randomize_entity_root_pose_group": "articulation",
     "randomize_articulation_root_pose": "articulation",
 }
 
@@ -99,15 +90,10 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Analyze a task entity's random spawn range by probing expert-demo "
-            "generation success under a gym_config/action_config pair."
+            "execution under a native CobotMagic deployment."
         )
     )
-    parser.add_argument("--gym_config", required=True, help="Path to gym_config.json.")
-    parser.add_argument(
-        "--action_config",
-        default=None,
-        help="Path to action_config.json. Required unless --list-events is used.",
-    )
+    parser.add_argument("--gym_config", required=True, help="Path to task.cobotmagic.yaml.")
     parser.add_argument(
         "--uid",
         default=None,
@@ -283,14 +269,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--write-gym-config",
         default=None,
-        help="Write a copy of gym_config with the recommended range patched in.",
+        help="Write a copy of the native environment component with the recommended range.",
     )
     return parser.parse_args()
-
-
-def load_json(path: str | Path) -> dict[str, Any]:
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 def dump_json(path: str | Path, data: dict[str, Any]) -> None:
@@ -387,34 +368,6 @@ def find_pose_randomization_events(
                 )
             )
     return found
-
-
-def find_ik_checks(action_config: dict[str, Any]) -> list[dict[str, Any]]:
-    """Collect IK validators declared in the action graph configuration."""
-    checks: list[dict[str, Any]] = []
-    for scope, nodes in action_config.get("node", {}).items():
-        for node in nodes:
-            if len(node) != 1:
-                continue
-            node_name = next(iter(node))
-            node_cfg = node[node_name]
-            kwargs = node_cfg.get("kwargs", {})
-            for affordance_info in kwargs.get("affordance_infos", []):
-                for validator in affordance_info.get("valid_funcs_name_kwargs_proc", []):
-                    if validator.get("name") != "get_ik_ret":
-                        continue
-                    validator_kwargs = validator.get("kwargs", {})
-                    checks.append(
-                        {
-                            "scope": scope,
-                            "node": node_name,
-                            "src_key": affordance_info.get("src_key"),
-                            "dst_key": affordance_info.get("dst_key"),
-                            "control_part": validator_kwargs.get("control_part"),
-                            "qpos_seed": validator_kwargs.get("qpos_seed"),
-                        }
-                    )
-    return checks
 
 
 def print_events(events: list[PoseRandomizationEvent]) -> None:
@@ -600,60 +553,33 @@ def filter_gym_config_for_analysis(
     return filtered_config, removed_events
 
 
-def import_runtime() -> None:
-    import robosynchallenge  # noqa: F401
-    import embodichain.lab.gym.utils.gym_utils as gym_utils
+def build_native_config(args):
+    from embodichain.lab.gym.utils import gym_utils
+    from embodichain.lab.gym.utils.registration import discover_task_packages, execute_init_hooks
 
-    for module_name in (
-        "robosynchallenge.managers.actions",
-        "robosynchallenge.managers.datasets",
-        "robosynchallenge.managers.events",
-        "robosynchallenge.managers.observations",
-    ):
-        if module_name not in gym_utils.DEFAULT_MANAGER_MODULES:
-            gym_utils.DEFAULT_MANAGER_MODULES.append(module_name)
+    os.environ.setdefault("EMBODICHAIN_DATA_ROOT", str(REPO_ROOT / "assets"))
+    os.environ.setdefault("EMBODICHAIN_SIM_EXIT_PROCESS", "0")
+    if not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
+        os.environ.setdefault("SDL_VIDEODRIVER", "offscreen")
+        os.environ.setdefault("SDL_VIDEO_DRIVER", "offscreen")
+    if not hasattr(args, "deployment"):
+        args.deployment = require_deployment_path(args.gym_config)
+    discover_task_packages()
+    execute_init_hooks()
+    parser = argparse.ArgumentParser()
+    gym_utils.add_env_launcher_args_to_parser(parser, require_gym_config=True)
+    native = parser.parse_args(["--gym_config", str(args.deployment)])
+    for name in ("num_envs", "device", "headless", "gpu_id", "arena_space", "filter_visual_rand"):
+        setattr(native, name, getattr(args, name))
+    native.filter_dataset_saving = True
 
+    def configure(gym_config):
+        filtered, removed = filter_gym_config_for_analysis(gym_config, args)
+        if removed:
+            print("Filtered distractor events: " + ", ".join(removed))
+        gym_config["env"] = filtered["env"]
 
-def make_env(args: argparse.Namespace):
-    import gymnasium as gym
-    from embodichain.lab.gym.utils.gym_utils import (
-        config_to_cfg,
-        merge_args_with_gym_config,
-    )
-    from embodichain.lab.sim import SimulationManagerCfg
-
-    raw_gym_config = load_json(args.gym_config)
-    filtered_gym_config, removed_events = filter_gym_config_for_analysis(
-        raw_gym_config, args
-    )
-    if removed_events:
-        print(
-            "Filtered distractor events before env creation: "
-            + ", ".join(removed_events)
-        )
-
-    gym_config = merge_args_with_gym_config(args, filtered_gym_config)
-    env_cfg = config_to_cfg(gym_config)
-    env_cfg.filter_visual_rand = args.filter_visual_rand
-    env_cfg.filter_dataset_saving = args.filter_dataset_saving
-    if args.preview:
-        env_cfg.filter_dataset_saving = True
-
-    action_config = {}
-    if args.action_config is not None:
-        action_config = load_json(args.action_config)
-        action_config["action_config"] = action_config
-
-    env_cfg.sim_cfg = SimulationManagerCfg(
-        headless=gym_config["headless"],
-        sim_device=gym_config["device"],
-        enable_rt=gym_config["enable_rt"],
-        gpu_id=gym_config["gpu_id"],
-        arena_space=gym_config["arena_space"],
-    )
-
-    env = gym.make(id=gym_config["id"], cfg=env_cfg, **action_config)
-    return env
+    return gym_utils.build_env_cfg_from_args(native, gym_config_modifier=configure)[:2]
 
 
 def unwrap_env(env):
@@ -682,87 +608,30 @@ def set_event_position_range(
     base_env.event_manager.set_functor_cfg(event_name, event_cfg)
 
 
-def tensor_bool(value: Any) -> bool:
-    try:
-        import torch
-
-        if isinstance(value, torch.Tensor):
-            return bool(value.detach().cpu().reshape(-1).all().item())
-    except ModuleNotFoundError:
-        pass
-    if isinstance(value, np.ndarray):
-        return bool(np.asarray(value).reshape(-1).all())
-    if isinstance(value, (list, tuple)):
-        return bool(np.asarray(value).reshape(-1).all())
-    return bool(value)
-
-
-def iter_action_steps(action_list: Any):
-    try:
-        import torch
-
-        if isinstance(action_list, torch.Tensor):
-            for idx in range(action_list.shape[0]):
-                yield action_list[idx]
-            return
-    except ModuleNotFoundError:
-        pass
-    for action in action_list:
-        yield action
-
-
-def rollout_actions(env, action_list: Any, max_steps: int | None) -> bool:
-    base_env = unwrap_env(env)
-    last_info: dict[str, Any] = {}
-
-    for step_idx, action in enumerate(iter_action_steps(action_list)):
-        if max_steps is not None and step_idx >= max_steps:
-            break
-        step_ret = env.step(action)
-        if len(step_ret) == 5:
-            _, _, terminated, truncated, info = step_ret
-            done = tensor_bool(terminated) or tensor_bool(truncated)
-        else:
-            _, _, done, info = step_ret
-            done = tensor_bool(done)
-        last_info = info
-        if done:
-            break
-
-    if hasattr(base_env, "is_task_success"):
-        return tensor_bool(base_env.is_task_success())
-    if "success" in last_info:
-        return tensor_bool(last_info["success"])
-    return False
-
-
 def run_trial(
     env,
     seed: int,
     args: argparse.Namespace,
 ) -> TrialResult:
-    base_env = unwrap_env(env)
+    from embodichain.lab.gym.envs.demo import execute_demo_episode
+    from scripts.eval_policy import prepare_episode_reset
+
     try:
-        if hasattr(base_env, "affordance_datas"):
-            base_env.affordance_datas = {}
-        env.reset(seed=seed)
-        action_list = base_env.create_demo_action_list()
-        if action_list is None:
-            return TrialResult(
-                generated=False,
-                rollout_success=False if args.rollout else None,
-                error="create_demo_action_list returned None",
-            )
-        if len(action_list) == 0:
-            return TrialResult(
-                generated=False,
-                rollout_success=False if args.rollout else None,
-                error="create_demo_action_list returned an empty action list",
-            )
-        if args.rollout:
-            rollout_success = rollout_actions(env, action_list, args.max_rollout_steps)
-            return TrialResult(generated=True, rollout_success=rollout_success)
-        return TrialResult(generated=True, rollout_success=None)
+        prepare_episode_reset(env, seed)
+        env.reset(seed=seed, options={"save_data": False})
+        steps = 0
+
+        def count_step(active, obs, info):
+            nonlocal steps
+            steps += 1
+
+        def reached_limit():
+            return bool(args.max_rollout_steps and steps >= args.max_rollout_steps)
+
+        run = execute_demo_episode(env, step_observer=count_step, should_stop=reached_limit)
+        generated = bool(run.segments) and all(segment.success for segment in run.segments)
+        physical = all(run.success) if args.rollout else None
+        return TrialResult(generated=generated, rollout_success=physical)
     except Exception as exc:  # noqa: BLE001 - failures are data for this analyzer.
         if args.verbose_failures:
             traceback.print_exc()
@@ -874,7 +743,7 @@ def make_recommended_range(
     if good_points.size == 0:
         raise RuntimeError(
             "No safe points found. Try lowering --point-success-threshold, "
-            "increasing --samples/--grid-size, or checking the action_config."
+            "increasing --samples/--grid-size, or checking the Task Program."
         )
 
     rec_low = original_low.copy()
@@ -1207,15 +1076,37 @@ def save_spawn_range_plot(
     return str(plot_path)
 
 
-def patch_gym_config(
+def write_environment_component(
     gym_config_path: str | Path,
     event_name: str,
     recommended_range: list[list[float]],
     output_path: str | Path,
 ) -> None:
-    gym_config = load_json(gym_config_path)
-    gym_config["env"]["events"][event_name]["params"]["position_range"] = recommended_range
-    dump_json(output_path, gym_config)
+    from embodichain.utils.utility import load_config, save_config
+
+    deployment_path = require_deployment_path(gym_config_path)
+    component = load_config(deployment_path)["environment"]["component"]
+    source = deployment_path.parent / component
+    data = load_config(source)
+    data["env"]["events"][event_name]["params"]["position_range"] = recommended_range
+    destination = Path(output_path).expanduser().resolve()
+
+    def rebase_assets(component):
+        if isinstance(component, dict):
+            for key, value in component.items():
+                if key == "fpath" and isinstance(value, str) and value.startswith(("./", "../")):
+                    relative = os.path.relpath(source.parent / value, destination.parent)
+                    component[key] = relative if relative.startswith(".") else f"./{relative}"
+                else:
+                    rebase_assets(value)
+        elif isinstance(component, list):
+            for item in component:
+                rebase_assets(item)
+
+    if destination.parent != source.parent:
+        rebase_assets(data)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    save_config(destination, data)
 
 
 def build_paste_snippet(
@@ -1230,20 +1121,16 @@ def build_paste_snippet(
 
 def main() -> None:
     args = parse_args()
-    gym_config = load_json(args.gym_config)
+    env_cfg, gym_config = build_native_config(args)
     events = find_pose_randomization_events(gym_config)
 
     if args.list_events:
         print_events(events)
         return
 
-    if args.action_config is None:
-        raise ValueError("--action_config is required unless --list-events is used.")
     if args.num_envs != 1:
         raise ValueError("Expert-demo generation currently supports --num_envs 1.")
     require_numpy()
-    action_config = load_json(args.action_config)
-    ik_checks = find_ik_checks(action_config)
 
     target_event = select_event(events, uid=args.uid, event_name=args.event)
     original_range = np.asarray(target_event.position_range, dtype=float)
@@ -1280,10 +1167,10 @@ def main() -> None:
             "Original actual position_range: "
             f"{[[float(v) for v in original_actual_low], [float(v) for v in original_actual_high]]}"
         )
-    print(f"IK checks found in action_config: {len(ik_checks)}")
 
-    import_runtime()
-    env = make_env(args)
+    import gymnasium as gym
+
+    env = gym.make(gym_config['id'], cfg=env_cfg)
     point_results: list[PointResult] = []
     validation_history: list[dict[str, Any]] = []
 
@@ -1391,7 +1278,6 @@ def main() -> None:
         )
         report = {
             "gym_config": str(args.gym_config),
-            "action_config": str(args.action_config),
             "uid": target_event.uid,
             "event": target_event.name,
             "entity_type": target_event.entity_type,
@@ -1413,7 +1299,6 @@ def main() -> None:
             "recommended_actual_position_range": recommended_actual_range,
             "target_success_rate": args.target_success_rate,
             "point_success_threshold": args.point_success_threshold,
-            "ik_checks": ik_checks,
             "candidate_point_count": len(points),
             "good_point_count": good_point_count,
             "validation": final_validation,
@@ -1447,13 +1332,13 @@ def main() -> None:
             write_csv(args.csv, point_results)
             print(f"Wrote CSV point results: {args.csv}")
         if args.write_gym_config:
-            patch_gym_config(
+            write_environment_component(
                 args.gym_config,
                 target_event.name,
                 recommended_range,
                 args.write_gym_config,
             )
-            print(f"Wrote patched gym_config: {args.write_gym_config}")
+            print(f"Wrote environment component to {args.write_gym_config}")
     finally:
         env.close()
 
