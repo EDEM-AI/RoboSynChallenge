@@ -26,7 +26,7 @@ from embodichain.lab.task_program.language.loader import load_task_program
 from embodichain.utils.math import axis_angle_to_rotation_matrix
 
 from .insertion_targets import InsertionPlaceFactory
-from .task_program_adapter import compose_task_program
+from .task_program_adapter import InvocationMotionPolicyEnv, compose_task_program
 
 _POUR_ANGLE = -1.10
 _BOTTLE_MOUTH_HEIGHT = 0.236
@@ -535,6 +535,7 @@ _BASKET_DEPLOYMENT, _BASKET_ADAPTER = compose_task_program(
         BasketCarryFactory(),
     ),
     additional_lowerers=(BasketHandlePickupFactory(),),
+    motion_presets={"clear_left_arm": {"sample_count": 50}},
 )
 _BASKET_PROGRAM = load_task_program(
     _BASKET_DEPLOYMENT.program_path,
@@ -588,7 +589,10 @@ _CLUTTERED_POUR_ADAPTER, _CLUTTERED_POUR_PROGRAM = _water_pour_deployment(
     task_program_registration=_BASKET_ADAPTER.registration,
     task_program_adapter_factory=_BASKET_ADAPTER,
 )
-class HandleBasket(EmbodiedEnv):
+class HandleBasket(InvocationMotionPolicyEnv):
+    call_motion_presets = {
+        (_BASKET_PROGRAM.program_id, "simulation.park"): "clear_left_arm"
+    }
     def __init__(self, cfg, **kwargs):
         if cfg.task_program is None:
             cfg.task_program = _BASKET_PROGRAM

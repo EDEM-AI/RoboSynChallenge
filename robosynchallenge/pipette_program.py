@@ -1,10 +1,10 @@
 """Ground a physically articulated pipette for native pickup, motion and press."""
 
 import math
+from dataclasses import dataclass
 
 import torch
 
-from embodichain.lab.gym.envs import EmbodiedEnv
 from embodichain.lab.gym.utils.registration import register_env
 from embodichain.lab.sim.atomic_skills import (
     ContactGraspGoal,
@@ -23,8 +23,7 @@ from embodichain.lab.task_program.compiler.lowering import (
 from embodichain.lab.task_program.language.loader import load_task_program
 from embodichain.utils.math import axis_angle_to_rotation_matrix
 
-from .task_program_adapter import compose_task_program
-
+from .task_program_adapter import InvocationMotionPolicyEnv, compose_task_program
 
 def _body_to_grasp(pose):
     # Pinch the upper barrel at the center of its cross-section.
@@ -69,6 +68,8 @@ def _reachable_pipette_grasp(robot, context, bound):
 
 _PRESS_INCLINATIONS = (55, 65, 70, 75)
 _CAP_FACE = 0.00354
+_PRESS_OFFSETS = (0.038, 0.010, 0.0, -0.010, -0.025, 0.010, 0.038)
+_PRESS_BOTTOM = _PRESS_OFFSETS.index(min(_PRESS_OFFSETS))
 
 
 def _press_targets(button, left_base, affordance):
@@ -94,7 +95,7 @@ def _press_targets(button, left_base, affordance):
 def _press_joint_path(robot, context, poses, plunger_axis):
     """Keep the wrist inclined while advancing along the actual joint axis."""
     start = context.robot.qpos[:, robot.get_joint_ids("left_arm")]
-    offsets = poses.new_tensor((0.038, 0.010, 0.0, -0.010, -0.025, 0.010, 0.038))
+    offsets = poses.new_tensor(_PRESS_OFFSETS)
     targets = (
         poses[..., None, :, :].expand(*poses.shape[:-2], len(offsets), 4, 4).clone()
     )
@@ -310,8 +311,9 @@ class PipettePress(RegisteredSemanticLowerer):
     target_descriptor = MoveJoints.descriptor()
     preserves_symbolic_state = True
 
-    def __init__(self, robot):
+    def __init__(self, robot, *, press_hold_steps: int):
         self.robot = robot
+        self.press_hold_steps = press_hold_steps
         self.left_base = robot.get_link_pose("left_arm_base")[:, :3].clone()
         self.affordance = PressAffordance(press_position=(0.0, 0.0, 0.0))
 
@@ -325,6 +327,10 @@ class PipettePress(RegisteredSemanticLowerer):
         )
         rows = torch.arange(context.batch_size, device=button.device)
         stroke = solutions[rows, valid.long().argmax(dim=1)]
+        if self.press_hold_steps:
+            end = _PRESS_BOTTOM + 1
+            hold = stroke[:, _PRESS_BOTTOM:end].expand(-1, self.press_hold_steps, -1)
+            stroke = torch.cat((stroke[:, :end], hold, stroke[:, end:]), dim=1)
         endpoint = bound.binding.resources["primary"].endpoints["motion"]
         joint_ids = list(endpoint.runtime_target.joint_ids)
         paths = (
@@ -351,13 +357,16 @@ class PipettePress(RegisteredSemanticLowerer):
         )
 
 
+@dataclass(frozen=True)
 class PipettePressFactory:
+    press_hold_steps: int = 0
+
     call_id = PipettePress.call_id
     revision = "1"
     target_descriptor = PipettePress.target_descriptor
 
     def create(self, *, simulation, robot, scene_registry, engine):
-        return PipettePress(robot)
+        return PipettePress(robot, press_hold_steps=self.press_hold_steps)
 
 
 _DEPLOYMENT, _ADAPTER = compose_task_program(
@@ -367,8 +376,9 @@ _DEPLOYMENT, _ADAPTER = compose_task_program(
         ApproachPipetteFactory(),
         PipetteGraspFactory(),
         PositionPipetteFactory(),
-        PipettePressFactory(),
+        PipettePressFactory(press_hold_steps=3),
     ),
+    motion_presets={"press_plunger": {"acceleration_limit": 0.8}},
 )
 _PROGRAM = load_task_program(
     _DEPLOYMENT.program_path,
@@ -383,7 +393,8 @@ _PROGRAM = load_task_program(
     task_program_registration=_ADAPTER.registration,
     task_program_adapter_factory=_ADAPTER,
 )
-class ManipulatePipette(EmbodiedEnv):
+class ManipulatePipette(InvocationMotionPolicyEnv):
+    call_motion_presets = {(_PROGRAM.program_id, PipettePress.call_id): "press_plunger"}
     program = _PROGRAM
 
     def __init__(self, cfg, **kwargs):

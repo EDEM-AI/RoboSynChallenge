@@ -21,14 +21,14 @@ from embodichain.lab.task_program.language.loader import load_task_program
 from embodichain.lab.task_program.semantics import SceneObjectRef
 from embodichain.utils.utility import load_config
 
+from .cutlery_parallel import CutleryParallelSafetyFactory
 from .handover_targets import ReachableHandover, ReachableHandoverFactory
 from .insertion_targets import (
     InsertionAlignmentFactory,
     InsertionPlaceFactory,
     InsertionLoweringFactory,
 )
-from .task_program_adapter import compose_task_program
-
+from .task_program_adapter import InvocationMotionPolicyEnv, compose_task_program
 
 class MeasuredPlacementEnv(EmbodiedEnv):
     deployment = None
@@ -141,10 +141,18 @@ class CutleryPickupFactory:
 
 
 _TABLE_DEPLOYMENT, _TABLE_ADAPTER = compose_task_program(
-    "table_rearrangement", (), additional_lowerers=(CutleryPickupFactory(),)
+    "table_rearrangement",
+    (),
+    additional_lowerers=(CutleryPickupFactory(),),
+    parallel_safety_factory=CutleryParallelSafetyFactory(),
 )
 _TABLE_PROGRAM = load_task_program(
     _TABLE_DEPLOYMENT.program_path,
+    integration=_TABLE_DEPLOYMENT.selection,
+    validation_context=_TABLE_ADAPTER.registration.catalog,
+)
+_PARALLEL_TABLE_PROGRAM = load_task_program(
+    _TABLE_DEPLOYMENT.program_path.with_name("program.parallel.yaml"),
     integration=_TABLE_DEPLOYMENT.selection,
     validation_context=_TABLE_ADAPTER.registration.catalog,
 )
@@ -187,6 +195,7 @@ def _tube_deployment(integration_component=None):
         ),
         use_scene_grasp_options=True,
         integration_component=integration_component,
+        motion_presets={"tube_handover": {"sample_count": 98}},
     )
     program = load_task_program(
         deployment.program_path,
@@ -234,6 +243,15 @@ class TableRearrangement(MeasuredPlacementEnv):
     adapter = _TABLE_ADAPTER
     program = _TABLE_PROGRAM
 
+    def __init__(self, cfg, **kwargs):
+        if (
+            cfg.task_program is None
+            and cfg.num_envs == 1
+            and (cfg.extensions or {}).get("parallel_cutlery", True)
+        ):
+            cfg.task_program = _PARALLEL_TABLE_PROGRAM
+        super().__init__(cfg=cfg, **kwargs)
+
 
 @register_env(
     "RoboSyn-SampleLoading-v1",
@@ -241,7 +259,10 @@ class TableRearrangement(MeasuredPlacementEnv):
     task_program_registration=_TUBE_ADAPTER.registration,
     task_program_adapter_factory=_TUBE_ADAPTER,
 )
-class SampleLoading(MeasuredPlacementEnv):
+class SampleLoading(InvocationMotionPolicyEnv, MeasuredPlacementEnv):
+    call_motion_presets = {
+        (_TUBE_PROGRAM.program_id, TubeHandover.call_id): "tube_handover"
+    }
     deployment = _TUBE_DEPLOYMENT
     adapter = _TUBE_ADAPTER
     program = _TUBE_PROGRAM

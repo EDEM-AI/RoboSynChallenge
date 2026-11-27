@@ -1,5 +1,12 @@
 """Plan a native switch stroke and measure contact at the mixer."""
 
+from __future__ import annotations
+
+from collections.abc import Mapping
+from dataclasses import replace
+import math
+from typing import TYPE_CHECKING
+
 import torch
 
 from embodichain.compute.geometry import nearest_half_turn_pose
@@ -19,9 +26,18 @@ from embodichain.utils.math import axis_angle_to_rotation_matrix
 from .insertion_targets import InsertionPlaceFactory, _closed_jaw_targets
 from .task_program_adapter import compose_task_program
 
+if TYPE_CHECKING:
+    from embodichain.lab.task_program import TaskProgramCfg
+    from embodichain.lab.task_program.integrations.simulation.environment import (
+        SimulationTaskProgramAdapterFactory,
+    )
+
 _SWITCH_POSITION = (-0.1176, 0.0, 0.056)
 _SWITCH_APPROACH = 0.055
 _SWITCH_STROKE = 0.019
+_SWITCH_STROKE_SAMPLES = 24
+_SWITCH_EXECUTION_SAMPLES = (0, 6, 12, 16, 17, 18, 21, 23)
+_SWITCH_HOLD_STEPS = 4
 _SWITCH_CONTACT_ROTATION = (
     (0.34695238, 0.56999016, 0.74480563),
     (0.90711051, -0.00218471, -0.42088687),
@@ -62,8 +78,11 @@ class MixerPressLowerer(RegisteredSemanticLowerer):
             contact.flatten(0, 1), tcp.repeat_interleave(len(rolls), dim=0)
         )
         stroke = torch.linspace(
-            -_SWITCH_APPROACH, _SWITCH_STROKE, 24,
-            dtype=pose.dtype, device=pose.device,
+            -_SWITCH_APPROACH,
+            _SWITCH_STROKE,
+            _SWITCH_STROKE_SAMPLES,
+            dtype=pose.dtype,
+            device=pose.device,
         )
         path = contact[:, None].expand(-1, len(stroke), -1, -1).clone()
         path[..., :3, 3] += contact[:, None, :3, 2] * stroke[None, :, None]
@@ -79,15 +98,22 @@ class MixerPressLowerer(RegisteredSemanticLowerer):
         score = rolls.abs().expand_as(feasible).masked_fill(~feasible, torch.inf)
         rows = torch.arange(context.batch_size, device=pose.device)
         solved = solutions.reshape(context.batch_size, len(rolls), len(stroke), -1)
-        press = solved[rows, score.argmin(dim=1)]
-        arm_targets = torch.cat((joints[:, None], press, press[:, :-1].flip(dims=(1,))), dim=1)
+        # Keep the dense IK screen, then stop only at selected waypoints.
+        # Retain samples around contact and the exact full-stroke endpoint.
+        press = solved[rows, score.argmin(dim=1)][:, _SWITCH_EXECUTION_SAMPLES]
+        hold = press[:, -1:].expand(-1, _SWITCH_HOLD_STEPS, -1)
+        arm_targets = torch.cat(
+            (joints[:, None], press, hold, press[:, :-1].flip(dims=(1,))), dim=1
+        )
         targets = _closed_jaw_targets(
             self.robot, context, list(motion.joint_ids), arm_targets, "left"
         )
         return SemanticLowering(
             goal=JointPositionGoal(targets),
             failed_preconditions={
-                int(context.env_ids[row]): "No continuous wrist path reaches the mixer switch."
+                int(
+                    context.env_ids[row]
+                ): "No continuous wrist path reaches the mixer switch."
                 for row in (~feasible.any(dim=1)).nonzero().flatten().tolist()
             },
         )
@@ -102,46 +128,59 @@ class MixerPressFactory:
         return MixerPressLowerer(robot)
 
 
-_DEPLOYMENT, _ADAPTER = compose_task_program(
-    "mixer_operating",
-    (
-        InsertionPlaceFactory(
-            "beaker",
-            "mixer",
-            (0, 0, 0.09),
-            ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-            arm_side="right",
-            above_opening=0.020,
-            offset_in_world=True,
+_BEAKER_PLACEMENT = InsertionPlaceFactory(
+    "beaker",
+    "mixer",
+    (0, 0, 0.09),
+    ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+    arm_side="right",
+    above_opening=0.020,
+    offset_in_world=True,
+)
+_RANDOM_PICK_OPTIONS = {"grasp_settle_steps": 15, "cartesian_lift": False}
+
+
+def _compose_mixer(
+    placement: InsertionPlaceFactory | None,
+    *,
+    skill_options: Mapping[str, Mapping[str, bool | int | float]] | None = None,
+) -> tuple[SimulationTaskProgramAdapterFactory, TaskProgramCfg]:
+    integration_overrides = (
+        None if skill_options is None else {"profile": {"skill_options": skill_options}}
+    )
+    deployment, adapter = compose_task_program(
+        "mixer_operating",
+        () if placement is None else (placement,),
+        additional_lowerers=(MixerPressFactory(),),
+        integration_overrides=integration_overrides,
+    )
+    program = load_task_program(
+        deployment.program_path,
+        integration=deployment.selection,
+        validation_context=adapter.registration.catalog,
+    )
+    return adapter, program
+
+
+_ADAPTER, _PROGRAM = _compose_mixer(_BEAKER_PLACEMENT)
+_RANDOM_ADAPTER, _RANDOM_PROGRAM = _compose_mixer(
+    replace(
+        _BEAKER_PLACEMENT,
+        yaw_candidates=tuple(
+            angle * math.pi / 6 for angle in (0, -1, 1, -2, 2, -3, 3, 6)
         ),
     ),
-    additional_lowerers=(MixerPressFactory(),),
+    skill_options={"pick": _RANDOM_PICK_OPTIONS},
 )
-_RANDOM_DEPLOYMENT, _RANDOM_ADAPTER = compose_task_program(
-    "mixer_operating",
-    (),
-    additional_lowerers=(MixerPressFactory(),),
-    integration_overrides={
-        "profile": {
-            "skill_options": {
-                "pick": {"grasp_settle_steps": 15, "cartesian_lift": False},
-                "simulation.place_relative": {
-                    "lift_height": 0.08,
-                    "preserve_current_object_orientation": True,
-                },
-            },
+_PRESERVE_ORIENTATION_ADAPTER, _PRESERVE_ORIENTATION_PROGRAM = _compose_mixer(
+    None,
+    skill_options={
+        "pick": _RANDOM_PICK_OPTIONS,
+        "simulation.place_relative": {
+            "lift_height": 0.08,
+            "preserve_current_object_orientation": True,
         },
     },
-)
-_PROGRAM = load_task_program(
-    _DEPLOYMENT.program_path,
-    integration=_DEPLOYMENT.selection,
-    validation_context=_ADAPTER.registration.catalog,
-)
-_RANDOM_PROGRAM = load_task_program(
-    _RANDOM_DEPLOYMENT.program_path,
-    integration=_RANDOM_DEPLOYMENT.selection,
-    validation_context=_RANDOM_ADAPTER.registration.catalog,
 )
 
 
@@ -153,15 +192,22 @@ _RANDOM_PROGRAM = load_task_program(
 )
 class MixerOperating(EmbodiedEnv):
     def __init__(self, cfg, **kwargs):
-        preserve_beaker_orientation = (cfg.extensions or {}).get(
-            "preserve_beaker_orientation", False
-        )
+        extensions = cfg.extensions or {}
+        adapter, program = _ADAPTER, _PROGRAM
+        if extensions.get("calibrated_beaker_placement"):
+            adapter, program = _RANDOM_ADAPTER, _RANDOM_PROGRAM
+        elif extensions.get("preserve_beaker_orientation"):
+            adapter, program = (
+                _PRESERVE_ORIENTATION_ADAPTER,
+                _PRESERVE_ORIENTATION_PROGRAM,
+            )
         if cfg.task_program is None:
-            cfg.task_program = _RANDOM_PROGRAM if preserve_beaker_orientation else _PROGRAM
-        if preserve_beaker_orientation:
-            adapter = kwargs.get("task_program_adapter_factory")
-            if adapter is None or adapter is _ADAPTER:
-                kwargs["task_program_adapter_factory"] = _RANDOM_ADAPTER
+            cfg.task_program = program
+        requested_adapter = kwargs.get("task_program_adapter_factory")
+        if adapter is not _ADAPTER and (
+            requested_adapter is None or requested_adapter is _ADAPTER
+        ):
+            kwargs["task_program_adapter_factory"] = adapter
         super().__init__(cfg=cfg, **kwargs)
         self._pressed = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
         self._contact_sensor = self.sim.get_sensor("beaker_mixer_button_contact")

@@ -5,9 +5,11 @@ requires:
 motion:
   strategy: ik_interp
   velocity_targets: auto
-  sample_count: 150
+  sample_count: 60
   ik_seed_mode: sequential
   dynamic_collision_mode: 'off'
+  acceleration_limit: 1.2
+  interpolate_position_step: 0.004
 tracking:
   kind: timed
 recovery:

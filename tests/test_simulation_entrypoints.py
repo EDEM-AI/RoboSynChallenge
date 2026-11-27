@@ -135,3 +135,112 @@ def test_replay_rejects_missing_entities_before_state_access(
 
     with pytest.raises(ValueError, match=f"missing recorded {category}.*{uid}"):
         replay_seeded.verify_initial_state(env, expected, recorded_reset=recorded_reset)
+
+
+@pytest.mark.parametrize(
+    "module_name, env_name, adapter_name, program_name, segment_name, expected_motion",
+    [
+        (
+            "carry_pour_programs",
+            "HandleBasket",
+            "_BASKET_ADAPTER",
+            "_BASKET_PROGRAM",
+            "clear_left_arm",
+            ((95, 2.0), (50, 2.0)),
+        ),
+        (
+            "pipette_program",
+            "ManipulatePipette",
+            "_ADAPTER",
+            "_PROGRAM",
+            "press_plunger",
+            ((50, 2.0), (50, 0.8)),
+        ),
+        (
+            "placement_programs",
+            "SampleLoading",
+            "_TUBE_ADAPTER",
+            "_TUBE_PROGRAM",
+            "hand_over_test_tube",
+            ((60, 1.2), (98, 1.2)),
+        ),
+    ],
+)
+def test_expert_bridge_selects_motion_preset_for_one_occurrence(
+    module_name, env_name, adapter_name, program_name, segment_name, expected_motion
+):
+    from importlib import import_module
+
+    from embodichain.lab.task_program.integrations.invocation_policy import (
+        BoundInvocationPolicies,
+    )
+
+    module = import_module(f"robosynchallenge.{module_name}")
+    env_type = getattr(module, env_name)
+    registration = getattr(module, adapter_name).registration
+    program = registration.catalog.preflight(getattr(module, program_name))
+    segment = next(s for s in program.iter_segments() if s.name == segment_name)
+    calls = []
+
+    def create_bridge(compiled, *, invocation_policy_bindings, **kwargs):
+        BoundInvocationPolicies(compiled, invocation_policy_bindings)
+        calls.extend(invocation_policy_bindings)
+        return object()
+
+    env = SimpleNamespace(
+        cfg=SimpleNamespace(task_program_execution="expert"),
+        num_envs=1,
+        call_motion_presets=env_type.call_motion_presets,
+        _checked_task_program_adapter=lambda: SimpleNamespace(
+            create_bridge=create_bridge
+        ),
+    )
+    env_type.create_task_program_bridge(env, program)
+
+    assert len(calls) == 1
+    assert calls[0].invocation_id == f"{program.program_id}/{segment.segment_id}:0"
+    policy_by_id = {
+        preset.preset_id: preset.motion_policy
+        for preset in registration.robot_profile_binding.presets
+    }
+    selected = (
+        policy_by_id[program.integration.runtime_preset],
+        policy_by_id[calls[0].preset_id],
+    )
+    assert (
+        tuple((p.sample_count, p.acceleration_limit) for p in selected)
+        == expected_motion
+    )
+
+
+def test_cutlery_clearance_checks_interior_samples():
+    from robosynchallenge.cutlery_parallel import _lanes_are_clear
+
+    left_low = torch.zeros(3, 1, 3)
+    right_low = torch.tensor([[[0.2, 0.0, 0.0]]]).repeat(3, 1, 1)
+    left = (left_low, left_low + 0.1)
+    assert _lanes_are_clear(left, (right_low, right_low + 0.1))
+
+    right_low[1, 0, 0] = 0.09
+    assert not _lanes_are_clear(left, (right_low, right_low + 0.1))
+
+
+def test_two_beaker_pipette_uses_its_registered_policy(monkeypatch):
+    from embodichain.lab.gym.envs import EmbodiedEnv
+
+    from robosynchallenge.experimental_programs import (
+        _TRANSFER_ADAPTER,
+        _TRANSFER_PROGRAM,
+        TransferPipette,
+    )
+
+    program = _TRANSFER_ADAPTER.registration.catalog.preflight(_TRANSFER_PROGRAM)
+    env = object.__new__(TransferPipette)
+    sdk_bridge = object()
+
+    def create_sdk_bridge(self, compiled, **kwargs):
+        assert compiled is program
+        return sdk_bridge
+
+    monkeypatch.setattr(EmbodiedEnv, "create_task_program_bridge", create_sdk_bridge)
+    assert env.create_task_program_bridge(program) is sdk_bridge

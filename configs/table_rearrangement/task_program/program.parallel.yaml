@@ -1,0 +1,56 @@
+program_id: table_rearrangement
+instruction: Place the fork to the left of the plate and the spoon to the right.
+targets: {}
+program:
+  kind: sequence
+  items:
+  - kind: segment
+    name: pick_cutlery
+    instruction: Pick and lift the fork and the spoon with their respective arms.
+    steps:
+      kind: parallel
+      branches:
+      - kind: invoke
+        call:
+          kind: registered
+          call_id: robosyn.pick_cutlery
+          arguments: {object: fork}
+          resources: {primary: left_manipulator}
+      - kind: invoke
+        call:
+          kind: registered
+          call_id: robosyn.pick_cutlery
+          arguments: {object: spoon}
+          resources: {primary: right_manipulator}
+      barrier: {kind: barrier, name: cutlery_picked}
+    validators:
+    - kind: object_lifted
+      object: fork
+      minimum_lift: 0.02
+    - kind: object_lifted
+      object: spoon
+      minimum_lift: 0.02
+  - kind: segment
+    name: place_cutlery
+    instruction: Put the fork and the spoon on their respective sides of the plate.
+    steps:
+      kind: parallel
+      branches:
+      - kind: invoke
+        call:
+          kind: registered
+          call_id: simulation.place_relative
+          arguments: {object: fork, reference: plate, relation: left_of}
+          resources: {primary: left_manipulator}
+      - kind: invoke
+        call:
+          kind: registered
+          call_id: simulation.place_relative
+          arguments: {object: spoon, reference: plate, relation: right_of}
+          resources: {primary: right_manipulator}
+      barrier: {kind: barrier, name: cutlery_placed}
+    post:
+    - kind: wait_stable
+      entity: fork
+    - kind: wait_stable
+      entity: spoon
