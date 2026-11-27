@@ -1,5 +1,7 @@
 """Ground the challenge drawer's handle marker for EmbodiChain's Slide skill."""
 
+from dataclasses import replace
+
 import torch
 from scipy.spatial.transform import Rotation
 
@@ -51,19 +53,74 @@ class DrawerSlideLowerer(RegisteredSemanticLowerer):
     preserves_symbolic_state = True
     axis_sign = -1
 
-    def __init__(self, semantics):
+    def __init__(self, semantics, robot):
         self.semantics = semantics
+        self.robot = robot
+
+    def _select_handle_grasp(self, context, bound, options, tray, displacement):
+        affordance = self.semantics.affordance
+        arm = bound.binding.resources["primary"].endpoints["motion"].runtime_target
+        grasps = tray[:, None] @ affordance.custom_config["handle_grasps"].to(tray)
+        rail = tray[:, :3, :3] @ affordance.translation_axis.to(tray)
+        approach = (
+            grasps[..., :3, 2] if options.approach_along_grasp_axis else rail[:, None]
+        )
+        start = grasps[..., :3, 3]
+        stroke = rail[:, None] * displacement[:, None, None]
+        end = start + stroke
+        reach = approach * options.approach_distance
+        retreat = grasps[..., :3, 2] * options.release_retreat_distance
+        fractions = torch.linspace(0, 1, 13, device=tray.device, dtype=tray.dtype)
+        waypoints = torch.cat(
+            (
+                start[:, :, None] - reach[:, :, None] * (1 - fractions[:, None]),
+                start[:, :, None] + stroke[:, :, None] * fractions[1:, None],
+                end[:, :, None] - retreat[:, :, None] * fractions[3::3, None],
+            ),
+            dim=2,
+        )
+        poses = grasps[:, :, None].expand(-1, -1, waypoints.shape[2], -1, -1).clone()
+        poses[..., :3, 3] = waypoints
+        count = grasps.shape[1]
+        joints = context.robot.qpos[:, list(arm.joint_ids)]
+        env_ids = torch.as_tensor(context.env_ids, device=tray.device)
+        # Give every candidate its own seed so the native solver tracks one
+        # continuous IK branch along each reach, rail stroke and retreat.
+        valid, solutions = self.robot.compute_batch_ik(
+            pose=poses.flatten(0, 1),
+            joint_seed=joints.repeat_interleave(count, dim=0),
+            name=arm.control_part,
+            env_ids=env_ids.repeat_interleave(count),
+            continuous=True,
+        )
+        valid = valid.reshape(context.batch_size, count, -1).all(dim=-1)
+        solutions = solutions.reshape(context.batch_size, count, waypoints.shape[2], -1)
+        step_cost = solutions.diff(dim=2).abs().amax(dim=(-1, -2))
+        start_cost = (solutions[:, :, 0] - joints[:, None]).abs().amax(dim=-1)
+        cost = (step_cost + 0.1 * start_cost).masked_fill(~valid, torch.inf)
+        rows = torch.arange(context.batch_size, device=tray.device)
+        selected = grasps[rows, cost.argmin(dim=1)]
+        return torch.linalg.solve(tray, selected)
 
     def lower(self, call, *, context, bound, option_template):
         if call.arguments["handle"] != self.semantics.entity_id:
             raise ValueError("The drawer Slide call must name drawer_tray.")
+        tray = context.scene.entities["drawer_tray"].pose
+        joint = context.scene.articulation_joints[("drawer", "slide_rails")]
+        position = joint.position.reshape(-1).expand(context.batch_size)
+        target = call.arguments["position"]
+        grasp = self._select_handle_grasp(
+            context, bound, option_template, tray, (target - position) * self.axis_sign
+        )
+        affordance = replace(
+            self.semantics.affordance, custom_config={"handle_grasp": grasp}
+        )
         return SemanticLowering(
             goal=SlideGoal(
-                self.semantics,
-                context.scene.entities["drawer_tray"].pose.clone(),
+                replace(self.semantics, affordance=affordance),
+                tray.clone(),
                 joint_target=SlideJointTarget(
-                    "drawer", "slide_rails", call.arguments["position"],
-                    axis_sign=self.axis_sign,
+                    "drawer", "slide_rails", target, axis_sign=self.axis_sign,
                 ),
             )
         )
@@ -85,14 +142,18 @@ class DrawerSlideFactory:
         # The locator is above the graspable rail lip in the scaled scene.
         handle[2, 3] += self.handle_height_offset
         handle[:3, 3] -= self.handle_rail_offset * tray[:3, 0]
-        handle[:3, :3] = torch.as_tensor(
-            Rotation.from_euler("YZX", (90, -90, -35), degrees=True).as_matrix(),
+        handles = handle.expand(5, -1, -1).clone()
+        handles[:, :3, :3] = torch.as_tensor(
+            Rotation.from_euler(
+                "YZX", [(90, -90, angle) for angle in (-35, -25, -45, -15, -55)],
+                degrees=True,
+            ).as_matrix(),
             dtype=tray.dtype,
             device=tray.device,
         )
         vertices, faces = drawer.get_link_vert_face("inner_box")
         affordance = DrawerHandleAffordance(
-            custom_config={"handle_grasp": torch.linalg.solve(tray, handle)},
+            custom_config={"handle_grasps": torch.linalg.solve(tray, handles)},
             mesh_vertices=torch.as_tensor(
                 vertices, dtype=torch.float32, device=tray.device
             ),
@@ -102,7 +163,8 @@ class DrawerSlideFactory:
             joint_limits=(0.0, 0.20),
         )
         return self.lowerer_type(
-            ObjectSemantics(affordance=affordance, geometry={}, entity_id="drawer_tray")
+            ObjectSemantics(affordance=affordance, geometry={}, entity_id="drawer_tray"),
+            robot,
         )
 
 

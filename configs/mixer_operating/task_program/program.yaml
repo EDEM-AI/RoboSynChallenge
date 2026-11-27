@@ -38,6 +38,6 @@ program:
         kind: invoke
         call:
           kind: registered
-          call_id: simulation.press
+          call_id: robosyn.press_mixer_switch
           arguments: {object: mixer}
-          resources: {primary: left_manipulator}
+          resources: {primary: left_loaded_manipulator}

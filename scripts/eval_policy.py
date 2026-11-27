@@ -234,12 +234,13 @@ class EpisodeVideoRecorder:
 
 
 class RecordingEnvProxy:
-    """Proxy env.step/reset so policy adapters do not need video-specific code."""
+    """Apply rollout recording, reset synchronization, and the policy step limit."""
 
-    def __init__(self, env, recorder=None, reset_sync_steps=0):
+    def __init__(self, env, recorder=None, reset_sync_steps=0, max_steps=None):
         self._env = env
         self._recorder = recorder
         self._reset_sync_steps = int(reset_sync_steps)
+        self._max_steps = max_steps
 
     def __getattr__(self, name):
         return getattr(self._env, name)
@@ -253,6 +254,8 @@ class RecordingEnvProxy:
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self._env.step(action)
+        if self._max_steps is not None:
+            truncated = truncated | (info["elapsed_steps"] >= self._max_steps)
         if self._recorder and not (
             self._as_done(terminated) or self._as_done(truncated)
         ):
@@ -417,11 +420,9 @@ def make_native_env(config, deployment):
     args.preview = False
     args.filter_dataset_saving = True
     cfg, gym_config, _ = gym_utils.build_env_cfg_from_args(args)
-    env_options = {}
     if config.get("eval_max_steps") is not None:
-        limit, _, _ = resolve_episode_max_steps(config, gym_config)
-        env_options["max_episode_steps"] = limit
-    return gym.make(id=gym_config["id"], cfg=cfg, **env_options), gym_config
+        resolve_episode_max_steps(config, gym_config)
+    return gym.make(id=gym_config["id"], cfg=cfg), gym_config
 
 def _instruction_to_text(instruction):
     if isinstance(instruction, str):
@@ -600,10 +601,19 @@ def main():
     result_path = run_dir / "evaluation_metrics.json"
     video_recorder = create_video_recorder(config, run_dir=run_dir)
     reset_sync_steps = int(config.get("eval_reset_sync_steps", 0))
-    eval_env = (
-        RecordingEnvProxy(env, video_recorder, reset_sync_steps=reset_sync_steps)
-        if video_recorder or reset_sync_steps > 0
+    expert_env = (
+        RecordingEnvProxy(env, reset_sync_steps=reset_sync_steps)
+        if reset_sync_steps > 0
         else env
+    )
+    policy_step_limit = max_env_steps if config.get("eval_max_steps") is not None else None
+    eval_env = (
+        RecordingEnvProxy(
+            env, video_recorder, reset_sync_steps=reset_sync_steps,
+            max_steps=policy_step_limit,
+        )
+        if video_recorder or policy_step_limit is not None
+        else expert_env
     )
     if video_recorder:
         print(f"Recording eval videos to: {video_recorder.save_dir}")
@@ -677,7 +687,7 @@ def main():
             if expert_check:
                 with suppress_expert_output():
                     expert_result = check_episode_feasibility(
-                        eval_env,
+                        expert_env,
                         seed=ep_seed,
                     )
                 if not expert_result["feasible"]:

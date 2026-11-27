@@ -10,9 +10,9 @@ program:
     steps:
       kind: invoke
       call:
-        kind: pick
-        object: sleeve
-        grasp: sleeve_grasp
+        kind: registered
+        call_id: robosyn.pick_tube
+        arguments: {object: sleeve}
         resources:
           primary: right_manipulator
     validators:
@@ -25,9 +25,9 @@ program:
     steps:
       kind: invoke
       call:
-        kind: pick
-        object: insert
-        grasp: insert_grasp
+        kind: registered
+        call_id: robosyn.pick_tube
+        arguments: {object: insert}
         resources:
           primary: left_manipulator
     validators:
@@ -41,22 +41,45 @@ program:
       kind: invoke
       call:
         kind: registered
-        call_id: simulation.move_held_object
-        arguments:
-          object: sleeve
-          target: sleeve_pose
+        call_id: robosyn.move_tube
+        arguments: {object: sleeve, phase: orient}
         resources:
           primary: right_manipulator
   - kind: segment
-    name: dock_insert
-    instruction: Align the insert to the sleeve axis and push the two ends together.
+    name: align_insert
+    instruction: Bring the insert into alignment with the sleeve before contact.
     steps:
       kind: invoke
       call:
         kind: registered
-        call_id: simulation.move_held_object
-        arguments:
-          object: insert
-          target: dock_pose
+        call_id: robosyn.move_tube
+        arguments: {object: insert, phase: align}
         resources:
           primary: left_manipulator
+  - kind: segment
+    name: dock_insert
+    instruction: Align the insert to the sleeve axis and push the two ends together.
+    steps:
+      kind: sequence
+      items:
+      - kind: invoke
+        call:
+          kind: registered
+          call_id: robosyn.dock_tubes
+          arguments: {phase: approach}
+          resources:
+            primary: assembly_manipulators
+      - kind: repeat
+        count: 6
+        body:
+          kind: invoke
+          call:
+            kind: registered
+            call_id: robosyn.dock_tubes
+            arguments: {phase: advance}
+            resources:
+              primary: assembly_manipulators
+    post:
+    - kind: wait_stable
+      entity: insert
+      preset: docked_tubes

@@ -1,24 +1,27 @@
-"""Bind the mixer switch to native Press and measure contact at the switch."""
+"""Plan a native switch stroke and measure contact at the mixer."""
 
 import torch
 
+from embodichain.compute.geometry import nearest_half_turn_pose
 from embodichain.lab.gym.envs import EmbodiedEnv
 from embodichain.lab.gym.utils.registration import register_env
 from embodichain.lab.sim.atomic_skills import (
-    ObjectSemantics,
-    Press,
-    PressAffordance,
-    PressGoal,
+    JointPositionGoal,
+    MoveJoints,
 )
 from embodichain.lab.task_program.compiler.lowering import (
     RegisteredSemanticLowerer,
     SemanticLowering,
 )
+from embodichain.lab.task_program.language.loader import load_task_program
+from embodichain.utils.math import axis_angle_to_rotation_matrix
 
-from .insertion_targets import InsertionPlaceFactory
+from .insertion_targets import InsertionPlaceFactory, _closed_jaw_targets
 from .task_program_adapter import compose_task_program
 
 _SWITCH_POSITION = (-0.1176, 0.0, 0.056)
+_SWITCH_APPROACH = 0.055
+_SWITCH_STROKE = 0.019
 _SWITCH_CONTACT_ROTATION = (
     (0.34695238, 0.56999016, 0.74480563),
     (0.90711051, -0.00218471, -0.42088687),
@@ -26,53 +29,82 @@ _SWITCH_CONTACT_ROTATION = (
 )
 
 
-class MixerSwitchAffordance(PressAffordance):
-    """Keep the calibrated wrist orientation fixed to the mixer body."""
-
-    def get_press_pose(self, target_pose, press_position=None):
-        contact = super().get_press_pose(target_pose, press_position)
-        contact[:, :3, :3] = target_pose[:, :3, :3] @ contact.new_tensor(
-            _SWITCH_CONTACT_ROTATION
-        )
-        return contact
-
-
 class MixerPressLowerer(RegisteredSemanticLowerer):
-    call_id = "simulation.press"
-    target_descriptor = Press.descriptor()
-    requires_unoccupied_slots = ("primary",)
+    call_id = "robosyn.press_mixer_switch"
+    target_descriptor = MoveJoints.descriptor()
     preserves_symbolic_state = True
+
+    def __init__(self, robot):
+        self.robot = robot
 
     def lower(self, call, *, context, bound, option_template):
         target = call.arguments["object"]
         if target != "mixer":
             raise ValueError("Mixer press requires the mixer scene entity.")
         pose = context.scene.entities[target].pose
-        semantics = ObjectSemantics(
-            affordance=MixerSwitchAffordance(
-                press_axis=pose.new_tensor(_SWITCH_CONTACT_ROTATION)[:, 2],
-                press_position=_SWITCH_POSITION,
-            ),
-            geometry={},
-            entity_id=target,
+        motion = bound.binding.resources["primary"].endpoints["motion"].runtime_target
+        joints = context.robot.qpos[:, self.robot.get_joint_ids("left_arm")]
+        tcp = self.robot.compute_fk(
+            qpos=joints, name="left_arm", to_matrix=True, env_ids=context.env_ids
         )
-        # The mixer moves under contact. Complete this stroke from its initial pose.
-        return SemanticLowering(goal=PressGoal(semantics, pose.clone()))
+        # The switch point and press axis are fixed. A small roll keeps the
+        # Cartesian stroke on one reachable IK branch as the mixer pose varies.
+        rolls = pose.new_tensor((0.0, -0.14, 0.14, -0.28, 0.28, -0.42, 0.42))
+        local_rotation = pose.new_tensor(_SWITCH_CONTACT_ROTATION) @ (
+            axis_angle_to_rotation_matrix(rolls[:, None] * pose.new_tensor((0, 0, 1)))
+        )
+        contact = pose[:, None].expand(-1, len(rolls), -1, -1).clone()
+        contact[..., :3, :3] = pose[:, None, :3, :3] @ local_rotation
+        contact[..., :3, 3] = (
+            pose[:, :3, 3] + pose[:, :3, :3] @ pose.new_tensor(_SWITCH_POSITION)
+        )[:, None]
+        contact = nearest_half_turn_pose(
+            contact.flatten(0, 1), tcp.repeat_interleave(len(rolls), dim=0)
+        )
+        stroke = torch.linspace(
+            -_SWITCH_APPROACH, _SWITCH_STROKE, 24,
+            dtype=pose.dtype, device=pose.device,
+        )
+        path = contact[:, None].expand(-1, len(stroke), -1, -1).clone()
+        path[..., :3, 3] += contact[:, None, :3, 2] * stroke[None, :, None]
+        valid, solutions = self.robot.compute_batch_ik(
+            pose=path,
+            joint_seed=joints.repeat_interleave(len(rolls), dim=0),
+            name="left_arm",
+            env_ids=context.env_ids.repeat_interleave(len(rolls)),
+            continuous=True,
+        )
+        continuous = solutions.diff(dim=1).abs().amax(dim=(1, 2)) <= 0.20
+        feasible = (valid.all(dim=1) & continuous).reshape(context.batch_size, -1)
+        score = rolls.abs().expand_as(feasible).masked_fill(~feasible, torch.inf)
+        rows = torch.arange(context.batch_size, device=pose.device)
+        solved = solutions.reshape(context.batch_size, len(rolls), len(stroke), -1)
+        press = solved[rows, score.argmin(dim=1)]
+        arm_targets = torch.cat((joints[:, None], press, press[:, :-1].flip(dims=(1,))), dim=1)
+        targets = _closed_jaw_targets(
+            self.robot, context, list(motion.joint_ids), arm_targets, "left"
+        )
+        return SemanticLowering(
+            goal=JointPositionGoal(targets),
+            failed_preconditions={
+                int(context.env_ids[row]): "No continuous wrist path reaches the mixer switch."
+                for row in (~feasible.any(dim=1)).nonzero().flatten().tolist()
+            },
+        )
 
 
 class MixerPressFactory:
-    call_id = "simulation.press"
+    call_id = MixerPressLowerer.call_id
     revision = "1"
-    target_descriptor = Press.descriptor()
+    target_descriptor = MixerPressLowerer.target_descriptor
 
     def create(self, *, simulation, robot, scene_registry, engine):
-        return MixerPressLowerer()
+        return MixerPressLowerer(robot)
 
 
 _DEPLOYMENT, _ADAPTER = compose_task_program(
     "mixer_operating",
     (
-        MixerPressFactory(),
         InsertionPlaceFactory(
             "beaker",
             "mixer",
@@ -83,10 +115,12 @@ _DEPLOYMENT, _ADAPTER = compose_task_program(
             offset_in_world=True,
         ),
     ),
+    additional_lowerers=(MixerPressFactory(),),
 )
 _RANDOM_DEPLOYMENT, _RANDOM_ADAPTER = compose_task_program(
     "mixer_operating",
-    (MixerPressFactory(),),
+    (),
+    additional_lowerers=(MixerPressFactory(),),
     integration_overrides={
         "profile": {
             "skill_options": {
@@ -98,6 +132,16 @@ _RANDOM_DEPLOYMENT, _RANDOM_ADAPTER = compose_task_program(
             },
         },
     },
+)
+_PROGRAM = load_task_program(
+    _DEPLOYMENT.program_path,
+    integration=_DEPLOYMENT.selection,
+    validation_context=_ADAPTER.registration.catalog,
+)
+_RANDOM_PROGRAM = load_task_program(
+    _RANDOM_DEPLOYMENT.program_path,
+    integration=_RANDOM_DEPLOYMENT.selection,
+    validation_context=_RANDOM_ADAPTER.registration.catalog,
 )
 
 
@@ -113,8 +157,7 @@ class MixerOperating(EmbodiedEnv):
             "preserve_beaker_orientation", False
         )
         if cfg.task_program is None:
-            deployment = _RANDOM_DEPLOYMENT if preserve_beaker_orientation else _DEPLOYMENT
-            cfg.task_program = deployment.load_program()
+            cfg.task_program = _RANDOM_PROGRAM if preserve_beaker_orientation else _PROGRAM
         if preserve_beaker_orientation:
             adapter = kwargs.get("task_program_adapter_factory")
             if adapter is None or adapter is _ADAPTER:

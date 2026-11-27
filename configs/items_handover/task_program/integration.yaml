@@ -7,6 +7,8 @@ scene_binding:
   contract_id: robosyn_items_handover
   registry_id: robosyn_items_handover
   rigid_objects:
+  - entity_id: table
+    dynamics: static
   - entity_id: pen
     dynamics: dynamic
     simulation_uid: pen
@@ -26,18 +28,25 @@ scene_binding:
 profile:
   defaults: {}
   skill_options:
-    pick:
+    robosyn.pick_pen_end:
       kind: pick_up
       pre_grasp_distance: 0.05
       lift_height: 0.065
       approach_direction: [0.32, 0.50, -1.0]
       grasp_settle_steps: 12
       hand_interp_steps: 12
-    hand_over:
+      fixed_object_to_eef:
+        position: [-0.035, 0.0, 0.0]
+        quaternion_xyzw: [1.0, 0.0, 0.0, 0.0]
+      approach_along_grasp_axis: true
+      cartesian_lift: true
+    robosyn.present_pen:
+      kind: move_held_object
+    robosyn.hand_over_pen:
       kind: hand_over
       arm_selection: bound
       release_at_target: false
-      pre_grasp_distance: 0.035
+      pre_grasp_distance: 0.025
       receive_pick_object_part: center
       lift_height: 0.0
       hand_interp_steps: 20
@@ -46,9 +55,15 @@ profile:
       retreat_steps: 50
     robosyn.align_for_insertion:
       kind: move_joints
+    robosyn.lift_received_pen:
+      kind: move_joints
+    robosyn.lower_into_receptacle:
+      kind: move_joints
+    simulation.park:
+      kind: move_joints
     simulation.place_relative:
       kind: place
-      lift_height: 0.025
+      lift_height: 0.0
       cartesian_waypoint_count: 1
       hand_interp_steps: 18
       release_settle_steps: 30
@@ -73,6 +88,7 @@ runtime_services:
     - 0.0
     - 1.0
   registered_semantic_lowerers:
+  - kind: park
   - kind: place_relative
     routes:
     - object_id: pen

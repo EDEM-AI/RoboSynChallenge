@@ -6,7 +6,12 @@ import math
 import torch
 from embodichain.lab.gym.envs import EmbodiedEnv
 from embodichain.lab.gym.utils.registration import register_env
-from embodichain.lab.sim.atomic_skills import GraspGoal, PickUp
+from embodichain.lab.sim.atomic_skills import (
+    GraspGoal,
+    HeldObjectPoseGoal,
+    MoveHeldObject,
+    PickUp,
+)
 from embodichain.lab.task_program.compiler.lowering import (
     HeldObjectRelation,
     RegisteredHeldObjectEffect,
@@ -31,9 +36,9 @@ from .insertion_targets import (
     InsertionPlaceFactory,
 )
 from .pipette_program import (
-    ApproachPipette,
+    ApproachPipetteFactory,
     ManipulatePipette,
-    PipetteGrasp,
+    PipetteGraspFactory,
     PipettePressFactory,
     PositionPipette,
     PositionPipetteFactory,
@@ -139,13 +144,146 @@ class LidPickupFactory:
         )
 
 
-_LID_ALIGNMENT = InsertionPlaceFactory(
-    "lid",
+class LidClearance(RegisteredSemanticLowerer):
+    """Move the lid to a reachable clearance while keeping its grasp."""
+
+    call_id = "robosyn.move_lid_clear"
+    revision = "1"
+    target_descriptor = MoveHeldObject.descriptor()
+    preserves_symbolic_state = True
+
+    def __init__(self, robot):
+        self.robot = robot
+
+    def lower(self, call, *, context, bound, option_template):
+        pan = context.scene.entities["pan"].pose
+        lid = context.scene.entities["lid"].pose
+        motion = bound.binding.resources["primary"].endpoints["motion"]
+        arm = motion.runtime_target
+        held = context.task.get_held_object(motion.task_state_key)
+        if held is None or held.semantics.entity_id != "lid":
+            raise ValueError("Lid clearance requires the held lid.")
+        # Clear the rim plus the receiving arm's wrist envelope on the left.
+        # The lid is still held while the right arm crosses to the pan.
+        offsets = pan.new_tensor(
+            (
+                (-0.09, 0.225, 0.195),
+                (-0.14, 0.215, 0.195),
+                (-0.18, 0.195, 0.19),
+                (-0.05, 0.235, 0.19),
+                (-0.13, 0.225, 0.215),
+                (-0.19, 0.165, 0.22),
+            )
+        )
+        targets = lid[:, None].expand(-1, len(offsets), -1, -1).clone()
+        targets[..., :3, 3] = pan[:, None, :3, 3] + offsets @ pan[:, :3, :3].mT
+        grasp = held.object_to_eef.to(pan).expand_as(lid)
+        wrists = targets @ grasp[:, None]
+        joints = context.robot.qpos[:, list(arm.joint_ids)]
+        seeds = joints[:, None].expand(-1, len(offsets), -1)
+        valid, solutions = self.robot.compute_batch_ik(
+            pose=wrists, joint_seed=seeds, name=arm.control_part, env_ids=context.env_ids
+        )
+        valid = valid.to(dtype=torch.bool)
+        cost = (solutions - seeds).square().sum(dim=-1).masked_fill(~valid, torch.inf)
+        rows = torch.arange(context.batch_size, device=pan.device)
+        return SemanticLowering(
+            goal=HeldObjectPoseGoal(
+                targets[rows, cost.argmin(dim=1)], world_yaw_free=True
+            )
+        )
+
+
+class LidClearanceFactory:
+    call_id = LidClearance.call_id
+    revision = LidClearance.revision
+    target_descriptor = LidClearance.target_descriptor
+
+    def create(self, *, simulation, robot, scene_registry, engine):
+        return LidClearance(robot)
+
+
+class LidSeat(RegisteredSemanticLowerer):
+    """Return the held lid above the rim before lowering it vertically."""
+
+    call_id = "robosyn.seat_lid"
+    revision = "1"
+    target_descriptor = MoveHeldObject.descriptor()
+    preserves_symbolic_state = True
+
+    def __init__(self, robot):
+        self.robot = robot
+
+    def lower(self, call, *, context, bound, option_template):
+        pan = context.scene.entities["pan"].pose
+        lid = context.scene.entities["lid"].pose
+        endpoint = bound.binding.resources["primary"].endpoints["motion"]
+        arm = endpoint.runtime_target
+        held = context.task.get_held_object(endpoint.task_state_key)
+        if held is None or held.semantics.entity_id != "lid":
+            raise ValueError("Seating the lid requires its held knob.")
+
+        yaw = torch.atan2(lid[:, 1, 0], lid[:, 0, 0])
+        turns = lid.new_tensor((0, -0.39, 0.39, -0.79, 0.79, -1.57, 1.57, math.pi))
+        flat = axis_angle_to_rotation_matrix(
+            (yaw[:, None, None] + turns[None, :, None]) * lid.new_tensor((0, 0, 1))
+        )
+        seat = lid[:, None].expand(-1, len(turns), -1, -1).clone()
+        seat[..., :3, :3] = flat
+        seat[..., :3, 3] = pan[:, None, :3, 3] + lid.new_tensor((0, 0, 0.092))
+        above = seat.clone()
+        above[..., 2, 3] += 0.055
+        middle = above.clone()
+        middle[..., :2, 3] = (pan[:, None, :2, 3] + lid[:, None, :2, 3]) / 2
+        middle[..., 2, 3] += 0.020
+        path = torch.stack((middle, above, seat), dim=2)
+
+        joints = context.robot.qpos[:, list(arm.joint_ids)]
+        wrist = self.robot.compute_fk(
+            qpos=joints, name=arm.control_part, to_matrix=True, env_ids=context.env_ids
+        )
+        measured_grasp = torch.linalg.solve(lid, wrist)
+        planned_grasp = held.object_to_eef.to(lid).expand_as(lid)
+        wrists = (path @ measured_grasp[:, None, None]).flatten(1, 2)
+        seeds = joints[:, None].expand(-1, wrists.shape[1], -1)
+        valid, solutions = self.robot.compute_batch_ik(
+            pose=wrists, joint_seed=seeds, name=arm.control_part, env_ids=context.env_ids
+        )
+        valid = valid.reshape(context.batch_size, len(turns), 3).all(dim=-1)
+        cost = (solutions - seeds).square().sum(dim=-1).reshape(*valid.shape, 3)
+        cost = (cost.sum(dim=-1) + 1 - turns.cos()).masked_fill(~valid, torch.inf)
+        rows = torch.arange(context.batch_size, device=lid.device)
+        selected = path[rows, cost.argmin(dim=1)]
+        return SemanticLowering(
+            goal=HeldObjectPoseGoal(
+                selected @ (measured_grasp @ torch.linalg.inv(planned_grasp))[:, None]
+            ),
+            failed_preconditions={
+                int(context.env_ids[row]): "There is no reachable path above the pan rim."
+                for row in (~valid.any(dim=1)).nonzero().flatten().tolist()
+            },
+        )
+
+
+class LidSeatFactory:
+    call_id = LidSeat.call_id
+    revision = LidSeat.revision
+    target_descriptor = LidSeat.target_descriptor
+
+    def create(self, *, simulation, robot, scene_registry, engine):
+        return LidSeat(robot)
+
+
+_CARROT_PLACEMENT = InsertionPlaceFactory(
+    "carrot",
     "pan",
-    (0, 0, 0.090),
+    (0, -0.035, 0.096),
     ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-    above_opening=0.023,
-    yaw_candidates=(-math.pi / 2, math.pi / 2, 0, math.pi),
+    above_opening=0.018,
+    arm_side="right",
+    # Keep the long axis across the pan at the near side of its opening.
+    yaw_candidates=(0.0, -0.22, 0.22, math.pi, math.pi - 0.22, math.pi + 0.22),
+    tilt_candidates=(0.0, -0.26, 0.26),
 )
 
 
@@ -162,13 +300,11 @@ class PanPlacement(InsertionPlace):
             yaw_candidates=(-math.pi / 2, math.pi / 2, 0, math.pi),
         )
         if align_lid_before_release:
-            lid = replace(_LID_ALIGNMENT, release_at_current_pose=True)
+            lid = replace(lid, release_at_current_pose=True)
         self.placements = {
             "carrot": InsertionPlace(
                 robot,
-                InsertionPlaceFactory(
-                    "carrot", "pan", (0, -0.055, 0.102), upright, above_opening=0.018
-                ),
+                replace(_CARROT_PLACEMENT, release_at_current_pose=True),
             ),
             "lid": InsertionPlace(robot, lid),
         }
@@ -191,7 +327,14 @@ class PanPlacementFactory:
         return PanPlacement(robot, align_lid_before_release=self.align_lid_before_release)
 
 
-_PAN_LOWERERS = (LidPickupFactory(), InsertionAlignmentFactory(_LID_ALIGNMENT))
+_PAN_LOWERERS = (
+    LidPickupFactory(),
+    LidClearanceFactory(),
+    LidSeatFactory(),
+    InsertionAlignmentFactory(
+        _CARROT_PLACEMENT, lift_height=0.018, include_release_pose=True
+    ),
+)
 _, _PAN_ADAPTER, _PAN_PROGRAM_WITH_ALIGNMENT = _program(
     "open_pan", (PanPlacementFactory(),), _PAN_LOWERERS
 )
@@ -288,15 +431,19 @@ class PositionOverDestinationFactory(PositionPipetteFactory):
     call_id = PositionOverDestination.call_id
 
     def create(self, *, simulation, robot, scene_registry, engine):
-        return PositionOverDestination(robot, "beaker2")
+        return PositionOverDestination(robot, "beaker2", clear_beaker_rim=True)
+
+
+class PositionOverSourceFactory(PositionPipetteFactory):
+    clear_beaker_rim = True
 
 
 _, _TRANSFER_ADAPTER, _TRANSFER_PROGRAM = _program(
     "manipulate_pipette_two_beaker",
     extensions=(
-        ApproachPipette(),
-        PipetteGrasp(),
-        PositionPipetteFactory(),
+        ApproachPipetteFactory(),
+        PipetteGraspFactory(),
+        PositionOverSourceFactory(),
         PositionOverDestinationFactory(),
         PipettePressFactory(),
     ),

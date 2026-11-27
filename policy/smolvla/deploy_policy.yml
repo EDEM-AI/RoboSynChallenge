@@ -9,7 +9,6 @@ max_episodes: 1
 max_steps: 100
 headless: true
 device: cpu
-renderer: auto
 gpu_id: 0
 pytorch_device: cuda
 num_envs: 1

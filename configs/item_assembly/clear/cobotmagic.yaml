@@ -28,6 +28,10 @@ simulation:
       contact_offset: 0.0
       rest_offset: 0.0
   sensors: []
+  control_parts:
+    assembly_joints:
+    - left_joint[1-8]
+    - right_joint[1-8]
   joint_drive_props:
     stiffness:
       right_joint[1-6]: 10000.0
@@ -135,6 +139,12 @@ skill_profile:
       capabilities:
       - interaction.grasp
       command_preset: left_parallel_jaw_commands
+  - resource_id: assembly_manipulators
+    members: [left_manipulator, right_manipulator]
+    endpoints:
+    - endpoint_id: motion
+      control_part: assembly_joints
+      capabilities: [motion.joint_position]
   command_presets:
   - preset_id: right_parallel_jaw_commands
     control_part: right_eef

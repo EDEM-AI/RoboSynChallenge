@@ -59,6 +59,7 @@ def compose_task_program(
     use_scene_grasp_options=False,
     integration_overrides=None,
     integration_component=None,
+    execution_policy_overrides=None,
 ):
     folder = Path(__file__).resolve().parents[1] / "configs" / task
     evaluation = folder / "task_program/evaluation.yaml"
@@ -69,11 +70,14 @@ def compose_task_program(
     integration = {"component": component}
     if integration_overrides is not None:
         integration["overrides"] = integration_overrides
+    execution_policy = {"component": "execution_policy.yaml"}
+    if execution_policy_overrides is not None:
+        execution_policy["overrides"] = execution_policy_overrides
     deployment = load_configured_task_program_deployment(
         task_program={
             "program": "program.yaml",
             "integration": integration,
-            "execution_policy": {"component": "execution_policy.yaml"},
+            "execution_policy": execution_policy,
         },
         skill_profile=skill_profile,
         base_dir=folder / "task_program",

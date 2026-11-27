@@ -39,7 +39,7 @@ def parse_args():
     parser.add_argument("--include-first-overlay", action="store_true")
     parser.add_argument("--foreground-uids", nargs="+")
     parser.add_argument("--affordance-branch", type=int)
-    parser.add_argument("--renderer", default="fast-rt")
+    parser.add_argument("--renderer", help="Override the deployment renderer.")
     parser.add_argument("--gpu_id", type=int, default=0)
     parser.add_argument(
         "--headless", action=argparse.BooleanOptionalAction, default=True

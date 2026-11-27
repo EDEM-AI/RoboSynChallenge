@@ -33,6 +33,11 @@ profile:
       pre_grasp_distance: 0.055
       approach_direction: [0.85, 0.25, -0.25]
       lift_height: 0.075
+      cartesian_lift: true
+      fixed_object_to_eef:
+        position: [0.0, 0.105, 0.0]
+        quaternion_xyzw: [0.0, 0.0, 0.0, 1.0]
+      approach_along_grasp_axis: true
       grasp_settle_steps: 12
       hand_interp_steps: 12
     simulation.move_held_object:
@@ -73,7 +78,7 @@ runtime_services:
       preserve_current_object_orientation: true
       pose:
         kind: pose
-        position: [0.515, 0.075, 0.925]
+        position: [0.475, 0.035, 0.925]
         quaternion_xyzw: [0.0, 0.0, 0.0, 1.0]
   - kind: pour
     object_id: bottle

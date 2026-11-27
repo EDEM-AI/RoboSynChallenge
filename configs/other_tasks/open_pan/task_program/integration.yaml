@@ -42,9 +42,13 @@ profile:
       lift_height: 0.105
       grasp_settle_steps: 20
       hand_interp_steps: 15
-    simulation.move_held_object:
+    robosyn.move_lid_clear:
+      kind: move_held_object
+    robosyn.seat_lid:
       kind: move_held_object
     robosyn.align_for_insertion:
+      kind: move_joints
+    simulation.park:
       kind: move_joints
     simulation.place_relative:
       kind: place
@@ -54,20 +58,24 @@ profile:
       release_settle_steps: 20
   effect_monitors: {}
 runtime_services:
+  settle_presets:
+    rigid_object:
+      linear_velocity_threshold: 0.03
+      angular_velocity_threshold: 0.20
+      min_steps: 10
+      max_steps: 240
+      check_interval_steps: 2
+      required_stable_checks: 3
+    seated_lid:
+      measurement: pose_delta
+      linear_velocity_threshold: 0.03
+      angular_velocity_threshold: 0.20
+      min_steps: 12
+      max_steps: 240
+      check_interval_steps: 2
+      required_stable_checks: 3
   registered_semantic_lowerers:
-  - kind: move_held_object
-    target_id: lid_clearance
-    reference_entity_id: pan
-    relative_pose:
-      position:
-      - -0.075
-      - 0.145
-      - 0.215
-      quaternion_xyzw:
-      - 0.0
-      - 0.0
-      - -0.7071067811865476
-      - 0.7071067811865476
+  - kind: park
   - kind: place_relative
     routes:
     - object_id: carrot

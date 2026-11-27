@@ -28,9 +28,20 @@ from embodichain.lab.sim import SimulationManager
 from scripts.eval_policy import prepare_episode_reset
 
 
-def verify_initial_state(env, expected):
-    """Check scene geometry before issuing any recorded action."""
+def verify_initial_state(env, expected, *, recorded_reset=False):
+    """Check entity IDs, optionally restore recorded state, and verify geometry."""
+    for category, get_uids in (
+        ("articulations", env.sim.get_articulation_uid_list),
+        ("rigid_objects", env.sim.get_rigid_object_uid_list),
+        ("cables", env.sim.get_cable_object_uid_list),
+    ):
+        if category in expected:
+            missing = set(expected[category].keys()).difference(get_uids())
+            if missing:
+                raise ValueError(f"Replay scene is missing recorded {category}: {sorted(missing)}.")
     expected = expected.to(env.device)
+    if recorded_reset:
+        restore_trajectory_state(env, expected)
     observed = expected.clone()
     env_ids = torch.arange(env.num_envs, device=env.device)
     capture_trajectory_state(env, observed, env_ids)
@@ -128,10 +139,9 @@ def main():
             raise ValueError("The recorded controller does not match the scene.")
         prepare_episode_reset(env, seed)
         env.reset(seed=seed, options={"save_data": False})
-        initial_state = data["states"][:, 0]
-        if args.recorded_reset:
-            restore_trajectory_state(task, initial_state.to(task.device))
-        verify_initial_state(task, initial_state)
+        verify_initial_state(
+            task, data["states"][:, 0], recorded_reset=args.recorded_reset
+        )
 
         commands = data["actions"].to(task.device)
         if commands.shape[-1] != spec.width or not torch.isfinite(commands).all():

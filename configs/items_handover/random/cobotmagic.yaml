@@ -109,9 +109,11 @@ skill_profile:
     endpoints:
     - endpoint_id: motion
       control_part: right_arm
+      command_preset: right_park_posture
       capabilities:
       - kinematics.batch_inverse
       - motion.cartesian_pose
+      - motion.joint_position
       - kinematics.forward
     - endpoint_id: grasp
       control_part: right_eef
@@ -138,6 +140,16 @@ skill_profile:
       control_part: left_loaded_arm
       capabilities: [motion.joint_position]
   command_presets:
+  - preset_id: right_park_posture
+    control_part: right_arm
+    commands:
+      park:
+      - 0.08932595
+      - 0.00970403
+      - -0.21027726
+      - -0.08838347
+      - 0.39285615
+      - 0.08686504
   - preset_id: right_parallel_jaw_commands
     control_part: right_eef
     commands:
@@ -169,7 +181,7 @@ skill_profile:
         kind: antipodal_parallel_jaw
         gripper:
           class_type: RoboSynCobotMagicV100Gripper
-        max_candidates: 48
+        max_candidates: 96
         sample_count: 1200
         approach_direction_samples: 8
-        approach_deviation_angle: 1.0471975511965976
+        approach_deviation_angle: 0.61

@@ -26,9 +26,8 @@ program:
       kind: invoke
       call:
         kind: registered
-        call_id: simulation.move_held_object
-        arguments:
-          target: lid_clearance
+        call_id: robosyn.move_lid_clear
+        arguments: {}
         resources:
           primary: left_manipulator
   - kind: segment
@@ -47,6 +46,16 @@ program:
       object: carrot
       minimum_lift: 0.02
   - kind: segment
+    name: align_carrot
+    instruction: Bring the holding gripper over the near side of the pan.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.align_for_insertion
+        arguments: {}
+        resources: {primary: right_loaded_manipulator}
+  - kind: segment
     name: place_carrot
     instruction: Release the carrot into the open pan.
     steps:
@@ -64,15 +73,25 @@ program:
     - kind: wait_stable
       entity: carrot
   - kind: segment
+    name: clear_right_arm
+    instruction: Withdraw the empty right hand before replacing the lid.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.park
+        arguments: {}
+        resources: {primary: right_manipulator}
+  - kind: segment
     name: align_lid
     instruction: Align the held lid horizontally over the pan rim.
     steps:
       kind: invoke
       call:
         kind: registered
-        call_id: robosyn.align_for_insertion
+        call_id: robosyn.seat_lid
         arguments: {}
-        resources: {primary: left_loaded_manipulator}
+        resources: {primary: left_manipulator}
   - kind: segment
     name: close_lid
     instruction: Put the lid back over the pan opening.
@@ -90,3 +109,4 @@ program:
     post:
     - kind: wait_stable
       entity: lid
+      preset: seated_lid

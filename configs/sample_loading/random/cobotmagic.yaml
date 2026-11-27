@@ -164,4 +164,4 @@ skill_profile:
         max_candidates: 48
         sample_count: 1200
         approach_direction_samples: 8
-        approach_deviation_angle: 1.0471975511965976
+        approach_deviation_angle: 0.78

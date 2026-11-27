@@ -27,6 +27,8 @@ simulation:
   control_parts:
     left_loaded_arm:
     - left_joint[1-8]
+    right_loaded_arm:
+    - right_joint[1-8]
 sensor:
 - sensor_type: Camera
   uid: cam_high
@@ -101,9 +103,11 @@ skill_profile:
     endpoints:
     - endpoint_id: motion
       control_part: right_arm
+      command_preset: right_park_posture
       capabilities:
       - kinematics.batch_inverse
       - motion.cartesian_pose
+      - motion.joint_position
       - kinematics.forward
     - endpoint_id: grasp
       control_part: right_eef
@@ -131,7 +135,23 @@ skill_profile:
     - endpoint_id: motion
       control_part: left_loaded_arm
       capabilities: [motion.joint_position]
+  - resource_id: right_loaded_manipulator
+    members: [right_manipulator]
+    endpoints:
+    - endpoint_id: motion
+      control_part: right_loaded_arm
+      capabilities: [motion.joint_position]
   command_presets:
+  - preset_id: right_park_posture
+    control_part: right_arm
+    commands:
+      park:
+      - 0.08932595
+      - 0.00970403
+      - -0.21027726
+      - -0.08838347
+      - 0.39285615
+      - 0.08686504
   - preset_id: left_park_posture
     control_part: left_arm
     commands:

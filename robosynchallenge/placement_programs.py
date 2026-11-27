@@ -21,6 +21,7 @@ from embodichain.lab.task_program.language.loader import load_task_program
 from embodichain.lab.task_program.semantics import SceneObjectRef
 from embodichain.utils.utility import load_config
 
+from .handover_targets import ReachableHandover, ReachableHandoverFactory
 from .insertion_targets import (
     InsertionAlignmentFactory,
     InsertionPlaceFactory,
@@ -147,14 +148,32 @@ _TABLE_PROGRAM = load_task_program(
     integration=_TABLE_DEPLOYMENT.selection,
     validation_context=_TABLE_ADAPTER.registration.catalog,
 )
+_TUBE_CLEARANCE = 0.010
 _TUBE_PLACE = InsertionPlaceFactory(
     "test_tube",
     "rack",
     (0.01105, -0.0001, 0.115),
     ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
     follow_receptacle_vertical=True,
-    above_opening=0.055,
+    above_opening=0.038,
+    tilt_candidates=(0.0, -0.12, 0.12),
 )
+
+
+class TubeHandover(ReachableHandover):
+    call_id = "robosyn.hand_over_test_tube"
+
+    def rank_candidates(self, context, arm, candidates, tube, valid, cost, joints):
+        return self.rank_insertion_candidates(
+            context, arm, candidates, tube, valid, cost, joints,
+            eligible=valid, placement=_TUBE_PLACE, clearance=_TUBE_CLEARANCE,
+        )
+
+
+class TubeHandoverFactory(ReachableHandoverFactory):
+    call_id = TubeHandover.call_id
+    object_id = "test_tube"
+    lowerer_type = TubeHandover
 
 
 def _tube_deployment(integration_component=None):
@@ -162,7 +181,8 @@ def _tube_deployment(integration_component=None):
         "sample_loading",
         (replace(_TUBE_PLACE, release_at_current_pose=True),),
         additional_lowerers=(
-            InsertionAlignmentFactory(_TUBE_PLACE),
+            TubeHandoverFactory(),
+            InsertionAlignmentFactory(_TUBE_PLACE, lift_height=_TUBE_CLEARANCE),
             InsertionLoweringFactory(_TUBE_PLACE),
         ),
         use_scene_grasp_options=True,
@@ -180,7 +200,9 @@ _TUBE_DEPLOYMENT, _TUBE_ADAPTER, _TUBE_PROGRAM = _tube_deployment()
 _SHALLOW_TUBE_INTEGRATION = load_config(
     Path(__file__).resolve().parents[1] / "configs/sample_loading/task_program/integration.yaml"
 )
-_SHALLOW_TUBE_INTEGRATION["profile"]["skill_options"]["hand_over"]["pre_grasp_distance"] = 0.025
+_SHALLOW_TUBE_INTEGRATION["profile"]["skill_options"][
+    TubeHandover.call_id
+]["pre_grasp_distance"] = 0.025
 _SHALLOW_TUBE_PRESENTATION = next(
     route
     for route in _SHALLOW_TUBE_INTEGRATION["runtime_services"]["registered_semantic_lowerers"]
@@ -192,6 +214,12 @@ _SHALLOW_TUBE_PRESENTATION["relative_pose"]["quaternion_xyzw"] = [
     0.0,
     0.9659258262890683,
 ]
+# The shallow presentation clears the tabletop without raising the receiver
+# out of its useful approach range.
+_SHALLOW_TUBE_PRESENTATION["relative_pose"]["position"][2] = 0.245
+_SHALLOW_TUBE_INTEGRATION["runtime_services"]["grasp_pose_generator_overrides"][
+    "left_eef"
+]["sample_count"] = 3600
 _, _SHALLOW_TUBE_ADAPTER, _SHALLOW_TUBE_PROGRAM = _tube_deployment(_SHALLOW_TUBE_INTEGRATION)
 
 

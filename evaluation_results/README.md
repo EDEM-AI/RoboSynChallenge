@@ -19,15 +19,49 @@ The timing boundary includes raw observation lookup and preprocessing, CPU-to-GP
 
 The machine-readable source is [`released_checkpoint_results.json`](released_checkpoint_results.json). It includes the exact checkpoint repositories, revisions, episode counts, action-step metrics, inference benchmark metadata, and protocol paths.
 
-## Reproduce an Evaluation
+## Reproduce the Historical Evaluations
 
-Use the policy-specific evaluation wrapper with the released checkpoint and the `random` setting:
+Use separate checkouts of the original repository for these commands. The ACT table uses historical runs associated with the `random` protocol at [`bd6bf77`](https://github.com/EDEM-AI/RoboSynChallenge/commit/bd6bf77a63300f4b9a9d32337b519194dc7311a4). The drawer run used the recorded `drawer_drive050_grip20` physics variant. The published ACT action-step averages were recalculated from those runs with the task-limit extrapolation described above. The DP table uses rollouts at [`755af40`](https://github.com/EDEM-AI/RoboSynChallenge/commit/755af40a00492f43bd4b9ead68b0def456b7c8b1), with 10 denoising steps.
+
+From a clone of the official repository, create the historical worktrees and place the historical SDK next to them. The policy lockfiles expect the sibling `EmbodiChain` source checkout. The [historical installation guide](https://github.com/EDEM-AI/RoboSynChallenge/blob/755af40a00492f43bd4b9ead68b0def456b7c8b1/docs/getting_started/installation.md) covers the simulator prerequisites, including the CUDA 12.8 Docker option.
 
 ```bash
-bash policy/act/eval.sh <task_name> random <act_checkpoint_path> 0 --headless True
-bash policy/dp/eval.sh <task_name> random <dp_checkpoint_path> 0 --headless True
+git worktree add --detach ../RoboSynChallenge-act-history bd6bf77a63300f4b9a9d32337b519194dc7311a4
+git worktree add --detach ../RoboSynChallenge-dp-history 755af40a00492f43bd4b9ead68b0def456b7c8b1
+git clone --branch v0.2.3 https://github.com/DexForce/EmbodiChain.git ../EmbodiChain
+(cd ../RoboSynChallenge-act-history/policy/act && uv sync --frozen --python 3.11)
+(cd ../RoboSynChallenge-dp-history/policy/dp && uv sync --frozen --python 3.11)
 ```
 
-The DP wrapper defaults to 10 denoising steps. Pass `--dp_num_inference_steps <N>` after the normal arguments only when an explicit override is required.
+The historical ACT and DP policy environments use Python 3.11, DexSim 0.4.3, and the LeRobot revision `b883328e6c95681ca90a18b102e4ae5e1f91e2bf` from their lockfiles. For the recorded CUDA build of PyTorch, install the official cu128 wheels into the locked policy environments. [PyTorch 2.7.1 installation instructions](https://pytorch.org/get-started/previous-versions/#v271)
 
-The result artifacts are written under `eval_result/<task_name>/<policy>/random/`.
+```bash
+for policy_env in ../RoboSynChallenge-act-history/policy/act ../RoboSynChallenge-dp-history/policy/dp; do
+  uv pip install --python "$policy_env/.venv/bin/python" \
+    --reinstall-package torch --reinstall-package torchvision \
+    --index https://download.pytorch.org/whl/cu128 \
+    'torch==2.7.1+cu128' 'torchvision==0.22.1+cu128'
+done
+```
+
+Download the original checkpoint revision linked in the table with `hf download <checkpoint_repo> --revision <checkpoint_revision> --local-dir <checkpoint_path>`. Use an absolute path to the downloaded directory. Run each command from its corresponding historical worktree:
+
+```bash
+bash policy/act/eval.sh <task_name> random <act_checkpoint_path> 0 \
+  --headless True --max_episodes 100
+bash policy/dp/eval.sh <task_name> random <dp_checkpoint_path> 0 \
+  --headless True --max_episodes 100 --dp_num_inference_steps 10
+```
+
+These commands run the historical policy loaders. For DP timing comparisons, the table used four concurrent shards of 25 episodes and video logging. The archived run description records the shard count and hardware. It does not publish the per-shard seed assignments.
+
+## Evaluate with the Upgraded Stack
+
+Set up the repository's root uv environment using the [installation guide](../docs/getting_started/installation.md). Use a checkpoint prepared for the current LeRobot version with its matching preprocessor and postprocessor files, or omit the checkpoint path to use the upgraded branch's default release assets:
+
+```bash
+bash launch/eval_policy.sh act <task_name> random 0 --headless True
+bash launch/eval_policy.sh dp <task_name> random 0 --headless True --dp_num_inference_steps 10
+```
+
+The result artifacts are written under `eval_result/<task_name>/<policy>/random/`. Report upgraded-stack results with the current simulator configuration and deployment settings.

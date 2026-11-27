@@ -1,17 +1,6 @@
 program_id: items_handover
 instruction: Pick up the pen, hand it to the left arm, and insert it in the holder.
-targets:
-  transfer_pose:
-    kind: pose
-    position:
-    - 0.53
-    - 0.02
-    - 0.93
-    quaternion_xyzw:
-    - 0.0
-    - 0.0
-    - 0.0
-    - 1.0
+targets: {}
 program:
   kind: sequence
   items:
@@ -21,9 +10,9 @@ program:
     steps:
       kind: invoke
       call:
-        kind: pick
-        object: pen
-        grasp: pen_grasp
+        kind: registered
+        call_id: robosyn.pick_pen_end
+        arguments: {}
         resources:
           primary: right_manipulator
     validators:
@@ -31,25 +20,65 @@ program:
       object: pen
       minimum_lift: 0.02
   - kind: segment
+    name: present_pen
+    instruction: Bring the pen into the shared workspace before transfer.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.present_pen
+        arguments: {}
+        resources:
+          primary: right_manipulator
+  - kind: segment
     name: hand_over_pen
     instruction: Transfer the pen to the left hand.
     steps:
       kind: invoke
       call:
-        kind: hand_over
-        object: pen
-        final_target: transfer_pose
+        kind: registered
+        call_id: robosyn.hand_over_pen
+        arguments: {}
         resources:
           source: right_manipulator
           destination: left_manipulator
   - kind: segment
+    name: clear_right_arm
+    instruction: Withdraw the empty right gripper before inserting the pen.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: simulation.park
+        arguments: {}
+        resources: {primary: right_manipulator}
+  - kind: segment
+    name: lift_received_pen
+    instruction: Lift the pen clear of the holder before turning it upright.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.lift_received_pen
+        resources: {primary: left_loaded_manipulator}
+  - kind: segment
     name: align_pen
-    instruction: Bring the held pen upright above the holder opening.
+    instruction: Align the held pen above the holder opening.
     steps:
       kind: invoke
       call:
         kind: registered
         call_id: robosyn.align_for_insertion
+        arguments: {}
+        resources: {primary: left_loaded_manipulator}
+  - kind: segment
+    name: seat_pen
+    instruction: Lower the pen along its shaft through the holder opening.
+    steps:
+      kind: invoke
+      call:
+        kind: registered
+        call_id: robosyn.lower_into_receptacle
         arguments: {}
         resources: {primary: left_loaded_manipulator}
   - kind: segment

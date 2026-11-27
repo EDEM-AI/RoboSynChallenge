@@ -28,6 +28,9 @@ simulation:
       contact_offset: 0.0002
       rest_offset: 5.0e-05
   sensors: []
+  control_parts:
+    left_loaded_arm:
+    - left_joint[1-8]
   asset_physics_mode: overlay
 sensor:
 - sensor_type: Camera
@@ -136,6 +139,12 @@ skill_profile:
       capabilities:
       - interaction.grasp
       command_preset: left_parallel_jaw_commands
+  - resource_id: left_loaded_manipulator
+    members: [left_manipulator]
+    endpoints:
+    - endpoint_id: motion
+      control_part: left_loaded_arm
+      capabilities: [motion.joint_position]
   command_presets:
   - preset_id: right_parallel_jaw_commands
     control_part: right_eef

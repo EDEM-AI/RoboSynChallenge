@@ -33,6 +33,40 @@ def _body_to_grasp(pose):
     )
 
 
+def _reachable_pipette_grasp(robot, context, bound):
+    body = context.scene.entities["pipette_body"].pose
+    grasp = body @ _body_to_grasp(body)
+    # Keep the grasp point and approach axis. Wrist yaw alternatives
+    # avoid a joint limit near the far end of the table.
+    angles = body.new_tensor((0.0, math.pi, -0.20, 0.20, math.pi - 0.20, math.pi + 0.20))
+    rotations = axis_angle_to_rotation_matrix(angles[:, None] * body.new_tensor((0, 0, 1)))
+    wrist = grasp[:, None].expand(-1, 2 * len(angles), -1, -1).clone()
+    wrist[..., :3, :3] = grasp[:, None, :3, :3] @ rotations.repeat(2, 1, 1)
+    high = wrist.clone()
+    high[..., 2, 3] += body.new_tensor((0.09, 0.055)).repeat_interleave(len(angles))
+    pre_grasp = wrist.clone()
+    pre_grasp[..., 2, 3] += 0.035
+    lift = wrist.clone()
+    lift[..., 2, 3] += 0.10
+    poses = torch.stack((high, pre_grasp, wrist, lift), dim=2).flatten(1, 2)
+    arm = bound.binding.resources["primary"].endpoints["motion"].runtime_target
+    joints = context.robot.qpos[:, list(arm.joint_ids)]
+    valid, _ = robot.compute_batch_ik(
+        pose=poses,
+        joint_seed=joints[:, None].expand(-1, poses.shape[1], -1),
+        name=arm.control_part,
+        env_ids=context.env_ids,
+    )
+    valid = valid.reshape(context.batch_size, wrist.shape[1], -1).all(dim=-1)
+    rows = torch.arange(context.batch_size, device=body.device)
+    selected = valid.long().argmax(dim=1)
+    failures = {
+        int(context.env_ids[row]): "No reachable approach and lift for the pipette barrel."
+        for row in (~valid.any(dim=1)).nonzero().flatten().tolist()
+    }
+    return high[rows, selected], wrist[rows, selected], failures
+
+
 _PRESS_INCLINATIONS = (55, 65, 70, 75)
 _CAP_FACE = 0.00354
 
@@ -84,12 +118,23 @@ class PipetteGrasp(RegisteredSemanticLowerer):
     requires_unoccupied_slots = ("primary",)
     preserves_symbolic_state = True
 
-    def create(self, *, simulation, robot, scene_registry, engine):
-        return PipetteGrasp()
+    def __init__(self, robot):
+        self.robot = robot
 
     def lower(self, call, *, context, bound, option_template):
-        pose = context.scene.entities["pipette_body"].pose
-        return SemanticLowering(goal=ContactGraspGoal(pose @ _body_to_grasp(pose)))
+        _, grasp, failures = _reachable_pipette_grasp(self.robot, context, bound)
+        return SemanticLowering(
+            goal=ContactGraspGoal(grasp), failed_preconditions=failures
+        )
+
+
+class PipetteGraspFactory:
+    call_id = PipetteGrasp.call_id
+    revision = PipetteGrasp.revision
+    target_descriptor = PipetteGrasp.target_descriptor
+
+    def create(self, *, simulation, robot, scene_registry, engine):
+        return PipetteGrasp(robot)
 
 
 class ApproachPipette(RegisteredSemanticLowerer):
@@ -98,14 +143,23 @@ class ApproachPipette(RegisteredSemanticLowerer):
     target_descriptor = MoveEndEffector.descriptor()
     preserves_symbolic_state = True
 
-    def create(self, *, simulation, robot, scene_registry, engine):
-        return ApproachPipette()
+    def __init__(self, robot):
+        self.robot = robot
 
     def lower(self, call, *, context, bound, option_template):
-        body = context.scene.entities["pipette_body"].pose
-        target = body @ _body_to_grasp(body)
-        target[:, 2, 3] += 0.09
-        return SemanticLowering(goal=EndEffectorPoseGoal(target))
+        target, _, failures = _reachable_pipette_grasp(self.robot, context, bound)
+        return SemanticLowering(
+            goal=EndEffectorPoseGoal(target), failed_preconditions=failures
+        )
+
+
+class ApproachPipetteFactory:
+    call_id = ApproachPipette.call_id
+    revision = ApproachPipette.revision
+    target_descriptor = ApproachPipette.target_descriptor
+
+    def create(self, *, simulation, robot, scene_registry, engine):
+        return ApproachPipette(robot)
 
 
 class PositionPipette(RegisteredSemanticLowerer):
@@ -113,9 +167,10 @@ class PositionPipette(RegisteredSemanticLowerer):
     target_descriptor = MoveJoints.descriptor()
     preserves_symbolic_state = True
 
-    def __init__(self, robot, beaker_id):
+    def __init__(self, robot, beaker_id, *, clear_beaker_rim=False):
         self.robot = robot
         self.beaker_id = beaker_id
+        self.clear_beaker_rim = clear_beaker_rim
         self.left_base = robot.get_link_pose("left_arm_base")[:, :3].clone()
         self.press_affordance = PressAffordance(press_position=(0.0, 0.0, 0.0))
 
@@ -144,13 +199,21 @@ class PositionPipette(RegisteredSemanticLowerer):
         axes = body.new_tensor(
             [(0, 0, 0), (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0)]
         )
-        tilt_rotations = axis_angle_to_rotation_matrix(axes * math.radians(15))
+        tilt_rotations = axis_angle_to_rotation_matrix(
+            axes * math.radians(8 if self.clear_beaker_rim else 15)
+        )
         rotations = (yaw_rotations[:, None] @ tilt_rotations @ upright).flatten(0, 1)
+        heights = (
+            (0.198, 0.216, 0.234)
+            if self.clear_beaker_rim
+            else (0.15, 0.175, 0.20, 0.225)
+        )
+        lateral = 0.016 if self.clear_beaker_rim else 0.04
         offsets = body.new_tensor(
             [
                 (x, y, height)
-                for height in (0.15, 0.175, 0.20, 0.225)
-                for x, y in ((0, 0), (0.04, 0), (-0.04, 0), (0, 0.04), (0, -0.04))
+                for height in heights
+                for x, y in ((0, 0), (lateral, 0), (-lateral, 0), (0, lateral), (0, -lateral))
             ]
         )
         count = len(rotations) * len(offsets)
@@ -159,8 +222,26 @@ class PositionPipette(RegisteredSemanticLowerer):
         targets[:, :, :3, 3] = beaker[:, None, :3, 3] + offsets.repeat_interleave(
             len(rotations), dim=0
         )
-        wrist_targets = targets @ body_to_wrist[:, None]
-        seeds = arm_qpos[:, None].expand(-1, count, -1)
+        paths = targets[:, :, None]
+        if self.clear_beaker_rim:
+            # The rim is 108 mm above the base and the shaft extends 184 mm
+            # below the body frame. Cross the rim with the full tip above it.
+            axis = targets[..., :3, 0]
+            height = targets[..., 2, 3] - beaker[:, None, 2, 3] - 0.108
+            targets[..., :2, 3] += axis[..., :2] * (height / axis[..., 2])[..., None]
+            above = targets.clone()
+            above[..., 2, 3] = beaker[:, None, 2, 3] + 0.307
+            if self.beaker_id == "beaker1":
+                via = above.clone()
+                via[..., 0, 3] = torch.minimum(body[:, None, 0, 3], above[..., 0, 3])
+                via[..., 1, 3] = body[:, None, 1, 3].clamp_max(-0.13)
+            else:
+                # Lift vertically out of the source before approaching the destination.
+                via = body[:, None].expand_as(above).clone()
+                via[..., 2, 3] = above[..., 2, 3]
+            paths = torch.stack((via, above, targets), dim=2)
+        wrist_targets = (paths @ body_to_wrist[:, None, None]).flatten(1, 2)
+        seeds = arm_qpos[:, None].expand(-1, wrist_targets.shape[1], -1)
         valid, solutions = self.robot.compute_batch_ik(
             pose=wrist_targets,
             joint_seed=seeds,
@@ -177,11 +258,23 @@ class PositionPipette(RegisteredSemanticLowerer):
             self.robot, context, press_poses, button_targets[..., :3, 0]
         )
         receiving_arm_reachable = reachable.any(dim=-1)
-        valid = valid.to(torch.bool) & receiving_arm_reachable
-        costs = (solutions - seeds).square().sum(dim=-1).masked_fill(~valid, torch.inf)
+        waypoint_count = paths.shape[2]
+        valid = valid.reshape(context.batch_size, count, waypoint_count).all(dim=-1)
+        valid = valid & receiving_arm_reachable
+        solutions = solutions.reshape(context.batch_size, count, waypoint_count, -1)
+        costs = (solutions[:, :, 0] - arm_qpos[:, None]).square().sum(dim=-1)
+        costs += solutions.diff(dim=2).square().sum(dim=(-1, -2))
+        if self.clear_beaker_rim:
+            costs += 35 * (1 - targets[..., 2, 0])
+            costs += 200 * (
+                targets[..., :2, 3] - beaker[:, None, :2, 3]
+            ).square().sum(dim=-1)
+        costs = costs.masked_fill(~valid, torch.inf)
         rows = torch.arange(context.batch_size, device=body.device)
         chosen = solutions[rows, costs.argmin(dim=1)]
-        chosen = torch.where(valid.any(dim=1, keepdim=True), chosen, arm_qpos)
+        chosen = torch.where(valid.any(dim=1)[:, None, None], chosen, arm_qpos[:, None])
+        if not self.clear_beaker_rim:
+            chosen = chosen[:, 0]
         failed = {
             int(
                 context.env_ids[row]
@@ -189,7 +282,7 @@ class PositionPipette(RegisteredSemanticLowerer):
             for row in (~valid.any(dim=1)).nonzero().flatten().tolist()
         }
         closed = chosen.new_zeros(
-            (context.batch_size, len(arm.joint_ids) - len(arm_ids))
+            (*chosen.shape[:-1], len(arm.joint_ids) - len(arm_ids))
         )
         target = torch.cat((chosen, closed), dim=-1)
         return SemanticLowering(
@@ -199,12 +292,15 @@ class PositionPipette(RegisteredSemanticLowerer):
 
 class PositionPipetteFactory:
     beaker_id = "beaker1"
+    clear_beaker_rim = True
     call_id = PositionPipette.call_id
     revision = "1"
     target_descriptor = PositionPipette.target_descriptor
 
     def create(self, *, simulation, robot, scene_registry, engine):
-        return PositionPipette(robot, self.beaker_id)
+        return PositionPipette(
+            robot, self.beaker_id, clear_beaker_rim=self.clear_beaker_rim
+        )
 
 
 class PipettePress(RegisteredSemanticLowerer):
@@ -268,8 +364,8 @@ _DEPLOYMENT, _ADAPTER = compose_task_program(
     "manipulate_pipette",
     (),
     additional_lowerers=(
-        ApproachPipette(),
-        PipetteGrasp(),
+        ApproachPipetteFactory(),
+        PipetteGraspFactory(),
         PositionPipetteFactory(),
         PipettePressFactory(),
     ),

@@ -38,7 +38,7 @@ profile:
       approach_direction: [0.32, 0.50, -1.0]
       grasp_settle_steps: 12
       hand_interp_steps: 12
-    hand_over:
+    robosyn.hand_over_test_tube:
       kind: hand_over
       arm_selection: bound
       release_at_target: false
@@ -62,25 +62,12 @@ profile:
       hand_interp_steps: 20
       release_settle_steps: 25
   effect_monitors: {}
-  grounding_providers:
-    hand_over: simulation.configured_handover_pose
 runtime_services:
   grasp_pose_generator_overrides:
     left_eef:
       filter_ground_collision: false
       sample_count: 5000
       point_spacing: 0.003
-  handover_pose_providers:
-  - kind: configured_pose
-    final_position:
-    - 0.53
-    - 0.02
-    - 0.965
-    final_quaternion_xyzw:
-    - 0.0
-    - 0.0
-    - 0.0
-    - 1.0
   registered_semantic_lowerers:
   - kind: place_relative
     routes:

@@ -1,18 +1,7 @@
 program_id: sample_loading
 instruction: Pick up the test tube, hand it to the left arm, and insert it in the
   rack.
-targets:
-  transfer_pose:
-    kind: pose
-    position:
-    - 0.53
-    - 0.02
-    - 0.93
-    quaternion_xyzw:
-    - 0.0
-    - 0.0
-    - 0.0
-    - 1.0
+targets: {}
 program:
   kind: sequence
   items:
@@ -49,9 +38,9 @@ program:
     steps:
       kind: invoke
       call:
-        kind: hand_over
-        object: test_tube
-        final_target: transfer_pose
+        kind: registered
+        call_id: robosyn.hand_over_test_tube
+        arguments: {}
         resources:
           source: right_manipulator
           destination: left_manipulator

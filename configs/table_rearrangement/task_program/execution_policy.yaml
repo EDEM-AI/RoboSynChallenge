@@ -5,7 +5,7 @@ requires:
 motion:
   strategy: ik_interp
   velocity_targets: auto
-  sample_count: 75
+  sample_count: 50
   ik_seed_mode: sequential
   dynamic_collision_mode: 'off'
 tracking:

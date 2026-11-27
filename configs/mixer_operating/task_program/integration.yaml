@@ -31,11 +31,8 @@ profile:
       lift_height: 0.035
       hand_interp_steps: 12
       release_settle_steps: 25
-    simulation.press:
-      kind: press
-      approach_distance: 0.055
-      press_distance: 0.019
-      hand_interp_steps: 8
+    robosyn.press_mixer_switch:
+      kind: move_joints
   effect_monitors: {}
 runtime_services:
   registered_semantic_lowerers:
@@ -45,7 +42,3 @@ runtime_services:
           reference_entity_id: mixer
           relation: "on"
           world_displacement: [0.0, 0.0, 0.075]
-    - kind: press
-      object_affordances:
-        - object: mixer
-          affordance: mixer_switch

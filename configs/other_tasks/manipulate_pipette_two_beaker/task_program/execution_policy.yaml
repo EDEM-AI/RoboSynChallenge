@@ -6,6 +6,7 @@ motion:
   strategy: ik_interp
   velocity_targets: auto
   sample_count: 100
+  acceleration_limit: 0.8
   ik_seed_mode: sequential
   dynamic_collision_mode: 'off'
 tracking:

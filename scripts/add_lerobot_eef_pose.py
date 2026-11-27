@@ -213,7 +213,7 @@ def build_fk_env(gym_config_path: Path, args: argparse.Namespace):
     options = parser.parse_args([
         "--gym_config", str(require_deployment_path(gym_config_path)),
         "--num_envs", "1", "--device", args.device, "--gpu_id", str(args.gpu_id),
-        "--headless", "--renderer", "fast-rt", "--filter_dataset_saving",
+        "--headless", "--filter_dataset_saving",
     ])
     cfg, gym_config, _ = gym_utils.build_env_cfg_from_args(options)
     cfg.enable_sensor = args.keep_sensors

@@ -39,8 +39,10 @@ bash launch/collect_combined_dataset.sh click_bell 3 3 /data/bell-combined --hea
 ```bash
 CUDA_VISIBLE_DEVICES=3 bash launch/replay_task.sh other_tasks/manipulate_pipette_two_beaker random \
   /data/pipette-trajectories/traj_env0_000000.pt --seeded-reset \
-  --headless --renderer fast-rt --dataset-dir /data/pipette-replay
+  --headless --dataset-dir /data/pipette-replay
 ```
+
+烧杯和玻璃试管场景在环境配置中指定 OfflineRT。采集、回放、可视化和评估会继承该配置，运行这些场景时可省略 `--renderer`。
 
 ## 可用任务列表
 
