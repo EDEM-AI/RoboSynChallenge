@@ -8,6 +8,8 @@ motion:
   velocity_targets: auto
   sample_count: 100
   dynamic_collision_mode: 'off'
+  acceleration_limit: 1.2
+  interpolate_position_step: 0.004
 tracking:
   kind: timed
 recovery:

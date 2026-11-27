@@ -9,6 +9,7 @@ motion:
   sample_count: 50
   acceleration_limit: 1.2
   dynamic_collision_mode: 'off'
+  interpolate_position_step: 0.004
 tracking:
   kind: timed
 recovery:

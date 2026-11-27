@@ -2,7 +2,8 @@ effect_assurance: projected
 motion:
   dynamic_collision_mode: 'off'
   ik_seed_mode: sequential
-  sample_count: 60
+  sample_count: 32
+  acceleration_limit: 1.2
   strategy: ik_interp
   velocity_targets: auto
 policy_id: trajectory_open_loop_v1

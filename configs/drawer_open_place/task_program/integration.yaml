@@ -47,7 +47,7 @@ profile:
       direction: pull
       approach_along_grasp_axis: true
       preshape_fraction: 1.0
-      hand_interp_steps: 20
+      hand_interp_steps: 12
       approach_distance: 0.07
       translation_distance: 0.12
       release_retreat_distance: 0.010

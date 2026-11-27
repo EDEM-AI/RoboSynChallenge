@@ -543,7 +543,6 @@ _BASKET_PROGRAM = load_task_program(
 )
 def _water_pour_deployment(*, lift_above_distractors=False):
     integration_overrides = None
-    policy_overrides = None
     if lift_above_distractors:
         # In the cluttered scene, reach along the selected grasp axis and
         # lift above the nearby objects before turning the bottle.
@@ -557,7 +556,6 @@ def _water_pour_deployment(*, lift_above_distractors=False):
                 }
             }
         }
-        policy_overrides = {"motion": {"acceleration_limit": 0.75}}
     deployment, adapter = compose_task_program(
         "water_pouring",
         (),
@@ -569,7 +567,6 @@ def _water_pour_deployment(*, lift_above_distractors=False):
             ),
         ),
         integration_overrides=integration_overrides,
-        execution_policy_overrides=policy_overrides,
     )
     program = load_task_program(
         deployment.program_path,
